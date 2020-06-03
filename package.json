@@ -2,12 +2,10 @@
   "name": "@skyflow/skyflow-node-sdk",
   "version": "1.0.0",
   "description": "Node js client for skyflow API's",
-  "main": "./lib/getstream.js",
-  "module": "./lib/getstream.js",
-  "types": "./types/getstream/index.d.ts",
+  "main": "./lib/client.js",
+  "module": "./lib/client.js",
   "scripts": {
     "build": "babel src --out-dir lib",
-    "dtslint": "dtslint types/getstream",
     "eslint": "eslint '**/*.js' --max-warnings 0",
     "prettier": "prettier --list-different '**/*.{js,ts}'",
     "lint": "npm run prettier && npm run eslint",
@@ -20,11 +18,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/skyflowcom/skyflow-node-sdk.git"
+    "url": "git@github.com:skyflowtech/skyflow-node-sdk.git"
   },
   "author": "",
   "license": "MIT",
-  "homepage": "https://bitbucket.org/skyflowcom/skyflow-node-sdk#readme",
+  "homepage": "https://dev.skyflow.com",
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "Base64": "^1.0.1",

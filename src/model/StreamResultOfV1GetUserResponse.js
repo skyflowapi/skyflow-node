@@ -16,13 +16,14 @@
 
 import {RuntimeStreamError} from './RuntimeStreamError';
 import {V1GetUserResponse} from './V1GetUserResponse';
+import BaseEntity from './BaseEntity';
 
 /**
  * The StreamResultOfV1GetUserResponse model module.
  * @module model/StreamResultOfV1GetUserResponse
  * @version v1
  */
-export class StreamResultOfV1GetUserResponse {
+export class StreamResultOfV1GetUserResponse extends BaseEntity {
   /**
    * Constructs a new <code>StreamResultOfV1GetUserResponse</code>.
    * @alias module:model/StreamResultOfV1GetUserResponse

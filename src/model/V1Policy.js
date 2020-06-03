@@ -17,13 +17,14 @@
 import {PolicyPermissions} from './PolicyPermissions';
 import {V1Actor} from './V1Actor';
 import {V1Resource} from './V1Resource';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Policy model module.
  * @module model/V1Policy
  * @version v1
  */
-export class V1Policy {
+export class V1Policy  {
   /**
    * Constructs a new <code>V1Policy</code>.
    * @alias module:model/V1Policy

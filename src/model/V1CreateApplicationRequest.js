@@ -14,14 +14,17 @@
  *
  */
 
+import {PolicyPermissions} from './PolicyPermissions';
 import {V1Application} from './V1Application';
+import {V1Resource} from './V1Resource';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateApplicationRequest model module.
  * @module model/V1CreateApplicationRequest
  * @version v1
  */
-export class V1CreateApplicationRequest {
+export class V1CreateApplicationRequest  {
   /**
    * Constructs a new <code>V1CreateApplicationRequest</code>.
    * @alias module:model/V1CreateApplicationRequest
@@ -42,8 +45,10 @@ export class V1CreateApplicationRequest {
       obj = obj || new V1CreateApplicationRequest();
       if (data.hasOwnProperty('apiKey'))
         obj.apiKey = V1Application.constructFromObject(data['apiKey']);
-      if (data.hasOwnProperty('orgID'))
-        obj.orgID = ApiClient.convertToType(data['orgID'], 'String');
+      if (data.hasOwnProperty('resource'))
+        obj.resource = V1Resource.constructFromObject(data['resource']);
+      if (data.hasOwnProperty('permissions'))
+        obj.permissions = ApiClient.convertToType(data['permissions'], [PolicyPermissions]);
     }
     return obj;
   }
@@ -55,8 +60,14 @@ export class V1CreateApplicationRequest {
 V1CreateApplicationRequest.prototype.apiKey = undefined;
 
 /**
- * @member {String} orgID
+ * @member {module:model/V1Resource} resource
  */
-V1CreateApplicationRequest.prototype.orgID = undefined;
+V1CreateApplicationRequest.prototype.resource = undefined;
+
+/**
+ * List of applicable permissions to Replace with for given resource
+ * @member {Array.<module:model/PolicyPermissions>} permissions
+ */
+V1CreateApplicationRequest.prototype.permissions = undefined;
 
 

@@ -15,13 +15,14 @@
  */
 
 import {V1TokenPolicy} from './V1TokenPolicy';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1UpdateTokenRequest model module.
  * @module model/V1UpdateTokenRequest
  * @version v1
  */
-export class V1UpdateTokenRequest {
+export class V1UpdateTokenRequest  {
   /**
    * Constructs a new <code>V1UpdateTokenRequest</code>.
    * @alias module:model/V1UpdateTokenRequest

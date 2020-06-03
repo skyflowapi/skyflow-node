@@ -16,13 +16,14 @@
 
 import {V1Notebook} from './V1Notebook';
 import {V1Vault} from './V1Vault';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateVaultRequest model module.
  * @module model/V1CreateVaultRequest
  * @version v1
  */
-export class V1CreateVaultRequest {
+export class V1CreateVaultRequest  {
   /**
    * Constructs a new <code>V1CreateVaultRequest</code>.
    * @alias module:model/V1CreateVaultRequest

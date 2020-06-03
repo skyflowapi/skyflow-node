@@ -15,13 +15,14 @@
  */
 
 import {V1ActorType} from './V1ActorType';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Actor model module.
  * @module model/V1Actor
  * @version v1
  */
-export class V1Actor {
+export class V1Actor  {
   /**
    * Constructs a new <code>V1Actor</code>.
    * @alias module:model/V1Actor

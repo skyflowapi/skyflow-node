@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1QueryRequest model module.
  * @module model/V1QueryRequest
  * @version v1
  */
-export class V1QueryRequest {
+export class V1QueryRequest  {
   /**
    * Constructs a new <code>V1QueryRequest</code>.
    * @alias module:model/V1QueryRequest

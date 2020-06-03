@@ -58,9 +58,9 @@ const <classname> = {
       let returnType = <#returnType><&returnType></returnType><^returnType>null</returnType>;
 
       return this.callApi(
-        '<&path>', '<httpMethod>',
+        '<&path>', '<httpMethod>', queryParams
         pathParams, postBody,
-        returnType<^usePromises>, callback</usePromises>
+        returnType<^usePromises>, callback</usePromises>, baseName
       );
     },
 <#usePromises>

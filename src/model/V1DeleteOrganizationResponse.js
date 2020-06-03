@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1DeleteOrganizationResponse model module.
  * @module model/V1DeleteOrganizationResponse
  * @version v1
  */
-export class V1DeleteOrganizationResponse {
+export class V1DeleteOrganizationResponse  {
   /**
    * Constructs a new <code>V1DeleteOrganizationResponse</code>.
    * @alias module:model/V1DeleteOrganizationResponse

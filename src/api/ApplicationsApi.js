@@ -14,7 +14,6 @@
  *
  */
 
-import {StreamResultOfV1GetApplicationResponse} from '../model/StreamResultOfV1GetApplicationResponse';
 import {V1CreateApplicationRequest} from '../model/V1CreateApplicationRequest';
 import {V1CreateApplicationResponse} from '../model/V1CreateApplicationResponse';
 import {V1DeleteApplicationResponse} from '../model/V1DeleteApplicationResponse';
@@ -218,7 +217,7 @@ const ApplicationsApi = {
      * Callback function to receive the result of the searchApplicationsByFilter operation.
      * @callback module:api/ApplicationsApi~searchApplicationsByFilterCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetApplicationResponse} data The data returned by the service call.
+     * @param {module:model/V1GetApplicationResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -229,7 +228,7 @@ const ApplicationsApi = {
      * @param {String} opts.offset Pagination Offset.  - indicates from which record number to start retrieving data (default to 0)
      * @param {String} opts.limit Pagination Limit.  - indicates how many records to retrieve (default to 100)
      * @param {module:api/ApplicationsApi~searchApplicationsByFilterCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetApplicationResponse}
+     * data is of type: {@link module:model/V1GetApplicationResponse}
      */
     searchApplicationsByFilter(opts, callback) {
       opts = opts || {};
@@ -250,7 +249,7 @@ const ApplicationsApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetApplicationResponse;
+      let returnType = V1GetApplicationResponse;
 
       return this.callApi(
         '/v1/applications', 'GET',

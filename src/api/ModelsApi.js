@@ -14,10 +14,10 @@
  *
  */
 
-import {StreamResultOfV1GetNotebookTypeModelsResponse} from '../model/StreamResultOfV1GetNotebookTypeModelsResponse';
-import {StreamResultOfV1GetResidencyModelsResponse} from '../model/StreamResultOfV1GetResidencyModelsResponse';
-import {StreamResultOfV1GetScopesModelsResponse} from '../model/StreamResultOfV1GetScopesModelsResponse';
-import {StreamResultOfV1GetVaultInterfacesModelsResponse} from '../model/StreamResultOfV1GetVaultInterfacesModelsResponse';
+import {V1GetNotebookTypeModelsResponse} from '../model/V1GetNotebookTypeModelsResponse';
+import {V1GetResidencyModelsResponse} from '../model/V1GetResidencyModelsResponse';
+import {V1GetScopesModelsResponse} from '../model/V1GetScopesModelsResponse';
+import {V1GetVaultInterfacesModelsResponse} from '../model/V1GetVaultInterfacesModelsResponse';
 
 /**
 * Models service.
@@ -31,7 +31,7 @@ const ModelsApi = {
      * Callback function to receive the result of the getNotebookTypesModels operation.
      * @callback module:api/ModelsApi~getNotebookTypesModelsCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetNotebookTypeModelsResponse} data The data returned by the service call.
+     * @param {module:model/V1GetNotebookTypeModelsResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -39,7 +39,7 @@ const ModelsApi = {
      * Get Pre-Defined Notebook Types
      * Gets the list of Supported Pre-Defined Notebook Types
      * @param {module:api/ModelsApi~getNotebookTypesModelsCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetNotebookTypeModelsResponse}
+     * data is of type: {@link module:model/V1GetNotebookTypeModelsResponse}
      */
     getNotebookTypesModels(callback) {
       let postBody = null;
@@ -57,7 +57,7 @@ const ModelsApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetNotebookTypeModelsResponse;
+      let returnType = V1GetNotebookTypeModelsResponse;
 
       return this.callApi(
         '/v1/models/notebooks/types', 'GET',
@@ -70,7 +70,7 @@ const ModelsApi = {
      * Callback function to receive the result of the getResidencyModels operation.
      * @callback module:api/ModelsApi~getResidencyModelsCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetResidencyModelsResponse} data The data returned by the service call.
+     * @param {module:model/V1GetResidencyModelsResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -78,7 +78,7 @@ const ModelsApi = {
      * Geo-Residency Matrix
      * Gets the list supported georesidency matrix
      * @param {module:api/ModelsApi~getResidencyModelsCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetResidencyModelsResponse}
+     * data is of type: {@link module:model/V1GetResidencyModelsResponse}
      */
     getResidencyModels(callback) {
       let postBody = null;
@@ -96,7 +96,7 @@ const ModelsApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetResidencyModelsResponse;
+      let returnType = V1GetResidencyModelsResponse;
 
       return this.callApi(
         '/v1/models/residency', 'GET',
@@ -109,7 +109,7 @@ const ModelsApi = {
      * Callback function to receive the result of the getScopesModels operation.
      * @callback module:api/ModelsApi~getScopesModelsCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetScopesModelsResponse} data The data returned by the service call.
+     * @param {module:model/V1GetScopesModelsResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -117,7 +117,7 @@ const ModelsApi = {
      * Supported Scopes
      * Gets the list supported scopes
      * @param {module:api/ModelsApi~getScopesModelsCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetScopesModelsResponse}
+     * data is of type: {@link module:model/V1GetScopesModelsResponse}
      */
     getScopesModels(callback) {
       let postBody = null;
@@ -135,7 +135,7 @@ const ModelsApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetScopesModelsResponse;
+      let returnType = V1GetScopesModelsResponse;
 
       return this.callApi(
         '/v1/models/scopes', 'GET',
@@ -148,7 +148,7 @@ const ModelsApi = {
      * Callback function to receive the result of the getVaultInterfacesModels operation.
      * @callback module:api/ModelsApi~getVaultInterfacesModelsCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetVaultInterfacesModelsResponse} data The data returned by the service call.
+     * @param {module:model/V1GetVaultInterfacesModelsResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -158,7 +158,7 @@ const ModelsApi = {
      * @param {Object} opts Optional parameters
      * @param {module:model/String} opts.vaultType Get Interfaces based on Vault Type.   - NONE: Should not be used  - TOKEN: Tokenized Vault - Supports Token based data Look-Up  - ANALYTICAL: Supports traditional SQL and Rest Paradigm for working with Data. (default to NONE)
      * @param {module:api/ModelsApi~getVaultInterfacesModelsCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetVaultInterfacesModelsResponse}
+     * data is of type: {@link module:model/V1GetVaultInterfacesModelsResponse}
      */
     getVaultInterfacesModels(opts, callback) {
       opts = opts || {};
@@ -178,7 +178,7 @@ const ModelsApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetVaultInterfacesModelsResponse;
+      let returnType = V1GetVaultInterfacesModelsResponse;
 
       return this.callApi(
         '/v1/models/vaults/interfaces', 'GET',

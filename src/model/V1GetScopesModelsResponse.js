@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1GetScopesModelsResponse model module.
  * @module model/V1GetScopesModelsResponse
  * @version v1
  */
-export class V1GetScopesModelsResponse {
+export class V1GetScopesModelsResponse  {
   /**
    * Constructs a new <code>V1GetScopesModelsResponse</code>.
    * @alias module:model/V1GetScopesModelsResponse

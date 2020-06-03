@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Address model module.
  * @module model/V1Address
  * @version v1
  */
-export class V1Address {
+export class V1Address  {
   /**
    * Constructs a new <code>V1Address</code>.
    * @alias module:model/V1Address

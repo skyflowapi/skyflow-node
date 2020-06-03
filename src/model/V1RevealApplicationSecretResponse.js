@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1RevealApplicationSecretResponse model module.
  * @module model/V1RevealApplicationSecretResponse
  * @version v1
  */
-export class V1RevealApplicationSecretResponse {
+export class V1RevealApplicationSecretResponse  {
   /**
    * Constructs a new <code>V1RevealApplicationSecretResponse</code>.
    * @alias module:model/V1RevealApplicationSecretResponse

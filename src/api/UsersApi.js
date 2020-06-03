@@ -14,7 +14,6 @@
  *
  */
 
-import {StreamResultOfV1GetUserResponse} from '../model/StreamResultOfV1GetUserResponse';
 import {V1CreateUserRequest} from '../model/V1CreateUserRequest';
 import {V1CreateUserResponse} from '../model/V1CreateUserResponse';
 import {V1DeleteUserResponse} from '../model/V1DeleteUserResponse';
@@ -171,7 +170,7 @@ const UsersApi = {
      * Callback function to receive the result of the searchUsersByFilter operation.
      * @callback module:api/UsersApi~searchUsersByFilterCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetUserResponse} data The data returned by the service call.
+     * @param {module:model/V1GetUserResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -185,7 +184,7 @@ const UsersApi = {
      * @param {String} opts.userIdentityOktaID Okta ID. Okta ID Generated for the User
      * @param {String} opts.ID ID to uniquely identify an User.
      * @param {module:api/UsersApi~searchUsersByFilterCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetUserResponse}
+     * data is of type: {@link module:model/V1GetUserResponse}
      */
     searchUsersByFilter(opts, callback) {
       opts = opts || {};
@@ -209,7 +208,7 @@ const UsersApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetUserResponse;
+      let returnType = V1GetUserResponse;
 
       return this.callApi(
         '/v1/users', 'GET',

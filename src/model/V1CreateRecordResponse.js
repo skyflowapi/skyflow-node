@@ -14,13 +14,15 @@
  *
  */
 
+import {V1FieldID} from './V1FieldID';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateRecordResponse model module.
  * @module model/V1CreateRecordResponse
  * @version v1
  */
-export class V1CreateRecordResponse {
+export class V1CreateRecordResponse  {
   /**
    * Constructs a new <code>V1CreateRecordResponse</code>.
    * @alias module:model/V1CreateRecordResponse
@@ -41,6 +43,8 @@ export class V1CreateRecordResponse {
       obj = obj || new V1CreateRecordResponse();
       if (data.hasOwnProperty('ID'))
         obj.ID = ApiClient.convertToType(data['ID'], 'String');
+      if (data.hasOwnProperty('fields'))
+        obj.fields = ApiClient.convertToType(data['fields'], [V1FieldID]);
     }
     return obj;
   }
@@ -50,5 +54,10 @@ export class V1CreateRecordResponse {
  * @member {String} ID
  */
 V1CreateRecordResponse.prototype.ID = undefined;
+
+/**
+ * @member {Array.<module:model/V1FieldID>} fields
+ */
+V1CreateRecordResponse.prototype.fields = undefined;
 
 

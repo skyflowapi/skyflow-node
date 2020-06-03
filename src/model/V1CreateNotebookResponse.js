@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateNotebookResponse model module.
  * @module model/V1CreateNotebookResponse
  * @version v1
  */
-export class V1CreateNotebookResponse {
+export class V1CreateNotebookResponse  {
   /**
    * Constructs a new <code>V1CreateNotebookResponse</code>.
    * @alias module:model/V1CreateNotebookResponse

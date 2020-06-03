@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1FieldData model module.
  * @module model/V1FieldData
  * @version v1
  */
-export class V1FieldData {
+export class V1FieldData  {
   /**
    * Constructs a new <code>V1FieldData</code>.
    * @alias module:model/V1FieldData

@@ -15,13 +15,15 @@
  */
 
 import {NotebookField} from './NotebookField';
+import {V1StorageType} from './V1StorageType';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Notebook model module.
  * @module model/V1Notebook
  * @version v1
  */
-export class V1Notebook {
+export class V1Notebook  {
   /**
    * Constructs a new <code>V1Notebook</code>.
    * @alias module:model/V1Notebook
@@ -50,6 +52,8 @@ export class V1Notebook {
         obj.ID = ApiClient.convertToType(data['ID'], 'String');
       if (data.hasOwnProperty('custom'))
         obj.custom = ApiClient.convertToType(data['custom'], 'Boolean');
+      if (data.hasOwnProperty('type'))
+        obj.type = V1StorageType.constructFromObject(data['type']);
     }
     return obj;
   }
@@ -84,5 +88,11 @@ V1Notebook.prototype.ID = undefined;
  * @member {Boolean} custom
  */
 V1Notebook.prototype.custom = undefined;
+
+/**
+ * analytical or token type
+ * @member {module:model/V1StorageType} type
+ */
+V1Notebook.prototype.type = undefined;
 
 

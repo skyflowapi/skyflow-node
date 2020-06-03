@@ -15,13 +15,14 @@
  */
 
 import {V1Notebook} from './V1Notebook';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateNotebookRequest model module.
  * @module model/V1CreateNotebookRequest
  * @version v1
  */
-export class V1CreateNotebookRequest {
+export class V1CreateNotebookRequest  {
   /**
    * Constructs a new <code>V1CreateNotebookRequest</code>.
    * @alias module:model/V1CreateNotebookRequest

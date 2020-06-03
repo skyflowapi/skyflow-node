@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1GetVaultInterfacesModelsResponse model module.
  * @module model/V1GetVaultInterfacesModelsResponse
  * @version v1
  */
-export class V1GetVaultInterfacesModelsResponse {
+export class V1GetVaultInterfacesModelsResponse  {
   /**
    * Constructs a new <code>V1GetVaultInterfacesModelsResponse</code>.
    * @alias module:model/V1GetVaultInterfacesModelsResponse

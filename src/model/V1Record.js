@@ -15,13 +15,14 @@
  */
 
 import {V1FieldData} from './V1FieldData';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Record model module.
  * @module model/V1Record
  * @version v1
  */
-export class V1Record {
+export class V1Record  {
   /**
    * Constructs a new <code>V1Record</code>.
    * @alias module:model/V1Record

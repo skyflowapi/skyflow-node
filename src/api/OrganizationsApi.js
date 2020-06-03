@@ -14,7 +14,6 @@
  *
  */
 
-import {StreamResultOfV1GetOrganizationResponse} from '../model/StreamResultOfV1GetOrganizationResponse';
 import {V1CreateOrganizationRequest} from '../model/V1CreateOrganizationRequest';
 import {V1CreateOrganizationResponse} from '../model/V1CreateOrganizationResponse';
 import {V1DeleteOrganizationResponse} from '../model/V1DeleteOrganizationResponse';
@@ -171,7 +170,7 @@ const OrganizationsApi = {
      * Callback function to receive the result of the searchOrganizationsByFilter operation.
      * @callback module:api/OrganizationsApi~searchOrganizationsByFilterCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetOrganizationResponse} data The data returned by the service call.
+     * @param {module:model/V1GetOrganizationResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -184,7 +183,7 @@ const OrganizationsApi = {
      * @param {String} opts.limit Pagination Limit.  - indicates how many records to retrieve (default to 100)
      * @param {String} opts.version 
      * @param {module:api/OrganizationsApi~searchOrganizationsByFilterCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetOrganizationResponse}
+     * data is of type: {@link module:model/V1GetOrganizationResponse}
      */
     searchOrganizationsByFilter(opts, callback) {
       opts = opts || {};
@@ -207,7 +206,7 @@ const OrganizationsApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetOrganizationResponse;
+      let returnType = V1GetOrganizationResponse;
 
       return this.callApi(
         '/v1/organizations', 'GET',

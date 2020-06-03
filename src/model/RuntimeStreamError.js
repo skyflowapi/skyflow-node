@@ -15,13 +15,14 @@
  */
 
 import {ProtobufAny} from './ProtobufAny';
+import BaseEntity from './BaseEntity';
 
 /**
  * The RuntimeStreamError model module.
  * @module model/RuntimeStreamError
  * @version v1
  */
-export class RuntimeStreamError {
+export class RuntimeStreamError  {
   /**
    * Constructs a new <code>RuntimeStreamError</code>.
    * @alias module:model/RuntimeStreamError

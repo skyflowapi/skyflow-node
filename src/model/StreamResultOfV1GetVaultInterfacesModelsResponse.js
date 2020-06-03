@@ -16,13 +16,14 @@
 
 import {RuntimeStreamError} from './RuntimeStreamError';
 import {V1GetVaultInterfacesModelsResponse} from './V1GetVaultInterfacesModelsResponse';
+import BaseEntity from './BaseEntity';
 
 /**
  * The StreamResultOfV1GetVaultInterfacesModelsResponse model module.
  * @module model/StreamResultOfV1GetVaultInterfacesModelsResponse
  * @version v1
  */
-export class StreamResultOfV1GetVaultInterfacesModelsResponse {
+export class StreamResultOfV1GetVaultInterfacesModelsResponse extends BaseEntity {
   /**
    * Constructs a new <code>StreamResultOfV1GetVaultInterfacesModelsResponse</code>.
    * @alias module:model/StreamResultOfV1GetVaultInterfacesModelsResponse

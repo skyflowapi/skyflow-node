@@ -17,13 +17,14 @@
 import {UserUserStatus} from './UserUserStatus';
 import {V1Address} from './V1Address';
 import {V1UserIdentity} from './V1UserIdentity';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1User model module.
  * @module model/V1User
  * @version v1
  */
-export class V1User {
+export class V1User  {
   /**
    * Constructs a new <code>V1User</code>.
    * @alias module:model/V1User

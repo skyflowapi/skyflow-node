@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1UpdateOrganizationResponse model module.
  * @module model/V1UpdateOrganizationResponse
  * @version v1
  */
-export class V1UpdateOrganizationResponse {
+export class V1UpdateOrganizationResponse  {
   /**
    * Constructs a new <code>V1UpdateOrganizationResponse</code>.
    * @alias module:model/V1UpdateOrganizationResponse

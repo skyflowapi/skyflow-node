@@ -15,13 +15,14 @@
  */
 
 import {V1Row} from './V1Row';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1QueryResponse model module.
  * @module model/V1QueryResponse
  * @version v1
  */
-export class V1QueryResponse {
+export class V1QueryResponse  {
   /**
    * Constructs a new <code>V1QueryResponse</code>.
    * @alias module:model/V1QueryResponse

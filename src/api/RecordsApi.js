@@ -14,14 +14,16 @@
  *
  */
 
-import {StreamResultOfV1QueryResponse} from '../model/StreamResultOfV1QueryResponse';
-import {V1CreateRecordRequest} from '../model/V1CreateRecordRequest';
-import {V1CreateRecordResponse} from '../model/V1CreateRecordResponse';
-import {V1DeleteRecordResponse} from '../model/V1DeleteRecordResponse';
-import {V1GetRecordResponse} from '../model/V1GetRecordResponse';
-import {V1QueryRequest} from '../model/V1QueryRequest';
-import {V1UpdateRecordRequest} from '../model/V1UpdateRecordRequest';
-import {V1UpdateRecordResponse} from '../model/V1UpdateRecordResponse';
+import { V1BulkCreateRecordRequest } from '../model/V1BulkCreateRecordRequest';
+import { V1BulkCreateRecordResponse } from '../model/V1BulkCreateRecordResponse';
+import { V1CreateRecordRequest } from '../model/V1CreateRecordRequest';
+import { V1CreateRecordResponse } from '../model/V1CreateRecordResponse';
+import { V1DeleteRecordResponse } from '../model/V1DeleteRecordResponse';
+import { V1GetRecordResponse } from '../model/V1GetRecordResponse';
+import { V1QueryRequest } from '../model/V1QueryRequest';
+import { V1QueryResponse } from '../model/V1QueryResponse';
+import { V1UpdateRecordRequest } from '../model/V1UpdateRecordRequest';
+import { V1UpdateRecordResponse } from '../model/V1UpdateRecordResponse';
 
 /**
 * Records service.
@@ -31,247 +33,350 @@ import {V1UpdateRecordResponse} from '../model/V1UpdateRecordResponse';
 const RecordsApi = {
 
 
-    /**
-     * Callback function to receive the result of the deleteRecord operation.
-     * @callback module:api/RecordsApi~deleteRecordCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/V1DeleteRecordResponse} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
+  /**
+   * Callback function to receive the result of the bulkInsertRecord operation.
+   * @callback module:api/RecordsApi~bulkInsertRecordCallback
+   * @param {String} error Error message, if any.
+   * @param {module:model/V1BulkCreateRecordResponse} data The data returned by the service call.
+   * @param {String} response The complete HTTP response.
+   */
 
-    /**
-     * Delete Record
-     * Deletes a Record by using ID and Notebook Information from Request.
-     * @param {String} ID 
-     * @param {Object} opts Optional parameters
-     * @param {String} opts.notebookID Notebook ID Under which this resource should be deleted.
-     * @param {module:api/RecordsApi~deleteRecordCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/V1DeleteRecordResponse}
-     */
-    deleteRecord(ID, opts, callback) {
-      opts = opts || {};
-      let postBody = null;
+  /**
+   * Bulk Create Record
+   * Bulk Creates a Record by using Notebook Information from Request and Post Body
+   * @param {String} notebookID 
+   * @param {module:model/V1BulkCreateRecordRequest} body 
+   * @param {module:api/RecordsApi~bulkInsertRecordCallback} callback The callback function, accepting three arguments: error, data, response
+   * data is of type: {@link module:model/V1BulkCreateRecordResponse}
+   */
+  bulkInsertRecord(notebookID, body, callback) {
+    let postBody = body;
 
-      // verify the required parameter 'ID' is set
-      if (ID === undefined || ID === null) {
-        throw new Error("Missing the required parameter 'ID' when calling deleteRecord");
-      }
+    // verify the required parameter 'notebookID' is set
+    if (notebookID === undefined || notebookID === null) {
+      throw new Error("Missing the required parameter 'notebookID' when calling bulkInsertRecord");
+    }
 
-
-      let pathParams = {
-        'ID': ID
-      };
-      let queryParams = {
-        'notebookID': opts['notebookID']
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = ['AppID', 'AppSecret', 'Bearer'];
-      let contentTypes = ['application/json'];
-      let accepts = ['application/json'];
-      let returnType = V1DeleteRecordResponse;
-
-      return this.callApi(
-        '/v1/records/{ID}', 'DELETE',
-        pathParams, postBody,
-        returnType, callback
-      );
-    },
-
-    /**
-     * Callback function to receive the result of the getRecord operation.
-     * @callback module:api/RecordsApi~getRecordCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/V1GetRecordResponse} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * Get Record
-     * Retrieves a Record by using ID and Notebook Information from Request.
-     * @param {String} ID 
-     * @param {Object} opts Optional parameters
-     * @param {String} opts.notebookID Notebook ID Under which this resource should be retrieved.
-     * @param {module:api/RecordsApi~getRecordCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/V1GetRecordResponse}
-     */
-    getRecord(ID, opts, callback) {
-      opts = opts || {};
-      let postBody = null;
-
-      // verify the required parameter 'ID' is set
-      if (ID === undefined || ID === null) {
-        throw new Error("Missing the required parameter 'ID' when calling getRecord");
-      }
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling bulkInsertRecord");
+    }
 
 
-      let pathParams = {
-        'ID': ID
-      };
-      let queryParams = {
-        'notebookID': opts['notebookID']
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
+    let pathParams = {
+      'notebookID': notebookID
+    };
+    let queryParams = {
+    };
+    let headerParams = {
+    };
+    let formParams = {
+    };
 
-      let authNames = ['AppID', 'AppSecret', 'Bearer'];
-      let contentTypes = ['application/json'];
-      let accepts = ['application/json'];
-      let returnType = V1GetRecordResponse;
+    let authNames = ['AppID', 'AppSecret', 'Bearer'];
+    let contentTypes = ['application/json'];
+    let accepts = ['application/json'];
+    let returnType = V1BulkCreateRecordResponse;
 
-      return this.callApi(
-        '/v1/records/{ID}', 'GET',
-        pathParams, postBody,
-        returnType, callback
-      );
-    },
+    return this.callApi(
+      '/v1/notebook/{notebookID}/records/bulk', 'POST',
+      pathParams, postBody,
+      returnType, callback
+    );
+  },
 
-    /**
-     * Callback function to receive the result of the insertRecord operation.
-     * @callback module:api/RecordsApi~insertRecordCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/V1CreateRecordResponse} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
+  /**
+   * Callback function to receive the result of the deleteRecord operation.
+   * @callback module:api/RecordsApi~deleteRecordCallback
+   * @param {String} error Error message, if any.
+   * @param {module:model/V1DeleteRecordResponse} data The data returned by the service call.
+   * @param {String} response The complete HTTP response.
+   */
 
-    /**
-     * Create Record
-     * Creates a Record by using Notebook Information from Request and Post Body
-     * @param {module:model/V1CreateRecordRequest} body 
-     * @param {module:api/RecordsApi~insertRecordCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/V1CreateRecordResponse}
-     */
-    insertRecord(body, callback) {
-      let postBody = body;
+  /**
+   * Delete Record
+   * Deletes a Record by using ID and Notebook Information from Request.
+   * @param {String} ID 
+   * @param {Object} opts Optional parameters
+   * @param {String} opts.notebookID Notebook ID Under which this resource should be deleted.
+   * @param {module:api/RecordsApi~deleteRecordCallback} callback The callback function, accepting three arguments: error, data, response
+   * data is of type: {@link module:model/V1DeleteRecordResponse}
+   */
+  deleteRecord(ID, opts, callback) {
+    opts = opts || {};
+    let postBody = null;
 
-      // verify the required parameter 'body' is set
-      if (body === undefined || body === null) {
-        throw new Error("Missing the required parameter 'body' when calling insertRecord");
-      }
-
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = ['AppID', 'AppSecret', 'Bearer'];
-      let contentTypes = ['application/json'];
-      let accepts = ['application/json'];
-      let returnType = V1CreateRecordResponse;
-
-      return this.callApi(
-        '/v1/records', 'POST',
-        pathParams, postBody,
-        returnType, callback
-      );
-    },
-
-    /**
-     * Callback function to receive the result of the query operation.
-     * @callback module:api/RecordsApi~queryCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1QueryResponse} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
-
-    /**
-     * Query Records
-     * Retrieves list of Records by using Notebook Information from Request and Post Body
-     * @param {module:model/V1QueryRequest} body 
-     * @param {module:api/RecordsApi~queryCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1QueryResponse}
-     */
-    query(body, callback) {
-      let postBody = body;
-
-      // verify the required parameter 'body' is set
-      if (body === undefined || body === null) {
-        throw new Error("Missing the required parameter 'body' when calling query");
-      }
+    // verify the required parameter 'ID' is set
+    if (ID === undefined || ID === null) {
+      throw new Error("Missing the required parameter 'ID' when calling deleteRecord");
+    }
 
 
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
+    let pathParams = {
+      'ID': ID
+    };
+    let queryParams = {
+      'notebookID': opts['notebookID']
+    };
+    let headerParams = {
+    };
+    let formParams = {
+    };
 
-      let authNames = ['AppID', 'AppSecret', 'Bearer'];
-      let contentTypes = ['application/json'];
-      let accepts = ['application/json'];
-      let returnType = StreamResultOfV1QueryResponse;
+    let authNames = ['AppID', 'AppSecret', 'Bearer'];
+    let contentTypes = ['application/json'];
+    let accepts = ['application/json'];
+    let returnType = V1DeleteRecordResponse;
 
-      return this.callApi(
-        '/v1/query', 'POST',
-        pathParams, postBody,
-        returnType, callback
-      );
-    },
+    return this.callApi(
+      '/v1/records/{ID}', 'DELETE',
+      pathParams, postBody,
+      returnType, callback
+    );
+  },
 
-    /**
-     * Callback function to receive the result of the updateRecord operation.
-     * @callback module:api/RecordsApi~updateRecordCallback
-     * @param {String} error Error message, if any.
-     * @param {module:model/V1UpdateRecordResponse} data The data returned by the service call.
-     * @param {String} response The complete HTTP response.
-     */
+  /**
+   * Callback function to receive the result of the getRecord operation.
+   * @callback module:api/RecordsApi~getRecordCallback
+   * @param {String} error Error message, if any.
+   * @param {module:model/V1GetRecordResponse} data The data returned by the service call.
+   * @param {String} response The complete HTTP response.
+   */
 
-    /**
-     * Update Record
-     * Updates a Record by using ID, Notebook Information from Request and Put Body
-     * @param {String} ID 
-     * @param {module:model/V1UpdateRecordRequest} body 
-     * @param {module:api/RecordsApi~updateRecordCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/V1UpdateRecordResponse}
-     */
-    updateRecord(ID, body, callback) {
-      let postBody = body;
+  /**
+   * Get Record
+   * Retrieves a Record by using ID and Notebook Information from Request.
+   * @param {String} notebookID 
+   * @param {String} ID 
+   * @param {module:api/RecordsApi~getRecordCallback} callback The callback function, accepting three arguments: error, data, response
+   * data is of type: {@link module:model/V1GetRecordResponse}
+   */
+  getRecord(notebookID, ID, callback) {
+    let postBody = null;
 
-      // verify the required parameter 'ID' is set
-      if (ID === undefined || ID === null) {
-        throw new Error("Missing the required parameter 'ID' when calling updateRecord");
-      }
+    // verify the required parameter 'notebookID' is set
+    if (notebookID === undefined || notebookID === null) {
+      throw new Error("Missing the required parameter 'notebookID' when calling getRecord");
+    }
 
-      // verify the required parameter 'body' is set
-      if (body === undefined || body === null) {
-        throw new Error("Missing the required parameter 'body' when calling updateRecord");
-      }
+    // verify the required parameter 'ID' is set
+    if (ID === undefined || ID === null) {
+      throw new Error("Missing the required parameter 'ID' when calling getRecord");
+    }
 
 
-      let pathParams = {
-        'ID': ID
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
+    let pathParams = {
+      'notebookID': notebookID,
+      'ID': ID
+    };
+    let queryParams = {
+    };
+    let headerParams = {
+    };
+    let formParams = {
+    };
 
-      let authNames = ['AppID', 'AppSecret', 'Bearer'];
-      let contentTypes = ['application/json'];
-      let accepts = ['application/json'];
-      let returnType = V1UpdateRecordResponse;
+    let authNames = ['AppID', 'AppSecret', 'Bearer'];
+    let contentTypes = ['application/json'];
+    let accepts = ['application/json'];
+    let returnType = V1GetRecordResponse;
 
-      return this.callApi(
-        '/v1/records/{ID}', 'PUT',
-        pathParams, postBody,
-        returnType, callback
-      );
-    },
+    return this.callApi(
+      '/v1/notebook/{notebookID}/records/{ID}', 'GET',
+      pathParams, postBody,
+      returnType, callback
+    );
+  },
+
+  fetchRecord(vaultId, notebookName, recordId) {
+    return searchNotebooksonVault(vaultId)
+    .then(res => {
+      try{
+        if(res.result.notebook.name === notebookName){
+
+          return this.getRecord(res.result.notebook.ID, recordId)
+        }
+        else {
+          throw new Error('Invalid Notebook name')
+        }
+        
+        }
+        catch(err) {
+          console.log(err)
+          throw new Error('Invalid vaultId')
+        }
+      })
+      .catch(err => err)  },
+
+  searchNotebooksonVault(vaultId) {
+    return this.http.fetch(this.buildRequest(`/v1/notebooks?vaultID=${vaultId}`, 'GET'))
+    .then(res => res)
+    .catch(err => err)
+  },
+
+  insertRecordsOnNotebook(vaultId, notebookName, records, callback) {
+    //todo change to streaming api
+    return searchNotebooksonVault(vaultId)
+    .then(res => {
+      try{
+        if(res.result.notebook.name === notebookName){
+          const pathParams = {
+            'notebookID': res.result.notebook.ID
+          };
+          const postBody = {
+            records,
+            notebookID: res.result.notebook.ID
+          }
+          return this.callApi(
+            '/v1/notebook/{notebookID}/records/bulk', 'POST',
+            pathParams, postBody,
+             callback
+          );
+        }
+        else {
+          throw new Error('Invalid Notebook name')
+        }
+        
+        }
+        catch(err) {
+          console.log(err)
+          throw new Error('Invalid vaultId')
+        }
+      })
+      .catch(err => err)
+      
+  },
+
+  insertRecords(vaultId, notebookName, records, callback) {
+
+    // verify the required parameter 'notebookID' is set
+    if (vaultId === undefined || vaultId === null) {
+      throw new Error("Missing the required parameter 'vaultId' when calling insertRecords");
+    }
+
+    // verify the required parameter 'body' is set
+    if (records === undefined || records === null) {
+      throw new Error("Missing the required parameter 'records' when calling insertRecords");
+    }
+    if (this.isTokenValid()) {
+      return this.insertRecordsOnNotebook(vaultId, notebookName, records)
+        .then(res => res)
+        .catch(err => err);
+    }
+    else {
+      return this.getAccessToken()
+        .then(res => {
+
+          this.bearerToken = res.accessToken;
+          return this.insertRecordsOnNotebook(vaultId, notebookName, records)
+            .then(res => res)
+            .catch(err => err);
+        })
+        .catch(err => {
+          console.log(err);
+          return err;
+        })
+    }
+    
+
+  },
+
+  /**
+   * Callback function to receive the result of the query operation.
+   * @callback module:api/RecordsApi~queryCallback
+   * @param {String} error Error message, if any.
+   * @param {module:model/V1QueryResponse} data The data returned by the service call.
+   * @param {String} response The complete HTTP response.
+   */
+
+  /**
+   * Query Records
+   * Retrieves list of Records by using Notebook Information from Request and Post Body
+   * @param {module:model/V1QueryRequest} body 
+   * @param {module:api/RecordsApi~queryCallback} callback The callback function, accepting three arguments: error, data, response
+   * data is of type: {@link module:model/V1QueryResponse}
+   */
+  query(body, callback) {
+    let postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling query");
+    }
+
+
+    let pathParams = {
+    };
+    let queryParams = {
+    };
+    let headerParams = {
+    };
+    let formParams = {
+    };
+
+    let authNames = ['AppID', 'AppSecret', 'Bearer'];
+    let contentTypes = ['application/json'];
+    let accepts = ['application/json'];
+    let returnType = V1QueryResponse;
+
+    return this.callApi(
+      '/v1/query', 'POST',
+      pathParams, postBody,
+      returnType, callback
+    );
+  },
+
+  /**
+   * Callback function to receive the result of the updateRecord operation.
+   * @callback module:api/RecordsApi~updateRecordCallback
+   * @param {String} error Error message, if any.
+   * @param {module:model/V1UpdateRecordResponse} data The data returned by the service call.
+   * @param {String} response The complete HTTP response.
+   */
+
+  /**
+   * Update Record
+   * Updates a Record by using ID, Notebook Information from Request and Put Body
+   * @param {String} ID 
+   * @param {module:model/V1UpdateRecordRequest} body 
+   * @param {module:api/RecordsApi~updateRecordCallback} callback The callback function, accepting three arguments: error, data, response
+   * data is of type: {@link module:model/V1UpdateRecordResponse}
+   */
+  updateRecord(ID, body, callback) {
+    let postBody = body;
+
+    // verify the required parameter 'ID' is set
+    if (ID === undefined || ID === null) {
+      throw new Error("Missing the required parameter 'ID' when calling updateRecord");
+    }
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling updateRecord");
+    }
+
+
+    let pathParams = {
+      'ID': ID
+    };
+    let queryParams = {
+    };
+    let headerParams = {
+    };
+    let formParams = {
+    };
+
+    let authNames = ['AppID', 'AppSecret', 'Bearer'];
+    let contentTypes = ['application/json'];
+    let accepts = ['application/json'];
+    let returnType = V1UpdateRecordResponse;
+
+    return this.callApi(
+      '/v1/records/{ID}', 'PUT',
+      pathParams, postBody,
+      returnType, callback
+    );
+  },
 
 
 }

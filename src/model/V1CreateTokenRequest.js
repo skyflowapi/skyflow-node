@@ -15,13 +15,14 @@
  */
 
 import {V1TokenPolicy} from './V1TokenPolicy';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateTokenRequest model module.
  * @module model/V1CreateTokenRequest
  * @version v1
  */
-export class V1CreateTokenRequest {
+export class V1CreateTokenRequest  {
   /**
    * Constructs a new <code>V1CreateTokenRequest</code>.
    * @alias module:model/V1CreateTokenRequest

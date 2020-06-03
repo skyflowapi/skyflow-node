@@ -15,13 +15,14 @@
  */
 
 import {V1ResourceType} from './V1ResourceType';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Resource model module.
  * @module model/V1Resource
  * @version v1
  */
-export class V1Resource {
+export class V1Resource  {
   /**
    * Constructs a new <code>V1Resource</code>.
    * @alias module:model/V1Resource

@@ -15,13 +15,14 @@
  */
 
 import {TokenAccessControlAccessControl} from './TokenAccessControlAccessControl';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1TokenAccessControl model module.
  * @module model/V1TokenAccessControl
  * @version v1
  */
-export class V1TokenAccessControl {
+export class V1TokenAccessControl  {
   /**
    * Constructs a new <code>V1TokenAccessControl</code>.
    * @alias module:model/V1TokenAccessControl

@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1UserIdentity model module.
  * @module model/V1UserIdentity
  * @version v1
  */
-export class V1UserIdentity {
+export class V1UserIdentity  {
   /**
    * Constructs a new <code>V1UserIdentity</code>.
    * @alias module:model/V1UserIdentity

@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1GetResidencyModelsResponse model module.
  * @module model/V1GetResidencyModelsResponse
  * @version v1
  */
-export class V1GetResidencyModelsResponse {
+export class V1GetResidencyModelsResponse  {
   /**
    * Constructs a new <code>V1GetResidencyModelsResponse</code>.
    * @alias module:model/V1GetResidencyModelsResponse

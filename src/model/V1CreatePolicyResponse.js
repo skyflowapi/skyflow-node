@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreatePolicyResponse model module.
  * @module model/V1CreatePolicyResponse
  * @version v1
  */
-export class V1CreatePolicyResponse {
+export class V1CreatePolicyResponse  {
   /**
    * Constructs a new <code>V1CreatePolicyResponse</code>.
    * @alias module:model/V1CreatePolicyResponse

@@ -14,6 +14,7 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * Enum class PolicyPermissions.

@@ -15,7 +15,8 @@
  */
 
 import {V1Query} from './V1Query';
-import {V1VaultType} from './V1VaultType';
+import {V1Residency} from './V1Residency';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Vault model module.
@@ -52,7 +53,11 @@ export class V1Vault {
       if (data.hasOwnProperty('queries'))
         obj.queries = ApiClient.convertToType(data['queries'], [V1Query]);
       if (data.hasOwnProperty('type'))
-        obj.type = V1VaultType.constructFromObject(data['type']);
+        obj.type = V1StorageType.constructFromObject(data['type']);
+      if (data.hasOwnProperty('status'))
+        obj.status = VaultStatus.constructFromObject(data['status']);
+      if (data.hasOwnProperty('residency'))
+        obj.residency = V1Residency.constructFromObject(data['residency']);
     }
     return obj;
   }
@@ -90,8 +95,20 @@ V1Vault.prototype.queries = undefined;
 
 /**
  * Type of the Vault - Tokenized or Analytical
- * @member {module:model/V1VaultType} type
+ * @member {module:model/V1StorageType} type
  */
 V1Vault.prototype.type = undefined;
+
+/**
+ * Status of the Vault - Activated or Deactivated
+ * @member {module:model/VaultStatus} status
+ */
+V1Vault.prototype.status = undefined;
+
+/**
+ * Data Residency And Compliance Settings for the Vault
+ * @member {module:model/V1Residency} residency
+ */
+V1Vault.prototype.residency = undefined;
 
 

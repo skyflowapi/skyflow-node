@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateTokenResponse model module.
  * @module model/V1CreateTokenResponse
  * @version v1
  */
-export class V1CreateTokenResponse {
+export class V1CreateTokenResponse  {
   /**
    * Constructs a new <code>V1CreateTokenResponse</code>.
    * @alias module:model/V1CreateTokenResponse

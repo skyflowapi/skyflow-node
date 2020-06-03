@@ -14,14 +14,15 @@
  *
  */
 
-import {V1Record} from './V1Record';
+import {V1FieldTypeData} from './V1FieldTypeData';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1GetRecordResponse model module.
  * @module model/V1GetRecordResponse
  * @version v1
  */
-export class V1GetRecordResponse {
+export class V1GetRecordResponse  {
   /**
    * Constructs a new <code>V1GetRecordResponse</code>.
    * @alias module:model/V1GetRecordResponse
@@ -40,16 +41,23 @@ export class V1GetRecordResponse {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new V1GetRecordResponse();
-      if (data.hasOwnProperty('record'))
-        obj.record = V1Record.constructFromObject(data['record']);
+      if (data.hasOwnProperty('recordType'))
+        obj.recordType = ApiClient.convertToType(data['recordType'], 'String');
+      if (data.hasOwnProperty('fields'))
+        obj.fields = ApiClient.convertToType(data['fields'], [V1FieldTypeData]);
     }
     return obj;
   }
 }
 
 /**
- * @member {module:model/V1Record} record
+ * @member {String} recordType
  */
-V1GetRecordResponse.prototype.record = undefined;
+V1GetRecordResponse.prototype.recordType = undefined;
+
+/**
+ * @member {Array.<module:model/V1FieldTypeData>} fields
+ */
+V1GetRecordResponse.prototype.fields = undefined;
 
 

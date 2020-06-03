@@ -14,7 +14,6 @@
  *
  */
 
-import {StreamResultOfV1GetVaultResponse} from '../model/StreamResultOfV1GetVaultResponse';
 import {V1CreateVaultRequest} from '../model/V1CreateVaultRequest';
 import {V1CreateVaultResponse} from '../model/V1CreateVaultResponse';
 import {V1DeleteVaultResponse} from '../model/V1DeleteVaultResponse';
@@ -171,7 +170,7 @@ const VaultsApi = {
      * Callback function to receive the result of the searchVaultsByFilter operation.
      * @callback module:api/VaultsApi~searchVaultsByFilterCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetVaultResponse} data The data returned by the service call.
+     * @param {module:model/V1GetVaultResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -184,7 +183,7 @@ const VaultsApi = {
      * @param {String} opts.vaultName Vault Name.  - using which we need to fetch records
      * @param {String} opts.orgID Organization ID Under which resource should be searched.
      * @param {module:api/VaultsApi~searchVaultsByFilterCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetVaultResponse}
+     * data is of type: {@link module:model/V1GetVaultResponse}
      */
     searchVaultsByFilter(opts, callback) {
       opts = opts || {};
@@ -207,7 +206,7 @@ const VaultsApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetVaultResponse;
+      let returnType = V1GetVaultResponse;
 
       return this.callApi(
         '/v1/vaults', 'GET',

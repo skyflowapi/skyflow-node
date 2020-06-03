@@ -15,13 +15,14 @@
  */
 
 import {V1Notebook} from './V1Notebook';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1GetNotebookTypeModelsResponse model module.
  * @module model/V1GetNotebookTypeModelsResponse
  * @version v1
  */
-export class V1GetNotebookTypeModelsResponse {
+export class V1GetNotebookTypeModelsResponse  {
   /**
    * Constructs a new <code>V1GetNotebookTypeModelsResponse</code>.
    * @alias module:model/V1GetNotebookTypeModelsResponse
@@ -52,6 +53,8 @@ export class V1GetNotebookTypeModelsResponse {
         obj.learnMoreURL = ApiClient.convertToType(data['learnMoreURL'], 'String');
       if (data.hasOwnProperty('notebookSchema'))
         obj.notebookSchema = V1Notebook.constructFromObject(data['notebookSchema']);
+      if (data.hasOwnProperty('backgroundImageURL'))
+        obj.backgroundImageURL = ApiClient.convertToType(data['backgroundImageURL'], 'String');
     }
     return obj;
   }
@@ -87,5 +90,10 @@ V1GetNotebookTypeModelsResponse.prototype.learnMoreURL = undefined;
  * @member {module:model/V1Notebook} notebookSchema
  */
 V1GetNotebookTypeModelsResponse.prototype.notebookSchema = undefined;
+
+/**
+ * @member {String} backgroundImageURL
+ */
+V1GetNotebookTypeModelsResponse.prototype.backgroundImageURL = undefined;
 
 

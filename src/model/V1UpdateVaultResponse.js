@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1UpdateVaultResponse model module.
  * @module model/V1UpdateVaultResponse
  * @version v1
  */
-export class V1UpdateVaultResponse {
+export class V1UpdateVaultResponse  {
   /**
    * Constructs a new <code>V1UpdateVaultResponse</code>.
    * @alias module:model/V1UpdateVaultResponse

@@ -14,14 +14,15 @@
  *
  */
 
-import {V1Record} from './V1Record';
+import {V1FieldData} from './V1FieldData';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateRecordRequest model module.
  * @module model/V1CreateRecordRequest
  * @version v1
  */
-export class V1CreateRecordRequest {
+export class V1CreateRecordRequest  {
   /**
    * Constructs a new <code>V1CreateRecordRequest</code>.
    * @alias module:model/V1CreateRecordRequest
@@ -40,8 +41,8 @@ export class V1CreateRecordRequest {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new V1CreateRecordRequest();
-      if (data.hasOwnProperty('record'))
-        obj.record = V1Record.constructFromObject(data['record']);
+      if (data.hasOwnProperty('fields'))
+        obj.fields = ApiClient.convertToType(data['fields'], [V1FieldData]);
       if (data.hasOwnProperty('notebookID'))
         obj.notebookID = ApiClient.convertToType(data['notebookID'], 'String');
     }
@@ -50,9 +51,9 @@ export class V1CreateRecordRequest {
 }
 
 /**
- * @member {module:model/V1Record} record
+ * @member {Array.<module:model/V1FieldData>} fields
  */
-V1CreateRecordRequest.prototype.record = undefined;
+V1CreateRecordRequest.prototype.fields = undefined;
 
 /**
  * @member {String} notebookID

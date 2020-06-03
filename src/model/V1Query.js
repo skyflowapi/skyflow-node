@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Query model module.
  * @module model/V1Query
  * @version v1
  */
-export class V1Query {
+export class V1Query  {
   /**
    * Constructs a new <code>V1Query</code>.
    * @alias module:model/V1Query

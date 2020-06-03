@@ -14,13 +14,14 @@
  *
  */
 
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1UpdatePolicyResponse model module.
  * @module model/V1UpdatePolicyResponse
  * @version v1
  */
-export class V1UpdatePolicyResponse {
+export class V1UpdatePolicyResponse  {
   /**
    * Constructs a new <code>V1UpdatePolicyResponse</code>.
    * @alias module:model/V1UpdatePolicyResponse

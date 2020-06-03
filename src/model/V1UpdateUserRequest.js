@@ -15,13 +15,14 @@
  */
 
 import {V1User} from './V1User';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1UpdateUserRequest model module.
  * @module model/V1UpdateUserRequest
  * @version v1
  */
-export class V1UpdateUserRequest {
+export class V1UpdateUserRequest  {
   /**
    * Constructs a new <code>V1UpdateUserRequest</code>.
    * @alias module:model/V1UpdateUserRequest

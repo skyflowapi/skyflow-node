@@ -14,7 +14,6 @@
  *
  */
 
-import {StreamResultOfV1GetNotebookResponse} from '../model/StreamResultOfV1GetNotebookResponse';
 import {V1CreateNotebookRequest} from '../model/V1CreateNotebookRequest';
 import {V1CreateNotebookResponse} from '../model/V1CreateNotebookResponse';
 import {V1DeleteNotebookResponse} from '../model/V1DeleteNotebookResponse';
@@ -171,7 +170,7 @@ const NotebooksApi = {
      * Callback function to receive the result of the searchNotebooksByFilter operation.
      * @callback module:api/NotebooksApi~searchNotebooksByFilterCallback
      * @param {String} error Error message, if any.
-     * @param {module:model/StreamResultOfV1GetNotebookResponse} data The data returned by the service call.
+     * @param {module:model/V1GetNotebookResponse} data The data returned by the service call.
      * @param {String} response The complete HTTP response.
      */
 
@@ -184,7 +183,7 @@ const NotebooksApi = {
      * @param {String} opts.orgID Organization ID Under which resource should be searched.
      * @param {String} opts.vaultID Vault ID Under which this resource should be searched.
      * @param {module:api/NotebooksApi~searchNotebooksByFilterCallback} callback The callback function, accepting three arguments: error, data, response
-     * data is of type: {@link module:model/StreamResultOfV1GetNotebookResponse}
+     * data is of type: {@link module:model/V1GetNotebookResponse}
      */
     searchNotebooksByFilter(opts, callback) {
       opts = opts || {};
@@ -207,7 +206,7 @@ const NotebooksApi = {
       let authNames = ['AppID', 'AppSecret', 'Bearer'];
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
-      let returnType = StreamResultOfV1GetNotebookResponse;
+      let returnType = V1GetNotebookResponse;
 
       return this.callApi(
         '/v1/notebooks', 'GET',

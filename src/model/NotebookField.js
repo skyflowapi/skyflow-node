@@ -17,13 +17,14 @@
 import {NotebookFieldStatus} from './NotebookFieldStatus';
 import {V1FieldType} from './V1FieldType';
 import {V1NotebookOperation} from './V1NotebookOperation';
+import BaseEntity from './BaseEntity';
 
 /**
  * The NotebookField model module.
  * @module model/NotebookField
  * @version v1
  */
-export class NotebookField {
+export class NotebookField  {
   /**
    * Constructs a new <code>NotebookField</code>.
    * @alias module:model/NotebookField

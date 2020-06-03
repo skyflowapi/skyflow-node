@@ -15,13 +15,14 @@
  */
 
 import {V1Record} from './V1Record';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1UpdateRecordRequest model module.
  * @module model/V1UpdateRecordRequest
  * @version v1
  */
-export class V1UpdateRecordRequest {
+export class V1UpdateRecordRequest  {
   /**
    * Constructs a new <code>V1UpdateRecordRequest</code>.
    * @alias module:model/V1UpdateRecordRequest

@@ -15,13 +15,14 @@
  */
 
 import {V1Notebook} from './V1Notebook';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1GetNotebookResponse model module.
  * @module model/V1GetNotebookResponse
  * @version v1
  */
-export class V1GetNotebookResponse {
+export class V1GetNotebookResponse  {
   /**
    * Constructs a new <code>V1GetNotebookResponse</code>.
    * @alias module:model/V1GetNotebookResponse
@@ -42,6 +43,10 @@ export class V1GetNotebookResponse {
       obj = obj || new V1GetNotebookResponse();
       if (data.hasOwnProperty('notebook'))
         obj.notebook = V1Notebook.constructFromObject(data['notebook']);
+      if (data.hasOwnProperty('vaultID'))
+        obj.vaultID = ApiClient.convertToType(data['vaultID'], 'String');
+      if (data.hasOwnProperty('orgID'))
+        obj.orgID = ApiClient.convertToType(data['orgID'], 'String');
     }
     return obj;
   }
@@ -51,5 +56,15 @@ export class V1GetNotebookResponse {
  * @member {module:model/V1Notebook} notebook
  */
 V1GetNotebookResponse.prototype.notebook = undefined;
+
+/**
+ * @member {String} vaultID
+ */
+V1GetNotebookResponse.prototype.vaultID = undefined;
+
+/**
+ * @member {String} orgID
+ */
+V1GetNotebookResponse.prototype.orgID = undefined;
 
 

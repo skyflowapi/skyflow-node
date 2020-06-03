@@ -1,61 +1,39 @@
-import HTTP from './http';
 import ModelsApi from './api/ModelsApi';
 import OrganiztionsApi from './api/OrganizationsApi';
 import UsersApi from './api/UsersApi';
 import VaultsApi from './api/VaultsApi';
 import NotebooksApi from './api/NotebooksApi';
-
+import AuthenticationApi from './api/AuthenticationApi';
+import RecordsApi from './api/RecordsApi'
+import jwtDecode from 'jwt-decode';
 
 class SkyflowApiClient {
-    getAccessToken() {
-        return new Promise((resolve, reject) => {
-          Axios(`${properties.OKTA_DOMAIN_URL}/api/v1/authn`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data: {
-              username: properties.SKYFLOW_USERNAME,
-              password: properties.SKYFLOW_PASSWORD,
-            },
-          })
-            .then((res) => {
-              Axios(
-                `${properties.OKTA_ISSUER_URL}/v1/authorize?client_id=${properties.OKTA_CLIENT_ID}&nonce=test&state=test&redirect_uri=${properties.STUDIO_URL}/implicit/callback&response_type=token&scope=openid&sessionToken=${res.data.sessionToken}`,
-                {
-                  method: 'GET',
-                  data: {},
-                },
-              )
-                .then((response) => {
-                  if (
-                    response &&
-                    response.request &&
-                    response.request.res &&
-                    response.request.res.responseUrl
-                  ) {
-                    const accessToken = response.request.res.responseUrl.match(
-                      /\#(?:access_token)\=([\S\s]*?)\&/,
-                    )[1];
-      
-                    resolve(accessToken);
-                  } else {
-                    reject("Can't retrieve token token");
-                  }
-                })
-                .catch(err => {
-                  reject(err);
-                });
-            })
-            .catch(err => {
-              reject(err);
-            });
-        });
-      }
+
+  isTokenValid() {
+    let decodedToken;
+    try {
+      decodedToken = jwtDecode(this.bearerToken);
+    }
+    catch (e) {
+      return false;
+    }
+    return !(decodedToken.exp * 1000 < Date.now());
+  }
+
+  searchNotebook(vaultId, notebookName) {
+    return this.http.fetch(this.buildRequest(`/v1/notebooks?vaultID=${vaultId}&&notebookName=${notebookName}`, 'GET'))
+      .then(res => res)
+      .catch(err => err)
+  }
+
 }
 
 Object.assign(SkyflowApiClient.prototype, ModelsApi);
 Object.assign(SkyflowApiClient.prototype, OrganiztionsApi)
 Object.assign(SkyflowApiClient.prototype, UsersApi)
-Object.assign(SkyflowApiClient.prototype,NotebooksApi);
-Object.assign(SkyflowApiClient.prototype,VaultsApi);
+Object.assign(SkyflowApiClient.prototype, NotebooksApi);
+Object.assign(SkyflowApiClient.prototype, VaultsApi);
+Object.assign(SkyflowApiClient.prototype, AuthenticationApi);
+Object.assign(SkyflowApiClient.prototype, RecordsApi);
 
 export default SkyflowApiClient

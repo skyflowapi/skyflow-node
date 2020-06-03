@@ -15,13 +15,14 @@
  */
 
 import {V1Address} from './V1Address';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1Organization model module.
  * @module model/V1Organization
  * @version v1
  */
-export class V1Organization {
+export class V1Organization  {
   /**
    * Constructs a new <code>V1Organization</code>.
    * @alias module:model/V1Organization

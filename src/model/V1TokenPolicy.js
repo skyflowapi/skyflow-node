@@ -15,13 +15,14 @@
  */
 
 import {V1TokenAccessControl} from './V1TokenAccessControl';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1TokenPolicy model module.
  * @module model/V1TokenPolicy
  * @version v1
  */
-export class V1TokenPolicy {
+export class V1TokenPolicy  {
   /**
    * Constructs a new <code>V1TokenPolicy</code>.
    * @alias module:model/V1TokenPolicy

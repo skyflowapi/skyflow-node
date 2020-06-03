@@ -15,13 +15,14 @@
  */
 
 import {V1Organization} from './V1Organization';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1CreateOrganizationRequest model module.
  * @module model/V1CreateOrganizationRequest
  * @version v1
  */
-export class V1CreateOrganizationRequest {
+export class V1CreateOrganizationRequest  {
   /**
    * Constructs a new <code>V1CreateOrganizationRequest</code>.
    * @alias module:model/V1CreateOrganizationRequest

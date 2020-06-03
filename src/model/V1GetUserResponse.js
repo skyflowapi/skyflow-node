@@ -15,13 +15,14 @@
  */
 
 import {V1User} from './V1User';
+import BaseEntity from './BaseEntity';
 
 /**
  * The V1GetUserResponse model module.
  * @module model/V1GetUserResponse
  * @version v1
  */
-export class V1GetUserResponse {
+export class V1GetUserResponse  {
   /**
    * Constructs a new <code>V1GetUserResponse</code>.
    * @alias module:model/V1GetUserResponse
