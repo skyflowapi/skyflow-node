@@ -1,3 +1,9 @@
-import Client from "./client";
+import SkyflowClient from './SkyflowClient';
+import {isTokenValid} from './http';
 
-export default Client;
+function connect(orgId, username, password, appId, appSecret, options) {
+  return new SkyflowClient(orgId, username, password, appId, appSecret, options);
+}
+
+export {connect, SkyflowClient, isTokenValid}
+

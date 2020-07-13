@@ -20,31 +20,19 @@ All usage of this SDK begins with the creation of a client, the client handles t
 
 To get started create a skyflow client in one of the following ways
 ```javascript
-const skyflow = require('@skyflow/skyflow-sdk-nodejs');
+import {connect} from '@skyflow/skyflow-node-sdk';
 
-const client = new skyflow.Client({
-    appId, 
-    appSecret,
-    orgUrl,
-    bearerToken, //optional
-    username,
-    password, //use this if you don't have a token
-
-});
+const client = connect(orgid, <skyflow username>, <skyflow username>, <app id>, <app secret> , options) 
+//options are optional parameters
 ```
+Options object can include
+```
+{
+    accessToken : 'your access token', // your access jwt. Defaults to generating a new token from given credentials
+    browser : true, // if you are using this client from front end, Defaults to false
+    prodApp : false //if this is a production application. Default to false
 
-
-
-```javascript
-const skyflow = require('@skyflow/skyflow-sdk-nodejs');
-
-const client = new skyflow.Client()
-.setAppId('your-app-id')
-.setAppSecret('your-app-secret')
-.setBearerToken('bearer-token')
-.setOrgUrl('your skyflow org url')
-.setUsername('your user name')
-.setPassword('your password')
+}
 ```
 
 All interactions with the [Skyflow Platform API] is done through client methods.  Some examples are below, but for a full
@@ -54,30 +42,118 @@ All interactions with the [Skyflow Platform API] is done through client methods.
 
 ## Table of Contents
 
-* [Examples](#examples)
-  
+* [Auth](#auth)  
 * [Records](#records)
   * [Insert Records](#insert-records)
   * [Get Records](#get-records)
+  * [Delete Records](#delete-records)
+  * [Update Records](#update-records)
+  * [Bulk Insert Records](#bulk-insert)
 
 
+### Auth
+
+```
+client.getAccessToken()
+.then(res => {
+    //returns access token if credentials are valid
+})
+.catch(err => {
+     
+})
+```
 
 ### Records
 
 #### Insert Records
 
 ```javascript
-client.insertRecords('<your vault id', '<your notebook name>', [
-    {
-        "fields": [
-            {
-                "name": "<field name>",
-                "value": "<field value>"
-            }
-        ]
-    },
-])
+client.insertRecords('<your vault id', 
+   [
+        {
+            "name": "<field name>",
+            "value": "<field value>"
+        }
+    ]
+    
+)
+    .then(res => {
+        console.log(res) // returns the token id and tokens of each column values
+    })
+    .catch(err => console.log(err.data.error))
+```
+
+
+#### Get Records
+
+To get the record values back pass in the id token of respective rows, 
+
+```javascript
+client.getRecord('<vault id>', '<token>')
     .then(res => {
         console.log(res)
     })
-    .catch(err => console.log(err.data.error))
+    .catch(err => console.log(err));
+```
+
+#### Delete Records
+
+This api deletes the record permanently from the vault. 
+
+```javascript
+client.deleteRecord('<vault id>', '<token>')
+    .then(res => {
+        console.log(res) //returns back the id if operation is successful
+    })
+    .catch(err => console.log(err));
+
+
+```
+
+#### Update Records
+
+This api can be used to update some or all the ros of the record. 
+
+```javascript
+
+let recordFields = [
+    {
+    name : 'field name',
+    value : 'field new value'
+    }
+]
+
+client.updateRecord('<vault id>', '<token>', recordFields)
+    .then(res => {
+        console.log(res) //updated token values
+    })
+    .catch(err => console.log(err));
+```
+
+#### Bulk Insert
+
+This can be used to add multiple records at once. 
+```javascript
+
+let records = {
+    records : [
+        {
+            fields : [
+                {
+                    name : 'field name',
+                    value : 'field value'
+                }
+            ]
+
+        }
+    ]
+}
+
+client.insertBulkRecord('<vault id>', records)
+    .then(res => {
+        console.log(res)
+    })
+    .catch(err => console.log(err));
+}, 3000);
+
+```

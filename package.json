@@ -2,8 +2,8 @@
   "name": "@skyflow/skyflow-node-sdk",
   "version": "1.0.0",
   "description": "Node js client for skyflow API's",
-  "main": "./lib/client.js",
-  "module": "./lib/client.js",
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
   "scripts": {
     "build": "babel src --out-dir lib",
     "eslint": "eslint '**/*.js' --max-warnings 0",
@@ -29,14 +29,11 @@
     "axios": "^0.19.2",
     "fetch": "^1.1.0",
     "form-data": "^2.3.2",
-    "http-signature": "~1.2.0",
-    "isomorphic-fetch": "2.2.1",
+    "https": "^1.0.0",
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.11",
-    "qs": "^6.5.1",
-    "request": "^2.88.0",
-    "whatwg-fetch": "^2.0.4"
+    "qs": "^6.5.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
