@@ -13,7 +13,7 @@ npm install skyflow
 
 ## Usage
 
-All usage of this SDK begins with the creation of a client, the client handles the authentication and communication with the Skyflow API.  To create a client, you need to provide it with your Skyflow Domain and an API token.  To obtain those, see [Getting Started With the Skyflow APIs](https://developer.skyflow.com/code/rest/).
+All usage of this SDK begins with the creation of a client, the client handles the authentication and communication with the Skyflow API.
 
 To get started create a skyflow client in one of the following ways
 ```javascript
