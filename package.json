@@ -1,5 +1,5 @@
 {
-  "name": "@skyflow/skyflow-node-sdk",
+  "name": "skyflow-node-sdk",
   "version": "1.0.0",
   "description": "Node js client for skyflow API's",
   "main": "./lib/index.js",
