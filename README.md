@@ -151,6 +151,5 @@ client.insertBulkRecord('<vault id>', records)
         console.log(res)
     })
     .catch(err => console.log(err));
-}, 3000);
 
 ```
