@@ -11,10 +11,7 @@
     "lint": "npm run prettier && npm run eslint",
     "lint-fix": "prettier --write '**/*.{js,ts}' && eslint --fix '**/*.js'",
     "generate-docs": "jsdoc -c .jsdoc",
-    "coverage": "nyc  --reporter=lcov mocha --require @babel/register bin/run-node-unit-tests.js",
-    "preversion": "npm run test-unit-node",
-    "version": "./bin/version.sh && git add dist",
-    "postversion": "./bin/postversion.sh"
+    "coverage": "nyc  --reporter=lcov mocha --require @babel/register bin/run-node-unit-tests.js"
   },
   "repository": {
     "type": "git",
