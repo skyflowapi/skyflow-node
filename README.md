@@ -22,7 +22,7 @@ To get started create a skyflow client in one of the following ways
 ```javascript
 import {connect} from '@skyflow/skyflow-node-sdk';
 
-const client = connect(orgid, <skyflow username>, <skyflow username>, <app id>, <app secret> , options) 
+const client = connect(orgid, <skyflow username>, <skyflow password>, <app id>, <app secret> , options) 
 //options are optional parameters
 ```
 Options object can include
@@ -68,7 +68,7 @@ client.getAccessToken()
 #### Insert Records
 
 ```javascript
-client.insertRecords('<your vault id', 
+client.insertRecord('<your vault id', 
    [
         {
             "name": "<field name>",
