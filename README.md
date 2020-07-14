@@ -7,7 +7,7 @@ Requires Node.js version 6.9.0 or higher.
 ## Installation
 
 ```sh
-npm install skyflow-node-sdk
+npm install skyflow-nodejs-sdk
 ```
 
 ## JsDocs
@@ -20,7 +20,7 @@ All usage of this SDK begins with the creation of a client, the client handles t
 
 To get started create a skyflow client in one of the following ways
 ```javascript
-import {connect} from 'skyflow-node-sdk';
+import {connect} from 'skyflow-nodejs-sdk';
 
 const client = connect(orgid, <skyflow username>, <skyflow password>, <app id>, <app secret> , options) 
 //options are optional parameters
