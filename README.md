@@ -7,7 +7,7 @@ Requires node version 6.9.0 or higher.
 ## Installation
 
 ```sh
-npm install skyflow
+npm install skyflow-node
 ```
 
 
@@ -17,7 +17,7 @@ All usage of this SDK begins with the creation of a client, the client handles t
 
 To get started create a skyflow client in one of the following ways
 ```javascript
-import {connect} from 'skyflow';
+import {connect} from 'skyflow-node';
 
 const client = connect(orgid, <skyflow username>, <skyflow password>, <app id>, <app secret> , options) 
 //options are optional parameters
@@ -32,10 +32,7 @@ Options object can include
 }
 ```
 
-All interactions with the [Skyflow Platform API] is done through client methods.  Some examples are below, but for a full
- list of methods please refer to the JsDoc page for the [Client].
-
-
+All interactions with the Skyflow Platform API is done through client methods.  
 
 ## Table of Contents
 
