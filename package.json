@@ -1,6 +1,6 @@
 {
-  "name": "skyflow-nodejs-sdk",
-  "version": "0.1.0",
+  "name": "skyflow",
+  "version": "1.0.0",
   "description": "Node js client for skyflow API's",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -19,7 +19,16 @@
   },
   "author": "",
   "license": "MIT",
-  "homepage": "https://dev.skyflow.com",
+  "homepage": "https://skyflow.com",
+  "keywords": [
+    "skyflow",
+    "privacy",
+    "api",
+    "security",
+    "vault",
+    "PII", 
+    "tokenization"
+  ],
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "Base64": "^1.0.1",
