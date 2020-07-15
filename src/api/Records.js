@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { notebookUrl } from './Notebooks';
 import { isTokenValid } from '../http';
-import { callback } from 'testdouble';
+
 const url = '/records'
 
 const Records = {
