@@ -11,7 +11,7 @@ let SkyflowClient = function () {
     this.initialize.apply(this, arguments);
 };
 
-const sandboxBaseUrl = "https://api.skyflow.tech/";
+const sandboxBaseUrl = "https://api.skyflow.dev/";
 const prodBaseUrl = "https://api.skyflow.com/"
 
 SkyflowClient.prototype = {
