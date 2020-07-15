@@ -1,6 +1,6 @@
 {
   "name": "skyflow-node-dev",
-  "version": "1.0.1-beta.1",
+  "version": "1.0.1-beta.2",
   "description": "Node js client for skyflow API's",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -52,7 +52,6 @@
     "chai": "^4.1.2",
     "coveralls": "^3.0.1",
     "crypto-browserify": "^3.12.0",
-    "dtslint": "^0.8.0",
     "eslint": "^5.0.1",
     "eslint-plugin-sonarjs": "^0.5.0",
     "expect.js": "^0.3.1",
