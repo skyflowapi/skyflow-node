@@ -9,7 +9,15 @@ const Notebooks = {
             ,{
             headers: this.defaultHeaders
         })
-            .then(res => res.data)
+            .then(res => {
+                if(res.data.result)
+                {
+                    return res.data
+                }
+                else {
+                     return {result : {notebook : null}}
+                }
+            })
             .catch(err => err)
         
     },
