@@ -1,9 +1,9 @@
 import SkyflowClient from './SkyflowClient';
-import {isTokenValid} from './http';
+import { isTokenValid } from './http';
 
-function connect(orgId, username, password, appId, appSecret, options) {
-  return new SkyflowClient(orgId, username, password, appId, appSecret, options);
+function connect(accountName, workspaceName, vaultId, credentials, options) {
+  return new SkyflowClient(accountName, workspaceName, vaultId, credentials, options);
 }
 
-export {connect, SkyflowClient, isTokenValid}
+export { connect, SkyflowClient, isTokenValid }
 
