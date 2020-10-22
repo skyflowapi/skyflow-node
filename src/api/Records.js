@@ -8,98 +8,61 @@ const url = '/records'
 const Records = {
 
 
-    insertRecord(vaultId, recordFields) {
+    insertRecord(tableName, recordFields) {
         return this.callApi(
-            ({ vaultId, recordFields }) => {
-                return this.getNotebookByName(vaultId)
-                    .then(res => res.result.notebook)
+            ({ tableName, recordFields }) => {
+                return axios.post(this.vaultUrl + '/' + tableName, {
+                    records: recordFields
+                }, {
+                    headers: this.defaultHeaders
+                })
                     .then(res => {
-                        if(!res)
-                            throw new VaultNotFoundException()
-                        return axios.post(this.baseUrl + notebookUrl + '/' + res.ID + url, {
-                            fields: recordFields,
-                            notebookID: res.ID
-                        }, {
-                            headers: this.defaultHeaders
-                        })
-                            .then(res => {
-                                return res.data;
-                            })
-                            .catch(err => err)
+                        return res.data;
                     })
-
-
-            }, { vaultId, recordFields })
+                    .catch(err => err && err.response && err.response.data)
+            }, { tableName, recordFields })
 
     },
 
-    getRecord(vaultId, recordId) {
-
+    getRecord(tableName, recordId) {
         return this.callApi(
-            ({ vaultId, recordId }) => {
-                return this.getNotebookByName(vaultId)
-                    .then(res => res.result.notebook)
-                    .then(res => {
-                        if(!res)
-                            throw new VaultNotFoundException()
-                        return axios.get(this.baseUrl + notebookUrl + '/' + res.ID + url + '/' + recordId,
-                            {
-                                headers: this.defaultHeaders
-                            })
-                            .then(res => {
-                                return res.data;
-                            })
-                            .catch(err => err)
+            ({ tableName, recordId }) => {
+                return axios.get(this.vaultUrl + '/' + tableName + '/' + recordId,
+                    {
+                        headers: this.defaultHeaders
                     })
-
-
-            }, { vaultId, recordId })
+                    .then(res => {
+                        return res.data;
+                    })
+                    .catch(err => err && err.response && err.response.data)
+            }, { tableName, recordId })
     },
 
-    updateRecord(vaultId, recordId, recordFields) {
+    updateRecord(tableName, recordId, recordField) {
         return this.callApi(
-            ({ vaultId, recordId }) => {
-                return this.getNotebookByName(vaultId)
-                    .then(res => res.result.notebook)
-                    .then(res => {
-                        if(!res)
-                            throw new VaultNotFoundException()
-                        return axios.put(this.baseUrl + notebookUrl + '/' + res.ID + url + '/' + recordId, {
-                            fields: recordFields,
-                            notebookID: res.ID
-                        }, {
-                            headers: this.defaultHeaders
-                        })
-                            .then(res => res.data)
-                            .catch(err => err)
-                    })
+            ({ tableName, recordId, recordField }) => {
+                return axios.put(this.vaultUrl + '/' + tableName + '/' + recordId, {
+                    record: recordField
+                }, {
+                    headers: this.defaultHeaders
+                })
+                    .then(res => res.data)
+                    .catch(err => err && err.response && err.response.data)
 
-
-            }, { vaultId, recordId })
+            }, { tableName, recordId, recordField })
 
 
     },
-    deleteRecord(vaultId, recordId) {
+    deleteRecord(tableName, recordId) {
         return this.callApi(
-            ({ vaultId, recordId }) => {
-                return this.getNotebookByName(vaultId)
-                    .then(res => res.result.notebook)
-                    .then(res => {
-                        if(!res)
-                            throw new VaultNotFoundException()
-                        return axios.delete(this.baseUrl + notebookUrl + '/' + res.ID + url + '/' + recordId
-                            , {
-                                headers: this.defaultHeaders
-                            })
-                            .then(res => res.data)
-                            .catch(err => err)
+            ({ tableName, recordId }) => {
+                return axios.delete(this.vaultUrl + '/' + tableName + '/' + recordId
+                    , {
+                        headers: this.defaultHeaders
                     })
-
-
-            }, { vaultId, recordId })
-
-
-
+                    .then(res => res.data)
+                    .catch(err => err && err.response && err.response.data)
+            }, { tableName, recordId })
     },
 
     insertBulkRecord(vaultId, recordFields) {
@@ -108,7 +71,7 @@ const Records = {
                 return this.getNotebookByName(vaultId)
                     .then(res => res.result.notebook)
                     .then(res => {
-                        if(!res)
+                        if (!res)
                             throw new VaultNotFoundException()
                         return axios.post(this.baseUrl + notebookUrl + '/' + res.ID + url, {
                             records: recordFields,

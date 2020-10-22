@@ -11,27 +11,24 @@ let SkyflowClient = function () {
     this.initialize.apply(this, arguments);
 };
 
-const sandboxBaseUrl = "https://api.skyflow.tech/";
-const prodBaseUrl = "https://api.skyflow.com/"
+const prodBaseUrl = "vault.skyflowapis.com"
 
 SkyflowClient.prototype = {
 
-    initialize: function (orgId, username, password, appId, appSecret, options = {}) // + token
+    initialize: function (accountName, workspaceName, vaultId, credentials, options = {}) // + token
     {
 
-        this.orgId = orgId;
-        if (!username && !password) {
-            throw new Error('Invalid username or password')
-        }
-        this.username = username;
-        this.password = password;
+        this.accountName = accountName;
+        this.workspaceName = workspaceName;
+        this.vaultId = vaultId;
+        this.credentials = credentials;
 
-        this.appSecret = appSecret;
-
-        this.appId = appId;
         this.options = options;
-        this.version = this.options.version || 'v1';
-        this.baseUrl = this.options.prodApp ? prodBaseUrl + this.version : sandboxBaseUrl + this.version;
+        this.version = '/' + (this.options.version || 'v1');
+        this.baseUrl = prodBaseUrl + this.version;
+
+        this.vaultUrl = 'https://' + workspaceName + '.' + accountName + '.' + this.baseUrl + '/vaults/' + vaultId
+
         if(this.options.accessToken) {
             this.defaultHeaders['Authorization'] = 'Bearer ' + res.accessToken
             this.accessToken = res.accessToken;
@@ -44,20 +41,15 @@ SkyflowClient.prototype = {
         this.node = !this.browser;
         // this.requestAgent = HTTPSAgent
 
-        this.defaultHeaders = {
-            'x-skyflow-org-id': this.orgId,
-            'x-skyflow-app-id': this.appId,
-            'x-skyflow-app-secret': this.appSecret,
-
-        }
-
-        if (this.browser && this.appSecret) {
+        if (this.browser && this.credentials) {
             throw new Error(
                 'You are publicly sharing your App Secret. Do not expose the App Secret in browsers, "native" mobile apps, or other non-trusted environments.',
             );
         }
-        
-        this.getAccessToken()
+
+        this.defaultHeaders = {}
+
+         this.getAccessToken()
             .then(res => {
                 this.defaultHeaders['Authorization'] = 'Bearer ' + res.accessToken
                 this.accessToken = res.accessToken;
@@ -70,11 +62,11 @@ SkyflowClient.prototype = {
             return callback({...args});
         }
         else {
-            this.getAccessToken()
+            return this.getAccessToken()
             .then(res => {
                 this.defaultHeaders['Authorization'] = 'Bearer ' + res.accessToken
-                this.accessToken = res.data.accessToken;
-                return callback(...args);
+                this.accessToken = res.accessToken;
+                return callback({...args});
             })
             .catch(err => err);
         }
