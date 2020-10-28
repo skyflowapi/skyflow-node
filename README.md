@@ -19,7 +19,7 @@ To get started create a skyflow client in one of the following ways
 ```javascript
 import {connect} from 'skyflow-node';
 
-const client = connect(orgid, <skyflow username>, <skyflow password>, <app id>, <app secret> , options) 
+const client = connect(accountName, workspaceName, vaultId, credentials, options) 
 //options are optional parameters
 ```
 Options object can include
@@ -27,8 +27,6 @@ Options object can include
 {
     accessToken : 'your access token', // your access jwt. Defaults to generating a new token from given credentials
     browser : true, // if you are using this client from front end, Defaults to false
-    prodApp : false //if this is a production application. Default to false
-
 }
 ```
 
@@ -39,10 +37,11 @@ All interactions with the Skyflow Platform API is done through client methods.
 * [Auth](#auth)  
 * [Records](#records)
   * [Insert Records](#insert-records)
-  * [Get Records](#get-records)
-  * [Delete Records](#delete-records)
+  * [Get All Records](#get-records)
+  * [Get Record](#get-record)
+  * [Delete Record](#delete-record)
+  * [Delete All Records](#delete-record)
   * [Update Records](#update-records)
-  * [Bulk Insert Records](#bulk-insert)
 
 
 ### Auth
@@ -62,7 +61,7 @@ client.getAccessToken()
 #### Insert Records
 
 ```javascript
-client.insertRecord('<your vault id', 
+client.insertRecord('<your table name', 
    [
         {
             "name": "<field name>",
@@ -76,26 +75,51 @@ client.insertRecord('<your vault id',
     })
     .catch(err => console.log(err.data.error))
 ```
-
-
-#### Get Records
+#### Get All Records
 
 To get the record values back pass in the id token of respective rows, 
 
 ```javascript
-client.getRecord('<vault id>', '<token>')
+client.getRecords('<table name>')
     .then(res => {
         console.log(res)
     })
     .catch(err => console.log(err));
 ```
 
-#### Delete Records
+#### Get Record
+
+To get the record values back pass in the id token of respective rows, 
+
+```javascript
+client.getRecord('<table name>', '<skyflow-id>')
+    .then(res => {
+        console.log(res)
+    })
+    .catch(err => console.log(err));
+```
+
+#### Delete Record
 
 This api deletes the record permanently from the vault. 
 
 ```javascript
-client.deleteRecord('<vault id>', '<token>')
+client.deleteRecord('<table name>', '<skyflow-id>')
+    .then(res => {
+        console.log(res) //returns back the id if operation is successful
+    })
+    .catch(err => console.log(err));
+
+
+```
+
+
+#### Delete Records
+
+This api deletes all the records permanently from the vault. 
+
+```javascript
+client.deleteRecords('<table name>')
     .then(res => {
         console.log(res) //returns back the id if operation is successful
     })
@@ -117,36 +141,10 @@ let recordFields = [
     }
 ]
 
-client.updateRecord('<vault id>', '<token>', recordFields)
+client.updateRecord('<table name>', '<skyflow-id>', recordFields)
     .then(res => {
         console.log(res) //updated token values
     })
     .catch(err => console.log(err));
 ```
 
-#### Bulk Insert
-
-This can be used to add multiple records at once. 
-```javascript
-
-let records = {
-    records : [
-        {
-            fields : [
-                {
-                    name : 'field name',
-                    value : 'field value'
-                }
-            ]
-
-        }
-    ]
-}
-
-client.insertBulkRecord('<vault id>', records)
-    .then(res => {
-        console.log(res)
-    })
-    .catch(err => console.log(err));
-
-```

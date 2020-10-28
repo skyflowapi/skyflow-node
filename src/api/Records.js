@@ -8,7 +8,7 @@ const url = '/records'
 const Records = {
 
 
-    insertRecord(tableName, recordFields) {
+    insertRecords(tableName, recordFields) {
         return this.callApi(
             ({ tableName, recordFields }) => {
                 return axios.post(this.vaultUrl + '/' + tableName, {
@@ -22,6 +22,20 @@ const Records = {
                     .catch(err => err && err.response && err.response.data)
             }, { tableName, recordFields })
 
+    },
+
+    getRecords(tableName) {
+        return this.callApi(
+            ({ tableName }) => {
+                return axios.get(this.vaultUrl + '/' + tableName ,
+                    {
+                        headers: this.defaultHeaders
+                    })
+                    .then(res => {
+                        return res.data;
+                    })
+                    .catch(err => err && err.response && err.response.data)
+            }, { tableName })
     },
 
     getRecord(tableName, recordId) {
@@ -65,27 +79,20 @@ const Records = {
             }, { tableName, recordId })
     },
 
-    insertBulkRecord(vaultId, recordFields) {
+    deleteAllRecords(tableName) {
         return this.callApi(
-            ({ vaultId, recordFields }) => {
-                return this.getNotebookByName(vaultId)
-                    .then(res => res.result.notebook)
-                    .then(res => {
-                        if (!res)
-                            throw new VaultNotFoundException()
-                        return axios.post(this.baseUrl + notebookUrl + '/' + res.ID + url, {
-                            records: recordFields,
-                            notebookID: res.ID
-                        }, {
-                            headers: this.defaultHeaders
-                        })
-                            .then(res => {
-                                return res.data;
-                            })
-                            .catch(err => err)
+            ({ tableName }) => {
+                return axios.delete(this.vaultUrl + '/' + tableName ,
+                    {
+                        headers: this.defaultHeaders
                     })
-            }, { vaultId, recordFields })
+                    .then(res => {
+                        return res.data;
+                    })
+                    .catch(err => err && err.response && err.response.data)
+            }, { tableName })
     }
+
 }
 
 export default Records;
