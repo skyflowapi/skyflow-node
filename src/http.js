@@ -1,5 +1,3 @@
-import axios from 'axios';
-import https from 'https';
 import jwtDecode from 'jwt-decode';
 
 export function isTokenValid(token) {
@@ -8,7 +6,7 @@ export function isTokenValid(token) {
       decodedToken = jwtDecode(token);
     }
     catch (e) {
-      console.log(e)
+      console.log('Cannot find a valid skyflow jwt, creating new one')
       return false;
     }
     return !(decodedToken.exp * 1000 < Date.now());

@@ -1,9 +1,5 @@
 import axios from 'axios';
-import { notebookUrl } from './Notebooks';
-import { isTokenValid } from '../http';
 import VaultNotFoundException from '../CustomErrors/VaultNotFoundException';
-
-const url = '/records'
 
 const Records = {
 
@@ -38,10 +34,14 @@ const Records = {
             }, { tableName })
     },
 
-    getRecord(tableName, recordId) {
+    getRecord(tableName, recordId, dlp) {
+        let url = this.vaultUrl + '/' + tableName + '/' + recordId
+        if(dlp) {
+            url+='?dlp=' + dlp
+        }
         return this.callApi(
             ({ tableName, recordId }) => {
-                return axios.get(this.vaultUrl + '/' + tableName + '/' + recordId,
+                return axios.get(url,
                     {
                         headers: this.defaultHeaders
                     })

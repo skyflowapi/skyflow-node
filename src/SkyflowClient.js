@@ -1,7 +1,8 @@
 import AuthApi from './api/Auth';
 import RecordApi from './api/Records';
 import NotebookApi from './api/Notebooks';
-import {isTokenValid} from './http' 
+import QueryApi from './api/Query';
+import {isTokenValid} from './http'
 /**
      * Client to connect to Skyflow api
      * 
@@ -39,7 +40,6 @@ SkyflowClient.prototype = {
                 ? this.options.browser
                 : typeof window !== 'undefined';
         this.node = !this.browser;
-        // this.requestAgent = HTTPSAgent
 
         if (this.browser && this.credentials) {
             throw new Error(
@@ -76,5 +76,6 @@ SkyflowClient.prototype = {
 Object.assign(SkyflowClient.prototype, AuthApi);
 Object.assign(SkyflowClient.prototype, RecordApi);
 Object.assign(SkyflowClient.prototype, NotebookApi);
+Object.assign(SkyflowClient.prototype, QueryApi);
 
 module.exports = SkyflowClient;
