@@ -16,11 +16,9 @@ const prodBaseUrl = "vault.skyflowapis.com"
 
 SkyflowClient.prototype = {
 
-    initialize: function (accountName, workspaceName, vaultId, credentials, options = {}) // + token
+    initialize: function (workspaceURL, vaultId, credentials, options = {}) // + token
     {
 
-        this.accountName = accountName;
-        this.workspaceName = workspaceName;
         this.vaultId = vaultId;
         this.credentials = credentials;
 
@@ -28,7 +26,7 @@ SkyflowClient.prototype = {
         this.version = '/' + (this.options.version || 'v1');
         this.baseUrl = prodBaseUrl + this.version;
 
-        this.vaultUrl = 'https://' + workspaceName + '.' + accountName + '.' + this.baseUrl + '/vaults/' + vaultId
+        this.vaultUrl = 'https://' + workspaceURL + this.version + '/vaults/' + vaultId
 
         if(this.options.accessToken) {
             this.defaultHeaders['Authorization'] = 'Bearer ' + res.accessToken
