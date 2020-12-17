@@ -2,7 +2,8 @@ import AuthApi from './api/Auth';
 import RecordApi from './api/Records';
 import NotebookApi from './api/Notebooks';
 import QueryApi from './api/Query';
-import {isTokenValid} from './http'
+import {isTokenValid} from './http';
+import {getServiceAccount} from './utils'
 /**
      * Client to connect to Skyflow api
      * 
@@ -20,12 +21,12 @@ SkyflowClient.prototype = {
     {
 
         this.vaultId = vaultId;
-        this.credentials = credentials;
+        this.credentials = getServiceAccount(credentials);
 
         this.options = options;
         this.version = '/' + (this.options.version || 'v1');
         this.baseUrl = prodBaseUrl + this.version;
-
+        this.defaultHeaders = {};
         this.vaultUrl = 'https://' + workspaceURL + this.version + '/vaults/' + vaultId
 
         if(this.options.accessToken) {
@@ -54,6 +55,9 @@ SkyflowClient.prototype = {
             })
             .catch(err => err);
 
+    },
+    setVaultId : function(vaultId) {
+        this.vaultId = vaultId;
     },
     callApi : function(callback, args) {
         if(isTokenValid(this.accessToken)) {

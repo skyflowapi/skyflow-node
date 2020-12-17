@@ -32,7 +32,7 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "Base64": "^1.0.1",
-    "axios": "^0.19.2",
+    "axios": "0.19.2",
     "fetch": "^1.1.0",
     "form-data": "^2.3.2",
     "https": "^1.0.0",

@@ -4,7 +4,7 @@ import VaultNotFoundException from '../CustomErrors/VaultNotFoundException';
 const Records = {
 
 
-    insertRecords(tableName, recordFields) {
+    insertRecords(tableName, recordFields, callback) {
         return this.callApi(
             ({ tableName, recordFields }) => {
                 return axios.post(this.vaultUrl + '/' + tableName, {
@@ -12,15 +12,18 @@ const Records = {
                 }, {
                     headers: this.defaultHeaders
                 })
-                    .then(res => {
-                        return res.data;
-                    })
+                .then(res => {
+                    if(callback) {
+                        callback(res.data);
+                    }
+                    return res.data;
+                })
                     .catch(err => err && err.response && err.response.data)
             }, { tableName, recordFields })
 
     },
 
-    getRecords(tableName) {
+    getRecords(tableName, callback) {
         return this.callApi(
             ({ tableName }) => {
                 return axios.get(this.vaultUrl + '/' + tableName ,
@@ -28,13 +31,16 @@ const Records = {
                         headers: this.defaultHeaders
                     })
                     .then(res => {
+                        if(callback) {
+                            callback(res.data);
+                        }
                         return res.data;
                     })
                     .catch(err => err && err.response && err.response.data)
             }, { tableName })
     },
 
-    getRecord(tableName, recordId, dlp) {
+    getRecord(tableName, recordId, dlp, callback) {
         let url = this.vaultUrl + '/' + tableName + '/' + recordId
         if(dlp) {
             url+='?dlp=' + dlp
@@ -46,13 +52,16 @@ const Records = {
                         headers: this.defaultHeaders
                     })
                     .then(res => {
+                        if(callback) {
+                            callback(res.data);
+                        }
                         return res.data;
                     })
                     .catch(err => err && err.response && err.response.data)
             }, { tableName, recordId })
     },
 
-    updateRecord(tableName, recordId, recordField) {
+    updateRecord(tableName, recordId, recordField, callback) {
         return this.callApi(
             ({ tableName, recordId, recordField }) => {
                 return axios.put(this.vaultUrl + '/' + tableName + '/' + recordId, {
@@ -60,26 +69,36 @@ const Records = {
                 }, {
                     headers: this.defaultHeaders
                 })
-                    .then(res => res.data)
+                .then(res => {
+                    if(callback) {
+                        callback(res.data);
+                    }
+                    return res.data;
+                })
                     .catch(err => err && err.response && err.response.data)
 
             }, { tableName, recordId, recordField })
 
 
     },
-    deleteRecord(tableName, recordId) {
+    deleteRecord(tableName, recordId, callback) {
         return this.callApi(
             ({ tableName, recordId }) => {
                 return axios.delete(this.vaultUrl + '/' + tableName + '/' + recordId
                     , {
                         headers: this.defaultHeaders
                     })
-                    .then(res => res.data)
+                    .then(res => {
+                        if(callback) {
+                            callback(res.data);
+                        }
+                        return res.data;
+                    })
                     .catch(err => err && err.response && err.response.data)
             }, { tableName, recordId })
     },
 
-    deleteAllRecords(tableName) {
+    deleteAllRecords(tableName, callback) {
         return this.callApi(
             ({ tableName }) => {
                 return axios.delete(this.vaultUrl + '/' + tableName ,
@@ -87,6 +106,9 @@ const Records = {
                         headers: this.defaultHeaders
                     })
                     .then(res => {
+                        if(callback) {
+                            callback(res.data);
+                        }
                         return res.data;
                     })
                     .catch(err => err && err.response && err.response.data)
