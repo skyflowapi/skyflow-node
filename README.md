@@ -62,11 +62,11 @@ client.getAccessToken()
 #### Insert Records
 
 ```javascript
-client.insertRecord('<your table name', 
+client.bulkInsertRecords('<your table name', 
    [
         {
-            "name": "<field name>",
-            "value": "<field value>"
+            "field1": "<field value>",
+            "field2": "<field value>",
         }
     ]
     
@@ -81,7 +81,7 @@ client.insertRecord('<your table name',
 To get the record values back pass in the id token of respective rows, 
 
 ```javascript
-client.getRecords('<table name>')
+client.bulkGetRecords('<table name>')
     .then(res => {
         console.log(res)
     })
@@ -120,7 +120,7 @@ client.deleteRecord('<table name>', '<skyflow-id>')
 This api deletes all the records permanently from the vault. 
 
 ```javascript
-client.deleteRecords('<table name>')
+client.bulkDeleteRecords('<table name>')
     .then(res => {
         console.log(res) //returns back the id if operation is successful
     })

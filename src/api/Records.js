@@ -4,7 +4,7 @@ import VaultNotFoundException from '../CustomErrors/VaultNotFoundException';
 const Records = {
 
 
-    insertRecords(tableName, recordFields, callback) {
+    bulkInsertRecords(tableName, recordFields, callback) {
         return this.callApi(
             ({ tableName, recordFields }) => {
                 return axios.post(this.vaultUrl + '/' + tableName, {
@@ -23,7 +23,7 @@ const Records = {
 
     },
 
-    getRecords(tableName, callback) {
+    bulkGetRecords(tableName, callback) {
         return this.callApi(
             ({ tableName }) => {
                 return axios.get(this.vaultUrl + '/' + tableName ,
@@ -98,7 +98,7 @@ const Records = {
             }, { tableName, recordId })
     },
 
-    deleteAllRecords(tableName, callback) {
+    bulkDeleteRecords(tableName, callback) {
         return this.callApi(
             ({ tableName }) => {
                 return axios.delete(this.vaultUrl + '/' + tableName ,

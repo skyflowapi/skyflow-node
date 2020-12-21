@@ -1,6 +1,6 @@
 {
   "name": "skyflow-node",
-  "version": "1.0.1-beta.7",
+  "version": "1.0.1-beta.8",
   "description": "Node js client for skyflow API's",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
