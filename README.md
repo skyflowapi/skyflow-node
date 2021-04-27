@@ -19,7 +19,7 @@ To get started create a skyflow client in one of the following ways
 ```javascript
 import {connect} from 'skyflow-node';
 
-const client = connect(accountName, workspaceName, vaultId, credentials, options) 
+const client = connect(workspaceURL, vaultId, credentials, options) 
 // credentials is your service account json file which can be downloaded from skyflow studio
 //options are optional parameters
 ```
