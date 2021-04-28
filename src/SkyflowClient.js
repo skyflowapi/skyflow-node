@@ -3,7 +3,7 @@ import RecordApi from './api/Records';
 import NotebookApi from './api/Notebooks';
 import QueryApi from './api/Query';
 import {isTokenValid} from './http';
-import {getServiceAccount} from './utils'
+import {getServiceAccount, getWorkspace} from './utils'
 /**
      * Client to connect to Skyflow api
      * 
@@ -18,8 +18,9 @@ const prodBaseUrl = "vault.skyflowapis.com"
 SkyflowClient.prototype = {
 
     initialize: function (workspaceURL, vaultId, credentials, options = {}) // + token
-    {
-
+    {   
+        const workspace = getWorkspace(workspaceURL);
+        if(!workspace.valid) throw new Error('Invalid workspace Url')
         this.vaultId = vaultId;
         this.credentials = getServiceAccount(credentials);
 
@@ -33,6 +34,7 @@ SkyflowClient.prototype = {
             this.defaultHeaders['Authorization'] = 'Bearer ' + res.accessToken
             this.accessToken = res.accessToken;
         }
+        this.defaultHeaders['X-SKYFLOW-ACCOUNT-NAME'] = workspace.accountName
         this.handlers = {};
         this.browser =
             typeof this.options.browser !== 'undefined'
