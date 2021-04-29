@@ -44,7 +44,8 @@ All interactions with the Skyflow Platform API is done through client methods.
   * [Delete All Records](#delete-record)
   * [Update Records](#update-records)
 * [Tokens](#tokens)
-
+  * [Get Record By Token](#get-record-by-token)
+  * [Bulk Get Records By Tokens](#bulk-get-records-by-token)
 
 ### Auth
 
