@@ -2,6 +2,8 @@ import AuthApi from './api/Auth';
 import RecordApi from './api/Records';
 import NotebookApi from './api/Notebooks';
 import QueryApi from './api/Query';
+import TokensApi from './api/Tokens';
+
 import {isTokenValid} from './http';
 import {getServiceAccount, getWorkspace} from './utils'
 /**
@@ -13,7 +15,6 @@ let SkyflowClient = function () {
     this.initialize.apply(this, arguments);
 };
 
-const prodBaseUrl = "vault.skyflowapis.com"
 
 SkyflowClient.prototype = {
 
@@ -26,7 +27,6 @@ SkyflowClient.prototype = {
 
         this.options = options;
         this.version = '/' + (this.options.version || 'v1');
-        this.baseUrl = prodBaseUrl + this.version;
         this.defaultHeaders = {};
         this.vaultUrl = 'https://' + workspaceURL + this.version + '/vaults/' + vaultId
 
@@ -81,5 +81,6 @@ Object.assign(SkyflowClient.prototype, AuthApi);
 Object.assign(SkyflowClient.prototype, RecordApi);
 Object.assign(SkyflowClient.prototype, NotebookApi);
 Object.assign(SkyflowClient.prototype, QueryApi);
+Object.assign(SkyflowClient.prototype, TokensApi);
 
 module.exports = SkyflowClient;

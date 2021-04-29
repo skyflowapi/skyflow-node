@@ -12,53 +12,67 @@ const Records = {
                 }, {
                     headers: this.defaultHeaders
                 })
-                .then(res => {
-                    if(callback) {
-                        callback(res.data);
-                    }
-                    return res.data;
-                })
+                    .then(res => {
+                        if (callback) {
+                            callback(res.data);
+                        }
+                        return res.data;
+                    })
                     .catch(err => err && err.response && err.response.data)
             }, { tableName, recordFields })
 
     },
 
-    bulkGetRecords(tableName, callback) {
+    bulkGetRecords(tableName, options, callback) {
         return this.callApi(
-            ({ tableName }) => {
-                return axios.get(this.vaultUrl + '/' + tableName ,
+            ({ tableName, options = {} }) => {
+                return axios.get(this.vaultUrl + '/' + tableName,
+
                     {
-                        headers: this.defaultHeaders
+                        headers: this.defaultHeaders,
+                        params: {
+                            skyflow_ids: options.skyflowIds,
+                            redaction: options.redaction,
+                            tokenization: options.tokenization,
+                            fields: options.fields,
+                            offset: options.offset,
+                            limit: options.limit
+                        }
                     })
                     .then(res => {
-                        if(callback) {
+                        if (callback) {
                             callback(res.data);
                         }
                         return res.data;
                     })
                     .catch(err => err && err.response && err.response.data)
-            }, { tableName })
+            }, { tableName, options })
     },
 
-    getRecord(tableName, recordId, dlp, callback) {
+    getRecord(tableName, recordId, options = {}, callback) {
         let url = this.vaultUrl + '/' + tableName + '/' + recordId
-        if(dlp) {
-            url+='?dlp=' + dlp
-        }
+
         return this.callApi(
-            ({ tableName, recordId }) => {
+            ({ options }) => {
                 return axios.get(url,
+
                     {
-                        headers: this.defaultHeaders
+                        headers: this.defaultHeaders,
+                        params: {
+                            redaction: options.redaction,
+                            tokenization: options.tokenization,
+                            fields: options.fields,
+
+                        }
                     })
                     .then(res => {
-                        if(callback) {
+                        if (callback) {
                             callback(res.data);
                         }
                         return res.data;
                     })
                     .catch(err => err && err.response && err.response.data)
-            }, { tableName, recordId })
+            }, { options })
     },
 
     updateRecord(tableName, recordId, recordField, callback) {
@@ -69,12 +83,12 @@ const Records = {
                 }, {
                     headers: this.defaultHeaders
                 })
-                .then(res => {
-                    if(callback) {
-                        callback(res.data);
-                    }
-                    return res.data;
-                })
+                    .then(res => {
+                        if (callback) {
+                            callback(res.data);
+                        }
+                        return res.data;
+                    })
                     .catch(err => err && err.response && err.response.data)
 
             }, { tableName, recordId, recordField })
@@ -89,7 +103,7 @@ const Records = {
                         headers: this.defaultHeaders
                     })
                     .then(res => {
-                        if(callback) {
+                        if (callback) {
                             callback(res.data);
                         }
                         return res.data;
@@ -98,21 +112,24 @@ const Records = {
             }, { tableName, recordId })
     },
 
-    bulkDeleteRecords(tableName, callback) {
+    bulkDeleteRecords(tableName,skyflowIds = [], callback) {
         return this.callApi(
-            ({ tableName }) => {
-                return axios.delete(this.vaultUrl + '/' + tableName ,
+            ({ tableName,skyflowIds }) => {
+                return axios.delete(this.vaultUrl + '/' + tableName,
                     {
-                        headers: this.defaultHeaders
+                        headers: this.defaultHeaders,
+                        params : {
+                            skyflow_ids : skyflowIds,
+                        }
                     })
                     .then(res => {
-                        if(callback) {
+                        if (callback) {
                             callback(res.data);
                         }
                         return res.data;
                     })
                     .catch(err => err && err.response && err.response.data)
-            }, { tableName })
+            }, { tableName,skyflowIds })
     }
 
 }
