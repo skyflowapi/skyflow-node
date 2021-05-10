@@ -4,12 +4,10 @@ import VaultNotFoundException from '../CustomErrors/VaultNotFoundException';
 const Records = {
 
 
-    bulkInsertRecords(tableName, recordFields, callback) {
+    insertRecords(tableName, records, callback) {
         return this.callApi(
-            ({ tableName, recordFields }) => {
-                return axios.post(this.vaultUrl + '/' + tableName, {
-                    records: recordFields
-                }, {
+            ({ tableName, records }) => {
+                return axios.post(this.vaultUrl + '/' + tableName, records, {
                     headers: this.defaultHeaders
                 })
                     .then(res => {
@@ -19,7 +17,7 @@ const Records = {
                         return res.data;
                     })
                     .catch(err => err && err.response && err.response.data)
-            }, { tableName, recordFields })
+            }, { tableName, records })
 
     },
 
@@ -75,12 +73,10 @@ const Records = {
             }, { options })
     },
 
-    updateRecord(tableName, recordId, recordField, callback) {
+    updateRecord(tableName, recordId, record, callback) {
         return this.callApi(
-            ({ tableName, recordId, recordField }) => {
-                return axios.put(this.vaultUrl + '/' + tableName + '/' + recordId, {
-                    record: recordField
-                }, {
+            ({ tableName, recordId, record }) => {
+                return axios.put(this.vaultUrl + '/' + tableName + '/' + recordId, record, {
                     headers: this.defaultHeaders
                 })
                     .then(res => {
@@ -91,7 +87,7 @@ const Records = {
                     })
                     .catch(err => err && err.response && err.response.data)
 
-            }, { tableName, recordId, recordField })
+            }, { tableName, recordId, record })
 
 
     },

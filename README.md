@@ -64,13 +64,14 @@ client.getAccessToken()
 #### Insert Records
 
 ```javascript
-client.bulkInsertRecords('<your table name', 
-   [
-        {
-            "field1": "<field value>",
-            "field2": "<field value>",
+client.insertRecords('<your table name', 
+  {
+    records : [{
+        fields: {
+            "field_name": "value"
         }
-    ]
+    }]
+}
     
 )
     .then(res => {
@@ -157,16 +158,18 @@ client.bulkDeleteRecords('<table name>', skyflowIds)
 
 This api can be used to update some or all the ros of the record. 
 
+
 ```javascript
 
-let recordFields = [
-    {
-    name : 'field name',
-    value : 'field new value'
-    }
-]
 
-client.updateRecord('<table name>', '<skyflow-id>', recordFields)
+
+client.updateRecord('<table name>', '<skyflow-id>', {
+  "record": {
+    "fields": {
+      "field_name": "new_value"
+    }
+  }
+})
     .then(res => {
         console.log(res) //updated token values
     })

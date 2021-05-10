@@ -4,7 +4,7 @@ import VaultNotFoundException from '../CustomErrors/VaultNotFoundException';
 const Tokens = {
 
 
-    getRecordByToken(token, options, callback) {
+    getRecordByToken(token, options = {}, callback) {
         return this.callApi(
             ({ token, options }) => {
                 return axios.get(this.vaultUrl + '/' + 'tokens/' + token,  {
@@ -23,7 +23,7 @@ const Tokens = {
             }, { token, options })
 
     },
-    getBulkRecordsByTokens(tokens, options, callback) {
+    getBulkRecordsByTokens(tokens, options = {}, callback) {
         return this.callApi(
             ({ tokens, options }) => {
                 return axios.get(this.vaultUrl + '/' + 'tokens', {
