@@ -39,6 +39,7 @@
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.11",
+    "logger": "0.0.1",
     "qs": "^6.5.1"
   },
   "devDependencies": {
