@@ -1,8 +1,8 @@
-export const clientIDNotFound = "clientID not found";
-export const tokenURINotFound = "tokenURI not found";
-export const keyIDNotFound = "keyID not found";
-export const expiryTimeNotFound = "expiryTime not found";
-export const privateKeyNotFound = "privateKey not found";
-export const credentialsObjCannotBeProcessed =
-  "credentialsObj cannot be processed";
-export const notAValidJSON = "not a valid JSON object";
+export const errorMessages = {
+  clientIDNotFound: "clientID not found",
+  tokenURINotFound: "tokenURI not found",
+  keyIDNotFound: "keyID not found",
+  privateKeyNotFound: "privateKey not found",
+  notAValidJSON: "not a valid JSON object",
+  fileNotFound: "file not found",
+};
