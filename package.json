@@ -1,6 +1,6 @@
 {
   "name": "skyflow-node",
-  "version": "1.0.1-beta.13",
+  "version": "1.1.0",
   "description": "Node js client for skyflow API's",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -39,7 +39,6 @@
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.11",
-    "logger": "0.0.1",
     "qs": "^6.5.1"
   },
   "devDependencies": {

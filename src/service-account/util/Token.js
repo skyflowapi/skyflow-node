@@ -1,6 +1,5 @@
 import fs from "fs";
 import Axios from "axios";
-import { logger } from "logger";
 import jwt from "jsonwebtoken";
 import * as messageVar from "../../errors/Messages.js";
 
@@ -74,10 +73,10 @@ function GenerateToken(credentialsFilePath) {
           reject(err);
         });
     }).catch((err) => {
-      logger.error(err.toString());
+      console.log(err.toString());
     });
   } catch (err) {
-    logger.error(err.toString());
+    console.log(err.toString());
   }
 }
 
