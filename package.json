@@ -1,6 +1,6 @@
 {
   "name": "skyflow-node",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Node js client for skyflow API's",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:skyflowtech/skyflow-node-sdk.git"
+    "url": "https://github.com/skyflowapi/skyflow-node-sdk.git"
   },
   "author": "",
   "license": "MIT",
