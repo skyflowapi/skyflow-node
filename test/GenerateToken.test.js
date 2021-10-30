@@ -8,3 +8,4 @@ describe("fileValidityTest", () => {
     ).rejects.toMatch(errorMessages.notAValidJSON);
   });
 });
+
