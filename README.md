@@ -1,6 +1,6 @@
-# Skyflow Node SDK
+# Description
 
-Node.js API Client for the Skyflow Platform API.
+skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programming language.
 
 Requires node version 6.9.0 or higher.
 
@@ -10,198 +10,25 @@ Requires node version 6.9.0 or higher.
 npm install skyflow-node
 ```
 
-
 ## Usage
 
-All usage of this SDK begins with the creation of a client, the client handles the authentication and communication with the Skyflow API.
+### Service Account Token Generation
 
-To get started create a skyflow client in one of the following ways
-```javascript
-import {connect} from 'skyflow-node';
+[This](https://github.com/skyflowapi/skyflow-node-sdk/tree/master/src/service-account) Node.js module is used to generate service account tokens from service account credentials file which is downloaded upon creation of service account. The token generated from this module is valid for 60 minutes and can be used to make API calls to vault services as well as management API(s) based on the permissions of the service account.
 
-const client = connect(workspaceUrl, vaultId, credentials, options) 
-// credentials is your service account json file which can be downloaded from skyflow studio
-//options are optional parameters
-```
-Options object can include
-```
-{
-    accessToken : 'your access token', // your access jwt. Defaults to generating a new token from given credentials
-    browser : true, // if you are using this client from front end, Defaults to false
-}
-```
-
-All interactions with the Skyflow Platform API is done through client methods.  
-
-## Table of Contents
-
-* [Auth](#auth)  
-* [Records](#records)
-  * [Insert Records](#insert-records)
-  * [Get All Records](#get-records)
-  * [Get Record](#get-record)
-  * [Delete Record](#delete-record)
-  * [Delete All Records](#delete-record)
-  * [Update Records](#update-records)
-* [Tokens](#tokens)
-  * [Get Record By Token](#get-record-by-token)
-  * [Bulk Get Records By Tokens](#bulk-get-records-by-token)
-
-### Auth
-
-```
-client.getAccessToken()
-.then(res => {
-    //returns access token if credentials are valid
-})
-.catch(err => {
-     
-})
-```
-
-### Records
-
-#### Insert Records
+[Example](https://github.com/skyflowapi/skyflow-node-sdk/blob/master/samples/service-account/TokenGenerationExample.js):
 
 ```javascript
-client.insertRecords('<your table name', 
-  {
-    records : [{
-        fields: {
-            "field_name": "value"
-        }
-    }]
-}
-    
-)
-    .then(res => {
-        console.log(res) // returns the token id and tokens of each column values
-    })
-    .catch(err => console.log(err.data.error))
+const skyflow = require("skyflow-node");
+
+var filepath = "filepath_to_be_mentioned_here";
+
+skyflow
+  .GenerateToken(filePath)
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 ```
-#### Get All Records
-
-To get the record values back pass in the id token of respective rows, 
-
-```javascript
-client.bulkGetRecords('<table name>', options)
-    .then(res => {
-        console.log(res)
-    })
-    .catch(err => console.log(err));
-```
-Options is a non mandatory argument. It could have some or all of the below fields
-```javascript
-const options = {
-    skyflowIds : ['skyflow-id'] , //array of skyflow ids of the records you want to retrieve. Defaults to all records
-    redaction: 'DEFAULT', //Redaction format of the retrieved data. Possible values are 'DEFAULT', 'MASKED', 'REDACTED', 'PLAIN_TEXT'
-    tokenization: true, // If you want to retrieve tokens along with data
-    fields: ['field names'],// Array of field names you want to retrieve. Defaults to all
-    offset: number, // Record Offset of the first record to be retrieved. Defaults to 0  
-    limit: number, // limit of records to be retrieved. Defaults to 25
-               
-}
-```
-
-#### Get Record
-
-To get the record values back pass in the id token of respective rows, 
-
-```javascript
-client.getRecord('<table name>', '<skyflow-id>', options)
-    .then(res => {
-        console.log(res)
-    })
-    .catch(err => console.log(err));
-```
-Options is a non mandatory argument. It could have some or all of the below fields
-```javascript
-const options = {
-  
-    redaction: 'DEFAULT', //Redaction format of the retrieved data. Possible values are 'DEFAULT', 'MASKED', 'REDACTED', 'PLAIN_TEXT'
-    tokenization: true, // If you want to retrieve tokens along with data
-    fields: ['field names'],// Array of field names you want to retrieve. Defaults to all
-    
-               
-}
-```
-#### Delete Record
-
-This api deletes the record permanently from the vault. 
-
-```javascript
-client.deleteRecord('<table name>', '<skyflow-id>')
-    .then(res => {
-        console.log(res) //returns back the id if operation is successful
-    })
-    .catch(err => console.log(err));
-
-
-```
-
-
-#### Delete Records
-
-This api deletes all the records permanently from the vault. 
-
-```javascript
-client.bulkDeleteRecords('<table name>', skyflowIds)
-    .then(res => {
-        console.log(res) //returns back the id if operation is successful
-    })
-    .catch(err => console.log(err));
-
-
-```
-
-#### Update Records
-
-This api can be used to update some or all the ros of the record. 
-
-
-```javascript
-
-
-
-client.updateRecord('<table name>', '<skyflow-id>', {
-  "record": {
-    "fields": {
-      "field_name": "new_value"
-    }
-  }
-})
-    .then(res => {
-        console.log(res) //updated token values
-    })
-    .catch(err => console.log(err));
-```
-#### Get Record By Token
-
-This api can be used to retrieve the data with the tokens. 
-
-```javascript 
-await client.getRecordByToken('<token>')
-    .then(res => {
-        console.log(res)
-    })
-    .catch(e => {
-        console.log(e)
-    });
-```
-
-
-#### Bulk Get Records By Tokens
-This api can be used to retrieve multiple records at once with tokens. 
-
-```javascript 
-await client.getBulkRecordsByTokens([<tokens>])
-    .then(res => {
-        console.log(res)
-    })
-    .catch(e => {
-        console.log(e)
-    });
-```
-
-
-As an alternative to promises, you can also send a function as the last argument to all the above APIs which will act as a callback.

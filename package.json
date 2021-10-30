@@ -1,10 +1,11 @@
 {
   "name": "skyflow-node",
-  "version": "1.0.1-beta.13",
+  "version": "1.1.1",
   "description": "Node js client for skyflow API's",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
   "scripts": {
+    "test": "jest --coverage",
     "build": "babel src --out-dir lib",
     "eslint": "eslint '**/*.js' --max-warnings 0",
     "prettier": "prettier --list-different '**/*.{js,ts}'",
@@ -15,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:skyflowtech/skyflow-node-sdk.git"
+    "url": "https://github.com/skyflowapi/skyflow-node-sdk.git"
   },
   "author": "",
   "license": "MIT",
@@ -38,7 +39,6 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
-    "lodash": "^4.17.11",
     "qs": "^6.5.1"
   },
   "devDependencies": {
@@ -57,6 +57,7 @@
     "expect.js": "^0.3.1",
     "husky": "^1.3.1",
     "istanbul": "^0.4.5",
+    "jest": "^27.3.1",
     "jsdoc": "^3.6.3",
     "json-loader": "~0.5.4",
     "karma": "^3.1.3",
