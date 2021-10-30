@@ -1,9 +1,3 @@
-import SkyflowClient from './SkyflowClient';
-import { isTokenValid } from './http';
+import GenerateToken from "./service-account/util/Token";
 
-function connect(accountName, workspaceName, vaultId, credentials, options) {
-  return new SkyflowClient(accountName, workspaceName, vaultId, credentials, options);
-}
-
-export { connect, SkyflowClient, isTokenValid }
-
+export { GenerateToken };
