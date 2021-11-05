@@ -2,7 +2,7 @@
   "verbose": true,
   "collectCoverage": true,
   "testEnvironment": "jsdom",
-  "testTimeout": 30000,
+  "testTimeout": 3000,
   "testURL": "https://sb.area51.vault.skyflowapis.dev",
   "moduleNameMapper":{
     "^.+\\.svg$": "<rootDir>/tests/__mocks__/fileMock.js"

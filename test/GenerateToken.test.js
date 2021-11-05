@@ -4,8 +4,8 @@ import { errorMessages } from "../src/errors/Messages.js";
 describe("fileValidityTest", () => {
   test("invalidJSON", () => {
     return expect(
-      GenerateToken("test/textFile.json")
-    ).rejects.toMatch(errorMessages.notAValidJSON);
+      GenerateToken("test/demoCredentials/textFile.json")
+    ).rejects.toMatch(errorMessages.clientIDNotFound);
   });
 });
 

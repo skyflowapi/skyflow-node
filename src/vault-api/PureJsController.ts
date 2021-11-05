@@ -25,11 +25,8 @@ import {
   fetchRecordsBySkyflowID,
   fetchRecordsByTokenId,
 } from './core/reveal';
-import SkyflowError from './libs/SkyflowError';
-import SKYFLOW_ERROR_CODE from './utils/constants';
 import {
-  clearEmpties,
-  deletePropertyPath, fillUrlWithPathAndQueryParams, flattenObject, formatFrameNameToId,
+ fillUrlWithPathAndQueryParams,
 } from './utils/helpers';
 
 class PureJsController {
