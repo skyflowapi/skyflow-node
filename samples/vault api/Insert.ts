@@ -44,7 +44,7 @@ const skyflow = Skyflow.init({
         table: "cards",
       },
     ],
-  });
+  },{tokens:true});
   response
     .then(
       (res) => {

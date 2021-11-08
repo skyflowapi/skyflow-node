@@ -122,26 +122,9 @@ export const fetchRecordsByTokenId = (
     rootReject(err);
   });
 });
-export const formatRecordsForIframe = (response: IRevealResponseType) => {
-  const result: Record<string, string> = {};
-  if (response.records) {
-    response.records.forEach((record) => {
-      result[record.token] = record.value;
-    });
-  }
-  return result;
-};
 
-export const formatRecordsForClient = (response: IRevealResponseType) => {
-  if (response.records) {
-    const successRecords = response.records.map((record) => ({
-      token: record.token,
-    }));
-    if (response.errors) return { success: successRecords, errors: response.errors };
-    return { success: successRecords };
-  }
-  return { errors: response.errors };
-};
+
+
 
 /** SKYFLOW ID  */
 export const fetchRecordsBySkyflowID = async (

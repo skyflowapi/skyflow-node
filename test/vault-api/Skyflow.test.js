@@ -1,5 +1,6 @@
 import Skyflow from '../../src/vault-api/Skyflow';
 import { LogLevel, RedactionType, RequestMethod } from '../../src/vault-api/utils/common';
+import { isValidURL} from '../../src/vault-api/utils/validators';
 import clientModule from '../../src/vault-api/client';
 jest.mock('../../src/vault-api/utils/jwtUtils',()=>({
   __esModule: true,
@@ -269,6 +270,24 @@ const invalidDetokenizeInput = {
     token: 'token1',
   }],
 }
+
+const invalidDetokenizeInputEmptyToken = {
+  records: [{
+    token: '',
+  }],
+}
+
+const invalidDetokenizeInputEmptyRecords = {
+  records: [],
+}
+
+const invalidDetokenizeInputEmptyRecordObject = {
+  records: [
+    {
+
+    }
+  ],
+}
 const detokenizeRes = {
   records: [{
     token: 'token1',
@@ -381,10 +400,32 @@ describe('skyflow detokenize', () => {
     }
   });
 
+  test('detokenize invalid input 3',()=>{
+    try {
+      
+      const res = skyflow.detokenize(invalidDetokenizeInputEmptyRecords);
+        res.catch((err)=>{
+          expect(err).toBeDefined();
+        })
+    }catch(err){
+    }
+  });
+
   test('detokenize invalid input 4',()=>{
     try {
       
-      const res = skyflow.detokenize({records:[]});
+      const res = skyflow.detokenize(invalidDetokenizeInputEmptyToken);
+        res.catch((err)=>{
+          expect(err).toBeDefined();
+        })
+    }catch(err){
+    }
+  });
+
+  test('detokenize invalid input 5',()=>{
+    try {
+      
+      const res = skyflow.detokenize(invalidDetokenizeInputEmptyRecordObject);
         res.catch((err)=>{
           expect(err).toBeDefined();
         })
@@ -398,6 +439,21 @@ const getByIdInput = {
     ids: ['id'],
     table: 'cards',
     redaction: 'PLAIN_TEXT',
+  }],
+};
+
+const getByIdInputMissingIds = {
+  records: [{
+    table: 'cards',
+    redaction: 'PLAIN_TEXT',
+  }],
+};
+
+const getByIdInputInvalidRedaction = {
+  records: [{
+    ids: ['id'],
+    table: 'cards',
+    redaction: 'PLAITEXT',
   }],
 };
 
@@ -521,11 +577,89 @@ describe('skyflow getById', () => {
       done();
     });
   });
+
+  test('getById invalid input-5',(done)=>{
+    const res = skyflow.getById(getByIdInputMissingIds);
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+
+  test('getById invalid input-6',(done)=>{
+    const res = skyflow.getById(getByIdInputInvalidRedaction);
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
 });
 
 const invokeGatewayReq = {
   gatewayURL: 'https://gatewayurl.com',
   methodName: 'POST',
+  pathParams: {
+    cardNumber: '4111111111111111',
+  },
+  queryParams: {
+    expiryDate: '12/2024',
+  },
+  responseBody: {
+    resource: {
+      cvv: 'cvvId:123',
+    },
+  },
+};
+
+const missingGatewayURL = {
+  gatewayURL: 1234,
+  methodName: 'POST',
+  pathParams: {
+    cardNumber: '4111111111111111',
+  },
+  queryParams: {
+    expiryDate: '12/2024',
+  },
+  responseBody: {
+    resource: {
+      cvv: 'cvvId:123',
+    },
+  },
+};
+
+const invalidGatewayURL = {
+  methodName: 'POST',
+  pathParams: {
+    cardNumber: '4111111111111111',
+  },
+  queryParams: {
+    expiryDate: '12/2024',
+  },
+  responseBody: {
+    resource: {
+      cvv: 'cvvId:123',
+    },
+  },
+};
+
+const missingMethod = {
+  gatewayURL: 'https://gatewayurl.com',
+  pathParams: {
+    cardNumber: '4111111111111111',
+  },
+  queryParams: {
+    expiryDate: '12/2024',
+  },
+  responseBody: {
+    resource: {
+      cvv: 'cvvId:123',
+    },
+  },
+};
+
+const invalidMEthod = {
+  gatewayURL: 'https://gatewayurl.com',
+  methodName: 'ppp',
   pathParams: {
     cardNumber: '4111111111111111',
   },
@@ -617,6 +751,51 @@ describe('skyflow invoke gateway', () => {
   }
   });
 
+  test('invoke gateway invalidInput -3 ',(done)=>{
+    try {
+      const res = skyflow.invokeGateway(invalidGatewayURL);
+      res.catch((err)=>{
+        expect(err).toBeDefined();
+        done();
+      })
+    }catch(err){
+  
+    }
+    });
+    test('invoke gateway invalidInput -4 ',(done)=>{
+      try {
+        const res = skyflow.invokeGateway(missingGatewayURL);
+        res.catch((err)=>{
+          expect(err).toBeDefined();
+          done();
+        })
+      }catch(err){
+    
+      }
+      });
+      test('invoke gateway invalidInput -5 ',(done)=>{
+        try {
+          const res = skyflow.invokeGateway(missingMethod);
+          res.catch((err)=>{
+            expect(err).toBeDefined();
+            done();
+          })
+        }catch(err){
+      
+        }
+        });
+        test('invoke gateway invalidInput -6 ',(done)=>{
+          try {
+            const res = skyflow.invokeGateway(invalidMEthod);
+            res.catch((err)=>{
+              expect(err).toBeDefined();
+              done();
+            })
+          }catch(err){
+        
+          }
+          });
+
 });
 
 describe("Skyflow Enums",()=>{
@@ -644,5 +823,14 @@ describe("Skyflow Enums",()=>{
     expect(Skyflow.LogLevel.WARN).toEqual(LogLevel.WARN);
   });
 
+  test("isvalid url true",()=>{
+      expect(isValidURL("https://www.google.com")).toBe(true);
+  })
+
+
+  test("invalid url true",()=>{
+    expect(isValidURL("httpsww.google.com")).toBe(false);
+
+  })
 
 });
