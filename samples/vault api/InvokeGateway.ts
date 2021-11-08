@@ -1,4 +1,4 @@
-import Skyflow from "../../src/vault-api/Skyflow";
+import {Skyflow} from "../../src/index";
 import {XMLHttpRequest} from 'xmlhttprequest-ts';
 
 const skyflow = Skyflow.init({
@@ -31,13 +31,17 @@ const skyflow = Skyflow.init({
   });
 
   const sdkResponse = skyflow.invokeGateway({
-    gatewayURL:"<GatewayURL>",
+    gatewayURL:"https://www.testurl.com/{card_number}",
     methodName: Skyflow.RequestMethod.POST,
     requestHeader: {
       "Authorization": "",
     },
     pathParams: {
       card_number: "card number"
+    },
+    queryParams:{
+        "cvv":"123",
+        "series":["1","2","3"]
     },
     requestBody: {
       "expirationDate": {

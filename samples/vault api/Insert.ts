@@ -1,4 +1,4 @@
-import Skyflow from "../../src/vault-api/Skyflow";
+import {Skyflow} from "../../src/index";
 import {XMLHttpRequest} from 'xmlhttprequest-ts';
 console.log(Skyflow);
 

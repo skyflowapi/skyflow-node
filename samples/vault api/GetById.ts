@@ -1,4 +1,4 @@
-import Skyflow from "../../src/vault-api/Skyflow";
+import {Skyflow} from "../../src/index";
 import {XMLHttpRequest} from 'xmlhttprequest-ts';
 
 const skyflow = Skyflow.init({
@@ -34,12 +34,12 @@ const skyflow = Skyflow.init({
   const result = skyflow.getById({
     records: [
       {
-       ids:["f786a2e8-524c-4424-affd-133e2637b547"],
+       ids:["id"],
        redaction : Skyflow.RedactionType.PLAIN_TEXT,
        table: "cards"
       },
       {
-        ids:["1234","f786a2e8-52-4424-affd-133e2637b547"],
+        ids:["id","id"],
         redaction : Skyflow.RedactionType.PLAIN_TEXT,
         table: "persons"
        }

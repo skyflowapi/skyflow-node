@@ -1,4 +1,4 @@
-import Skyflow from "../../src/vault-api/Skyflow";
+import {Skyflow} from "../../src/index";
 import {XMLHttpRequest} from 'xmlhttprequest-ts';
 
  const skyflow = Skyflow.init({
@@ -35,16 +35,10 @@ import {XMLHttpRequest} from 'xmlhttprequest-ts';
   const result = skyflow.detokenize({
               records: [
                 {
-                  token : "1c541514-95fd-4d80-81fc-1c53d15ae1fd"
+                  token : "token1"
                 },
                 {
-                  token : "23df721c-7b78-45f0-b12f-d6cd37507d2b"
-                },
-                {
-                  token : "69fc4e4d-6d0d-46c4-97a0-010a1ef0db50"
-                },
-                {
-                  token : "dc0281d3-aca4-411d-adfb-7e0d6ebab09f"
+                  token : "token2"
                 }
               ],
         });

@@ -71,7 +71,6 @@ export interface IGatewayConfig {
   queryParams?: any;
   requestBody?: any;
   requestHeader?: any;
-  responseBody?: any;
 }
 
 export const PUREJS_TYPES = {
