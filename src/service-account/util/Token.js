@@ -1,7 +1,7 @@
 import fs from "fs";
 import Axios from "axios";
 import jwt from "jsonwebtoken";
-import { errorMessages } from "../../errors/Messages.js";
+import { errorMessages } from "../errors/Messages.js";
 
 function GenerateToken(credentialsFilePath) {
   return new Promise((resolve, reject) => {
@@ -11,6 +11,8 @@ function GenerateToken(credentialsFilePath) {
       reject(errorMessages.fileNotFound);
     }
     credentials = fs.readFileSync(credentialsFilePath, "utf8");
+
+    if(credentials === '') reject(errorMessages.EmptyFile)
 
     try {
       JSON.parse(credentials);
