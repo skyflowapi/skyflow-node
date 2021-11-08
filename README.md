@@ -88,13 +88,13 @@ To use this module, the skyflow client must first be initialized as follows.
   
 const  skyflow = require("skyflow-node");
 
-#User defined function to provide access token to the vault apis
-const skyflowClient = skyflow.Skyflow.init({
+//User defined function to provide access token to the vault apis
+const client = skyflow.Skyflow.init({
    vaultID: "string",          //Id of the vault that the client should connect to 
    vaultURL: "string",         //URL of the vault that the client should connect to
    getBearerToken: helperFunc,  //helper function that retrieves a Skyflow bearer token from your backend
    options:{
-     logLevel: Skyflow.LogLevel, // optional, if not specified default is 	ERROR 
+     logLevel: Skyflow.LogLevel, // optional, if not specified default value is ERROR 
    }
 })
 
@@ -110,11 +110,11 @@ All Vault APIs must be invoked using a client instance.
 #### Insert
 
 To insert data into the vault from the integrated application, use the insert(records, options) method of the Skyflow client. The records parameter takes an array of records to be inserted into the vault. The options parameter takes  tokens  as parameter.
-'tokens' indicates whether or not tokens should be returned for the inserted data. Defaults to 'True'. Default value for tokens is true.
+'tokens' indicates whether or not tokens should be returned for the inserted data. Defaults to 'True'.
 
 ```javascript
 
-#Initialize Client
+//Initialize Client
 
  data = {
         "records": [
@@ -149,8 +149,7 @@ const response = client.insert({
       },
     ],
   },{tokens:true});
-  response
-    .then(
+  response.then(
       (res) => {
         console.log(JSON.stringify(res));
       },
@@ -175,8 +174,8 @@ Sample response :
 {
 "table": "cards",
 "fields": {
-"card_number": "f3907186-e7e2-466f-91e5-48e12c2bcbc1",
-"cvv": "1989cb56-63da-4482-a2df-1f74cd0dd1a5",
+"card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
+"cvv": "1989cb56-63a-4482-adf-1f74cd1a5",
 },
 }
 ]
@@ -190,7 +189,7 @@ Sample response :
 
   
 
-For retrieving using tokens, use the detokenize(records) method. The records parameter takes a dictionary that contains records to be fetched as shown below.
+For retrieving using tokens, use the detokenize(records) method. The records parameter takes an object that contains records to be fetched as shown below.
 
   
 
@@ -199,7 +198,7 @@ For retrieving using tokens, use the detokenize(records) method. The records par
 client.detokenize({
 	"records":[
 		{
-		"token": "string"  #token for the record to be fetched
+		"token": "string"  //token for the record to be fetched
 		}
 	]
 })
@@ -213,10 +212,9 @@ An example of a detokenize call:
 ```javascript
 
 const result = client.detokenize(
-{"records": [{"token": "45012507-f72b-4f5c-9bf9-86b133bae719"}]}
+{"records": [{"token": "4017-f72b-4f5c-9b-8e719"}]}
 )
- result
-        .then((res) => {
+ result.then((res) => {
             console.log("detokenize result: ");
             console.log(JSON.stringify(res));
         })
@@ -235,7 +233,7 @@ Sample response:
 {
 	"records": [
 			{
-			"token": "131e70dc-6f76-4319-bdd3-96281e051051",
+			"token": "110dc-6f76-19-bd3-9051051",
 			"value": "1990-01-01"
 			}
 		]	
@@ -249,7 +247,7 @@ Sample response:
 
   
 
-For retrieving using SkyflowID's, use the getById(records) method. The records parameter takes a Dictionary that contains records to be fetched as shown below:
+For retrieving using SkyflowID's, use the getById(records) method. The records parameter takes an object that contains records to be fetched as shown below:
 
   
 
@@ -258,9 +256,9 @@ For retrieving using SkyflowID's, use the getById(records) method. The records p
 client.getById({
 	"records": [
 		{
-		"ids": list<str>, # List of SkyflowID's of the records to be fetched
-		"table": str, # name of table holding the above skyflow_id's
-		"redaction": Skyflow.RedactionType, # redaction to be applied to retrieved data
+		"ids": ["id1","id2"], // List of SkyflowID's of the records to be fetched
+		"table": str, // name of table holding the above skyflow_id's
+		"redaction": Skyflow.RedactionType, // redaction to be applied to retrieved data
 		}
 	]
 })
@@ -283,9 +281,9 @@ An example of getById call:
 ```javascript
 skyflowIDs = [
 
-"f8d8a622-b557-4c6b-a12c-c5ebe0b0bfd9",
+"f8622-b557-4c6b-a12c-c0b0bfd9",
 
-"da26de53-95d5-4bdb-99db-8d8c66a35ff9",
+"da26de53-95d5-4db-99db-8d35ff9",
 
 ]
 
@@ -299,8 +297,7 @@ records = {"records": [record, badRecord]}
   
 
 const result = client.getById(records)
-result
-  .then((res) => {
+result.then((res) => {
         console.log("getByID result:");
         console.log(JSON.stringify(res));
   })
@@ -330,7 +327,7 @@ Sample response:
 
 "fullname": "myname",
 
-"skyflow_id": "f8d8a622-b557-4c6b-a12c-c5ebe0b0bfd9"
+"skyflow_id": "f8d2-b557-4c6b-a12c-c5ebfd9"
 
 },
 
@@ -350,7 +347,7 @@ Sample response:
 
 "fullname": "sam",
 
-"skyflow_id": "da26de53-95d5-4bdb-99db-8d8c66a35ff9"
+"skyflow_id": "da53-95d5-4bdb-99db-8d8c5ff9"
 
 },
 
@@ -384,19 +381,19 @@ Sample response:
 
   
 
-#### Invoke Gateway
+#### Invoke Connection
 
-Using Skyflow gateway, end-user applications can integrate checkout/card issuance flow with their apps/systems. To invoke gateway, use the invokeGateway(config: Skyflow.GatewayConfig) method of the Skyflow client.
+Using Skyflow connection, end-user applications can integrate checkout/card issuance flow with their apps/systems. To invoke gateway, use the invokeConnection(config) method of the Skyflow client.
 
   
 
 ```javascript
-client.invokeGateway({
-    gatewayURL:"<YOUR_GATEWAY_URL>",
+client.invokeConnection({
+    connectionURL:"<YOUR_CONNECTION_URL>",
     methodName: Skyflow.RequestMethod.POST,
     requestHeader: {
       'Content-Type': 'application/json',
-      'Authorization': '<YOUR_GATEWAY_BASIC_AUTH>'
+      'Authorization': '<YOUR_CONNECTION_BASIC_AUTH>'
     },
     pathParams: {
       card_number: "<YOUR_CARD_VALUE>"
@@ -437,12 +434,12 @@ client.invokeGateway({
 An example of invokeGateway:
 
 ```javascript
-const response = client.invokeGateway({
-    gatewayURL:"<YOUR_GATEWAY_URL>",
+const response = client.invokeConnection({
+    connectionURL:"<YOUR_GATEWAY_URL>",
     methodName: Skyflow.RequestMethod.POST,
     requestHeader: {
       'Content-Type': 'application/json',
-      'Authorization': '<YOUR_GATEWAY_BASIC_AUTH>'
+      'Authorization': '<YOUR_CONNECTION_BASIC_AUTH>'
     },
     pathParams: {
       card_number: "<YOUR_CARD_VALUE>"
@@ -457,8 +454,7 @@ const response = client.invokeGateway({
       }
     }
   })
-response
-    .then(
+response.then(
       (res) => {
         console.log(JSON.stringify(res));
       }
