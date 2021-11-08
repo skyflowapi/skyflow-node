@@ -64,8 +64,8 @@ export interface Context{
   logLevel:LogLevel
 }
 
-export interface IGatewayConfig {
-  gatewayURL: string;
+export interface IConnectionConfig {
+  connectionURL: string;
   methodName: RequestMethod;
   pathParams?: any;
   queryParams?: any;
@@ -77,5 +77,5 @@ export const PUREJS_TYPES = {
   INSERT: 'INSERT',
   DETOKENIZE: 'DETOKENIZE',
   GET_BY_SKYFLOWID: 'GET_BY_SKYFLOWID',
-  INVOKE_GATEWAY: 'INVOKE_GATEWAY',
+  INVOKE_CONNECTION: 'INVOKE_CONNECTION',
 };

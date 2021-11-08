@@ -28,7 +28,7 @@ const skyflow = Skyflow.init({
       Http.open("GET", url);
       Http.send();
     });
-  },
+  }
 });
 
 

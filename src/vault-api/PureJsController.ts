@@ -1,7 +1,7 @@
 import Client from './client';
 
 import {
-  validateGatewayConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput,
+  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput,
 } from './utils/validators';
 
 import {
@@ -13,7 +13,7 @@ import {
 } from './utils/logsHelper';
 import logs from './utils/logs';
 import {
-  IDetokenizeInput, IGetByIdInput, IGatewayConfig, Context, MessageType,
+  IDetokenizeInput, IGetByIdInput, IConnectionConfig, Context, MessageType,
 } from './utils/common';
 
 import {
@@ -142,30 +142,30 @@ class PureJsController {
       });
   }
 
-  invokeGateway(configuration: IGatewayConfig) {
+  invokeConnection(configuration: IConnectionConfig) {
       return new Promise((resolve, reject) => {
         try {
-          printLog(logs.infoLogs.VALIDATE_GATEWAY_CONFIG, MessageType.LOG,
+          printLog(logs.infoLogs.VALIDATE_CONNECTION_CONFIG, MessageType.LOG,
             this.#context.logLevel);
 
-          validateGatewayConfig(configuration);
+          validateConnectionConfig(configuration);
          
-          const config = configuration as IGatewayConfig;
-          const filledUrl = fillUrlWithPathAndQueryParams(config.gatewayURL,config.pathParams, config.queryParams);
-          config.gatewayURL = filledUrl;
-          this.sendInvokeGateWayRequest(config).then((resultResponse) => {
-            printLog(logs.infoLogs.SEND_INVOKE_GATEWAY_RESOLVED, MessageType.LOG,
+          const config = configuration as IConnectionConfig;
+          const filledUrl = fillUrlWithPathAndQueryParams(config.connectionURL,config.pathParams, config.queryParams);
+          config.connectionURL = filledUrl;
+          this.sendInvokeConnectionRequest(config).then((resultResponse) => {
+            printLog(logs.infoLogs.SEND_INVOKE_CONNECTION_RESOLVED, MessageType.LOG,
               this.#context.logLevel);
 
             resolve(resultResponse);
           }).catch((rejectedResponse) => {
-            printLog(logs.errorLogs.SEND_INVOKE_GATEWAY_REJECTED, MessageType.ERROR,
+            printLog(logs.errorLogs.SEND_INVOKE_CONNECTION_REJECTED, MessageType.ERROR,
               this.#context.logLevel);
 
             reject({ error: rejectedResponse });
           });
           printLog(parameterizedString(logs.infoLogs.EMIT_PURE_JS_REQUEST,
-            PUREJS_TYPES.INVOKE_GATEWAY),
+            PUREJS_TYPES.INVOKE_CONNECTION),
           MessageType.LOG, this.#context.logLevel);
         } catch (error) {
           if(error instanceof Error)
@@ -214,11 +214,11 @@ class PureJsController {
     });
   }
 
-  sendInvokeGateWayRequest(config:IGatewayConfig) {
+  sendInvokeConnectionRequest(config:IConnectionConfig) {
     return new Promise((rootResolve, rootReject) => {
       this.#client.config.getBearerToken().then((authToken) => {
         const invokeRequest = this.#client.request({
-          url: config.gatewayURL,
+          url: config.connectionURL,
           requestMethod: config.methodName,
           body: config.requestBody,
           headers: { ...config.requestHeader, 'X-Skyflow-Authorization': authToken, 'Content-Type': 'application/json' },

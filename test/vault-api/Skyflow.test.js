@@ -595,8 +595,8 @@ describe('skyflow getById', () => {
   });
 });
 
-const invokeGatewayReq = {
-  gatewayURL: 'https://gatewayurl.com',
+const invokeConnectionReq = {
+  connectionURL: 'https://connectionurl.com',
   methodName: 'POST',
   pathParams: {
     cardNumber: '4111111111111111',
@@ -611,8 +611,8 @@ const invokeGatewayReq = {
   },
 };
 
-const missingGatewayURL = {
-  gatewayURL: 1234,
+const missingconnectionURL = {
+  connectionURL: 1234,
   methodName: 'POST',
   pathParams: {
     cardNumber: '4111111111111111',
@@ -627,7 +627,7 @@ const missingGatewayURL = {
   },
 };
 
-const invalidGatewayURL = {
+const invalidconnectionURL = {
   methodName: 'POST',
   pathParams: {
     cardNumber: '4111111111111111',
@@ -643,7 +643,7 @@ const invalidGatewayURL = {
 };
 
 const missingMethod = {
-  gatewayURL: 'https://gatewayurl.com',
+  connectionURL: 'https://connectionurl.com',
   pathParams: {
     cardNumber: '4111111111111111',
   },
@@ -658,7 +658,7 @@ const missingMethod = {
 };
 
 const invalidMEthod = {
-  gatewayURL: 'https://gatewayurl.com',
+  connectionURL: 'https://connectionurl.com',
   methodName: 'ppp',
   pathParams: {
     cardNumber: '4111111111111111',
@@ -673,12 +673,12 @@ const invalidMEthod = {
   },
 };
 
-const invokeGatewayRes = {
+const invokeConnectionRes = {
   receivedTimestamp: '2019-05-29 21:49:56.625',
   processingTimeinMs: 116,
 };
 
-describe('skyflow invoke gateway', () => {
+describe('skyflow invoke connection', () => {
   let skyflow;
   beforeEach(() => {
 
@@ -694,10 +694,10 @@ describe('skyflow invoke gateway', () => {
     jest.resetAllMocks();
   });
 
-  test('invoke gateway success', (done) => {
+  test('invoke connection success', (done) => {
     try {
 
-      const clientReq = jest.fn(() => Promise.resolve(invokeGatewayRes));
+      const clientReq = jest.fn(() => Promise.resolve(invokeConnectionRes));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -713,7 +713,7 @@ describe('skyflow invoke gateway', () => {
             })
           }
         });
-      const res = skyflow.invokeGateway(invokeGatewayReq);
+      const res = skyflow.invokeConnection(invokeConnectionReq);
 
       let data;
       res.then((res) => data = res);
@@ -728,9 +728,9 @@ describe('skyflow invoke gateway', () => {
     }
   });
   
-  test('invoke gateway invalidInput -1 ',(done)=>{
+  test('invoke connection invalidInput -1 ',(done)=>{
     try {
-      const res = skyflow.invokeGateway({gatewayURL:"invalid_url"});
+      const res = skyflow.invokeConnection({connectionURL:"invalid_url"});
       res.catch((err)=>{
         expect(err).toBeDefined();
         done();
@@ -739,9 +739,9 @@ describe('skyflow invoke gateway', () => {
   
     }
   });
-  test('invoke gateway invalidInput -2 ',(done)=>{
+  test('invoke connection invalidInput -2 ',(done)=>{
   try {
-    const res = skyflow.invokeGateway({gatewayURL:"invalid_url"});
+    const res = skyflow.invokeConnection({connectionURL:"invalid_url"});
     res.catch((err)=>{
       expect(err).toBeDefined();
       done();
@@ -751,9 +751,9 @@ describe('skyflow invoke gateway', () => {
   }
   });
 
-  test('invoke gateway invalidInput -3 ',(done)=>{
+  test('invoke connection invalidInput -3 ',(done)=>{
     try {
-      const res = skyflow.invokeGateway(invalidGatewayURL);
+      const res = skyflow.invokeConnection(invalidconnectionURL);
       res.catch((err)=>{
         expect(err).toBeDefined();
         done();
@@ -762,9 +762,9 @@ describe('skyflow invoke gateway', () => {
   
     }
     });
-    test('invoke gateway invalidInput -4 ',(done)=>{
+    test('invoke connection invalidInput -4 ',(done)=>{
       try {
-        const res = skyflow.invokeGateway(missingGatewayURL);
+        const res = skyflow.invokeConnection(missingconnectionURL);
         res.catch((err)=>{
           expect(err).toBeDefined();
           done();
@@ -773,9 +773,9 @@ describe('skyflow invoke gateway', () => {
     
       }
       });
-      test('invoke gateway invalidInput -5 ',(done)=>{
+      test('invoke connection invalidInput -5 ',(done)=>{
         try {
-          const res = skyflow.invokeGateway(missingMethod);
+          const res = skyflow.invokeConnection(missingMethod);
           res.catch((err)=>{
             expect(err).toBeDefined();
             done();
@@ -784,9 +784,9 @@ describe('skyflow invoke gateway', () => {
       
         }
         });
-        test('invoke gateway invalidInput -6 ',(done)=>{
+        test('invoke connection invalidInput -6 ',(done)=>{
           try {
-            const res = skyflow.invokeGateway(invalidMEthod);
+            const res = skyflow.invokeConnection(invalidMEthod);
             res.catch((err)=>{
               expect(err).toBeDefined();
               done();

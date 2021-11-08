@@ -30,8 +30,8 @@ const skyflow = Skyflow.init({
     },
   });
 
-  const sdkResponse = skyflow.invokeGateway({
-    gatewayURL:"https://www.testurl.com/{card_number}",
+  const sdkResponse = skyflow.invokeConnection({
+    connectionURL:"https://www.testurl.com/{card_number}",
     methodName: Skyflow.RequestMethod.POST,
     requestHeader: {
       "Authorization": "",
