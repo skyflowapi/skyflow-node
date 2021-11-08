@@ -46,12 +46,9 @@ import {XMLHttpRequest} from 'xmlhttprequest-ts';
         result
         .then((res) => {
             console.log("detokenize result: ");
-            console.log(res.records);
-            console.log(res.errors);
+            console.log(JSON.stringify(res));
         })
         .catch((err) => {
             console.log("detokenize error:")
-            console.log(err);
-            console.log(err.error.errors);
-            console.log(err.error.records);
+            console.log(JSON.stringify(err));
         });

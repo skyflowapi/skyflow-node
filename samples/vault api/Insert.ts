@@ -49,15 +49,14 @@ const skyflow = Skyflow.init({
     .then(
       (res) => {
         console.log("insert result:");
-        console.log(res);
-        console.log(res.records[0].fields);
+        console.log(JSON.stringify(res));
       },
       (err) => {
         console.log("insert error:");
-        console.log(err);
+        console.log(JSON.stringify(err));
       }
     )
     .catch((err) => {
       console.log("insert exception:");
-        console.log(err)
+      console.log(JSON.stringify(err));
     });

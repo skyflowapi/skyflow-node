@@ -52,11 +52,11 @@ const skyflow = Skyflow.init({
   });
   sdkResponse
     .then(
-      (result) => {
-        console.log(result);
+      (res) => {
+        console.log(JSON.stringify(res));
       }
     )
     .catch((err) => {
-      console.log(err);
+      console.log(JSON.stringify(err));
     });
 

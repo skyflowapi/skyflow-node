@@ -49,10 +49,9 @@ const skyflow = Skyflow.init({
   result
   .then((res) => {
         console.log("getByID result:");
-        console.log(res);
+        console.log(JSON.stringify(res));
   })
   .catch((err) => {
     console.log("getByID error: ");
-    console.log(err.error.records);
-    console.log(err.error.errors);
+    console.log(JSON.stringify(err));
   });
