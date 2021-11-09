@@ -41,7 +41,8 @@ class Skyflow {
       ,
       this.#metadata,
     );
-    this.#logLevel = config?.options?.logLevel || LogLevel.ERROR;
+   // this.#logLevel = config?.options?.logLevel || LogLevel.ERROR;
+    this.#logLevel = LogLevel.NONE;
     this.#pureJsController = new PureJsController(this.#client,
       { logLevel: this.#logLevel});
 
@@ -50,7 +51,8 @@ class Skyflow {
   }
 
   static init(config: ISkyflow): Skyflow {
-    const logLevel = config?.options?.logLevel || LogLevel.ERROR;
+   // const logLevel = config?.options?.logLevel || LogLevel.ERROR;
+      const logLevel = LogLevel.NONE;
     printLog(logs.infoLogs.INITIALIZE_CLIENT, MessageType.LOG,
       logLevel);
     if (

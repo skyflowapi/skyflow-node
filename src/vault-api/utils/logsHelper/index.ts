@@ -13,6 +13,9 @@ export const LogLevelOptions = {
   ERROR: {
     showDebugLogs: false, showInfoLogs: false, showWarnLogs: false, showErrorLogs: true,
   },
+  NONE: {
+    showDebugLogs: false, showInfoLogs: false, showWarnLogs: false, showErrorLogs: false,
+  }
 };
 
 export const EnvOptions = {
