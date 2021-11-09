@@ -92,10 +92,7 @@ const  skyflow = require("skyflow-node");
 const client = skyflow.Skyflow.init({
    vaultID: "string",          //Id of the vault that the client should connect to 
    vaultURL: "string",         //URL of the vault that the client should connect to
-   getBearerToken: helperFunc,  //helper function that retrieves a Skyflow bearer token from your backend
-   options:{
-     logLevel: Skyflow.LogLevel, // optional, if not specified default value is ERROR 
-   }
+   getBearerToken: helperFunc  //helper function that retrieves a Skyflow bearer token from your backend
 })
 
 
