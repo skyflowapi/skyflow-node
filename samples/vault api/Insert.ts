@@ -1,32 +1,19 @@
-import {Skyflow} from "../../src/index";
-import {XMLHttpRequest} from 'xmlhttprequest-ts';
-console.log(Skyflow);
+import {Skyflow,GenerateToken} from "../../src/index";
+
+var filePath = "credential.json";
 
 const skyflow = Skyflow.init({
-  vaultID: "<VaultID>",
+  vaultID: "<VaultId>",
   vaultURL: "<VaultURL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      const Http = new XMLHttpRequest();
-
-      Http.onreadystatechange = () => {
-        if (Http.readyState == 4) {
-          if (Http.status == 200) {
-            const response = JSON.parse(Http.responseText);
-            resolve(response.accessToken);
-          } else {
-            reject("Error occured");
-          }
-        }
-      };
-
-      Http.onerror = (error) => {
-        reject("Error occured");
-      };
-
-      const url = "TOKEN Endpoint";
-      Http.open("GET", url);
-      Http.send();
+      GenerateToken(filePath)
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((err) => {
+        reject(err);
+      });
     });
   }
 });

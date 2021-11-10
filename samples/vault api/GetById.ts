@@ -1,50 +1,38 @@
-import {Skyflow} from "../../src/index";
-import {XMLHttpRequest} from 'xmlhttprequest-ts';
+import {Skyflow,GenerateToken} from "../../src/index";
+
+var filePath = "credential.json";
 
 const skyflow = Skyflow.init({
-  vaultID: "<VaultID>",
+  vaultID: "<VaultId>",
   vaultURL: "<VaultURL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      const Http = new XMLHttpRequest();
-
-      Http.onreadystatechange = () => {
-        if (Http.readyState == 4) {
-          if (Http.status == 200) {
-            const response = JSON.parse(Http.responseText);
-            resolve(response.accessToken);
-          } else {
-            reject("Error occured");
-          }
-        }
-      };
-
-      Http.onerror = (error) => {
-        reject("Error occured");
-      };
-
-      const url = "TOKEN Endpoint";
-      Http.open("GET", url);
-      Http.send();
+      GenerateToken(filePath)
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((err) => {
+        reject(err);
+      });
     });
-  },
+  }
 });
 
 
-  const result = skyflow.getById({
-    records: [
-      {
-       ids:["id"],
-       redaction : Skyflow.RedactionType.PLAIN_TEXT,
-       table: "cards"
-      },
-      {
-        ids:["id","id"],
-        redaction : Skyflow.RedactionType.PLAIN_TEXT,
-        table: "persons"
-       }
-    ],
-  });
+const result = skyflow.getById({
+  records: [
+    {
+     ids:["f786a2e8-524c-4424-affd-133e2637b547"],
+     redaction : Skyflow.RedactionType.PLAIN_TEXT,
+     table: "cards"
+    },
+    {
+      ids:["1234","f786a2e8-52-4424-affd-133e2637b547"],
+      redaction : Skyflow.RedactionType.PLAIN_TEXT,
+      table: "persons"
+     }
+  ],
+});
     
   result
   .then((res) => {
