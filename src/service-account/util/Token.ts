@@ -1,9 +1,10 @@
 import fs from "fs";
 import Axios from "axios";
 import jwt from "jsonwebtoken";
-import { errorMessages } from "../errors/Messages.js";
+import { errorMessages } from "../errors/Messages";
 
-function GenerateToken(credentialsFilePath) {
+export type ResponseToken = {accessToken:string,tokenType:string}
+function GenerateToken(credentialsFilePath) :Promise<ResponseToken>{
   return new Promise((resolve, reject) => {
     let credentials;
 

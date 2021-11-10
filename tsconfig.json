@@ -3,7 +3,7 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "target": "es6",
-    "lib": ["es2015", "es2017", "dom", "ES2020.Promise"],
+    "lib": ["es2015", "es2017", "dom", "ES2020.Promise","es2018"],
     "esModuleInterop": true,
     "module": "commonjs",
     "removeComments": true,
@@ -16,7 +16,7 @@
     "isolatedModules": false,
     "noEmit": false,
     "declaration": true,
-    "outDir": "types",
+    "outDir": "lib",
     "types": ["node"]
   },
   "include": ["src","src/custom.d.ts"],

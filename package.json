@@ -1,13 +1,12 @@
 {
   "name": "skyflow-node",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Node js client for skyflow API's",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
-  "type": "module",
   "scripts": {
     "test": "jest --coverage",
-    "build": "webpack --config=webpack.skyflowNode.js",
+    "build": "tsc",
     "eslint": "eslint '**/*.js' --max-warnings 0",
     "prettier": "prettier --list-different '**/*.{js,ts}'",
     "lint": "npm run prettier && npm run eslint",
@@ -17,9 +16,11 @@
     "type": "git",
     "url": "https://github.com/skyflowapi/skyflow-node-sdk.git"
   },
+  "browser": {
+    "child_process": false
+  },
   "author": "",
   "license": "MIT",
-  "homepage": "https://skyflow.com",
   "keywords": [
     "skyflow",
     "privacy",
@@ -54,16 +55,17 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
-    "@babel/plugin-transform-object-assign": "^7.0.0",
-    "@babel/register": "^7.0.0",
     "@babel/core": "^7.9.6",
     "@babel/plugin-proposal-class-properties": "^7.10.1",
     "@babel/plugin-proposal-decorators": "^7.10.1",
     "@babel/plugin-proposal-object-rest-spread": "^7.10.1",
+    "@babel/plugin-transform-object-assign": "^7.0.0",
     "@babel/plugin-transform-runtime": "^7.10.1",
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-typescript": "^7.10.1",
+    "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.10.2",
+    "@types/node": "^16.11.7",
     "babel-loader": "^8.0.0",
     "chai": "^4.1.2",
     "clean-webpack-plugin": "^4.0.0-alpha.0",

@@ -49,20 +49,20 @@ npm install skyflow-node
 
   
 
-[Service Account](https://github.com/skyflowapi/skyflow-node-sdk/tree/master/src/service-account) Node.js module is used to generate service account tokens from service account credentials file which is downloaded upon creation of service account. The token generated from this module is valid for 60 minutes and can be used to make API calls to vault services as well as management API(s) based on the permissions of the service account.
+[Service Account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) Node.js module is used to generate service account tokens from service account credentials file which is downloaded upon creation of service account. The token generated from this module is valid for 60 minutes and can be used to make API calls to vault services as well as management API(s) based on the permissions of the service account.
 
   
 
-[Example](https://github.com/skyflowapi/skyflow-node-sdk/blob/master/samples/service-account/TokenGenerationExample.js):
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.js):
 
   
 
 ```javascript
 
-const  skyflow = require("skyflow-node");
+import {GenerateToken} from "skyflow-node";
 var  filepath = "filepath_to_be_mentioned_here";
-skyflow
-.GenerateToken(filePath)
+
+GenerateToken(filePath)
 .then((res) => {
 console.log(res);
 })
@@ -86,10 +86,10 @@ To use this module, the skyflow client must first be initialized as follows.
 
 ```javascript
   
-const  skyflow = require("skyflow-node");
+import {Skyflow} from "skyflow-node";
 
 //User defined function to provide access token to the vault apis
-const client = skyflow.Skyflow.init({
+const client = Skyflow.init({
    vaultID: "string",          //Id of the vault that the client should connect to 
    vaultURL: "string",         //URL of the vault that the client should connect to
    getBearerToken: helperFunc  //helper function that retrieves a Skyflow bearer token from your backend
