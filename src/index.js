@@ -1,4 +1,4 @@
-import GenerateToken from "./service-account/util/Token";
+import {GenerateToken, generateBearerToken, generateTokenFromCreds} from "./service-account/util/Token";
 import Skyflow from "./vault-api/Skyflow";
 
-export { GenerateToken,Skyflow};
+export { generateBearerToken, GenerateToken,generateTokenFromCreds, Skyflow};

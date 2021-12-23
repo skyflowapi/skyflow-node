@@ -1,7 +1,7 @@
 import Client from './client';
 
 import {
-  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput,
+  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput, validateInitConfig,
 } from './utils/validators';
 
 import {
@@ -45,6 +45,7 @@ class PureJsController {
    
       return new Promise((resolve, reject) => {
         try {
+          validateInitConfig(this.#client.config)
           printLog(logs.infoLogs.VALIDATE_DETOKENIZE_INPUT, MessageType.LOG,
             this.#context.logLevel);
 
@@ -60,7 +61,7 @@ class PureJsController {
               printLog(logs.errorLogs.FETCH_RECORDS_REJECTED, MessageType.ERROR,
                 this.#context.logLevel);
 
-              reject({ error: rejectedResult });
+              reject(rejectedResult);
             },
           );
           
@@ -77,6 +78,7 @@ class PureJsController {
   insert(records, options): Promise<any> {
       return new Promise((resolve, reject) => {
         try {
+          validateInitConfig(this.#client.config)
           printLog(logs.infoLogs.VALIDATE_RECORDS, MessageType.LOG,
             this.#context.logLevel);
 
@@ -107,6 +109,7 @@ class PureJsController {
   getById(getByIdInput: IGetByIdInput) {
       return new Promise((resolve, reject) => {
         try {
+          validateInitConfig(this.#client.config)
           printLog(logs.infoLogs.VALIDATE_GET_BY_ID_INPUT, MessageType.LOG,
             this.#context.logLevel);
 
@@ -126,7 +129,7 @@ class PureJsController {
               printLog(logs.errorLogs.GET_BY_SKYFLOWID_REJECTED, MessageType.ERROR,
                 this.#context.logLevel);
 
-              reject({ error: rejectedResult });
+              reject(rejectedResult);
             },
           );
           

@@ -17,3 +17,8 @@ export function fillUrlWithPathAndQueryParams(url:string,
   }
   return filledUrl;
 }
+
+export function formatVaultURL(vaultURL) {
+  if (typeof vaultURL !== 'string') return vaultURL;
+  return (vaultURL?.trim().slice(-1) === '/') ? vaultURL.slice(0, -1) : vaultURL.trim();
+}

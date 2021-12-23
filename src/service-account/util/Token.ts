@@ -3,8 +3,8 @@ import Axios from "axios";
 import jwt from "jsonwebtoken";
 import { errorMessages } from "../errors/Messages";
 
-export type ResponseToken = {accessToken:string,tokenType:string}
-function GenerateToken(credentialsFilePath) :Promise<ResponseToken>{
+export type ResponseToken = { accessToken: string, tokenType: string }
+function generateBearerToken(credentialsFilePath): Promise<ResponseToken> {
   return new Promise((resolve, reject) => {
     let credentials;
 
@@ -13,7 +13,7 @@ function GenerateToken(credentialsFilePath) :Promise<ResponseToken>{
     }
     credentials = fs.readFileSync(credentialsFilePath, "utf8");
 
-    if(credentials === '') reject(errorMessages.EmptyFile)
+    if (credentials === '') reject(errorMessages.EmptyFile)
 
     try {
       JSON.parse(credentials);
@@ -21,9 +21,22 @@ function GenerateToken(credentialsFilePath) :Promise<ResponseToken>{
       reject(errorMessages.notAValidJSON);
     }
 
-    const credentialsObj = JSON.parse(credentials);
+    getToken(credentials).then((res) => {
+      resolve(res)
+    }).catch((err) => { reject(err) })
+  })
+}
 
-    const expiryTime = Math.floor(Date.now() / 1000) + 60;
+function getToken(credentials): Promise<ResponseToken> {
+  return new Promise((resolve, reject) => {
+    if(!credentials && credentials == ""){
+      reject(errorMessages.CredentialsContentEmpty)
+    }
+    if(typeof(credentials) !== "string"){
+      reject(errorMessages.ExpectedStringParameter)
+    }
+    const credentialsObj = JSON.parse(credentials);
+    const expiryTime = Math.floor(Date.now() / 1000) + 3600;
 
     const claims = {
       iss: credentialsObj.clientID,
@@ -71,4 +84,13 @@ function GenerateToken(credentialsFilePath) :Promise<ResponseToken>{
   });
 }
 
-export default GenerateToken;
+function GenerateToken(credentialsFilePath): Promise<ResponseToken> {
+  console.warn("This method has been deprecated will be removed in future release, use GenerateBearerToken instead")
+  return generateBearerToken(credentialsFilePath)
+}
+
+function generateTokenFromCreds(credentials): Promise<ResponseToken> {
+  return getToken(credentials)
+}
+
+export { generateBearerToken, GenerateToken, generateTokenFromCreds};

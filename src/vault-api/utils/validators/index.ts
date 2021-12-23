@@ -1,4 +1,5 @@
 import SkyflowError from '../../libs/SkyflowError';
+import { ISkyflow } from '../../Skyflow';
 import {
   IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod,
 } from '../common';
@@ -108,5 +109,26 @@ export const validateConnectionConfig = (config: IConnectionConfig) => {
   }
   if (!Object.values(RequestMethod).includes(config.methodName)) {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_METHODNAME_VALUE);
+  }
+};
+
+export const validateInitConfig = (initConfig: ISkyflow) => {
+  if (!Object.prototype.hasOwnProperty.call(initConfig, 'vaultID')) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.VAULTID_IS_REQUIRED, [], true);
+  }
+  if (!initConfig.vaultID) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULTID_IN_INIT, [], true);
+  }
+  if (!Object.prototype.hasOwnProperty.call(initConfig, 'vaultURL')) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.VAULTURL_IS_REQUIRED, [], true);
+  }
+  if (!initConfig.vaultURL) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULTURL_IN_INIT, [], true);
+  }
+  if (initConfig.vaultURL && !isValidURL(initConfig.vaultURL)) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_VAULTURL_IN_INIT, [], true);
+  }
+  if (!Object.prototype.hasOwnProperty.call(initConfig, 'getBearerToken')) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.GET_BEARER_TOKEN_IS_REQUIRED, [], true);
   }
 };

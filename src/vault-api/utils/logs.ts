@@ -60,7 +60,14 @@ const logs = {
   errorLogs: {
     CLIENT_CONNECTION: 'client connection not established.',
 
-    BEARER_TOKEN_REJECTED: 'GetBearerToken promise got rejected.',
+    VAULTID_IS_REQUIRED: 'Interface: init - Invalid client credentials. vaultID is required.',
+    EMPTY_VAULTID_IN_INIT: 'Interface: init - Invalid client credentials. vaultID cannot be empty.',
+    VAULTURL_IS_REQUIRED: 'Interface: init - Invalid client credentials. vaultURL is required.',
+    EMPTY_VAULTURL_IN_INIT: 'Interface: init - Invalid client credentials. vaultURL cannot be empty.',
+    INVALID_VAULTURL_IN_INIT: 'Interface: init - Invalid client credentials. Expecting https://XYZ for vaultURL',
+    GET_BEARER_TOKEN_IS_REQUIRED: 'Interface: init - Invalid client credentials. getBearerToken is required.',
+
+    BEARER_TOKEN_REJECTED: 'Interface: init - GetBearerToken promise got rejected.',
     INVALID_BEARER_TOKEN: 'Bearer token is invalid or expired.',
 
     INVALID_VAULT_ID: 'Vault Id is invalid or cannot be found.',

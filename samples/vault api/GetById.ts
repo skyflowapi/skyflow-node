@@ -1,4 +1,4 @@
-import {Skyflow,GenerateToken} from "../../src/index";
+import {Skyflow, GenerateToken} from "../../src/index";
 
 var filePath = "<YOUR_CREDENTIAL_FILE>";
 
@@ -23,14 +23,14 @@ const skyflow = Skyflow.init({
 const result = skyflow.getById({
   records: [
     {
-     ids:["f786a2e8-524c-4424-affd-133e2637b547"],
+     ids:["1d1f1085-7276-4494-ab8f-3c52a5baf006"],
      redaction : Skyflow.RedactionType.PLAIN_TEXT,
-     table: "cards"
+     table: "pii_fields"
     },
     {
       ids:["1234","f786a2e8-52-4424-affd-133e2637b547"],
       redaction : Skyflow.RedactionType.PLAIN_TEXT,
-      table: "persons"
+      table: "pii_fields"
      }
   ],
 });

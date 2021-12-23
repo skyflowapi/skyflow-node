@@ -19,10 +19,11 @@ import {
   LogLevel,
   MessageType,
 } from './utils/common';
+import { formatVaultURL } from './utils/helpers';
 
 export interface ISkyflow {
-  vaultID: string;
-  vaultURL: string;
+  vaultID?: string;
+  vaultURL?: string;
   getBearerToken: () => Promise<string>;
   options?: Record<string, any>;
 }
@@ -41,8 +42,8 @@ class Skyflow {
       ,
       this.#metadata,
     );
-   // this.#logLevel = config?.options?.logLevel || LogLevel.ERROR;
-    this.#logLevel = LogLevel.NONE;
+   this.#logLevel = config?.options?.logLevel || LogLevel.ERROR;
+    // this.#logLevel = LogLevel.NONE;
     this.#pureJsController = new PureJsController(this.#client,
       { logLevel: this.#logLevel});
 
@@ -55,19 +56,8 @@ class Skyflow {
       const logLevel = LogLevel.NONE;
     printLog(logs.infoLogs.INITIALIZE_CLIENT, MessageType.LOG,
       logLevel);
-    if (
-      !config
-      || !config.vaultID
-      || !isValidURL(config.vaultURL)
-      || !config.getBearerToken
-    ) {
-      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS, [], true);
-    }
-    const tempConfig = config;
-    tempConfig.vaultURL = config.vaultURL.slice(-1) === '/'
-      ? config.vaultURL.slice(0, -1)
-      : config.vaultURL;
-    const skyflow = new Skyflow(tempConfig);
+    config.vaultURL = formatVaultURL(config.vaultURL)
+    const skyflow = new Skyflow(config);
     printLog(logs.infoLogs.CLIENT_INITIALIZED, MessageType.LOG, logLevel);
     return skyflow;
   }

@@ -24,12 +24,14 @@ const skyflow = Skyflow.init({
     records: [
       {
         fields: {
-            cvv: "234",
+            primary_card : {
+              cvv: "234",
             card_number: "411111111111111",
-            fullname: "san",
             expiry_date: "11/22",
         },
-        table: "cards",
+        first_name : "firstNameTest"
+        },
+        table: "pii_fields",
       },
     ],
   },{tokens:true});
