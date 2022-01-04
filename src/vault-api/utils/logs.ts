@@ -152,6 +152,9 @@ const logs = {
     ERROR_OCCURED: 'Error occurred.',
     RESPONSE_BODY_KEY_MISSING: '%s1 is missing in the response.',
   },
+warnLogs:{
+  GENERATE_BEARER_DEPRECATED: '"This method has been deprecated will be removed in future release, use GenerateBearerToken instead'
+}
 };
 
 export default logs;

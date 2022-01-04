@@ -13,7 +13,7 @@ import {
 } from './utils/logsHelper';
 import logs from './utils/logs';
 import {
-  IDetokenizeInput, IGetByIdInput, IConnectionConfig, Context, MessageType,
+  IDetokenizeInput, IGetByIdInput, IConnectionConfig, MessageType,
 } from './utils/common';
 
 import {
@@ -32,13 +32,9 @@ import {
 class PureJsController {
   #client: Client;
 
-  #context: Context;
-
-  constructor(client, context) {
+  constructor(client) {
     this.#client = client;
-    this.#context = context;
-    printLog(logs.infoLogs.PUREJS_CONTROLLER_INITIALIZED, MessageType.LOG,
-      this.#context.logLevel);
+    printLog(logs.infoLogs.PUREJS_CONTROLLER_INITIALIZED, MessageType.LOG);
   }
 
   detokenize(detokenizeInput: IDetokenizeInput): Promise<any> {
@@ -46,30 +42,27 @@ class PureJsController {
       return new Promise((resolve, reject) => {
         try {
           validateInitConfig(this.#client.config)
-          printLog(logs.infoLogs.VALIDATE_DETOKENIZE_INPUT, MessageType.LOG,
-            this.#context.logLevel);
+          printLog(logs.infoLogs.VALIDATE_DETOKENIZE_INPUT, MessageType.LOG);
 
           validateDetokenizeInput(detokenizeInput);
           fetchRecordsByTokenId(detokenizeInput.records, this.#client)
           .then(
             (resolvedResult) => {
-              printLog(logs.infoLogs.FETCH_RECORDS_RESOLVED, MessageType.LOG,
-                this.#context.logLevel);
+              printLog(logs.infoLogs.FETCH_RECORDS_RESOLVED, MessageType.LOG);
               resolve(resolvedResult);
             },
             (rejectedResult) => {
-              printLog(logs.errorLogs.FETCH_RECORDS_REJECTED, MessageType.ERROR,
-                this.#context.logLevel);
+              printLog(logs.errorLogs.FETCH_RECORDS_REJECTED, MessageType.ERROR);
 
               reject(rejectedResult);
             },
           );
           
           printLog(parameterizedString(logs.infoLogs.EMIT_PURE_JS_REQUEST, PUREJS_TYPES.DETOKENIZE),
-            MessageType.LOG, this.#context.logLevel);
+            MessageType.LOG);
         } catch (e) {
           if(e instanceof Error)
-          printLog(e.message, MessageType.ERROR, this.#context.logLevel);
+          printLog(e.message, MessageType.ERROR);
           reject(e);
         }
       });
@@ -79,28 +72,25 @@ class PureJsController {
       return new Promise((resolve, reject) => {
         try {
           validateInitConfig(this.#client.config)
-          printLog(logs.infoLogs.VALIDATE_RECORDS, MessageType.LOG,
-            this.#context.logLevel);
+          printLog(logs.infoLogs.VALIDATE_RECORDS, MessageType.LOG);
 
           validateInsertRecords(records);
           
           this.insertData(records,options)
           .then((result) => {
-            printLog(logs.infoLogs.INSERT_RECORDS_RESOLVED, MessageType.LOG,
-              this.#context.logLevel);
+            printLog(logs.infoLogs.INSERT_RECORDS_RESOLVED, MessageType.LOG);
 
             resolve(result);
           })
           .catch((error) => {
-            printLog(logs.errorLogs.INSERT_RECORDS_REJECTED, MessageType.ERROR,
-              this.#context.logLevel);
+            printLog(logs.errorLogs.INSERT_RECORDS_REJECTED, MessageType.ERROR);
             reject({ error });
           });
           printLog(parameterizedString(logs.infoLogs.EMIT_PURE_JS_REQUEST, PUREJS_TYPES.INSERT),
-            MessageType.LOG, this.#context.logLevel);
+            MessageType.LOG);
         } catch (e) {
           if(e instanceof Error)
-          printLog(e.message, MessageType.ERROR, this.#context.logLevel);
+          printLog(e.message, MessageType.ERROR);
           reject(e);
         }
       });
@@ -110,8 +100,7 @@ class PureJsController {
       return new Promise((resolve, reject) => {
         try {
           validateInitConfig(this.#client.config)
-          printLog(logs.infoLogs.VALIDATE_GET_BY_ID_INPUT, MessageType.LOG,
-            this.#context.logLevel);
+          printLog(logs.infoLogs.VALIDATE_GET_BY_ID_INPUT, MessageType.LOG);
 
           validateGetByIdInput(getByIdInput);
 
@@ -120,14 +109,12 @@ class PureJsController {
             this.#client,
           ).then(
             (resolvedResult) => {
-              printLog(logs.infoLogs.GET_BY_SKYFLOWID_RESOLVED, MessageType.LOG,
-                this.#context.logLevel);
+              printLog(logs.infoLogs.GET_BY_SKYFLOWID_RESOLVED, MessageType.LOG);
 
               resolve(resolvedResult);
             },
             (rejectedResult) => {
-              printLog(logs.errorLogs.GET_BY_SKYFLOWID_REJECTED, MessageType.ERROR,
-                this.#context.logLevel);
+              printLog(logs.errorLogs.GET_BY_SKYFLOWID_REJECTED, MessageType.ERROR);
 
               reject(rejectedResult);
             },
@@ -135,10 +122,10 @@ class PureJsController {
           
           printLog(parameterizedString(logs.infoLogs.EMIT_PURE_JS_REQUEST,
             PUREJS_TYPES.GET_BY_SKYFLOWID),
-          MessageType.LOG, this.#context.logLevel);
+          MessageType.LOG);
         } catch (e) {
           if(e instanceof Error)
-          printLog(e.message, MessageType.ERROR, this.#context.logLevel);
+          printLog(e.message, MessageType.ERROR);
 
           reject(e);
         }
@@ -148,8 +135,7 @@ class PureJsController {
   invokeConnection(configuration: IConnectionConfig) {
       return new Promise((resolve, reject) => {
         try {
-          printLog(logs.infoLogs.VALIDATE_CONNECTION_CONFIG, MessageType.LOG,
-            this.#context.logLevel);
+          printLog(logs.infoLogs.VALIDATE_CONNECTION_CONFIG, MessageType.LOG);
 
           validateConnectionConfig(configuration);
          
@@ -157,22 +143,20 @@ class PureJsController {
           const filledUrl = fillUrlWithPathAndQueryParams(config.connectionURL,config.pathParams, config.queryParams);
           config.connectionURL = filledUrl;
           this.sendInvokeConnectionRequest(config).then((resultResponse) => {
-            printLog(logs.infoLogs.SEND_INVOKE_CONNECTION_RESOLVED, MessageType.LOG,
-              this.#context.logLevel);
+            printLog(logs.infoLogs.SEND_INVOKE_CONNECTION_RESOLVED, MessageType.LOG);
 
             resolve(resultResponse);
           }).catch((rejectedResponse) => {
-            printLog(logs.errorLogs.SEND_INVOKE_CONNECTION_REJECTED, MessageType.ERROR,
-              this.#context.logLevel);
+            printLog(logs.errorLogs.SEND_INVOKE_CONNECTION_REJECTED, MessageType.ERROR);
 
             reject({ error: rejectedResponse });
           });
           printLog(parameterizedString(logs.infoLogs.EMIT_PURE_JS_REQUEST,
             PUREJS_TYPES.INVOKE_CONNECTION),
-          MessageType.LOG, this.#context.logLevel);
+          MessageType.LOG);
         } catch (error) {
           if(error instanceof Error)
-          printLog(error.message, MessageType.ERROR, this.#context.logLevel);
+          printLog(error.message, MessageType.ERROR);
 
           reject(error);
         }

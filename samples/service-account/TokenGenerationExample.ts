@@ -1,7 +1,13 @@
-import {Skyflow,GenerateToken, generateTokenFromCreds} from "../../src/index";
+import {Skyflow,GenerateToken, generateBearerTokenFromCreds} from "../../src/index";
 
-  generateTokenFromCreds(undefined).then((res) => {
+  generateBearerTokenFromCreds("credentials string").then((res) => {
     console.log(res);
   }).catch((err) => {
     console.log(err);
+  })
+
+  GenerateToken("<CREDENTIALS_FILE_PATH>").then((res) => {
+    console.log(res);
+  }).catch((err) => {
+    console.log(err)
   })

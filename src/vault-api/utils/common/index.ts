@@ -18,7 +18,7 @@ export enum LogLevel{
   INFO = 'INFO',
   DEBUG = 'DEBUG',
   ERROR = 'ERROR',
-  NONE = 'NONE'
+  OFF = 'OFF'
 }
 
 
@@ -61,9 +61,9 @@ export interface IGetByIdInput {
   records: ISkyflowIdRecord[];
 }
 
-export interface Context{
-  logLevel:LogLevel
-}
+// export interface Context{
+//   logLevel:LogLevel
+// }
 
 export interface IConnectionConfig {
   connectionURL: string;

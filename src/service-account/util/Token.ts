@@ -2,6 +2,9 @@ import fs from "fs";
 import Axios from "axios";
 import jwt from "jsonwebtoken";
 import { errorMessages } from "../errors/Messages";
+import { printLog } from "../../vault-api/utils/logsHelper";
+import logs from "../../vault-api/utils/logs";
+import { MessageType } from "../../vault-api/utils/common";
 
 export type ResponseToken = { accessToken: string, tokenType: string }
 function generateBearerToken(credentialsFilePath): Promise<ResponseToken> {
@@ -85,12 +88,12 @@ function getToken(credentials): Promise<ResponseToken> {
 }
 
 function GenerateToken(credentialsFilePath): Promise<ResponseToken> {
-  console.warn("This method has been deprecated will be removed in future release, use GenerateBearerToken instead")
+  printLog(logs.warnLogs.GENERATE_BEARER_DEPRECATED, MessageType.WARN)
   return generateBearerToken(credentialsFilePath)
 }
 
-function generateTokenFromCreds(credentials): Promise<ResponseToken> {
+function generateBearerTokenFromCreds(credentials): Promise<ResponseToken> {
   return getToken(credentials)
 }
 
-export { generateBearerToken, GenerateToken, generateTokenFromCreds};
+export { generateBearerToken, GenerateToken, generateBearerTokenFromCreds};

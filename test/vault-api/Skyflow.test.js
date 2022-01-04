@@ -816,13 +816,6 @@ describe("Skyflow Enums",()=>{
     expect(Skyflow.RequestMethod.PATCH).toEqual(RequestMethod.PATCH);
   });
 
-  test("Skyflow.LogLevel",()=>{
-    expect(Skyflow.LogLevel.DEBUG).toEqual(LogLevel.DEBUG);
-    expect(Skyflow.LogLevel.ERROR).toEqual(LogLevel.ERROR);
-    expect(Skyflow.LogLevel.INFO).toEqual(LogLevel.INFO);
-    expect(Skyflow.LogLevel.WARN).toEqual(LogLevel.WARN);
-  });
-
   test("isvalid url true",()=>{
       expect(isValidURL("https://www.google.com")).toBe(true);
   })
