@@ -17,15 +17,19 @@ Requires node version 6.9.0 or higher.
 
 *  [Service Account Token Generation](#service-account-token-generation)
 
-*  [Vault APIs](#vault-apis)
+* [Vault APIs](#vault-apis)
 
-*  [Insert](#insert)
+  *  [Insert](#insert)
 
-*  [Detokenize](#detokenize)
+  *  [Detokenize](#detokenize)
 
-*  [GetById](#get-by-id)
+  *  [GetById](#get-by-id)
 
-*  [InvokeGateway](#invoke-gateway)
+  *  [InvokeGateway](#invoke-gateway)
+
+* [Logging](#logging)
+
+
 
   
 
@@ -51,6 +55,7 @@ npm install skyflow-node
 
 [Service Account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) Node.js module is used to generate service account tokens from service account credentials file which is downloaded upon creation of service account. The token generated from this module is valid for 60 minutes and can be used to make API calls to vault services as well as management API(s) based on the permissions of the service account.
 
+The `GenerateBearerToken(filepath)` function takes the credentials file path for token generation, alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials)` 
   
 
 [Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.js):
@@ -483,3 +488,40 @@ Sample response:
 }
 
 ```
+
+### Logging
+
+The skyflow node SDK provides useful logging. By default the logging level of the SDK is set to `LogLevel.ERROR`. This can be changed by using `setLogLevel(logLevel)` as shown below:
+
+```javascript
+import {setLogLevel} from "skyflow-node";
+
+setLogLevel(LogLevel.INFO) # sets the skyflow-node SDK log level to INFO
+```
+
+Current the following 5 log levels are supported:
+
+- `DEBUG`:
+
+   When `LogLevel.DEBUG` is passed, all level of logs will be printed(DEBUG, INFO, WARN, ERROR)
+   
+- `INFO`: 
+
+   When `LogLevel.INFO` is passed, INFO logs for every event that has occurred during the SDK flow execution will be printed along with WARN and ERROR logs
+
+- `WARN`: 
+
+   When `LogLevel.WARN` is passed, WARN and ERROR logs will be printed
+   
+- `ERROR`:
+
+   When `LogLevel.ERROR` is passed, only ERROR logs will be printed.
+   
+- `OFF`: 
+
+   `LogLevel.OFF` can be used to turn off all logging from the Skyflow SDK.
+   
+
+`Note`:
+  - The ranking of logging levels is as follows :  `DEBUG` < `INFO` < `WARN` < `ERROR`
+  - The default the logLevel for Skyflow SDK is `LogLevel.ERROR`.
