@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.3.0] - 2022-01-04
+## [1.3.0] - 2022-01-11
 
 ### Added
 - Logging functionality
