@@ -1,4 +1,4 @@
-import {Skyflow,GenerateToken} from "../../src/index";
+import {Skyflow,generateBearerToken} from "../../src/index";
 
 var filePath = "<YOUR_CREDENTIAL_FILE>";
 
@@ -7,7 +7,7 @@ const skyflow = Skyflow.init({
   vaultURL: "<VaultURL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      GenerateToken(filePath)
+      generateBearerToken(filePath)
       .then((res) => {
        // resolve(JSON.parse(JSON.stringify(res)).accessToken);
         resolve(res.accessToken);
