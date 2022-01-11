@@ -1,4 +1,4 @@
-import {Skyflow,GenerateToken} from "../../src/index";
+import {Skyflow, generateBearerToken, GenerateToken} from "../../src/index";
 
 var filePath = "<YOUR_CREDENTIAL_FILE>";
 
@@ -7,7 +7,7 @@ const skyflow = Skyflow.init({
   vaultURL: "<VaultURL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      GenerateToken(filePath)
+      generateBearerToken(filePath)
       .then((res) => {
        // resolve(JSON.parse(JSON.stringify(res)).accessToken);
        resolve(res.accessToken);
@@ -15,25 +15,24 @@ const skyflow = Skyflow.init({
       .catch((err) => {
         reject(err);
       });
-    });
-  
-  }
+  })
+}
 });
 
 
   const result = skyflow.detokenize({
     records: [
       {
-        token : "14650ba6-4d47-4212-9834-e94c2b6a66a0"
+        token : "59d684a5-3894-44c4-bf94-e71ab6e21ad7"
       },
       {
-        token : "23df721c-7b78-45f0-b12f-d6cd37507d2b"
+        token : "6877-8185-9209-0557123"
       },
       {
-        token : "69fc4e4d-6d0d-46c4-97a0-010a1ef0db50"
+        token : "4b36bfc2-f0d3-41dd-8bc9-d0e4ec1e42d3"
       },
       {
-        token : "dc0281d3-aca4-411d-adfb-7e0d6ebab09f"
+        token : "5fbc3c11-ca8c-41f3-a9c3-e996cd252e28"
       }
     ],
 });

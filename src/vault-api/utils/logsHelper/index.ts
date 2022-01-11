@@ -1,3 +1,4 @@
+import { getLogLevel } from '../../Logging';
 import { LogLevel, MessageType } from '../common';
 
 export const LogLevelOptions = {
@@ -13,7 +14,7 @@ export const LogLevelOptions = {
   ERROR: {
     showDebugLogs: false, showInfoLogs: false, showWarnLogs: false, showErrorLogs: true,
   },
-  NONE: {
+  OFF: {
     showDebugLogs: false, showInfoLogs: false, showWarnLogs: false, showErrorLogs: false,
   }
 };
@@ -27,22 +28,23 @@ export const EnvOptions = {
   },
 };
 
-export const printLog = (message: string, messageType:MessageType, logLevel:LogLevel) => {
+export const printLog = (message: string, messageType:MessageType) => {
+  const logLevel = getLogLevel()
   const {
     showDebugLogs, showInfoLogs, showWarnLogs, showErrorLogs,
   } = LogLevelOptions[logLevel];
   if (messageType === MessageType.LOG && showDebugLogs) {
     // eslint-disable-next-line no-console
-    console.log(message);
+    console.log("DEBUG: [Skyflow] " + message);
   } else if (messageType === MessageType.LOG && showInfoLogs) {
     // eslint-disable-next-line no-console
-    console.log(message);
+    console.log("INFO: [Skyflow] " +  message);
   } else if (messageType === MessageType.WARN && showWarnLogs) {
     // eslint-disable-next-line no-console
-    console.warn(message);
+    console.warn("WARN: [Skyflow] " + message);
   } else if (messageType === MessageType.ERROR && showErrorLogs) {
     // eslint-disable-next-line no-console
-    console.error(message);
+    console.error("ERROR: [Skyflow] " + message);
   }
 };
 

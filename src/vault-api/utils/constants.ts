@@ -2,6 +2,15 @@ import logs from './logs';
 
 const SKYFLOW_ERROR_CODE = {
   INVALID_FIELD: { code: 400, description: logs.errorLogs.INVALID_FIELD },
+  VAULTID_IS_REQUIRED: { code: 400, description: logs.errorLogs.VAULTID_IS_REQUIRED },
+  EMPTY_VAULTID_IN_INIT: { code: 400, description: logs.errorLogs.EMPTY_VAULTID_IN_INIT },
+  VAULTURL_IS_REQUIRED: { code: 400, description: logs.errorLogs.VAULTURL_IS_REQUIRED },
+  EMPTY_VAULTURL_IN_INIT: { code: 400, description: logs.errorLogs.EMPTY_VAULTURL_IN_INIT },
+  INVALID_VAULTURL_IN_INIT: { code: 400, description: logs.errorLogs.INVALID_VAULTURL_IN_INIT },
+  GET_BEARER_TOKEN_IS_REQUIRED: {
+    code: 400,
+    description: logs.errorLogs.GET_BEARER_TOKEN_IS_REQUIRED,
+  },
   INVALID_CREDENTIALS: { code: 400, description: logs.errorLogs.INVALID_CREDENTIALS },
   INVALID_CONTAINER_TYPE: { code: 400, description: logs.errorLogs.INVALID_CONTAINER_TYPE },
   UNIQUE_ELEMENT_NAME: { code: 400, description: logs.errorLogs.UNIQUE_ELEMENT_NAME },

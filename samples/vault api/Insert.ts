@@ -1,4 +1,4 @@
-import {Skyflow,GenerateToken} from "../../src/index";
+import {Skyflow,generateBearerToken} from "../../src/index";
 
 var filePath = "<YOUR_CREDENTIAL_FILE>";
 
@@ -7,7 +7,7 @@ const skyflow = Skyflow.init({
   vaultURL: "<VaultURL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      GenerateToken(filePath)
+      generateBearerToken(filePath)
       .then((res) => {
        // resolve(JSON.parse(JSON.stringify(res)).accessToken);
         resolve(res.accessToken);
@@ -24,12 +24,14 @@ const skyflow = Skyflow.init({
     records: [
       {
         fields: {
-            cvv: "234",
+            primary_card : {
+              cvv: "234",
             card_number: "411111111111111",
-            fullname: "san",
             expiry_date: "11/22",
         },
-        table: "cards",
+        first_name : "firstNameTest"
+        },
+        table: "pii_fields",
       },
     ],
   },{tokens:true});

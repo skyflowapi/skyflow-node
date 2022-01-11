@@ -1,5 +1,5 @@
-import GenerateToken from "../src/service-account/util/Token";
-import { errorMessages } from "../src/service-account/errors/Messages.js";
+import {GenerateToken} from "../src/service-account/util/Token";
+import { errorMessages } from "../src/service-account/errors/Messages";
 
 describe("fileValidityTest", () => {
   test("invalidJSON", () => {
