@@ -45,7 +45,7 @@ GenerateToken(filepath).then((res) => {
 ```
 
 ### Vault APIs
-The [Vault](https://github.com/skyflowapi/skyflow-node/tree/master/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for a `skyflow_id` and to invoke the gateway.
+The [Vault](https://github.com/skyflowapi/skyflow-node/tree/master/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id's` and to invoke the connection.
 
 To use this module, the Skyflow client must first be initialized as follows.  
 
@@ -63,9 +63,22 @@ const client = Skyflow.init({
     // URL of the vault that the client should connect to  
     vaultURL: 'string',
     // Helper function generates a Skyflow bearer token
-    getBearerToken: getSkyflowAuthBearerToken
+    getBearerToken: helperFunc
 });
+```
+For the `getBearerToken` parameter, pass in a helper function that retrieves a Skyflow bearer token from your backend. This function will be invoked when the SDK needs to insert or retrieve data from the vault. A sample implementation is shown below: 
 
+For example, if the response of the consumer tokenAPI is in the below format
+
+```
+{
+   "accessToken": string,
+   "tokenType": string
+}
+```
+then, your getBearerToken Implementation should be as below
+
+```javascript
 function getSkyflowAuthBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
@@ -90,8 +103,7 @@ data = {
     records: [{
         table: '<TABLE_NAME>',
         fields: {
-            <
-            FIELDNAME >: '<VALUE>'
+            <FIELDNAME>: '<VALUE>'
         }
     }]
 };
@@ -108,7 +120,7 @@ An example of an insert call is given below:
 const response = client.insert({
     records: [{
         fields: {
-            cvv: '234',
+            expiry_date: '12/2026',
             card_number: '411111111111111',
         },
         table: 'cards',
@@ -133,13 +145,15 @@ Sample response:
 
 ```json
 {
-    "records": [{
-        "table": "cards",
-        "fields": {
-            "card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
-            "cvv": "1989cb56-63a-4482-adf-1f74cd1a5"
-        }
-    }]
+  "records": [
+    {
+      "table": "cards",
+      "fields": {
+        "card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
+        "expiry_date": "1989cb56-63a-4482-adf-1f74cd1a5"
+      }
+    }
+  ]
 }
 ```
 
@@ -176,12 +190,14 @@ result.then(
 
 Sample response:
 
-```javascript
+```json
 {
-	"records": [{
-		"token": "110dc-6f76-19-bd3-9051051",
-		"value": "1990-01-01"
-	}]
+  "records": [
+    {
+      "token": "110dc-6f76-19-bd3-9051051",
+      "value": "1990-01-01"
+    }
+  ]
 }
 ```
 
@@ -245,55 +261,52 @@ Sample response:
 
 ```json
 {
-    "records": [{
-            "fields": {
-                "card_number": "4111111111111111",
-                "cvv": "127",
-                "expiry_date": "11/35",
-                "fullname": "myname",
-                "skyflow_id": "f8d2-b557-4c6b-a12c-c5ebfd9"
-            },
-            "table": "cards"
-        },
-        {
-            "fields": {
-                "card_number": "4111111111111111",
-                "cvv": "317",
-                "expiry_date": "10/23",
-                "fullname": "sam",
-                "skyflow_id": "da53-95d5-4bdb-99db-8d8c5ff9"
-            },
-            "table": "cards"
-        }
-    ],
-    "errors": [{
-        "error": {
-            "code": "404",
-            "description": "No Records Found"
-        },
-        "skyflow_ids": [
-            "invalid skyflow id"
-        ]
-    }]
+  "records": [
+    {
+      "fields": {
+        "card_number": "4111111111111111",
+        "expiry_date": "11/35",
+        "fullname": "myname",
+        "skyflow_id": "f8d2-b557-4c6b-a12c-c5ebfd9"
+      },
+      "table": "cards"
+    },
+    {
+      "fields": {
+        "card_number": "4111111111111111",
+        "expiry_date": "10/23",
+        "fullname": "sam",
+        "skyflow_id": "da53-95d5-4bdb-99db-8d8c5ff9"
+      },
+      "table": "cards"
+    }
+  ],
+  "errors": [
+    {
+      "error": {
+        "code": "404",
+        "description": "No Records Found"
+      },
+      "skyflow_ids": [
+        "invalid Skyflow ID"
+      ]
+    }
+  ]
 }
 ```
 
 #### Invoke Connection
-Using Skyflow connection, end-user applications can integrate checkout/card issuance flow with their apps/systems. To invoke a gateway, use the `invokeConnection(config)` method of the Skyflow client.
+Using Skyflow connection, end-user applications can integrate checkout/card issuance flow with their apps/systems. To invoke a connection, use the `invokeConnection(config)` method of the Skyflow client.
 
 ```javascript
 data = {
     connectionURL: '<YOUR_CONNECTION_URL>',
     methodName: Skyflow.RequestMethod.POST,
     requestHeader: {
-        'Content-Type': 'application/json',
         Authorization: '<YOUR_CONNECTION_BASIC_AUTH>'
     },
     pathParams: {
-        card_number: '<YOUR_CARD_VALUE>'
-    },
-    queryParams: {
-        'cvv': '123'
+        card_number: '<YOUR_CARD_NUMBER>'
     },
     requestBody: {
         expirationDate: {
@@ -317,17 +330,14 @@ An example of `invokeConnection`:
 
 ```javascript
 const response = client.invokeConnection({
-    connectionURL: '<YOUR_GATEWAY_URL>',
+    connectionURL: '<YOUR_CONNECTION_URL>',
     methodName: Skyflow.RequestMethod.POST,
     requestHeader: {
         'Content-Type': 'application/json',
         Authorization: '<YOUR_CONNECTION_BASIC_AUTH>'
     },
     pathParams: {
-        card_number: '<YOUR_CARD_VALUE>'
-    },
-    queryParams: {
-        cvv: '123'
+        card_number: '<YOUR_CARD_NUMBER>'
     },
     requestBody: {
         expirationDate: {
@@ -349,11 +359,11 @@ response.then(
 Sample response:
 ```json
 {
-    "receivedTimestamp": "2021-11-05 13:43:12.534",
-    "processingTimeinMs": "12",
-    "resource": {
-        "cvv2": "558"
-    }
+  "receivedTimestamp": "2021-11-05 13:43:12.534",
+  "processingTimeinMs": "12",
+  "resource": {
+    "cvv2": "558"
+  }
 }
 ```
 
