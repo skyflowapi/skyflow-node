@@ -180,10 +180,8 @@ const result = client.detokenize({
 
 result.then(
     (res) => {
-        console.log('detokenize result: ');
         console.log(JSON.stringify(res));
     }).catch((err) => {
-    console.log("detokenize error:")
     console.log(JSON.stringify(err));
 });
 ```
@@ -249,10 +247,8 @@ let records = {
 const result = client.getById(records);
 result.then(
     (res) => {
-        console.log('getByID result:');
         console.log(JSON.stringify(res));
     }).catch((err) => {
-    console.log('getByID error: ');
     console.log(JSON.stringify(err));
 });
 ```
