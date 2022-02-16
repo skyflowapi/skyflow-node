@@ -178,12 +178,10 @@ Sample response:
 
 ```javascript
 {
-	"records": [
-    {
-			"token": "110dc-6f76-19-bd3-9051051",
-			"value": "1990-01-01"
-    }
-  ]
+	"records": [{
+		"token": "110dc-6f76-19-bd3-9051051",
+		"value": "1990-01-01"
+	}]
 }
 ```
 
