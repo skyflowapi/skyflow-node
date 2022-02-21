@@ -41,7 +41,6 @@ class Client {
   }
 
   request = (request: IClientRequest) => new Promise((resolve, reject) => {
-
     const httpRequest = new XMLHttpRequest();
     if (!httpRequest) {
       reject(new SkyflowError(SKYFLOW_ERROR_CODE.CONNECTION_ERROR, [], true));
@@ -70,25 +69,30 @@ class Client {
         headerMap[header] = value;
       });
       const contentType = headerMap['content-type'];
+      const requestId = headerMap['x-request-id'];
       if (httpRequest.status < 200 || httpRequest.status >= 400) {
-        if (contentType.includes('application/json')) {
+        if (contentType && contentType.includes('application/json')) {
+          let description = JSON.parse(httpRequest.responseText);
+          if (description?.error?.message) {
+            description = requestId ? `${description?.error?.message} - requestId: ${requestId}` : description?.error?.message;
+          }
           reject(new SkyflowError({
             code: httpRequest.status,
-            description: JSON.parse(httpRequest.responseText)?.error?.message,
+            description,
           }, [], true));
-        } else if (contentType.includes('text/plain')) {
+        } else if (contentType && contentType.includes('text/plain')) {
           reject(new SkyflowError({
             code: httpRequest.status,
-            description: httpRequest.responseText,
+            description: requestId ? `${httpRequest.responseText} - requestId: ${requestId}` : httpRequest.responseText,
           }, [], true));
         } else {
           reject(new SkyflowError({
             code: httpRequest.status,
-            description: logs.errorLogs.ERROR_OCCURED,
+            description: requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED,
           }, [], true));
         }
       }
-      if (contentType.includes('application/json')) {
+      if (contentType && contentType.includes('application/json')) {
         resolve(JSON.parse(httpRequest.responseText));
       }
       resolve(httpRequest.responseText);
