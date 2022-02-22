@@ -1,13 +1,8 @@
 
 import Client from './client';
-import {
-  isValidURL,
-} from './utils/validators';
 import { printLog } from './utils/logsHelper';
-import SkyflowError from './libs/SkyflowError';
 import logs from './utils/logs';
-import SKYFLOW_ERROR_CODE from './utils/constants';
-import PureJsController from './PureJsController';
+import Controller from './Controller';
 import {
   IRevealResponseType,
   IConnectionConfig,
@@ -30,7 +25,7 @@ export interface ISkyflow {
 class Skyflow {
   #client: Client;
   #metadata = { };
-  #pureJsController: PureJsController;
+  #Controller: Controller;
 
   constructor(config: ISkyflow) {
     this.#client = new Client(
@@ -40,7 +35,7 @@ class Skyflow {
       ,
       this.#metadata,
     );
-    this.#pureJsController = new PureJsController(this.#client);
+    this.#Controller = new Controller(this.#client);
 
     printLog(logs.infoLogs.BEARER_TOKEN_LISTENER, MessageType.LOG);
   }
@@ -58,26 +53,26 @@ class Skyflow {
     options: Record<string, any> = { tokens: true },
   ) {
     printLog(logs.infoLogs.INSERT_TRIGGERED, MessageType.LOG);
-    return this.#pureJsController.insert(records, options);
+    return this.#Controller.insert(records, options);
   }
 
   detokenize(detokenizeInput: IDetokenizeInput): Promise<IRevealResponseType> {
     printLog(logs.infoLogs.DETOKENIZE_TRIGGERED,
       MessageType.LOG);
-    return this.#pureJsController.detokenize(detokenizeInput);
+    return this.#Controller.detokenize(detokenizeInput);
   }
 
   getById(getByIdInput: IGetByIdInput) {
     printLog(logs.infoLogs.GET_BY_ID_TRIGGERED,
       MessageType.LOG);
-    return this.#pureJsController.getById(getByIdInput);
+    return this.#Controller.getById(getByIdInput);
   }
 
   invokeConnection(config: IConnectionConfig) {
     printLog(logs.infoLogs.INVOKE_CONNECTION_TRIGGERED,
       MessageType.LOG);
 
-    return this.#pureJsController.invokeConnection(config);
+    return this.#Controller.invokeConnection(config);
   }
 
   static get RedactionType() {

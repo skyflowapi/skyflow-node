@@ -29,7 +29,7 @@ import {
  fillUrlWithPathAndQueryParams,
 } from './utils/helpers';
 
-class PureJsController {
+class Controller {
   #client: Client;
 
   constructor(client) {
@@ -52,8 +52,6 @@ class PureJsController {
               resolve(resolvedResult);
             },
             (rejectedResult) => {
-              printLog(logs.errorLogs.FETCH_RECORDS_REJECTED, MessageType.ERROR);
-
               reject(rejectedResult);
             },
           );
@@ -83,7 +81,6 @@ class PureJsController {
             resolve(result);
           })
           .catch((error) => {
-            printLog(logs.errorLogs.INSERT_RECORDS_REJECTED, MessageType.ERROR);
             reject({ error });
           });
           printLog(parameterizedString(logs.infoLogs.EMIT_PURE_JS_REQUEST, PUREJS_TYPES.INSERT),
@@ -114,8 +111,6 @@ class PureJsController {
               resolve(resolvedResult);
             },
             (rejectedResult) => {
-              printLog(logs.errorLogs.GET_BY_SKYFLOWID_REJECTED, MessageType.ERROR);
-
               reject(rejectedResult);
             },
           );
@@ -221,4 +216,4 @@ class PureJsController {
     });
   }
 }
-export default PureJsController;
+export default Controller;

@@ -3,7 +3,12 @@ import { ISkyflow } from '../Skyflow';
 import SKYFLOW_ERROR_CODE from '../utils/constants';
 import logs from '../utils/logs';
 import {XMLHttpRequest} from 'xmlhttprequest-ts';
-
+import {
+  printLog
+} from '../utils/logsHelper';
+import {
+   MessageType
+} from '../utils/common';
 export interface IClientRequest {
   body?: Record<string, any>;
   headers?: Record<string, string>;
@@ -76,19 +81,24 @@ class Client {
           if (description?.error?.message) {
             description = requestId ? `${description?.error?.message} - requestId: ${requestId}` : description?.error?.message;
           }
+          printLog(description, MessageType.ERROR);
           reject(new SkyflowError({
             code: httpRequest.status,
             description,
           }, [], true));
         } else if (contentType && contentType.includes('text/plain')) {
+          let description = requestId ? `${httpRequest.responseText} - requestId: ${requestId}` : httpRequest.responseText
+          printLog(description, MessageType.ERROR);
           reject(new SkyflowError({
             code: httpRequest.status,
-            description: requestId ? `${httpRequest.responseText} - requestId: ${requestId}` : httpRequest.responseText,
+            description,
           }, [], true));
         } else {
+          let description = requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED
+          printLog(description, MessageType.ERROR);
           reject(new SkyflowError({
             code: httpRequest.status,
-            description: requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED,
+            description,
           }, [], true));
         }
       }

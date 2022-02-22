@@ -1,5 +1,5 @@
 import { getLogLevel } from '../../Logging';
-import { LogLevel, MessageType } from '../common';
+import { MessageType } from '../common';
 
 export const LogLevelOptions = {
   DEBUG: {

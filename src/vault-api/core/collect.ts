@@ -1,8 +1,5 @@
 import _ from 'lodash';
-import SkyflowError from '../libs/SkyflowError';
 import { IInsertRecordInput, IInsertRecord } from '../utils/common';
-import SKYFLOW_ERROR_CODE from '../utils/constants';
-import { validateInsertRecords } from '../utils/validators';
 
 export const constructInsertRecordRequest = (
   records: IInsertRecordInput,
