@@ -32,11 +32,13 @@ The `GenerateBearerToken(filepath)` function takes the service acccount credenti
 
 ```javascript
 import {
-    generateBearerToken
+    generateBearerToken,
+    isValid
 } from 'skyflow-node';
 
-let filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';
+let filepath = 'CREDENTIALS_FILE_PATH';
 let bearerToken = ""
+
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
@@ -64,6 +66,7 @@ import {
     generateBearerToken,
     isValid
 } from 'skyflow-node';
+
 const filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';
 
 // Initialize the Skyflow client
