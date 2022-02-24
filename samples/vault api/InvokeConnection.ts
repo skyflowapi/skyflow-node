@@ -1,23 +1,28 @@
-import {Skyflow,generateBearerToken} from "../../src/index";
+import {Skyflow, generateBearerToken, isValid} from "../../src/index";
 
 var filePath = "<YOUR_CREDENTIAL_FILE>";
 
+var bearerToken = ""
 const skyflow = Skyflow.init({
-  vaultID: "<VaultId>",
-  vaultURL: "<VaultURL>",
+  vaultID: "<VAULT_ID>",
+  vaultURL: "<VAULT_URL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      generateBearerToken(filePath)
-      .then((res) => {
-       // resolve(JSON.parse(JSON.stringify(res)).accessToken);
-       resolve(res.accessToken);
-      })
-      .catch((err) => {
-        reject(err);
-        resolve(err.accessToken);
-      });
-    });
-  }
+      if(isValid(bearerToken)) {
+        resolve(bearerToken)
+      }
+      else {    
+        generateBearerToken(filePath)
+        .then((res) => {
+            bearerToken = res.accessToken
+            resolve(bearerToken);
+        })
+        .catch((err) => {
+            reject(err);
+        });
+      }
+  })
+}
 });
 
   const sdkResponse = skyflow.invokeConnection({

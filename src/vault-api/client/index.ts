@@ -3,7 +3,12 @@ import { ISkyflow } from '../Skyflow';
 import SKYFLOW_ERROR_CODE from '../utils/constants';
 import logs from '../utils/logs';
 import {XMLHttpRequest} from 'xmlhttprequest-ts';
-
+import {
+  printLog
+} from '../utils/logsHelper';
+import {
+   MessageType
+} from '../utils/common';
 export interface IClientRequest {
   body?: Record<string, any>;
   headers?: Record<string, string>;
@@ -41,7 +46,6 @@ class Client {
   }
 
   request = (request: IClientRequest) => new Promise((resolve, reject) => {
-
     const httpRequest = new XMLHttpRequest();
     if (!httpRequest) {
       reject(new SkyflowError(SKYFLOW_ERROR_CODE.CONNECTION_ERROR, [], true));
@@ -70,25 +74,35 @@ class Client {
         headerMap[header] = value;
       });
       const contentType = headerMap['content-type'];
+      const requestId = headerMap['x-request-id'];
       if (httpRequest.status < 200 || httpRequest.status >= 400) {
-        if (contentType.includes('application/json')) {
+        if (contentType && contentType.includes('application/json')) {
+          let description = JSON.parse(httpRequest.responseText);
+          if (description?.error?.message) {
+            description = requestId ? `${description?.error?.message} - requestId: ${requestId}` : description?.error?.message;
+          }
+          printLog(description, MessageType.ERROR);
           reject(new SkyflowError({
             code: httpRequest.status,
-            description: JSON.parse(httpRequest.responseText)?.error?.message,
+            description,
           }, [], true));
-        } else if (contentType.includes('text/plain')) {
+        } else if (contentType && contentType.includes('text/plain')) {
+          let description = requestId ? `${httpRequest.responseText} - requestId: ${requestId}` : httpRequest.responseText
+          printLog(description, MessageType.ERROR);
           reject(new SkyflowError({
             code: httpRequest.status,
-            description: httpRequest.responseText,
+            description,
           }, [], true));
         } else {
+          let description = requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED
+          printLog(description, MessageType.ERROR);
           reject(new SkyflowError({
             code: httpRequest.status,
-            description: logs.errorLogs.ERROR_OCCURED,
+            description,
           }, [], true));
         }
       }
-      if (contentType.includes('application/json')) {
+      if (contentType && contentType.includes('application/json')) {
         resolve(JSON.parse(httpRequest.responseText));
       }
       resolve(httpRequest.responseText);
