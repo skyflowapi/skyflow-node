@@ -47,7 +47,14 @@ function getToken(credentials): Promise<ResponseToken> {
           printLog(errorMessages.ExpectedStringParameter, MessageType.ERROR);
           reject(new SkyflowError({code: 400,description: errorMessages.ExpectedStringParameter}));
         }
-        const credentialsObj = JSON.parse(credentials);
+        let credentialsObj = JSON.parse("{}")
+        try {
+           credentialsObj = JSON.parse(credentials);
+        }
+        catch(e) {
+          printLog(errorMessages.notAValidJSON, MessageType.ERROR);
+          throw new SkyflowError({code: 400,description: errorMessages.notAValidJSON});
+        }
         const expiryTime = Math.floor(Date.now() / 1000) + 3600;
 
         const claims = {

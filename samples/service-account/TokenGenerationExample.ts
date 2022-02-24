@@ -1,6 +1,8 @@
 import { generateBearerToken, generateBearerTokenFromCreds} from "../../src/index";
 
-  generateBearerTokenFromCreds("<YOUR_CREDENTIAL_STRING>").then((res) => {
+
+  let credentialString = "<credentialString>"
+  generateBearerTokenFromCreds(JSON.stringify(credentialString)).then((res) => {
     console.log(res);
   }).catch((err) => {
     console.log(JSON.stringify(err));

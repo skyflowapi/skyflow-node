@@ -81,7 +81,7 @@ then, your getBearerToken Implementation should be as below
 
 ```javascript
 let bearerToken = ""
-function getSkyflowAuthBearerToken() {
+function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             if(isValid(bearerToken)) resolve(bearerToken)

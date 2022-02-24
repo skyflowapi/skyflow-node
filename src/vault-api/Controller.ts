@@ -28,7 +28,7 @@ import {
 import {
  fillUrlWithPathAndQueryParams,
 } from './utils/helpers';
-import isValid from './utils/jwtUtils';
+import {isTokenValid} from './utils/jwtUtils';
 
 class Controller {
   #client: Client;
@@ -50,7 +50,7 @@ class Controller {
             validateDetokenizeInput(detokenizeInput);
             printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, PUREJS_TYPES.DETOKENIZE),
             MessageType.LOG);
-            if(isValid(this.#bearerToken)) {
+            if(isTokenValid(this.#bearerToken)) {
               fetchRecordsByTokenId(detokenizeInput.records, this.#client,this.#bearerToken)
               .then(
                 (resolvedResult) => {
@@ -123,7 +123,7 @@ class Controller {
           printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST,
             PUREJS_TYPES.GET_BY_SKYFLOWID),
           MessageType.LOG);
-          if(isValid(this.#bearerToken)) {
+          if(isTokenValid(this.#bearerToken)) {
             fetchRecordsBySkyflowID(
               getByIdInput.records,
               this.#client,
@@ -204,7 +204,7 @@ class Controller {
   insertData(records, options) {
     const requestBody = constructInsertRecordRequest(records, options);
     return new Promise((rootResolve, rootReject) => {
-      if(isValid(this.#bearerToken)) {
+      if(isTokenValid(this.#bearerToken)) {
             this.#client
             .request({
               body: { records: requestBody },
@@ -269,7 +269,7 @@ class Controller {
   sendInvokeConnectionRequest(config:IConnectionConfig) {
     return new Promise((rootResolve, rootReject) => {
 
-      if(isValid(this.#bearerToken)) {
+      if(isTokenValid(this.#bearerToken)) {
         const invokeRequest = this.#client.request({
           url: config.connectionURL,
           requestMethod: config.methodName,
