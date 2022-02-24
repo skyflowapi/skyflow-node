@@ -12,8 +12,8 @@ function generateBearerToken(credentialsFilePath): Promise<ResponseToken> {
     let credentials;
 
     if (!fs.existsSync(credentialsFilePath)) {
-      printLog(errorMessages.fileNotFound, MessageType.ERROR);
-      reject(new SkyflowError({code: 400,description: errorMessages.fileNotFound}));
+      printLog(errorMessages.FileNotFound, MessageType.ERROR);
+      reject(new SkyflowError({code: 400,description: errorMessages.FileNotFound}));
     }
     credentials = fs.readFileSync(credentialsFilePath, "utf8");
 
@@ -25,8 +25,8 @@ function generateBearerToken(credentialsFilePath): Promise<ResponseToken> {
     try {
       JSON.parse(credentials);
     } catch (e) {
-      printLog(errorMessages.notAValidJSON, MessageType.ERROR);
-      reject(new SkyflowError({code: 400,description: errorMessages.notAValidJSON}));
+      printLog(errorMessages.NotAValidJSON, MessageType.ERROR);
+      reject(new SkyflowError({code: 400,description: errorMessages.NotAValidJSON}));
     }
 
     getToken(credentials).then((res) => {
@@ -52,8 +52,8 @@ function getToken(credentials): Promise<ResponseToken> {
            credentialsObj = JSON.parse(credentials);
         }
         catch(e) {
-          printLog(errorMessages.notAValidJSON, MessageType.ERROR);
-          throw new SkyflowError({code: 400,description: errorMessages.notAValidJSON});
+          printLog(errorMessages.NotAValidJSON, MessageType.ERROR);
+          throw new SkyflowError({code: 400,description: errorMessages.NotAValidJSON});
         }
         const expiryTime = Math.floor(Date.now() / 1000) + 3600;
 
@@ -66,20 +66,20 @@ function getToken(credentials): Promise<ResponseToken> {
         };
 
         if (claims.iss == null) {
-          printLog(errorMessages.clientIDNotFound, MessageType.ERROR);
-          reject(new SkyflowError({code: 400,description: errorMessages.clientIDNotFound}));
+          printLog(errorMessages.ClientIDNotFound, MessageType.ERROR);
+          reject(new SkyflowError({code: 400,description: errorMessages.ClientIDNotFound}));
         }
         else if (claims.key == null) {
-          printLog(errorMessages.keyIDNotFound, MessageType.ERROR);
-          reject(new SkyflowError({code: 400,description: errorMessages.keyIDNotFound}));
+          printLog(errorMessages.KeyIDNotFound, MessageType.ERROR);
+          reject(new SkyflowError({code: 400,description: errorMessages.KeyIDNotFound}));
         }
         else if (claims.aud == null) {
-          printLog(errorMessages.tokenURINotFound, MessageType.ERROR);
-          reject(new SkyflowError({code: 400,description: errorMessages.tokenURINotFound}));
+          printLog(errorMessages.TokenURINotFound, MessageType.ERROR);
+          reject(new SkyflowError({code: 400,description: errorMessages.TokenURINotFound}));
         }
         else if (credentialsObj.privateKey == null) {
-          printLog(errorMessages.privateKeyNotFound, MessageType.ERROR);
-          reject(new SkyflowError({code: 400,description: errorMessages.privateKeyNotFound}));
+          printLog(errorMessages.PrivateKeyNotFound, MessageType.ERROR);
+          reject(new SkyflowError({code: 400,description: errorMessages.PrivateKeyNotFound}));
         }
         else {
           const privateKey = credentialsObj.privateKey.toString("utf8");

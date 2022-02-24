@@ -30,8 +30,6 @@ const skyflow = Skyflow.init({
     records: [
       {
         fields: {
-          
-              cvv: "234",
             card_number: "411111111111111",
             expiry_date: "11/22",
       

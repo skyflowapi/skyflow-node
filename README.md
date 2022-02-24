@@ -34,14 +34,23 @@ The `GenerateBearerToken(filepath)` function takes the service acccount credenti
 import {
     generateBearerToken
 } from 'skyflow-node';
-let filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';
 
-generateBearerToken(filepath).then((res) => {
-        console.log(res);
-    })
-    .catch((err) => {
-        console.log(err);
+let filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';
+let bearerToken = ""
+function getSkyflowBearerToken() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (isValid(bearerToken)) resolve(bearerToken)
+            else {
+                let response = await generateBearerToken(filepath);
+                bearerToken = response.accessToken;
+                resolve(bearerToken);
+            }
+        } catch (e) {
+            reject(e);
+        }
     });
+}
 ```
 
 ### Vault APIs
@@ -81,14 +90,15 @@ then, your getBearerToken Implementation should be as below
 
 ```javascript
 let bearerToken = ""
+
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
-            if(isValid(bearerToken)) resolve(bearerToken)
+            if (isValid(bearerToken)) resolve(bearerToken)
             else {
-            let authToken = await generateBearerToken(filepath);
-            bearerToken = authToken.accessToken;
-            resolve(bearerToken);
+                let response = await generateBearerToken(filepath);
+                bearerToken = response.accessToken;
+                resolve(bearerToken);
             }
         } catch (e) {
             reject(e);
