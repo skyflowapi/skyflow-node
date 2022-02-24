@@ -1,5 +1,7 @@
 const logs = {
   infoLogs: {
+    EMPTY_BEARER_TOKEN : "BearerToken is Empty",
+    BEARER_TOKEN_EXPIRED : "BearerToken is expired",
     GENERATE_BEARER_TOKEN_TRIGGERED : "generateBearerToken is triggered",
     GENERATE_BEARER_TOKEN_SUCCESS : "BearerToken is generated",
     INITIALIZE_CLIENT: 'Initializing skyflow client.',
