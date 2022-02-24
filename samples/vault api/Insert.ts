@@ -1,22 +1,28 @@
-import {Skyflow,generateBearerToken} from "../../src/index";
+import {Skyflow, generateBearerToken, isValid,LogLevel,setLogLevel} from "../../src/index";
 
 var filePath = "<YOUR_CREDENTIAL_FILE>";
-
+setLogLevel(LogLevel.INFO)
+var bearerToken = ""
 const skyflow = Skyflow.init({
-  vaultID: "<VaultId>",
-  vaultURL: "<VaultURL>",
+  vaultID: "<VAULT_ID>",
+  vaultURL: "<VAULT_URL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      generateBearerToken(filePath)
-      .then((res) => {
-       // resolve(JSON.parse(JSON.stringify(res)).accessToken);
-        resolve(res.accessToken);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-    });
-  }
+      if(isValid(bearerToken)) {
+        resolve(bearerToken)
+      }
+      else {    
+        generateBearerToken(filePath)
+        .then((res) => {
+            bearerToken = res.accessToken
+            resolve(bearerToken);
+        })
+        .catch((err) => {
+            reject(err);
+        });
+      }
+  })
+}
 });
 
 
@@ -24,14 +30,14 @@ const skyflow = Skyflow.init({
     records: [
       {
         fields: {
-            primary_card : {
+          
               cvv: "234",
             card_number: "411111111111111",
             expiry_date: "11/22",
+      
+        fullname : "firstNameTest"
         },
-        first_name : "firstNameTest"
-        },
-        table: "pii_fields",
+        table: "cards",
       },
     ],
   },{tokens:true});

@@ -77,8 +77,8 @@ const getTokenRecordsFromVault = (
 export const fetchRecordsByTokenId = (
   tokenIdRecords: IRevealRecord[],
   client: Client,
+  authToken: String
 ): Promise<IRevealResponseType> => new Promise((rootResolve, rootReject) => {
-  client.config.getBearerToken().then((authToken) => {
     const vaultResponseSet: Promise<any>[] = tokenIdRecords.map(
       (tokenRecord) => new Promise((resolve) => {
         const apiResponse: any = [];
@@ -118,9 +118,6 @@ export const fetchRecordsByTokenId = (
       } else if (recordsResponse.length === 0) rootReject({ errors: errorResponse });
       else rootReject({ records: recordsResponse, errors: errorResponse });
     });
-  }).catch((err) => {
-    rootReject(err);
-  });
 });
 
 
@@ -130,9 +127,9 @@ export const fetchRecordsByTokenId = (
 export const fetchRecordsBySkyflowID = async (
   skyflowIdRecords: ISkyflowIdRecord[],
   client: Client,
+  authToken:string
 ) => new Promise((rootResolve, rootReject) => {
   let vaultResponseSet: Promise<any>[];
-  client.config.getBearerToken().then((authToken) => {
     vaultResponseSet = skyflowIdRecords.map(
       (skyflowIdRecord) => new Promise((resolve, reject) => {
         getSkyflowIdRecordsFromVault(skyflowIdRecord, client, authToken as string)
@@ -188,7 +185,4 @@ export const fetchRecordsBySkyflowID = async (
       } else if (recordsResponse.length === 0) rootReject({ errors: errorsResponse });
       else rootReject({ records: recordsResponse, errors: errorsResponse });
     });
-  }).catch((err) => {
-    rootReject(err);
-  });
 });

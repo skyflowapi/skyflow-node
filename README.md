@@ -32,11 +32,11 @@ The `GenerateBearerToken(filepath)` function takes the service acccount credenti
 
 ```javascript
 import {
-    GenerateToken
+    generateBearerToken
 } from 'skyflow-node';
 let filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';
 
-GenerateToken(filepath).then((res) => {
+generateBearerToken(filepath).then((res) => {
         console.log(res);
     })
     .catch((err) => {
@@ -52,7 +52,8 @@ To use this module, the Skyflow client must first be initialized as follows.
 ```javascript
 import {
     Skyflow,
-    GenerateToken
+    generateBearerToken,
+    isValid
 } from 'skyflow-node';
 const filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';
 
@@ -79,11 +80,16 @@ For example, if the response of the consumer tokenAPI is in the below format
 then, your getBearerToken Implementation should be as below
 
 ```javascript
+let bearerToken = ""
 function getSkyflowAuthBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
-            let authToken = await GenerateToken(filepath);
-            resolve(authToken.accessToken);
+            if(isValid(bearerToken)) resolve(bearerToken)
+            else {
+            let authToken = await generateBearerToken(filepath);
+            bearerToken = authToken.accessToken;
+            resolve(bearerToken);
+            }
         } catch (e) {
             reject(e);
         }

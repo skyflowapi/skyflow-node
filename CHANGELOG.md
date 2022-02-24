@@ -2,15 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2021-02-24
+
+## Added
+- Request ID in error logs and error responses for API Errors
+- Caching to access token 
+- `isValid` method for validating Service Account bearer token   
+
 ## [1.3.0] - 2022-01-11
 
 ### Added
 - Logging functionality
 - `setLogLevel` function for setting the package-level LogLevel
-- `GenerateBearerTokenFromCreds` function which takes credentials as string
+- `generateBearerTokenFromCreds` function which takes credentials as string
 
 ### Changed
-- Renamed and deprecated `GenerateToken` in favor of `GenerateBearerToken`
+- Renamed and deprecated `generateToken` in favor of `generateBearerToken`
 - Make `vaultID` and `vaultURL` optional in `Client` constructor
 
 
