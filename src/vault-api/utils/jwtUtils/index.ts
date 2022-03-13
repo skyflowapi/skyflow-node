@@ -11,7 +11,7 @@ function isValid(token: string) {
 function isExpired(token: string) {
   if(token === ""){
     printLog(logs.infoLogs.EMPTY_BEARER_TOKEN, MessageType.LOG);
-    return false
+    return true
   } 
   let isJwtExpired = false;
   const decoded: JwtPayload = jwt_decode(token);
