@@ -1,20 +1,18 @@
-import {Skyflow, generateBearerToken,setLogLevel,LogLevel, isExpired} from "../../src/index";
-
+var skyflowClient = require("skyflow-node");
 var filePath = "<YOUR_CREDENTIAL_FILE>";
-
-
-setLogLevel(LogLevel.INFO)
+skyflowClient.setLogLevel(skyflowClient.LogLevel.INFO)
 var bearerToken = ""
-const skyflow = Skyflow.init({
+
+const skyflow = skyflowClient.Skyflow.init({
   vaultID: "<VAULT_ID>",
-  vaultURL: "<VAULT_URL>",
+  vaultURL: "<VALUT_URL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      if(!isExpired(bearerToken)) {
+      if(!skyflowClient.isExpired(bearerToken)) {
         resolve(bearerToken)
       }
       else {    
-        generateBearerToken(filePath)
+        skyflowClient.generateBearerToken(filePath)
         .then((res) => {
             bearerToken = res.accessToken
             resolve(bearerToken);
@@ -31,12 +29,12 @@ const result = skyflow.getById({
   records: [
     {
      ids:["<ID1>","<ID2>"],
-     redaction : Skyflow.RedactionType.PLAIN_TEXT,
+     redaction : skyflowClient.Skyflow.RedactionType.PLAIN_TEXT,
      table: "cards"
     },
     {
       ids:["<ID1>"],
-      redaction : Skyflow.RedactionType.PLAIN_TEXT,
+      redaction : skyflowClient.Skyflow.RedactionType.PLAIN_TEXT,
       table: "persons"
      }
   ],
