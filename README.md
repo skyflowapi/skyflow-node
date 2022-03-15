@@ -33,7 +33,7 @@ The `GenerateBearerToken(filepath)` function takes the service acccount credenti
 ```javascript
 import {
     generateBearerToken,
-    isValid
+    isExpired
 } from 'skyflow-node';
 
 let filepath = 'CREDENTIALS_FILE_PATH';
@@ -42,7 +42,7 @@ let bearerToken = ""
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
-            if (isValid(bearerToken)) resolve(bearerToken)
+            if (!isExpired(bearerToken)) resolve(bearerToken)
             else {
                 let response = await generateBearerToken(filepath);
                 bearerToken = response.accessToken;
@@ -64,7 +64,7 @@ To use this module, the Skyflow client must first be initialized as follows.
 import {
     Skyflow,
     generateBearerToken,
-    isValid
+    isExpired
 } from 'skyflow-node';
 
 const filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';
@@ -97,7 +97,7 @@ let bearerToken = ""
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
-            if (isValid(bearerToken)) resolve(bearerToken)
+            if (!isExpired(bearerToken)) resolve(bearerToken)
             else {
                 let response = await generateBearerToken(filepath);
                 bearerToken = response.accessToken;
