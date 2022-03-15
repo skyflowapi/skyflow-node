@@ -1,4 +1,4 @@
-import {Skyflow, generateBearerToken, isValid, setLogLevel, LogLevel} from "skyflow-node";
+import {Skyflow, generateBearerToken, isExpired, setLogLevel, LogLevel} from "skyflow-node";
 var filePath = "<YOUR_CREDENTIAL_FILE>";
 setLogLevel(LogLevel.INFO)
 var bearerToken = ""
@@ -8,7 +8,7 @@ const skyflow = Skyflow.init({
   vaultURL: "<VAULT_URL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      if(isValid(bearerToken)) {
+      if(!isExpired(bearerToken)) {
         resolve(bearerToken)
       }
       else {    
