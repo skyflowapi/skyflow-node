@@ -4,9 +4,14 @@ import { MessageType } from "../common";
 import { printLog } from "../logsHelper";
 
 function isValid(token: string) {
+  printLog(logs.warnLogs.ISVALID_DEPRECATED, MessageType.WARN)
+  return !isExpired(token)
+};
+
+function isExpired(token: string) {
   if(token === ""){
     printLog(logs.infoLogs.EMPTY_BEARER_TOKEN, MessageType.LOG);
-    return false
+    return true
   } 
   let isJwtExpired = false;
   const decoded: JwtPayload = jwt_decode(token);
@@ -17,21 +22,18 @@ function isValid(token: string) {
     printLog(logs.infoLogs.BEARER_TOKEN_EXPIRED, MessageType.LOG);
     isJwtExpired = true;
   }
-  return !isJwtExpired;
-};
-
+  return isJwtExpired;
+}
 function isTokenValid(token: string) {
   if(token === "") return false
   let isJwtExpired = false;
   const decoded: JwtPayload = jwt_decode(token);
   const currentTime = (new Date().getTime() / 1000) - 300;
   const expiryTime = decoded.exp;
-
   if (expiryTime && currentTime > expiryTime) {
     isJwtExpired = true;
   }
   return !isJwtExpired;
 };
 
-
-export  {isValid,isTokenValid};
+export  {isValid,isExpired,isTokenValid};

@@ -1,19 +1,18 @@
 
-import {Skyflow, generateBearerToken, isValid, setLogLevel, LogLevel} from "../../src/index";
-
+var skyflowClient = require("skyflow-node");
 var filePath = "<YOUR_CREDENTIAL_FILE>";
-setLogLevel(LogLevel.INFO)
+skyflowClient.setLogLevel(skyflowClient.LogLevel.INFO)
 var bearerToken = ""
-const skyflow = Skyflow.init({
+const skyflow = skyflowClient.Skyflow.init({
   vaultID: "<VAULT_ID>",
   vaultURL: "<VAULT_URL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      if(isValid(bearerToken)) {
+      if(!skyflowClient.isExpired(bearerToken)) {
         resolve(bearerToken)
       }
       else {    
-        generateBearerToken(filePath)
+        skyflowClient.generateBearerToken(filePath)
         .then((res) => {
             bearerToken = res.accessToken
             resolve(bearerToken);

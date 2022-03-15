@@ -74,7 +74,7 @@ export interface IConnectionConfig {
   requestHeader?: any;
 }
 
-export const PUREJS_TYPES = {
+export const TYPES = {
   INSERT: 'INSERT',
   DETOKENIZE: 'DETOKENIZE',
   GET_BY_SKYFLOWID: 'GET_BY_SKYFLOWID',
