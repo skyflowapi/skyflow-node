@@ -29,6 +29,7 @@ import {
  fillUrlWithPathAndQueryParams,
 } from './utils/helpers';
 import jwt_decode,{ JwtPayload } from 'jwt-decode';
+import { isTokenValid } from './utils/jwtUtils';
 
 class Controller {
   #client: Client;
@@ -207,21 +208,11 @@ class Controller {
       })
   });
   }
-  isTokenValid(token: string) {
-    if(token === "") return false
-    let isJwtExpired = false;
-    const decoded: JwtPayload = jwt_decode(token);
-    const currentTime = (new Date().getTime() / 1000) - 300;
-    const expiryTime = decoded.exp;
-    if (expiryTime && currentTime > expiryTime) {
-      isJwtExpired = true;
-    }
-    return !isJwtExpired;
-  };
+  
 
   getToken() : Promise<string> {
     return new Promise((resolve,reject)=>{
-      if(this.isTokenValid(this.#bearerToken)) {
+      if(isTokenValid(this.#bearerToken)) {
         resolve(this.#bearerToken)
       }
       else {
