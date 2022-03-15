@@ -5,7 +5,7 @@ skyflowClient.setLogLevel(skyflowClient.LogLevel.INFO)
 var bearerToken = ""
 const skyflow = skyflowClient.Skyflow.init({
   vaultID: "<VAULT_ID>",
-  vaultURL: "<VALUT_URL>",
+  vaultURL: "<VAULT_URL>",
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
       if(!skyflowClient.isExpired(bearerToken)) {
