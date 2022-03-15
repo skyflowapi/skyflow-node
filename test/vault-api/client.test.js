@@ -56,7 +56,7 @@ describe("Client Class",()=>{
                 getAllResponseHeaders:jest.fn().mockImplementation(()=>("content-type: text/plain"))
               };
             
-          //  jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock);
+            jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock);
             const testClient = new Client({},{});
             const resp = testClient.request({
                 requestMethod:"GET",
@@ -91,7 +91,7 @@ describe("Client Class",()=>{
                 getAllResponseHeaders:jest.fn().mockImplementation(()=>("content-type: application/json"))
               };
             
-           // jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock);
+            jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock);
             const testClient = new Client({},{});
             const resp = testClient.request({
                 requestMethod:"GET",
