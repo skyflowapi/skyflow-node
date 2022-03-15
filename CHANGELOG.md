@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.4.0] - 2021-02-24
+## [1.5.0] - 2022-03-15
+
+### Changed
+- deprecated `isValid` in favor of `isExpired`
+
+## [1.4.0] - 2022-02-24
 
 ## Added
 - Request ID in error logs and error responses for API Errors

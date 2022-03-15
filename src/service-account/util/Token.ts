@@ -19,7 +19,7 @@ function generateBearerToken(credentialsFilePath): Promise<ResponseToken> {
 
     if (credentials === ''){
       printLog(errorMessages.EmptyFile, MessageType.ERROR);
-      reject(errorMessages.EmptyFile)
+      reject(new SkyflowError({code: 400,description: errorMessages.EmptyFile}))
     }
 
     try {
@@ -95,50 +95,10 @@ function getToken(credentials): Promise<ResponseToken> {
             },
           })
             .then((res) => {
-              printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_SUCCESS, MessageType.LOG);
-              resolve({
-                accessToken: res.data.accessToken,
-                tokenType: res.data.tokenType,
-              });
+              successResponse(res).then((response)=> resolve(response)).catch(err => reject(err))
             })
             .catch((err) => {
-            if (err.response) {
-                let data = err.response.data
-                const headerMap = err.response.headers
-                const requestId = headerMap['x-request-id'];
-                const contentType = headerMap["content-type"];
-                if (contentType && contentType.includes('application/json')) {
-                      let description = data;
-                      if (description?.error?.message) {
-                        description = requestId ? `${description?.error?.message} - requestId: ${requestId}` : description?.error?.message;
-                      }
-                      printLog(description, MessageType.ERROR);
-                      reject(new SkyflowError({
-                        code: err.response.status,
-                        description: description,
-                      }, [], true));
-                    } else if (contentType && contentType.includes('text/plain')) {
-                      let description = requestId ? `${data} - requestId: ${requestId}` : data
-                      printLog(description, MessageType.ERROR);
-                      reject(new SkyflowError({
-                        code: err.response.status,
-                        description,
-                      }, [], true));
-                    } else {
-                      let description = requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED
-                      printLog(description, MessageType.ERROR);
-                      reject(new SkyflowError({
-                        code: err.response.status,
-                        description,
-                      }, [], true));
-                    }
-            } else {
-              printLog(err.message, MessageType.ERROR);
-                reject(new SkyflowError({
-                  code: "500",
-                  description: err.message,
-                }))
-            }
+              failureResponse(err).catch(err => reject(err))
           });
       }
     }
@@ -147,7 +107,57 @@ function getToken(credentials): Promise<ResponseToken> {
     }
   });
 }
+function successResponse(res:any) : Promise<ResponseToken>  {
+  printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_SUCCESS, MessageType.LOG);
+  return new Promise((resolve,_)=>{
+    resolve({
+      accessToken: res.data.accessToken,
+      tokenType: res.data.tokenType,
+    });
+  })
+}
 
+function failureResponse(err:any) {
+    return new Promise((_,reject)=>{
+      if (err.response) {
+        let data = err.response.data
+        const headerMap = err.response.headers
+        const requestId = headerMap['x-request-id'];
+        const contentType = headerMap["content-type"];
+        if (contentType && contentType.includes('application/json')) {
+              let description = data;
+              if (description?.error?.message) {
+                description = requestId ? `${description?.error?.message} - requestId: ${requestId}` : description?.error?.message;
+              }
+              printLog(description, MessageType.ERROR);
+              reject(new SkyflowError({
+                code: err.response.status,
+                description: description,
+              }, [], true));
+            } else if (contentType && contentType.includes('text/plain')) {
+              let description = requestId ? `${data} - requestId: ${requestId}` : data
+              printLog(description, MessageType.ERROR);
+              reject(new SkyflowError({
+                code: err.response.status,
+                description,
+              }, [], true));
+            } else {
+              let description = requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED
+              printLog(description, MessageType.ERROR);
+              reject(new SkyflowError({
+                code: err.response.status,
+                description,
+              }, [], true));
+            }
+    } else {
+      printLog(err.message, MessageType.ERROR);
+        reject(new SkyflowError({
+          code: "500",
+          description: err.message,
+        }))
+    }
+    })
+}
 function generateToken(credentialsFilePath): Promise<ResponseToken> {
   printLog(logs.warnLogs.GENERATE_BEARER_DEPRECATED, MessageType.WARN)
     return generateBearerToken(credentialsFilePath)
