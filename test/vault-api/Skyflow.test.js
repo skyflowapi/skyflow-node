@@ -2,6 +2,7 @@ import Skyflow from '../../src/vault-api/Skyflow';
 import { LogLevel, RedactionType, RequestMethod } from '../../src/vault-api/utils/common';
 import { isValidURL} from '../../src/vault-api/utils/validators';
 import clientModule from '../../src/vault-api/client';
+import { setLogLevel } from '../../src/vault-api/Logging';
 jest.mock('../../src/vault-api/utils/jwtUtils',()=>({
   __esModule: true,
   default:jest.fn(()=>true),
@@ -175,8 +176,9 @@ describe('skyflow insert', () => {
       request: clientReq,
       metadata:{}
     }
+    setLogLevel(LogLevel.WARN)
     clientModule.mockImplementation(() => {return mockClient});
-      skyflow = Skyflow.init({
+    skyflow = Skyflow.init({
         vaultID: '<VaultID>',
         vaultURL: 'https://www.vaulturl.com',
         getBearerToken: ()=>{
@@ -186,11 +188,9 @@ describe('skyflow insert', () => {
         }
       });    
       const res = skyflow.insert(records);
-      console.log(res);
+      
       return res.then((res) => {
-        console.log(res);
         expect(clientReq).toHaveBeenCalled();
-        console.log("helloo")
         expect(res.records.length).toBe(1);
         expect(res.error).toBeUndefined(); 
       });
@@ -206,6 +206,7 @@ describe('skyflow insert', () => {
       request: clientReq,
       metadata:{}
     }
+    setLogLevel(LogLevel.WARN)
     clientModule.mockImplementation(() => {return mockClient});
       skyflow = Skyflow.init({
         vaultID: '<VaultID>',
@@ -217,11 +218,8 @@ describe('skyflow insert', () => {
         }
       });    
       const res = skyflow.insert(records,{tokens:false});
-      console.log(res);
       return res.then((res) => {
-        console.log(res);
         expect(clientReq).toHaveBeenCalled();
-        console.log("helloo")
         expect(res.records.length).toBe(1);
         expect(res.error).toBeUndefined(); 
       });
@@ -237,6 +235,7 @@ describe('skyflow insert', () => {
         request: clientReq,
         metadata:{}
       }
+      setLogLevel(LogLevel.INFO)
       clientModule.mockImplementation(() => {return mockClient});
         skyflow = Skyflow.init({
           vaultID: '<VaultID>',
@@ -258,6 +257,30 @@ describe('skyflow insert', () => {
     } catch (err) {
     }
   });
+
+  // test('error in bearerToken', (done) => {
+
+  //   try {
+  //       skyflow = Skyflow.init({
+  //         vaultID: '<VaultID>',
+  //         vaultURL: 'https://www.vaulturl.com',
+  //         getBearerToken: ()=>{
+  //           return new Promise((_,reject)=>{
+  //             console.log("xxx")
+  //             reject("error")
+  //           })
+  //         }
+  //       });
+  //     const res = skyflow.insert(records,{tokens:false});
+  //     let error;
+  //     res.catch((err) => error = err);
+  //     setTimeout(() => {
+  //       expect(error).toBeDefined();
+  //       done();
+  //     }, 1000);
+  //   } catch (err) {
+  //   }
+  // });
 });
 
 const detokenizeInput = {
@@ -323,6 +346,7 @@ describe('skyflow detokenize', () => {
         request: clientReq,
         metadata:{}
       }
+      setLogLevel(LogLevel.ERROR)
       clientModule.mockImplementation(() => {return mockClient});
         skyflow = Skyflow.init({
           vaultID: '<VaultID>',
@@ -356,6 +380,7 @@ describe('skyflow detokenize', () => {
         request: clientReq,
         metadata:{}
       }
+      setLogLevel(LogLevel.DEBUG)
       clientModule.mockImplementation(() => {return mockClient});
         skyflow = Skyflow.init({
           vaultID: '<VaultID>',
@@ -714,7 +739,7 @@ describe('skyflow invoke connection', () => {
           }
         });
       const res = skyflow.invokeConnection(invokeConnectionReq);
-
+      
       let data;
       res.then((res) => data = res);
 

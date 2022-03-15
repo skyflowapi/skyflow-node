@@ -1,37 +1,55 @@
-import {GenerateToken} from "../src/service-account/util/Token";
+import {generateBearerToken, generateBearerTokenFromCreds, generateToken} from "../src/service-account/util/Token";
 import { errorMessages } from "../src/service-account/errors/Messages";
 
 describe("fileValidityTest", () => {
-  test("invalidJSON", () => {
-    return expect(
-      GenerateToken("test/demoCredentials/invalidJson.json")
-    ).rejects.toMatch(errorMessages.clientIDNotFound);
+  test("invalidJSON",async () => {
+    try {
+      const res = await generateToken("test/demoCredentials/invalidJson.json")
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
   });
-
-  test("empty json", () => {
-    return expect(
-      GenerateToken("test/demoCredentials/empty.json")
-    ).rejects.toMatch(errorMessages.EmptyFile);
+  test("empty json", async () => {
+    try {
+      const res = await generateToken("test/demoCredentials/empty.json")
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
   });
-  test("no client id", () => {
-    return expect(
-      GenerateToken("test/demoCredentials/noClientId.json")
-    ).rejects.toMatch(errorMessages.clientIDNotFound);
+  test("no client id", async () => {
+    try {
+      const res = await generateToken("test/demoCredentials/noClientId.json")
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
   });
-  test("no key id", () => {
-    return expect(
-      GenerateToken("test/demoCredentials/noKeyId.json")
-    ).rejects.toMatch(errorMessages.keyIDNotFound);
+  test("no key id", async () => {
+    try {
+      const res = await generateToken("test/demoCredentials/noKeyId.json")
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
   });
-  test("no private key", () => {
-    return expect(
-      GenerateToken("test/demoCredentials/noPrivateKey.json")
-    ).rejects.toMatch(errorMessages.privateKeyNotFound);
+  test("no private key", async () => {
+    try {
+      const res = await generateBearerToken("test/demoCredentials/noPrivateKey.json")
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
   });
-  test("no token uri key", () => {
-    return expect(
-      GenerateToken("test/demoCredentials/noTokenURI.json")
-    ).rejects.toMatch(errorMessages.tokenURINotFound);
+  test("no token uri key", async () => {
+    try {
+      const res = await generateToken("test/demoCredentials/noTokenURI.json")
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
+  });
+  test("generateBearerTokenFromCreds test", async () => {
+    try {
+      const res = await generateBearerTokenFromCreds("{}")
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
   });
 });
 

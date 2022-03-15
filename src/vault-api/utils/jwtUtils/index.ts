@@ -25,18 +25,4 @@ function isExpired(token: string) {
   return isJwtExpired;
 }
 
-function isTokenValid(token: string) {
-  if(token === "") return false
-  let isJwtExpired = false;
-  const decoded: JwtPayload = jwt_decode(token);
-  const currentTime = (new Date().getTime() / 1000) - 300;
-  const expiryTime = decoded.exp;
-
-  if (expiryTime && currentTime > expiryTime) {
-    isJwtExpired = true;
-  }
-  return !isJwtExpired;
-};
-
-
-export  {isValid,isTokenValid,isExpired};
+export  {isValid,isExpired};
