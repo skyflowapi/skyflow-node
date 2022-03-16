@@ -2,10 +2,11 @@
 # Description
 skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programming language.
 
-## Prerequisites
-* Requires Node version 6.9.0 or higher.
+# Table of Contents
 
-## Table of Contents
+* [Installation](#installation)
+    * [Requirements](#requirements)
+    * [Configuration](#configuration)
 * [Service Account Token Generation](#service-account-token-generation)
 * [Vault APIs](#vault-apis)
   *  [Insert](#insert)
@@ -15,6 +16,12 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
 * [Logging](#logging)
 
 ## Installation
+
+### Requirements
+- Node 7.6.0 and above
+
+### Configuration
+
 ```sh
 npm install skyflow-node
 
