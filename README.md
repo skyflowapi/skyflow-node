@@ -117,9 +117,8 @@ function getSkyflowBearerToken() {
 All Vault APIs must be invoked using a client instance.
 
 #### Insert
-To insert data into the vault, use the `insert(records, options)` method of the Skyflow client. The records parameter takes an array of records to be inserted into the vault. The options parameter takes `tokens` as a parameter.
 
-`tokens` indicates whether or not tokens should be returned for the inserted data. Defaults to 'True'.
+To insert data into your vault, use the `insert(records, options)` method. The first parameter records is a JSONObject that must have a records key and takes an array of records to be inserted into the vault as a value. The second parameter options is a InsertOptions object that provides further options for your insert call, as shown below.
 
 ```javascript
 data = {
@@ -133,7 +132,7 @@ data = {
 
 // Insert data. The insert function returns a Promise.
 const response = client.insert(data, {
-    tokens: true
+    tokens: true  // Indicates whether or not tokens should be returned for the inserted data. Defaults to 'True'
 });
 ```
 
@@ -182,7 +181,7 @@ Sample response:
 
 #### Detokenize
 
-For retrieving using tokens, use the `detokenize(records)` method. The records parameter takes an object that contains records to be fetched as shown below.
+In order to retrieve data from your vault using tokens that you have previously generated for that data, you can use the `detokenize(records)` method. The first parameter must have a records key that takes an array of tokens to be fetched from the vault, as shown below.
 
 ```javascript
 data = {
@@ -223,7 +222,7 @@ Sample response:
 ```
 
 #### Get By Id
-To retrieve a record with a `skyflow_id`, use the `getById(records)` method. The records parameter takes an object that contains records to be fetched as shown below:
+In order to retrieve data from your vault using SkyflowIDs, use the `getById(records)` method. The records parameter takes a JSONObject that should contain an array of SkyflowIDs to be fetched, as shown below:
 
 ```javascript
 data = {
@@ -315,7 +314,8 @@ Sample response:
 ```
 
 #### Invoke Connection
-Using Skyflow connection, end-user applications can integrate checkout/card issuance flow with their apps/systems. To invoke a connection, use the `invokeConnection(config)` method of the Skyflow client.
+
+Using the InvokeConnection method, you can integrate their server-side application with third party APIs and services without directly handling sensitive data. Prior to invoking the InvokeConnection method, you must have created a connection and have a connectionURL already generated. Once you have the connectionURL, you can invoke a connection by using the `invokeConnection(config)` method. The config object must include a connectionURL and methodName. The other fields are optional.
 
 ```javascript
 data = {
