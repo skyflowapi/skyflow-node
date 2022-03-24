@@ -2,6 +2,11 @@
 # Description
 skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programming language.
 
+[![CI](https://img.shields.io/static/v1?label=CI&message=passing&color=green?style=plastic&logo=github)](https://github.com/skyflowapi/skyflow-node/actions)
+[![GitHub release](https://badge.fury.io/js/skyflow-node.svg)](https://www.npmjs.com/package/skyflow-node)
+[![License](https://img.shields.io/github/license/skyflowapi/skyflow-node)](https://github.com/skyflowapi/skyflow-node/blob/master/LICENSE)
+
+
 # Table of Contents
 
 * [Installation](#installation)
