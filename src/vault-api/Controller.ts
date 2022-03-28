@@ -26,7 +26,7 @@ import {
   fetchRecordsByTokenId,
 } from './core/reveal';
 import {
- fillUrlWithPathAndQueryParams,
+ fillUrlWithPathAndQueryParams, toLowerKeys,
 } from './utils/helpers';
 import jwt_decode,{ JwtPayload } from 'jwt-decode';
 import { isTokenValid } from './utils/jwtUtils';
@@ -199,7 +199,7 @@ class Controller {
           url: config.connectionURL,
           requestMethod: config.methodName,
           body: config.requestBody,
-          headers: { 'x-skyflow-authorization': res, 'content-type': 'application/json',...config.requestHeader },
+          headers: { 'x-skyflow-authorization': res, 'content-type': 'application/json',...toLowerKeys(config.requestHeader) },
         });
         invokeRequest.then((response) => {
           rootResolve(response);
