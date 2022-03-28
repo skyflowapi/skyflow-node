@@ -30,6 +30,8 @@ import {
 } from './utils/helpers';
 import jwt_decode,{ JwtPayload } from 'jwt-decode';
 import { isTokenValid } from './utils/jwtUtils';
+import SKYFLOW_ERROR_CODE from './utils/constants';
+import SkyflowError from './libs/SkyflowError';
 
 class Controller {
   #client: Client;
@@ -191,12 +193,13 @@ class Controller {
 
   sendInvokeConnectionRequest(config:IConnectionConfig) {
     return new Promise((rootResolve, rootReject) => {
+      
       this.getToken().then((res)=>{
         const invokeRequest = this.#client.request({
           url: config.connectionURL,
           requestMethod: config.methodName,
           body: config.requestBody,
-          headers: { ...config.requestHeader, 'X-Skyflow-Authorization': res, 'Content-Type': 'application/json' },
+          headers: { 'x-skyflow-authorization': res, 'content-type': 'application/json',...config.requestHeader },
         });
         invokeRequest.then((response) => {
           rootResolve(response);
@@ -217,7 +220,12 @@ class Controller {
       }
       else {
         this.#client.config.getBearerToken().then((authToken) => {
+          if(isTokenValid(authToken)) {
             resolve(authToken)
+          }
+          else {
+            reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BEARER_TOKEN))
+          }
         }).catch((err)=>{
           reject(err)
         })
