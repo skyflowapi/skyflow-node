@@ -24,8 +24,11 @@ export function formatVaultURL(vaultURL) {
 }
 
 export function toLowerKeys(obj) {
+  if (obj && typeof obj === 'object') {
   return Object.keys(obj).reduce((accumulator, key) => {
     accumulator[key.toLowerCase()] = obj[key];
     return accumulator;
   }, {});
+  }
+  return {}
 }
