@@ -40,7 +40,7 @@ The token generated from this module is valid for 60 minutes and can be used to 
 
 The `GenerateBearerToken(filepath)` function takes the service acccount credentials file path for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials)`
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.js):
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts):
 
 ```javascript
 import {
@@ -144,7 +144,7 @@ const response = client.insert(data, {
 });
 ```
 
-An example of an insert call is given below:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault%20api/Insert.ts) of an insert call is given below:
 
 ```javascript
 const response = client.insert({
@@ -199,7 +199,7 @@ data = {
     }]
 }
 ```
-An example of a detokenize call:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault%20api/Detokenize.ts) of a detokenize call:
 
 ```javascript
 const result = client.detokenize({
@@ -250,7 +250,7 @@ There are 4 accepted values in `Skyflow.RedactionTypes`:
 * `REDACTED`
 * `DEFAULT`
 
-An example of `getById` call:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault%20api/GetById.ts) of `getById` call:
 ```javascript
 let skyflowIds = [
     'f8622-b557-4c6b-a12c-c0b0bfd9',
@@ -353,7 +353,7 @@ data = {
 
 **pathParams, queryParams, requestHeader, requestBody** are the JSON objects that will be sent through the gateway integration URL.
 
-An example of `invokeConnection`:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault%20api/InvokeConnection.ts) of `invokeConnection`:
 
 ```javascript
 const response = client.invokeConnection({

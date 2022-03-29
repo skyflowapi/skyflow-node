@@ -10,6 +10,7 @@ const SKYFLOW_ERROR_CODE = {
     code: 400,
     description: logs.errorLogs.GET_BEARER_TOKEN_IS_REQUIRED,
   },
+  INVALID_BEARER_TOKEN : { code : 400, description: logs.errorLogs.INVALID_BEARER_TOKEN},
   INVALID_CREDENTIALS: { code: 400, description: logs.errorLogs.INVALID_CREDENTIALS },
   INVALID_CONTAINER_TYPE: { code: 400, description: logs.errorLogs.INVALID_CONTAINER_TYPE },
   INVALID_TABLE_OR_COLUMN: { code: 400, description: logs.errorLogs.INVALID_TABLE_OR_COLUMN },
