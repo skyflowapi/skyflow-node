@@ -7,10 +7,11 @@ import {
   printLog
 } from '../utils/logsHelper';
 import {
+  ContentType,
    MessageType
 } from '../utils/common';
 export interface IClientRequest {
-  body?: Record<string, any>;
+  body?: any;
   headers?: Record<string, string>;
   requestMethod:
   | 'GET'
@@ -61,8 +62,11 @@ class Client {
       });
     }
 
-    httpRequest.send(JSON.stringify({ ...request.body }));
-
+    if (request.headers?.['content-type'].includes(ContentType.FORMURLENCODED)) {
+      httpRequest.send(request.body);
+    } else {
+      httpRequest.send(JSON.stringify({ ...request.body }));
+    }
     httpRequest.onload = () => {
       const responseHeaders = httpRequest.getAllResponseHeaders();
       const headersList = responseHeaders!!.trim().split(/[\r\n]+/);

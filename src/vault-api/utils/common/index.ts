@@ -80,3 +80,11 @@ export const TYPES = {
   GET_BY_SKYFLOWID: 'GET_BY_SKYFLOWID',
   INVOKE_CONNECTION: 'INVOKE_CONNECTION',
 };
+
+export enum ContentType {
+  APPLICATIONORJSON = 'application/json',
+  TEXTORPLAIN = 'text/plain',
+  TEXTORXML = 'text/xml',
+  FORMURLENCODED = 'application/x-www-form-urlencoded',
+  FORMDATA = 'multipart/form-data',
+}

@@ -1,4 +1,5 @@
-
+import { ContentType, IConnectionConfig } from "../common";
+const qs = require('qs');
 export function fillUrlWithPathAndQueryParams(url:string,
   pathParams?:object,
   queryParams?:object) {
@@ -31,4 +32,18 @@ export function toLowerKeys(obj) {
   }, {});
   }
   return {}
+}
+
+export function updateRequestBodyInConnection(config: IConnectionConfig) {
+  let tempConfig = { ...config };
+  if (config && config.requestHeader && config.requestBody) {
+    const headerKeys = toLowerKeys(config.requestHeader);
+    if (headerKeys['content-type'].includes(ContentType.FORMURLENCODED)) {
+      tempConfig = {
+        ...tempConfig,
+        requestBody: qs.stringify(config.requestBody),
+      };
+    }
+  }
+  return tempConfig;
 }

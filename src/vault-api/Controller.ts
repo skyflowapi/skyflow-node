@@ -5,6 +5,7 @@ import {
 } from './utils/validators';
 
 import {
+  ContentType,
   TYPES,
 } from './utils/common';
 import {
@@ -26,7 +27,7 @@ import {
   fetchRecordsByTokenId,
 } from './core/reveal';
 import {
- fillUrlWithPathAndQueryParams, toLowerKeys,
+ fillUrlWithPathAndQueryParams, toLowerKeys, updateRequestBodyInConnection,
 } from './utils/helpers';
 import jwt_decode,{ JwtPayload } from 'jwt-decode';
 import { isTokenValid } from './utils/jwtUtils';
@@ -140,7 +141,8 @@ class Controller {
           printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST,
             TYPES.INVOKE_CONNECTION),
           MessageType.LOG);
-          this.sendInvokeConnectionRequest(config).then((resultResponse) => {
+          const tempConfig = updateRequestBodyInConnection(config);
+          this.sendInvokeConnectionRequest(tempConfig).then((resultResponse) => {
             printLog(logs.infoLogs.SEND_INVOKE_CONNECTION_RESOLVED, MessageType.LOG);
             resolve(resultResponse);
           }).catch((rejectedResponse) => {
@@ -199,7 +201,7 @@ class Controller {
           url: config.connectionURL,
           requestMethod: config.methodName,
           body: config.requestBody,
-          headers: { 'x-skyflow-authorization': res, 'content-type': 'application/json',...toLowerKeys(config.requestHeader) },
+          headers: { 'x-skyflow-authorization': res, 'content-type': ContentType.APPLICATIONORJSON,...toLowerKeys(config.requestHeader) },
         });
         invokeRequest.then((response) => {
           rootResolve(response);
