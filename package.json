@@ -36,7 +36,7 @@
     "core-js": "^3.19.0",
     "esm": "^3.2.25",
     "fetch": "^1.1.0",
-    "form-data": "^2.3.2",
+    "form-data": "^2.5.1",
     "https": "^1.0.0",
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",

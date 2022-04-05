@@ -1,5 +1,6 @@
 import { ContentType, IConnectionConfig } from "../common";
 const qs = require('qs');
+const FormData = require('form-data');
 export function fillUrlWithPathAndQueryParams(url:string,
   pathParams?:object,
   queryParams?:object) {
@@ -36,7 +37,6 @@ export function toLowerKeys(obj) {
 function objectToFormData(obj: any, form?: FormData, namespace?: string) {
   const fd = form || new FormData();
   let formKey: string;
-
   Object.keys(obj).forEach((property) => {
     if (Object.prototype.hasOwnProperty.call(obj, property)) {
       if (namespace) {
@@ -60,12 +60,12 @@ export function updateRequestBodyInConnection(config: IConnectionConfig) {
   let tempConfig = { ...config };
   if (config && config.requestHeader && config.requestBody) {
     const headerKeys = toLowerKeys(config.requestHeader);
-    if (headerKeys['content-type'].includes(ContentType.FORMURLENCODED)) {
+    if (headerKeys['content-type']?.includes(ContentType.FORMURLENCODED)) {
       tempConfig = {
         ...tempConfig,
         requestBody: qs.stringify(config.requestBody),
       };
-    } else if (headerKeys['content-type'].includes(ContentType.FORMDATA)) {
+    } else if (headerKeys['content-type']?.includes(ContentType.FORMDATA)) {
       const body = objectToFormData(config.requestBody);
       tempConfig = {
         ...tempConfig,
