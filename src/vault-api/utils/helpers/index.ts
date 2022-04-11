@@ -1,3 +1,5 @@
+import axios from "axios";
+import Client, { IClientRequest } from "../../client";
 import { ContentType, IConnectionConfig } from "../common";
 const qs = require('qs');
 const FormData = require('form-data');
@@ -34,7 +36,7 @@ export function toLowerKeys(obj) {
   }
   return {}
 }
-function objectToFormData(obj: any, form?: FormData, namespace?: string) {
+export function objectToFormData(obj: any, form?: FormData, namespace?: string) {
   const fd = form || new FormData();
   let formKey: string;
   Object.keys(obj).forEach((property) => {
@@ -48,30 +50,10 @@ function objectToFormData(obj: any, form?: FormData, namespace?: string) {
       if (typeof obj[property] === 'object') {
         objectToFormData(obj[property], fd, property);
       } else {
-        fd.append(formKey, obj[property]);
+          fd.append(formKey, obj[property]);
       }
     }
   });
 
   return fd;
-}
-
-export function updateRequestBodyInConnection(config: IConnectionConfig) {
-  let tempConfig = { ...config };
-  if (config && config.requestHeader && config.requestBody) {
-    const headerKeys = toLowerKeys(config.requestHeader);
-    if (headerKeys['content-type']?.includes(ContentType.FORMURLENCODED)) {
-      tempConfig = {
-        ...tempConfig,
-        requestBody: qs.stringify(config.requestBody),
-      };
-    } else if (headerKeys['content-type']?.includes(ContentType.FORMDATA)) {
-      const body = objectToFormData(config.requestBody);
-      tempConfig = {
-        ...tempConfig,
-        requestBody: body,
-      };
-    }
-  }  
-  return tempConfig;
 }

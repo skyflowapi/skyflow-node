@@ -27,7 +27,7 @@ import {
   fetchRecordsByTokenId,
 } from './core/reveal';
 import {
- fillUrlWithPathAndQueryParams, toLowerKeys, updateRequestBodyInConnection,
+ fillUrlWithPathAndQueryParams, toLowerKeys,
 } from './utils/helpers';
 import jwt_decode,{ JwtPayload } from 'jwt-decode';
 import { isTokenValid } from './utils/jwtUtils';
@@ -86,7 +86,7 @@ class Controller {
             resolve(result);
           })
           .catch((error) => {
-            reject({ error });
+            reject(error);
           });
         } catch (e) {
           if(e instanceof Error)
@@ -141,8 +141,7 @@ class Controller {
           printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST,
             TYPES.INVOKE_CONNECTION),
           MessageType.LOG);
-          const tempConfig = updateRequestBodyInConnection(config);
-          this.sendInvokeConnectionRequest(tempConfig).then((resultResponse) => {
+          this.sendInvokeConnectionRequest(config).then((resultResponse) => {
             printLog(logs.infoLogs.SEND_INVOKE_CONNECTION_RESOLVED, MessageType.LOG);
             resolve(resultResponse);
           }).catch((rejectedResponse) => {
