@@ -41,8 +41,7 @@
     "jsonwebtoken": "^8.4.0",
     "jwt-decode": "^2.2.0",
     "promise.allsettled": "^1.0.5",
-    "qs": "^6.10.3",
-    "source-map-resolve": "^0.6.0"
+    "qs": "^6.10.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
