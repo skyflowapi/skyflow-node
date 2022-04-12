@@ -5,6 +5,7 @@ import {
 } from './utils/validators';
 
 import {
+  ContentType,
   TYPES,
 } from './utils/common';
 import {
@@ -85,7 +86,7 @@ class Controller {
             resolve(result);
           })
           .catch((error) => {
-            reject({ error });
+            reject(error);
           });
         } catch (e) {
           if(e instanceof Error)
@@ -199,7 +200,7 @@ class Controller {
           url: config.connectionURL,
           requestMethod: config.methodName,
           body: config.requestBody,
-          headers: { 'x-skyflow-authorization': res, 'content-type': 'application/json',...toLowerKeys(config.requestHeader) },
+          headers: { 'x-skyflow-authorization': res, 'content-type': ContentType.APPLICATIONORJSON,...toLowerKeys(config.requestHeader) },
         });
         invokeRequest.then((response) => {
           rootResolve(response);

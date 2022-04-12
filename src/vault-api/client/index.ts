@@ -2,25 +2,19 @@ import SkyflowError from '../libs/SkyflowError';
 import { ISkyflow } from '../Skyflow';
 import SKYFLOW_ERROR_CODE from '../utils/constants';
 import logs from '../utils/logs';
-import {XMLHttpRequest} from 'xmlhttprequest-ts';
 import {
   printLog
 } from '../utils/logsHelper';
 import {
+  ContentType,
    MessageType
 } from '../utils/common';
+import axios, { Method } from 'axios';
+import { objectToFormData, toLowerKeys } from '../utils/helpers';
 export interface IClientRequest {
-  body?: Record<string, any>;
+  body?: any;
   headers?: Record<string, string>;
-  requestMethod:
-  | 'GET'
-  | 'HEAD'
-  | 'POST'
-  | 'PUT'
-  | 'DELETE'
-  | 'CONNECT'
-  | 'OPTIONS'
-  | 'PATCH';
+  requestMethod:Method;
   url: string;
 }
 
@@ -33,85 +27,75 @@ class Client {
     this.config = config;
     this.#metaData = metadata;
   }
-
-  toJSON() {
-    return {
-      config: this.config,
-      metaData: this.#metaData,
-    };
+  
+  convertRequestBody = (body:any,contentType:string) => {
+    if (contentType?.includes(ContentType.FORMURLENCODED)) {
+      const qs = require('qs');
+      return qs.stringify(body)
+    } else if (contentType?.includes(ContentType.FORMDATA)) {
+      return objectToFormData(body);
+    } else {
+      return JSON.stringify({ ...body})
+    }
   }
-
-  static fromJSON(json) {
-    return new Client(json.config, json.metadata);
+  getHeaders = (data:any,headerKeys:any) =>{
+    if(headerKeys['content-type'] === "multipart/form-data") {
+      return {...headerKeys, ...data.getHeaders()}
+    } else {
+      return {...headerKeys}
+    }
   }
 
   request = (request: IClientRequest) => new Promise((resolve, reject) => {
-    const httpRequest = new XMLHttpRequest();
-    if (!httpRequest) {
-      reject(new SkyflowError(SKYFLOW_ERROR_CODE.CONNECTION_ERROR, [], true));
-      return;
-    }
-
-    httpRequest.open(request.requestMethod, request.url);
-
-    if (request.headers) {
-      const { headers } = request;
-      Object.keys(request.headers).forEach((key) => {
-        httpRequest.setRequestHeader(key, headers[key]);
-      });
-    }
-
-    httpRequest.send(JSON.stringify({ ...request.body }));
-
-    httpRequest.onload = () => {
-      const responseHeaders = httpRequest.getAllResponseHeaders();
-      const headersList = responseHeaders!!.trim().split(/[\r\n]+/);
-      const headerMap = {};
-      headersList.forEach((line) => {
-        const parts = line.split(': ');
-        const header = parts.shift() || '';
-        const value = parts.join(': ');
-        headerMap[header] = value;
-      });
-      const contentType = headerMap['content-type'];
-      const requestId = headerMap['x-request-id'];
-      if (httpRequest.status < 200 || httpRequest.status >= 400) {
-        if (contentType && contentType.includes('application/json')) {
-          let description = JSON.parse(httpRequest.responseText);
-          if (description?.error?.message) {
-            description = requestId ? `${description?.error?.message} - requestId: ${requestId}` : description?.error?.message;
-          }
-          printLog(description, MessageType.ERROR);
-          reject(new SkyflowError({
-            code: httpRequest.status,
-            description,
-          }, [], true));
-        } else if (contentType && contentType.includes('text/plain')) {
-          let description = requestId ? `${httpRequest.responseText} - requestId: ${requestId}` : httpRequest.responseText
-          printLog(description, MessageType.ERROR);
-          reject(new SkyflowError({
-            code: httpRequest.status,
-            description,
-          }, [], true));
-        } else {
-          let description = requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED
-          printLog(description, MessageType.ERROR);
-          reject(new SkyflowError({
-            code: httpRequest.status,
-            description,
-          }, [], true));
-        }
+    const headerKeys = toLowerKeys(request.headers);
+    let contentType = headerKeys['content-type']
+    const data = this.convertRequestBody(request.body,contentType) 
+    const headers = this.getHeaders(data,headerKeys)
+    axios({
+      method : request.requestMethod,
+      url: request.url,
+      data: data,
+      headers: this.getHeaders(data,headerKeys)
       }
-      if (contentType && contentType.includes('application/json')) {
-        resolve(JSON.parse(httpRequest.responseText));
-      }
-      resolve(httpRequest.responseText);
-    };
-
-    httpRequest.onerror = () => {
-      reject(new SkyflowError(SKYFLOW_ERROR_CODE.TRANSACTION_ERROR, [], true));
-    };
+    ).then((res)=> {
+      resolve(res.data)
+    }).catch((err)=> {
+        this.failureResponse(err).catch((err)=>reject(err))
+    })
   });
+
+  failureResponse = (err:any) => new Promise((_,reject) => {
+    const contentType = err.response?.headers['content-type']
+    const data = err.response.data
+    console.log(data)
+    const requestId = err.response?.headers['x-request-id']
+    if (contentType && contentType.includes('application/json')) {
+      let description = JSON.parse(JSON.stringify(data));
+      if (description?.error?.message) {
+        description = requestId ? `${description?.error?.message} - requestId: ${requestId}` : description?.error?.message;
+      }
+      printLog(description, MessageType.ERROR);
+      reject(new SkyflowError({
+          code: err.response.status,
+          description,
+        }, [], true));
+      } else if (contentType && contentType.includes('text/plain')) {
+        let description = requestId ? `${data} - requestId: ${requestId}` : data
+        printLog(description, MessageType.ERROR);
+        reject(new SkyflowError({
+          code: err.response.status,
+          description,
+        }, [], true));
+      } else {
+        let description = requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED
+        printLog(description, MessageType.ERROR);
+        reject(new SkyflowError({
+          code: err.response.status,
+          description,
+        }, [], true));
+      }
+  })
 }
+
 
 export default Client;
