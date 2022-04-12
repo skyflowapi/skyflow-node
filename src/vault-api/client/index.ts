@@ -27,18 +27,7 @@ class Client {
     this.config = config;
     this.#metaData = metadata;
   }
-
-  toJSON() {
-    return {
-      config: this.config,
-      metaData: this.#metaData,
-    };
-  }
-
-  static fromJSON(json) {
-    return new Client(json.config, json.metadata);
-  }
-
+  
   convertRequestBody = (body:any,contentType:string) => {
     if (contentType?.includes(ContentType.FORMURLENCODED)) {
       const qs = require('qs');
