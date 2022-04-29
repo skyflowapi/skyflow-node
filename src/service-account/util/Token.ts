@@ -168,3 +168,8 @@ function generateBearerTokenFromCreds(credentials): Promise<ResponseToken> {
 }
 
 export { generateBearerToken, generateToken, generateBearerTokenFromCreds};
+
+export const __testing = {
+  successResponse,
+  failureResponse
+}

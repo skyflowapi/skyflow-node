@@ -1,4 +1,4 @@
-import {generateBearerToken, generateBearerTokenFromCreds, generateToken} from "../src/service-account/util/Token";
+import {generateBearerToken, generateBearerTokenFromCreds, generateToken, getToken, __testing} from "../src/service-account/util/Token";
 import { errorMessages } from "../src/service-account/errors/Messages";
 
 describe("fileValidityTest", () => {
@@ -51,5 +51,96 @@ describe("fileValidityTest", () => {
       expect(err).toBeDefined();
     }
   });
+  
+  test("File does not exist", async () => {
+    try{
+      await generateBearerToken('invalid-file-path.json')
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
+  })
+  
+  test("Get token with non-string credentials", async () => {
+    try {
+      await getToken({credentials: "non-string"})
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
+  })
+  
+  test("Success response processing", async () => {
+     const success = await __testing.successResponse({data: {
+      accessToken: "access token",
+      tokenType: "Bearer"
+    }})
+    
+    expect(success).toBeDefined();
+  })
+  
+  test("failure response processing JSON", async () => {
+    const error = {
+      response: {
+        headers: {
+          'x-request-id': 'RID',
+          'content-type': 'application/json'
+        }, 
+        data: {
+          error: {
+          message: "Internal Server Error"
+        }
+      }
+      }
+    }
+
+
+    try { 
+      const failure = await  __testing.failureResponse(error)
+    } catch(err) {
+      expect(err).toBeDefined();
+    }
+  });
+    
+  test("failure response processing Plain text", async () => {
+    const error = {
+      response: {
+        headers: {
+          'x-request-id': 'RID',
+          'content-type': 'text/plain'
+        }, 
+        data: {
+          error: {
+          message: "Internal Server Error"
+        }
+      }
+      }
+    }
+    try { 
+      const failure = await  __testing.failureResponse(error)
+    } catch(err) {
+      expect(err).toBeDefined();
+    }
+  });
+});
+test("failure response processing Unknown format", async () => {
+  const error = {
+    response: {
+      headers: {
+        'x-request-id': 'RID',
+        'content-type': 'invalid-type'
+      }, 
+      data: {
+        error: {
+        message: "Internal Server Error"
+      }
+    }
+    }
+  }
+
+
+  try { 
+    const failure = await  __testing.failureResponse(error)
+  } catch(err) {
+    expect(err).toBeDefined();
+  }
 });
 
