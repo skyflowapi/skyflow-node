@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import Client from "../../src/vault-api/client";
 import axios from "axios";
 

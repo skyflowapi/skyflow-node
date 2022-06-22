@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import fs from "fs";
 import Axios from "axios";
 import jwt from "jsonwebtoken";

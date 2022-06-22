@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import _ from 'lodash';
 import { IInsertRecordInput, IInsertRecord } from '../utils/common';
 
