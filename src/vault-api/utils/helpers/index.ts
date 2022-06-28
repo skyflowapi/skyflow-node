@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import axios from "axios";
 import Client, { IClientRequest } from "../../client";
 import { ContentType, IConnectionConfig } from "../common";

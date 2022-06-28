@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import Skyflow from '../../src/vault-api/Skyflow';
 import { LogLevel, RedactionType, RequestMethod } from '../../src/vault-api/utils/common';
 import { isValidURL} from '../../src/vault-api/utils/validators';

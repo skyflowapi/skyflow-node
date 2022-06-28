@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import { generateBearerToken, generateBearerTokenFromCreds,isValid} from "../../src/index";
 
   let filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';

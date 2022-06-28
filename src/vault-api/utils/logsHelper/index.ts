@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import { getLogLevel } from '../../Logging';
 import { MessageType } from '../common';
 

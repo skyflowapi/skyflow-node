@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 const logs = {
   infoLogs: {
     EMPTY_BEARER_TOKEN : "BearerToken is Empty",

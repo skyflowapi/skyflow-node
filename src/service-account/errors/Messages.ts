@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 export const errorMessages = {
   ClientIDNotFound: "clientID not found",
   TokenURINotFound: "tokenURI not found",

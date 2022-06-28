@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import {generateBearerToken, generateBearerTokenFromCreds, generateToken, getToken, __testing} from "../src/service-account/util/Token";
 import { errorMessages } from "../src/service-account/errors/Messages";
 

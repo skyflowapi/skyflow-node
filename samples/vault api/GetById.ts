@@ -1,3 +1,6 @@
+/*
+	Copyright (c) 2022 Skyflow, Inc. 
+*/
 import {Skyflow, generateBearerToken, isExpired, setLogLevel, LogLevel} from "skyflow-node";
 var filePath = "<YOUR_CREDENTIAL_FILE>";
 setLogLevel(LogLevel.INFO)
