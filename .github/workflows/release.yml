@@ -18,6 +18,10 @@ jobs:
           ref: master
           fetch-depth: 0
       - uses: actions/setup-node@v1
+        with:
+          node-version: 14.17.6
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
 
 
       - name: install modules
