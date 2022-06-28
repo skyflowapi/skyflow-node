@@ -419,3 +419,7 @@ Current the following 5 log levels are supported:
 **Note:**
 * The ranking of logging levels are as follows:  `DEBUG` < `INFO` < `WARN` < `ERROR`
 * The default the logLevel for Skyflow SDK is `LogLevel.ERROR`.
+
+## Reporting a Vulnerability
+
+If you discover a potential security issue in this project, please reach out to us at security@skyflow.com. Please do not create public GitHub issues or Pull Requests, as malicious actors could potentially view them.
