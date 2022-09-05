@@ -1,6 +1,6 @@
 
 # Description
-skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programming language.
+Skyflow SDK for Node.js
 
 [![CI](https://img.shields.io/static/v1?label=CI&message=passing&color=green?style=plastic&logo=github)](https://github.com/skyflowapi/skyflow-node/actions)
 [![GitHub release](https://badge.fury.io/js/skyflow-node.svg)](https://www.npmjs.com/package/skyflow-node)
@@ -9,16 +9,20 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
 
 # Table of Contents
 
-* [Installation](#installation)
-    * [Requirements](#requirements)
-    * [Configuration](#configuration)
-* [Service Account Token Generation](#service-account-token-generation)
-* [Vault APIs](#vault-apis)
-  *  [Insert](#insert)
-  *  [Detokenize](#detokenize)
-  *  [GetById](#get-by-id)
-  *  [InvokeConnection](#invoke-connection)
-* [Logging](#logging)
+- [Description](#description)
+- [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+    - [Requirements](#requirements)
+    - [Configuration](#configuration)
+  - [Usage](#usage)
+    - [Service Account Token Generation](#service-account-token-generation)
+    - [Vault APIs](#vault-apis)
+      - [Insert](#insert)
+      - [Detokenize](#detokenize)
+      - [Get By Id](#get-by-id)
+      - [Invoke Connection](#invoke-connection)
+    - [Logging](#logging)
+  - [Reporting a Vulnerability](#reporting-a-vulnerability)
 
 ## Installation
 
