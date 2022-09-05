@@ -1,7 +1,7 @@
 {
   "name": "skyflow-node",
   "version": "1.6.1",
-  "description": "Node js client for skyflow API's",
+  "description": "Skyflow SDK for Node.js",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
   "scripts": {
