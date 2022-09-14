@@ -6,7 +6,7 @@ import { LogLevel, RedactionType, RequestMethod } from '../../src/vault-api/util
 import { isValidURL} from '../../src/vault-api/utils/validators';
 import clientModule from '../../src/vault-api/client';
 import { setLogLevel } from '../../src/vault-api/Logging';
-jest.mock('../../src/vault-api/utils/jwtUtils',()=>({
+jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
   __esModule: true,
   isTokenValid:jest.fn(()=>true),
 }));
@@ -164,7 +164,7 @@ describe('skyflow insert', () => {
   });
 
   test('insert success with valid token', () => {
-    jest.mock('../../src/vault-api/utils/jwtUtils',()=>({
+    jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
@@ -312,7 +312,7 @@ describe('skyflow detokenize', () => {
   test('detokenize success with valid bearer token', (done) => {
     try {
 
-      jest.mock('../../src/vault-api/utils/jwtUtils',()=>({
+      jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
@@ -486,7 +486,7 @@ describe('skyflow getById', () => {
 
   test('getById success with valid bearer token', (done) => {
     try {
-      jest.mock('../../src/vault-api/utils/jwtUtils',()=>({
+      jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
@@ -692,7 +692,7 @@ describe('skyflow invoke connection', () => {
 
   test('invoke connection success with valid bearer token', (done) => {
     try {
-      jest.mock('../../src/vault-api/utils/jwtUtils',()=>({
+      jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
