@@ -14,7 +14,7 @@ import {
 import {
   printLog,
   parameterizedString,
-} from './utils/logsHelper';
+} from './utils/logs-helper';
 import logs from './utils/logs';
 import {
   IDetokenizeInput, IGetByIdInput, IConnectionConfig, MessageType,
@@ -23,17 +23,17 @@ import {
 import {
   constructInsertRecordRequest,
   constructInsertRecordResponse,
-} from './core/collect';
+} from './core/Collect';
 
 import {
   fetchRecordsBySkyflowID,
   fetchRecordsByTokenId,
-} from './core/reveal';
+} from './core/Reveal';
 import {
  fillUrlWithPathAndQueryParams, toLowerKeys,
 } from './utils/helpers';
 import jwt_decode,{ JwtPayload } from 'jwt-decode';
-import { isTokenValid } from './utils/jwtUtils';
+import { isTokenValid } from './utils/jwt-utils';
 import SKYFLOW_ERROR_CODE from './utils/constants';
 import SkyflowError from './libs/SkyflowError';
 

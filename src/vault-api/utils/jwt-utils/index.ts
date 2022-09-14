@@ -4,7 +4,7 @@
 import jwt_decode, { JwtPayload } from 'jwt-decode';
 import  logs  from "../logs";
 import { MessageType } from "../common";
-import { printLog } from "../logsHelper";
+import { printLog } from "../logs-helper";
 
 function isValid(token: string) {
   printLog(logs.warnLogs.ISVALID_DEPRECATED, MessageType.WARN)

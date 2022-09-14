@@ -7,7 +7,7 @@ import SKYFLOW_ERROR_CODE from '../utils/constants';
 import logs from '../utils/logs';
 import {
   printLog
-} from '../utils/logsHelper';
+} from '../utils/logs-helper';
 import {
   ContentType,
    MessageType
