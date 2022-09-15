@@ -9,7 +9,7 @@ import {
 import Skyflow from './vault-api/Skyflow';
 import {setLogLevel} from './vault-api/Logging';
 import {LogLevel} from './vault-api/utils/common';
-import {isValid,isExpired} from './vault-api/utils/jwtUtils';
+import {isValid,isExpired} from './vault-api/utils/jwt-utils';
 export {
   generateBearerToken,
   generateToken,

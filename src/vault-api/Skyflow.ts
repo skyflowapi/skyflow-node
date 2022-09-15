@@ -3,7 +3,7 @@
 */
 
 import Client from './client';
-import { printLog } from './utils/logsHelper';
+import { printLog } from './utils/logs-helper';
 import logs from './utils/logs';
 import Controller from './Controller';
 import {

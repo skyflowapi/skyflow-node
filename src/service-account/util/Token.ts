@@ -5,7 +5,7 @@ import fs from "fs";
 import Axios from "axios";
 import jwt from "jsonwebtoken";
 import { errorMessages } from "../errors/Messages";
-import { printLog } from "../../vault-api/utils/logsHelper";
+import { printLog } from "../../vault-api/utils/logs-helper";
 import logs from "../../vault-api/utils/logs";
 import { MessageType } from "../../vault-api/utils/common";
 import SkyflowError from '../../vault-api/libs/SkyflowError';
