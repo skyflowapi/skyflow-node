@@ -67,6 +67,33 @@ function getSkyflowBearerToken() {
 }
 ```
 
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationUsingCredContent.ts):
+
+```javascript
+let cred = {
+  clientID: "<YOUR_clientID>",
+  clientName: "<YOUR_clientName>",
+  keyID: "<YOUR_keyID>",
+  tokenURI: "<YOUR_tokenURI>",
+  privateKey: "<YOUR_PEM_privateKey>",
+};
+let bearerToken = "";
+function getSkyflowBearerToken() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (isValid(bearerToken)) resolve(bearerToken);
+      else {
+        let response = await generateBearerTokenFromCreds(JSON.stringify(cred));
+        bearerToken = response.accessToken;
+        resolve(bearerToken);
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+```
+
 ### Vault APIs
 The [Vault](https://github.com/skyflowapi/skyflow-node/tree/master/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id's` and to invoke the connection.
 

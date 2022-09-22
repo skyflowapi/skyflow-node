@@ -33,12 +33,12 @@ const result = skyflow.getById({
     {
      ids:["<ID1>","<ID2>"],
      redaction : Skyflow.RedactionType.PLAIN_TEXT,
-     table: "cards"
+     table: "<TABLE_NAME>"
     },
     {
-      ids:["<ID1>"],
+      ids:["<ID3>"],
       redaction : Skyflow.RedactionType.PLAIN_TEXT,
-      table: "persons"
+      table: "<TABLE_NAME>"
      }
   ],
 });

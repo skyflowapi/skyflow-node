@@ -1,19 +1,22 @@
 /*
 	Copyright (c) 2022 Skyflow, Inc. 
 */
-import {
-  generateBearerToken,
-  isValid,
-} from "skyflow-node";
+import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
 
-let filepath = "<YOUR_CREDNTIALS_FILE_PATH>";
+let cred = {
+  clientID: "<YOUR_clientID>",
+  clientName: "<YOUR_clientName>",
+  keyID: "<YOUR_keyID>",
+  tokenURI: "<YOUR_tokenURI>",
+  privateKey: "<YOUR_PEM_privateKey>",
+};
 let bearerToken = "";
 function getSkyflowBearerToken() {
   return new Promise(async (resolve, reject) => {
     try {
       if (isValid(bearerToken)) resolve(bearerToken);
       else {
-        let response = await generateBearerToken(filepath);
+        let response = await generateBearerTokenFromCreds(JSON.stringify(cred));
         bearerToken = response.accessToken;
         resolve(bearerToken);
       }
@@ -24,7 +27,7 @@ function getSkyflowBearerToken() {
 }
 
 const tokens = async () => {
-    console.log(await getSkyflowBearerToken());
-}
+  console.log(await getSkyflowBearerToken());
+};
 
 tokens();
