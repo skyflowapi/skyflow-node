@@ -1,5 +1,5 @@
 # NODE-SDK sample templates
-Use this folder to test the functionalities of JAVA-SDK just by adding `VAULT-ID` `VAULT-URL` and `SERVICE-ACCOUNT` details at the required place.
+Use this folder to test the functionalities of NODE-SDK just by adding `VAULT-ID` `VAULT-URL` and `SERVICE-ACCOUNT` details at the required place.
 
 ## Prerequisites
 - A Skylow account. If you don't have one, you can register for one on the [Try Skyflow](https://skyflow.com/try-skyflow) page.
@@ -22,7 +22,7 @@ Use this folder to test the functionalities of JAVA-SDK just by adding `VAULT-ID
 2. For Name, enter **Test-Node-Sdk-Sample**. For Roles, choose Roles corresponding to the action.
 3. Click **Create**. Your browser downloads a **credentials.json** file. Keep this file secure, as you'll need it in the next steps.
 
-### Different types of functionalities of Java-Sdk
+### Different types of functionalities of Node-Sdk
 - [**Detokenize**](vault-api/Detokenize.ts)
     - Detokenize the data token from the vault. 
     - Make sure the token is of the data which exists in the Vault. If not so please make use of [insert_sample.py](insert_sample.py) to insert the data in the data and use this token for detokenization.
