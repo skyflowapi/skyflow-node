@@ -38,7 +38,7 @@ npm install skyflow-node
 ```
 const { Skyflow, generateBearerToken } = require('skyflow-node');
 ```
-#### Or using ES modules
+Or using ES modules
 
 ```
 import { Skyflow, generateBearerToken }  from 'skyflow-node';
