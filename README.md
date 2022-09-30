@@ -33,6 +33,17 @@ npm install skyflow-node
 ```
 ## Usage
 
+### Importing `skfylow-node`
+
+```
+const { Skyflow, generateBearerToken } = require('skyflow-node');
+```
+Or using ES modules
+
+```
+import { Skyflow, generateBearerToken }  from 'skyflow-node';
+```
+
 ### Service Account Token Generation
 [Service Account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) Node.js module is used to generate service account tokens from a service account credentials file. See [API Authentication](https://docs.skyflow.com/developer-portal/getting-started/api-authentication/#step-1-create-a-service-account--assign-a-role) for instructions on creating a service account.
 
