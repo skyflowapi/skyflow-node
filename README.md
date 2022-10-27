@@ -1,5 +1,5 @@
 
-# Description
+# skyflow-node
 skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programming language.
 
 [![CI](https://img.shields.io/static/v1?label=CI&message=passing&color=green?style=plastic&logo=github)](https://github.com/skyflowapi/skyflow-node/actions)
@@ -51,7 +51,7 @@ The token generated from this module is valid for 60 minutes and can be used to 
 
 The `GenerateBearerToken(filepath)` function takes the service acccount credentials file path for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials)`
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts):
+[Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts):
 
 ```javascript
 import {
@@ -78,6 +78,40 @@ function getSkyflowBearerToken() {
 }
 ```
 
+[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/TokenGenerationUsingCredContent.ts):
+
+```js
+import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
+
+let cred = {
+  clientID: "<YOUR_clientID>",
+  clientName: "<YOUR_clientName>",
+  keyID: "<YOUR_keyID>",
+  tokenURI: "<YOUR_tokenURI>",
+  privateKey: "<YOUR_PEM_privateKey>",
+};
+let bearerToken = "";
+function getSkyflowBearerToken() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (isValid(bearerToken)) resolve(bearerToken);
+      else {
+        let response = await generateBearerTokenFromCreds(JSON.stringify(cred));
+        bearerToken = response.accessToken;
+        resolve(bearerToken);
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+const tokens = async () => {
+  console.log(await getSkyflowBearerToken());
+};
+
+tokens();
+```
 ### Vault APIs
 The [Vault](https://github.com/skyflowapi/skyflow-node/tree/master/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id's` and to invoke the connection.
 
