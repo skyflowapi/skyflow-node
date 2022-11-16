@@ -121,7 +121,8 @@ const records = {
         expiry_date: "11/22",
     },
     table: "cards",
-    }],
+    }
+  ],
 };
 
 const options = {
@@ -182,7 +183,6 @@ describe('skyflow insert', () => {
         vaultURL: 'https://www.vaulturl.com',
         getBearerToken: ()=>{
           return new Promise((resolve,_)=>{
-              console.log("xxxx")
               resolve("token")
           })
         }
@@ -258,6 +258,84 @@ describe('skyflow insert', () => {
     } catch (err) {
     }
   });
+
+  test('insert success with upsert options', () => {
+    jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
+      __esModule: true,
+      isTokenValid:jest.fn(()=>true),
+    }));
+    const clientReq = jest.fn(() => Promise.resolve(insertResponse));
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata:{}
+    }
+    clientModule.mockImplementation(() => {return mockClient});
+
+    skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: ()=>{
+          return new Promise((resolve,_)=>{
+              resolve("token")
+          })
+        }
+      });    
+      const res = skyflow.insert(records,{upsert:[
+        {
+          table: 'table1', column: 'column2'
+        }
+      ]});
+      
+      return res.then((res) => {
+        expect(clientReq).toHaveBeenCalled();
+        expect(res.records.length).toBe(1);
+        expect(res.error).toBeUndefined(); 
+      });
+    
+  });
+
+  test('insert with invalid tokens option type',(done)=>{
+        try{
+          skyflow = Skyflow.init({
+            vaultID: '<VaultID>',
+            vaultURL: 'https://www.vaulturl.com',
+            getBearerToken: ()=>{
+              return new Promise((resolve,_)=>{
+                  resolve("token")
+              })
+            }
+          });    
+          const res = skyflow.insert(records,{tokens:{}});
+          res.catch((err)=>{
+            expect(err).toBeDefined();
+            done();
+          });
+        }catch(err){
+          done(err);
+        }
+  });
+  test('insert without any options',(done)=>{
+    try{
+      skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: ()=>{
+          return new Promise((resolve,_)=>{
+              resolve("token")
+          })
+        }
+      });    
+      const res = skyflow.insert({});
+      res.catch((err)=>{
+        expect(err).toBeDefined();
+        done();
+      });
+    }catch(err){
+      done(err);
+    }
+  });
+
 });
 
 const detokenizeInput = {
