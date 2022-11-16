@@ -15,6 +15,7 @@ import {
   IGetByIdInput,
   RedactionType,
   MessageType,
+  IInsertOptions,
 } from './utils/common';
 import { formatVaultURL } from './utils/helpers';
 
@@ -53,7 +54,7 @@ class Skyflow {
 
   insert(
     records: IInsertRecordInput,
-    options: Record<string, any> = { tokens: true },
+    options: IInsertOptions,
   ) {
     printLog(logs.infoLogs.INSERT_TRIGGERED, MessageType.LOG);
     return this.#Controller.insert(records, options);

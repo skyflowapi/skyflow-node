@@ -135,3 +135,32 @@ export const validateInitConfig = (initConfig: ISkyflow) => {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.GET_BEARER_TOKEN_IS_REQUIRED, [], true);
   }
 };
+
+export const validateUpsertOptions = (upsertOptions) => {
+  if (!(upsertOptions && Array.isArray(upsertOptions)))
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPSERT_OPTION_TYPE, [], true);
+
+  if (!upsertOptions.length)
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_UPSERT_OPTIONS_ARRAY, [], true);
+
+  upsertOptions.forEach((upsertOption, index: number) => {
+    if (!(upsertOption && typeof upsertOption === 'object')) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPSERT_OPTION_OBJECT_TYPE, [index], true);
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(upsertOption, 'table')) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_UPSERT_OPTION, [index], true);
+    }
+
+    if (!(upsertOption.table && typeof upsertOption.table === 'string' && upsertOption.table.length)) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPSERT_OPTION, [index], true);
+    }
+    if (!Object.prototype.hasOwnProperty.call(upsertOption, 'column')) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_COLUMN_IN_UPSERT_OPTION, [index], true);
+    }
+
+    if (!(upsertOption.column && typeof upsertOption.column === 'string' && upsertOption.column.length)) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_COLUMN_IN_UPSERT_OPTION, [index], true);
+    }
+  });
+};

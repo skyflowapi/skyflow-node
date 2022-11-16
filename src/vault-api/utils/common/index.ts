@@ -91,3 +91,13 @@ export enum ContentType {
   FORMURLENCODED = 'application/x-www-form-urlencoded',
   FORMDATA = 'multipart/form-data',
 }
+
+export interface IUpsertOption {
+  table : string;
+  column: string;
+}
+
+export interface IInsertOptions{
+  tokens?: boolean;
+  upsert?: IUpsertOption[];
+}
