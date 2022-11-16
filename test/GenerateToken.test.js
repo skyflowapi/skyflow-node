@@ -1,11 +1,11 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
-import {generateBearerToken, generateBearerTokenFromCreds, generateToken, getToken, __testing} from "../src/service-account/util/Token";
+import { generateBearerToken, generateBearerTokenFromCreds, generateToken, getToken, __testing, getRolesForScopedToken } from "../src/service-account/util/Token";
 import { errorMessages } from "../src/service-account/errors/Messages";
 
 describe("fileValidityTest", () => {
-  test("invalidJSON",async () => {
+  test("invalidJSON", async () => {
     try {
       const res = await generateToken("test/demoCredentials/invalidJson.json")
     } catch (err) {
@@ -54,72 +54,74 @@ describe("fileValidityTest", () => {
       expect(err).toBeDefined();
     }
   });
-  
+
   test("File does not exist", async () => {
-    try{
+    try {
       await generateBearerToken('invalid-file-path.json')
     } catch (err) {
       expect(err).toBeDefined();
     }
   })
-  
+
   test("Get token with non-string credentials", async () => {
     try {
-      await getToken({credentials: "non-string"})
+      await getToken({ credentials: "non-string" })
     } catch (err) {
       expect(err).toBeDefined();
     }
   })
-  
+
   test("Success response processing", async () => {
-     const success = await __testing.successResponse({data: {
-      accessToken: "access token",
-      tokenType: "Bearer"
-    }})
-    
+    const success = await __testing.successResponse({
+      data: {
+        accessToken: "access token",
+        tokenType: "Bearer"
+      }
+    })
+
     expect(success).toBeDefined();
   })
-  
+
   test("failure response processing JSON", async () => {
     const error = {
       response: {
         headers: {
           'x-request-id': 'RID',
           'content-type': 'application/json'
-        }, 
+        },
         data: {
           error: {
-          message: "Internal Server Error"
+            message: "Internal Server Error"
+          }
         }
-      }
       }
     }
 
 
-    try { 
-      const failure = await  __testing.failureResponse(error)
-    } catch(err) {
+    try {
+      const failure = await __testing.failureResponse(error)
+    } catch (err) {
       expect(err).toBeDefined();
     }
   });
-    
+
   test("failure response processing Plain text", async () => {
     const error = {
       response: {
         headers: {
           'x-request-id': 'RID',
           'content-type': 'text/plain'
-        }, 
+        },
         data: {
           error: {
-          message: "Internal Server Error"
+            message: "Internal Server Error"
+          }
         }
       }
-      }
     }
-    try { 
-      const failure = await  __testing.failureResponse(error)
-    } catch(err) {
+    try {
+      const failure = await __testing.failureResponse(error)
+    } catch (err) {
       expect(err).toBeDefined();
     }
   });
@@ -130,20 +132,66 @@ test("failure response processing Unknown format", async () => {
       headers: {
         'x-request-id': 'RID',
         'content-type': 'invalid-type'
-      }, 
+      },
       data: {
         error: {
-        message: "Internal Server Error"
+          message: "Internal Server Error"
+        }
       }
-    }
     }
   }
 
 
-  try { 
-    const failure = await  __testing.failureResponse(error)
-  } catch(err) {
+  try {
+    const failure = await __testing.failureResponse(error)
+  } catch (err) {
     expect(err).toBeDefined();
   }
 });
+
+describe('context and scoped token options test', () => {
+
+  const creds_without_context = process.env.SA_WITHOUT_CONTEXT;
+
+  test('empty roleID array passed to generate scoped token', async () => {
+    const options = {
+      roleIDs: []
+    }
+    try {
+      await generateBearerTokenFromCreds(creds_without_context, options)
+
+    } catch (err) {
+      expect(err.message).toBe(errorMessages.ScopedRolesEmpty)
+    }
+  })
+  test('invlaid type passed to generate scoped token', async () => {
+    const options = {
+      roleIDs: true
+    }
+    try {
+      await generateBearerTokenFromCreds(creds_without_context, options)
+
+    } catch (err) {
+      expect(err.message).toBe(errorMessages.ExpectedRoleIDParameter)
+    }
+  })
+  test("String [] passed as roleIDs ", async () => {
+    const response = getRolesForScopedToken(['roleID1'])
+    expect(response).toStrictEqual("role:roleID1 ")
+  })
+  test("Empty [] passed as roleIDs ", async () => {
+    try {
+      await getRolesForScopedToken([])
+    } catch (err) {
+      expect(err).toBeDefined()
+    }
+  })
+  test("Invalid type passed as roleIDs ", async () => {
+    try {
+      await getRolesForScopedToken(undefined)
+    } catch (err) {
+      expect(err).toBeDefined()
+    }
+  })
+})
 

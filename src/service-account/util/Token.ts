@@ -10,7 +10,12 @@ import logs from "../../vault-api/utils/logs";
 import { MessageType } from "../../vault-api/utils/common";
 import SkyflowError from '../../vault-api/libs/SkyflowError';
 export type ResponseToken = { accessToken: string, tokenType: string }
-function generateBearerToken(credentialsFilePath): Promise<ResponseToken> {
+
+export type BearerTokenOptions = {
+  context?: string,
+  roleIDs?: string[],
+}
+function generateBearerToken(credentialsFilePath, options?: BearerTokenOptions): Promise<ResponseToken> {
   return new Promise((resolve, reject) => {
     let credentials;
 
@@ -32,13 +37,13 @@ function generateBearerToken(credentialsFilePath): Promise<ResponseToken> {
       reject(new SkyflowError({code: 400,description: errorMessages.NotAValidJSON}));
     }
 
-    getToken(credentials).then((res) => {
+    getToken(credentials,options).then((res) => {
       resolve(res)
     }).catch((err) => { reject(err) })
   })
 }
 
-function getToken(credentials): Promise<ResponseToken> {
+function getToken(credentials, options?: BearerTokenOptions): Promise<ResponseToken> {
   return new Promise((resolve, reject) => {
     printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_TRIGGERED, MessageType.LOG);
     try {
@@ -49,6 +54,16 @@ function getToken(credentials): Promise<ResponseToken> {
         if(typeof(credentials) !== "string"){
           printLog(errorMessages.ExpectedStringParameter, MessageType.ERROR);
           reject(new SkyflowError({code: 400,description: errorMessages.ExpectedStringParameter}));
+        }
+
+        if(options?.roleIDs && options.roleIDs?.length == 0){
+          printLog(errorMessages.ScopedRolesEmpty, MessageType.ERROR);
+          reject(new SkyflowError({code: 400,description: errorMessages.ScopedRolesEmpty}));
+        }
+
+        if(options?.roleIDs && !Array.isArray(options.roleIDs)){
+          printLog(errorMessages.ExpectedRoleIDParameter, MessageType.ERROR);
+          reject(new SkyflowError({code: 400,description: errorMessages.ExpectedRoleIDParameter}));
         }
         let credentialsObj = JSON.parse("{}")
         try {
@@ -66,6 +81,7 @@ function getToken(credentials): Promise<ResponseToken> {
           aud: credentialsObj.tokenURI,
           exp: expiryTime,
           sub: credentialsObj.clientID,
+          ...(options && options.context ? { ctx:options.context } : {}),
         };
 
         if (claims.iss == null) {
@@ -89,12 +105,14 @@ function getToken(credentials): Promise<ResponseToken> {
 
           const signedJwt = jwt.sign(claims, privateKey, { algorithm: "RS256" });
 
+          const scopedRoles = options?.roleIDs && getRolesForScopedToken(options.roleIDs)
           Axios(`${credentialsObj.tokenURI}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             data: {
               grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
               assertion: signedJwt,
+              scope:scopedRoles,
             },
           })
             .then((res) => {
@@ -110,6 +128,15 @@ function getToken(credentials): Promise<ResponseToken> {
     }
   });
 }
+
+export function getRolesForScopedToken(roleIDs:string[]){
+  let str = ''
+  roleIDs.forEach((role)=>{
+    str = str+"role:"+role+" "
+  })
+  return str;
+}
+
 function successResponse(res:any) : Promise<ResponseToken>  {
   printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_SUCCESS, MessageType.LOG);
   return new Promise((resolve,_)=>{
@@ -166,8 +193,8 @@ function generateToken(credentialsFilePath): Promise<ResponseToken> {
     return generateBearerToken(credentialsFilePath)
 }
 
-function generateBearerTokenFromCreds(credentials): Promise<ResponseToken> {
-  return getToken(credentials)
+function generateBearerTokenFromCreds(credentials,options?: BearerTokenOptions): Promise<ResponseToken> {
+  return getToken(credentials,options)
 }
 
 export { generateBearerToken, generateToken, generateBearerTokenFromCreds};

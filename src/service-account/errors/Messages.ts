@@ -10,5 +10,7 @@ export const errorMessages = {
   FileNotFound: "file not found",
   EmptyFile: "Empty file found",
   CredentialsContentEmpty: "Empty string passed for credentials",
-  ExpectedStringParameter: "Parameter type passed is invalid, expected string"
+  ExpectedStringParameter: "Parameter type passed is invalid, expected string",
+  ScopedRolesEmpty: "Empty array passed for roleIDs",
+  ExpectedRoleIDParameter: "RoleID type passed is invalid, expected string[]",
 };
