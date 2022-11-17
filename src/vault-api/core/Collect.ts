@@ -4,6 +4,16 @@
 import _ from 'lodash';
 import { IInsertRecordInput, IInsertRecord } from '../utils/common';
 
+const getUpsertColumn = (tableName: string, options: Record<string, any>) => {
+  let uniqueColumn = '';
+  options?.upsert?.forEach((upsertOptions) => {
+    if (tableName === upsertOptions.table) {
+      uniqueColumn = upsertOptions.column;
+    }
+  });
+  return uniqueColumn;
+};
+
 export const constructInsertRecordRequest = (
   records: IInsertRecordInput,
   options: Record<string, any> = { tokens: true },
@@ -11,11 +21,13 @@ export const constructInsertRecordRequest = (
   const requestBody: any = [];
   if (options.tokens) {
     records.records.forEach((record, index) => {
+      const upsertColumn = getUpsertColumn(record.table, options);
       requestBody.push({
         method: 'POST',
         quorum: true,
         tableName: record.table,
         fields: record.fields,
+        ...(options?.upsert ? { upsert: upsertColumn } : {}),
       });
       requestBody.push({
         method: 'GET',
@@ -26,11 +38,13 @@ export const constructInsertRecordRequest = (
     });
   } else {
     records.records.forEach((record) => {
+      const upsertColumn = getUpsertColumn(record.table, options);
       requestBody.push({
         method: 'POST',
         quorum: true,
         tableName: record.table,
         fields: record.fields,
+        ...(options?.upsert ? { upsert: upsertColumn } : {}),
       });
     });
   }
