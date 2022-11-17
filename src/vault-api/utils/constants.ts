@@ -45,6 +45,38 @@ const SKYFLOW_ERROR_CODE = {
   UNKNOWN_ERROR: { code: 400, description: logs.errorLogs.UNKNOWN_ERROR },
   CONNECTION_ERROR: { code: 400, description: logs.errorLogs.CONNECTION_ERROR },
   TRANSACTION_ERROR: { code: 400, description: logs.errorLogs.TRANSACTION_ERROR },
+  INVALID_UPSERT_OPTION_TYPE: {
+    code: 400,
+    description: logs.errorLogs.INVALID_UPSERT_OPTION_TYPE,
+  },
+  EMPTY_UPSERT_OPTIONS_ARRAY: {
+    code: 400,
+    description: logs.errorLogs.EMPTY_UPSERT_OPTIONS_ARRAY,
+  },
+  INVALID_UPSERT_OPTION_OBJECT_TYPE: {
+    code: 400,
+    description: logs.errorLogs.INVALID_UPSERT_OPTION_OBJECT_TYPE,
+  },
+  MISSING_TABLE_IN_UPSERT_OPTION: {
+    code: 400,
+    description: logs.errorLogs.MISSING_TABLE_IN_UPSERT_OPTION,
+  },
+  MISSING_COLUMN_IN_UPSERT_OPTION: {
+    code: 400,
+    description: logs.errorLogs.MISSING_COLUMN_IN_UPSERT_OPTION,
+  },
+  INVALID_TABLE_IN_UPSERT_OPTION: {
+    code: 400,
+    description: logs.errorLogs.INVALID_TABLE_IN_UPSERT_OPTION,
+  },
+  INVALID_COLUMN_IN_UPSERT_OPTION: {
+    code: 400,
+    description: logs.errorLogs.INVALID_COLUMN_IN_UPSERT_OPTION,
+  },
+  INVALID_TOKENS_IN_INSERT: {
+    code: 400,
+    description: logs.errorLogs.INVALID_TOKENS_IN_INSERT,
+  },
 };
 
 export default SKYFLOW_ERROR_CODE;

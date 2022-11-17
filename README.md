@@ -171,7 +171,7 @@ All Vault APIs must be invoked using a client instance.
 
 #### Insert
 
-To insert data into your vault, use the `insert(records, options)` method. The first parameter records is a JSONObject that must have a records key and takes an array of records to be inserted into the vault as a value. The second parameter options is a InsertOptions object that provides further options for your insert call, as shown below.
+To insert data into your vault, use the `insert(records, options)` method. The first parameter records is a JSONObject that must have a records key and takes an array of records to be inserted into the vault as a value. The second parameter options is an optional object that provides further options for your insert call, `insert` method also support upsert operations. See below:
 
 ```javascript
 data = {
@@ -185,11 +185,17 @@ data = {
 
 // Insert data. The insert function returns a Promise.
 const response = client.insert(data, {
-    tokens: true  // Indicates whether or not tokens should be returned for the inserted data. Defaults to 'True'
+    tokens: true  // Indicates whether or not tokens should be returned for the inserted data. Defaults to 'true'.
+    upsert: [ // upsert operations support in the vault.
+      {
+        table: "string", // table name.
+        column: "value  ", // unique column in the table.
+      }
+    ]
 });
 ```
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault%20api/Insert.ts) of an insert call is given below:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Insert.ts) of an insert call is given below:
 
 ```javascript
 const response = client.insert({
@@ -231,7 +237,53 @@ Sample response:
   ]
 }
 ```
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/UpsertSupport.ts) of insert call with `upsert` support is given below:
+```javascript
+const response = client.insert({
+    records: [{
+        fields: {
+            expiry_date: '12/2026',
+            card_number: '411111111111111',
+        },
+        table: 'cards',
+    }],
+}, {
+    tokens: true,
+    upsert: [
+      {
+          table:'cards',
+          column:'card_number',
+      }
+    ]
+});
 
+response.then(
+    (res) => {
+        console.log(JSON.stringify(res));
+    },
+    (err) => {
+        console.log(JSON.stringify(err));
+    }
+).catch((err) => {
+    console.log(JSON.stringify(err));
+});
+```
+
+Sample response:
+
+```json
+{
+  "records": [
+    {
+      "table": "cards",
+      "fields": {
+        "card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
+        "expiry_date": "1989cb56-63a-4482-adf-1f74cd1a5"
+      }
+    }
+  ]
+}
+```
 #### Detokenize
 
 In order to retrieve data from your vault using tokens that you have previously generated for that data, you can use the `detokenize(records)` method. The first parameter must have a records key that takes an array of tokens to be fetched from the vault, as shown below.
@@ -244,7 +296,7 @@ data = {
     }]
 }
 ```
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault%20api/Detokenize.ts) of a detokenize call:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Detokenize.ts) of a detokenize call:
 
 ```javascript
 const result = client.detokenize({
@@ -295,7 +347,7 @@ There are 4 accepted values in `Skyflow.RedactionTypes`:
 * `REDACTED`
 * `DEFAULT`
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault%20api/GetById.ts) of `getById` call:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) of `getById` call:
 ```javascript
 let skyflowIds = [
     'f8622-b557-4c6b-a12c-c0b0bfd9',
@@ -398,7 +450,7 @@ data = {
 
 **pathParams, queryParams, requestHeader, requestBody** are the JSON objects that will be sent through the gateway integration URL.
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault%20api/InvokeConnection.ts) of `invokeConnection`:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/InvokeConnection.ts) of `invokeConnection`:
 
 ```javascript
 const response = client.invokeConnection({

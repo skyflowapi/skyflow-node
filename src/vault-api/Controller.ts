@@ -4,11 +4,12 @@
 import Client from './client';
 
 import {
-  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput, validateInitConfig,
+  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput, validateInitConfig, validateUpsertOptions,
 } from './utils/validators';
 
 import {
   ContentType,
+  IInsertOptions,
   TYPES,
 } from './utils/common';
 import {
@@ -75,10 +76,21 @@ class Controller {
       });
   }
 
-  insert(records, options): Promise<any> {
+  insert(records, options:IInsertOptions): Promise<any> {
       return new Promise((resolve, reject) => {
         try {
-          validateInitConfig(this.#client.config)
+          validateInitConfig(this.#client.config);
+          if (options && options.tokens && typeof options.tokens !== 'boolean') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_INSERT, [], true);
+          }
+          if (options) {
+            options = { ...options, tokens: options?.tokens !== undefined ? options.tokens : true };
+          } else {
+            options = { tokens: true,};
+          }
+          if (options?.upsert) {
+            validateUpsertOptions(options.upsert);
+          }
           printLog(logs.infoLogs.VALIDATE_RECORDS, MessageType.LOG);
           validateInsertRecords(records);  
           printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES.INSERT),
