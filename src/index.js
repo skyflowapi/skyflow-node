@@ -1,15 +1,17 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
 import {
   generateToken,
   generateBearerToken,
   generateBearerTokenFromCreds,
+  generateSignedDataTokens,
+  generateSignedDataTokensFromCreds
 } from './service-account/util/Token';
 import Skyflow from './vault-api/Skyflow';
-import {setLogLevel} from './vault-api/Logging';
-import {LogLevel} from './vault-api/utils/common';
-import {isValid,isExpired} from './vault-api/utils/jwt-utils';
+import { setLogLevel } from './vault-api/Logging';
+import { LogLevel } from './vault-api/utils/common';
+import { isValid, isExpired } from './vault-api/utils/jwt-utils';
 export {
   generateBearerToken,
   generateToken,
@@ -18,5 +20,7 @@ export {
   LogLevel,
   Skyflow,
   isValid,
-  isExpired
+  isExpired,
+  generateSignedDataTokens,
+  generateSignedDataTokensFromCreds
 };
