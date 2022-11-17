@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
 export const errorMessages = {
   ClientIDNotFound: "clientID not found",
@@ -13,4 +13,9 @@ export const errorMessages = {
   ExpectedStringParameter: "Parameter type passed is invalid, expected string",
   ScopedRolesEmpty: "Empty array passed for roleIDs",
   ExpectedRoleIDParameter: "RoleID type passed is invalid, expected string[]",
+  DataTokensNotFound: "dataTokens not found",
+  DataTokensEmpty: "Empty array passed for data tokens",
+  ExpectedDataTokensParameter: "Data tokens type passed is invalid, expected string[]",
+  ExpectedTimeToLiveParameter: "Time to live type passed is invalid, expected number",
+
 };

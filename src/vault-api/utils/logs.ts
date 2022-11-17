@@ -1,12 +1,13 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
 const logs = {
   infoLogs: {
-    EMPTY_BEARER_TOKEN : "BearerToken is Empty",
-    BEARER_TOKEN_EXPIRED : "BearerToken is expired",
-    GENERATE_BEARER_TOKEN_TRIGGERED : "generateBearerToken is triggered",
-    GENERATE_BEARER_TOKEN_SUCCESS : "BearerToken is generated",
+    EMPTY_BEARER_TOKEN: "BearerToken is Empty",
+    BEARER_TOKEN_EXPIRED: "BearerToken is expired",
+    GENERATE_BEARER_TOKEN_TRIGGERED: "generateBearerToken is triggered",
+    GENERATE_BEARER_TOKEN_SUCCESS: "BearerToken is generated",
+    GENERATE_SIGNED_DATA_TOKEN_SUCCESS: 'Signed Data tokens are generated',
     INITIALIZE_CLIENT: 'Initializing skyflow client.',
     CLIENT_INITIALIZED: 'Initialized skyflow client successfully.',
     VALIDATE_RECORDS: 'Validating insert records.',
@@ -29,6 +30,8 @@ const logs = {
     INSERT_RECORDS_RESOLVED: 'Insert request is resolved.',
     GET_BY_SKYFLOWID_RESOLVED: 'GetById request is resolved.',
     SEND_INVOKE_CONNECTION_RESOLVED: 'Invoke connection request resolved.',
+    GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: "generateSignedDataTokens is triggered",
+
   },
   errorLogs: {
     CLIENT_CONNECTION: 'client connection not established.',
@@ -92,10 +95,10 @@ const logs = {
     ERROR_OCCURED: 'Error occurred.',
     RESPONSE_BODY_KEY_MISSING: '%s1 is missing in the response.',
   },
-warnLogs:{
-  GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',
-  ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead'
-}
+  warnLogs: {
+    GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',
+    ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead'
+  }
 };
 
 export default logs;
