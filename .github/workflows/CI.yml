@@ -29,8 +29,13 @@ jobs:
       - name: install modules
         run: npm install
 
+
       - name: Run tests
+        env:
+          SA_WITHOUT_CONTEXT: ${{ secrets.SA_WITHOUT_CONTEXT }}
+          SIGNED_TOKEN_SA: ${{ secrets.SIGNED_TOKEN_SA }}
         run: npm run test
+
       
       - name: Codecov
         uses: codecov/codecov-action@v2.1.0
