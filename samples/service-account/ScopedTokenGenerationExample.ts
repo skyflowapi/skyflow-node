@@ -15,12 +15,15 @@ let cred = {
     privateKey: "<YOUR_PEM_privateKey>",
 };
 
-function getSkyflowBearerTokenFromFilePath() {
+function getScopedBearerTokenFromFilePath() {
     return new Promise(async (resolve, reject) => {
         try {
+            const options = {
+                roleIDs: ["roleID1", "roleID2"],
+            };
             if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
-                let response = await generateBearerToken(filepath);
+                let response = await generateBearerToken(filepath, options);
                 bearerToken = response.accessToken;
                 resolve(bearerToken);
             }
@@ -30,13 +33,17 @@ function getSkyflowBearerTokenFromFilePath() {
     });
 }
 
-function getSkyflowBearerTokenFromCreds() {
+function getScopedBearerTokenFromCreds() {
     return new Promise(async (resolve, reject) => {
         try {
+            const options = {
+                roleIDs: ["roleID1", "roleID2"],
+            };
             if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerTokenFromCreds(
-                    JSON.stringify(cred)
+                    JSON.stringify(cred),
+                    options
                 );
                 bearerToken = response.accessToken;
                 resolve(bearerToken);
@@ -48,8 +55,8 @@ function getSkyflowBearerTokenFromCreds() {
 }
 
 const tokens = async () => {
-    console.log(await getSkyflowBearerTokenFromFilePath());
-    console.log(await getSkyflowBearerTokenFromCreds());
+    console.log(await getScopedBearerTokenFromFilePath());
+    console.log(await getScopedBearerTokenFromCreds());
 
 };
 
