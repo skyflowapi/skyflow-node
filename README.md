@@ -9,17 +9,27 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
 
 # Table of Contents
 
-* [Installation](#installation)
-    * [Requirements](#requirements)
-    * [Configuration](#configuration)
-* [Service Account Token Generation](#service-account-token-generation)
-* [Vault APIs](#vault-apis)
-  *  [Insert](#insert)
-  *  [Detokenize](#detokenize)
-  *  [GetById](#get-by-id)
-  *  [InvokeConnection](#invoke-connection)
-* [Logging](#logging)
-
+- [skyflow-node](#skyflow-node)
+- [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+    - [Requirements](#requirements)
+    - [Configuration](#configuration)
+  - [Usage](#usage)
+    - [Importing `skfylow-node`](#importing-skfylow-node)
+    - [Service Account Token Generation](#service-account-token-generation)
+    - [Service Account Bearer Token with Context Generation](#service-account-bearer-token-with-context-generation)
+    - [Service Account Scoped Bearer Token Generation](#service-account-scoped-bearer-token-generation)
+    - [Note:](#note)
+    - [Skyflow Signed Data Tokens Generation](#skyflow-signed-data-tokens-generation)
+    - [Note:](#note-1)
+    - [Vault APIs](#vault-apis)
+      - [Insert](#insert)
+      - [Detokenize](#detokenize)
+      - [Get By Id](#get-by-id)
+      - [Invoke Connection](#invoke-connection)
+    - [Logging](#logging)
+  - [Reporting a Vulnerability](#reporting-a-vulnerability)
+  
 ## Installation
 
 ### Requirements
@@ -49,23 +59,20 @@ import { Skyflow, generateBearerToken }  from 'skyflow-node';
 
 The token generated from this module is valid for 60 minutes and can be used to make API calls to vault services as well as management API(s) based on the permissions of the service account.
 
-The `GenerateBearerToken(filepath)` function takes the service acccount credentials file path for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials)`
+The `GenerateBearerToken(filepath,options)` function takes the service account credentials file path and an  optional options object for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials,options)`
 
 [Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts):
 
 ```javascript
-import {
-    generateBearerToken,
-    isExpired
-} from 'skyflow-node';
+import { generateBearerToken, isExpired } from "skyflow-node";
 
-let filepath = 'CREDENTIALS_FILE_PATH';
-let bearerToken = ""
+let filepath = "CREDENTIALS_FILE_PATH";
+let bearerToken = "";
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!isExpired(bearerToken)) resolve(bearerToken)
+            if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerToken(filepath);
                 bearerToken = response.accessToken;
@@ -76,65 +83,328 @@ function getSkyflowBearerToken() {
         }
     });
 }
+
+const tokens = async () => {
+    console.log(await getSkyflowBearerToken());
+};
+
+tokens();
 ```
 
-[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/TokenGenerationUsingCredContent.ts):
+[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/TokenGenerationExample.ts):
 
 ```js
 import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
 
 let cred = {
-  clientID: "<YOUR_clientID>",
-  clientName: "<YOUR_clientName>",
-  keyID: "<YOUR_keyID>",
-  tokenURI: "<YOUR_tokenURI>",
-  privateKey: "<YOUR_PEM_privateKey>",
+    clientID: "<YOUR_clientID>",
+    clientName: "<YOUR_clientName>",
+    keyID: "<YOUR_keyID>",
+    tokenURI: "<YOUR_tokenURI>",
+    privateKey: "<YOUR_PEM_privateKey>",
 };
 let bearerToken = "";
 function getSkyflowBearerToken() {
-  return new Promise(async (resolve, reject) => {
-    try {
-      if (isValid(bearerToken)) resolve(bearerToken);
-      else {
-        let response = await generateBearerTokenFromCreds(JSON.stringify(cred));
-        bearerToken = response.accessToken;
-        resolve(bearerToken);
-      }
-    } catch (e) {
-      reject(e);
-    }
-  });
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (isValid(bearerToken)) resolve(bearerToken);
+            else {
+                let response = await generateBearerTokenFromCreds(
+                    JSON.stringify(cred)
+                );
+                bearerToken = response.accessToken;
+                resolve(bearerToken);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
 }
 
 const tokens = async () => {
-  console.log(await getSkyflowBearerToken());
+    console.log(await getSkyflowBearerToken());
 };
 
 tokens();
 ```
+
+###  Service Account Bearer Token with Context Generation 
+
+The service account generated with `context_id` identifier enabled can be used to generate bearer tokens with `context`, which is a `jwt` claim for a skyflow generated bearer token. The token generated from this service account will have a `context_identifier` claim and is valid for 60 minutes and can be used to make API calls to vault services as well as management API(s) based on the permissions of the service account.
+
+The context can be passed as part of the options in `GenerateBearerToken(filepath,options)`  function, which takes the service account credentials file path and an optional options object for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials,options)`
+
+[Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationWithContextExample.ts):
+
+```javascript
+import { generateBearerToken, isExpired } from "skyflow-node";
+
+let filepath = "CREDENTIALS_FILE_PATH";
+let bearerToken = "";
+
+function getSkyflowBearerToken() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const options = {
+                context: "context_id",
+            };
+            if (!isExpired(bearerToken)) resolve(bearerToken);
+            else {
+                let response = await generateBearerToken(filepath, options);
+                bearerToken = response.accessToken;
+                resolve(bearerToken);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+const tokens = async () => {
+    console.log(await getSkyflowBearerToken());
+};
+
+tokens();
+```
+
+[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/TokenGenerationWithContext.ts):
+
+```js
+import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
+
+let cred = {
+    clientID: "<YOUR_clientID>",
+    clientName: "<YOUR_clientName>",
+    keyID: "<YOUR_keyID>",
+    tokenURI: "<YOUR_tokenURI>",
+    privateKey: "<YOUR_PEM_privateKey>",
+};
+let bearerToken = "";
+function getSkyflowBearerToken() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const options = {
+                context: "context_id",
+            };
+            if (isValid(bearerToken)) resolve(bearerToken);
+            else {
+                let response = await generateBearerTokenFromCreds(
+                    JSON.stringify(cred),
+                    options
+                );
+                bearerToken = response.accessToken;
+                resolve(bearerToken);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+const tokens = async () => {
+    console.log(await getSkyflowBearerToken());
+};
+
+tokens();
+```
+### Service Account Scoped Bearer Token Generation
+
+A service account that has multiple roles can generate bearer tokens with access restricted to a specific role by providing the appropriate `roleID`. Generated bearer tokens are valid for 60 minutes and can only perform operations with the permissions associated with the specified role.
+
+The role ids can be passed as part of the options in `GenerateBearerToken(filepath,options)`  function, which takes the service account credentials file path and an optional options object for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials,options)`
+
+[Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/ScopedTokenGenerationExample.ts):
+
+```javascript
+import { generateBearerToken, isExpired } from "skyflow-node";
+
+let filepath = "CREDENTIALS_FILE_PATH";
+let bearerToken = "";
+
+function getSkyflowBearerToken() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const options = {
+                roleIDs: ["roleID1", "roleID2"],
+            };
+            if (!isExpired(bearerToken)) resolve(bearerToken);
+            else {
+                let response = await generateBearerToken(filepath, options);
+                bearerToken = response.accessToken;
+                resolve(bearerToken);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+const tokens = async () => {
+    console.log(await getSkyflowBearerToken());
+};
+
+token();
+```
+### Note: 
+By including `context` in the options, scoped bearer token can be created with the `ctx` JWT claim.
+
+Example:
+
+```js
+const options = {
+  context: 'context_id',
+  roleIDs: ["roleID1", "roleID2"],
+}
+```
+
+[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/ScopedTokenGeneration.ts):
+
+```js
+import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
+
+let cred = {
+    clientID: "<YOUR_clientID>",
+    clientName: "<YOUR_clientName>",
+    keyID: "<YOUR_keyID>",
+    tokenURI: "<YOUR_tokenURI>",
+    privateKey: "<YOUR_PEM_privateKey>",
+};
+let bearerToken = "";
+function getSkyflowBearerToken() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const options = {
+                roleIDs: ["roleID1", "roleID2"],
+            };
+            if (isValid(bearerToken)) resolve(bearerToken);
+            else {
+                let response = await generateBearerTokenFromCreds(
+                    JSON.stringify(cred),
+                    options
+                );
+                bearerToken = response.accessToken;
+                resolve(bearerToken);
+            }
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+const tokens = async () => {
+    console.log(await getSkyflowBearerToken());
+};
+
+tokens();
+```
+### Skyflow Signed Data Tokens Generation
+
+Skyflow generates data tokens when sensitive data is inserted into the vault. These data tokens can be digitally signed with the private key of the service account credentials, which adds an additional layer of protection. Signed tokens can be detokenized by passing the signed data token and a bearer token generated from service account credentials. The service account must have appropriate permissions and context to detokenize the signed data tokens.
+
+The data tokens can be passed as part of the options in `GenerateSignedDataTokens(filepath,options)`  function, which takes the service account credentials file path and an options object for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateSignedDataTokensFromCreds(credentials,options)`
+
+[Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts):
+
+```javascript
+import { generateSignedDataTokens } from "skyflow-node";
+
+let filepath = "CREDENTIALS_FILE_PATH";
+let bearerToken = "";
+
+function getSkyflowBearerToken() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const options = {
+                 dataTokens: ['dataToken1','dataToken2'],
+            };
+
+            let response = await generateSignedDataTokens(filepath, options);
+            resolve(response);
+            
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+const tokens = async () => {
+    console.log(await getSkyflowBearerToken());
+};
+
+token();
+```
+
+### Note: 
+By including `context` in the options, signed data tokens can be created with the `ctx` JWT claim.
+
+Example:
+
+```js
+const options = {
+  context: 'context_id',
+  dataTokens: ['dataToken1','dataToken2'],
+}
+```
+
+[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts):
+
+```javascript
+import { generateSignedDataTokensFromCreds } from "skyflow-node";
+
+let cred = {
+    clientID: "<YOUR_clientID>",
+    clientName: "<YOUR_clientName>",
+    keyID: "<YOUR_keyID>",
+    tokenURI: "<YOUR_tokenURI>",
+    privateKey: "<YOUR_PEM_privateKey>",
+};
+let bearerToken = "";
+function getSkyflowBearerToken() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const options = {
+                dataTokens: ['dataToken1','dataToken2'],
+            };
+
+            let response = await generateSignedDataTokensFromCreds(
+                JSON.stringify(cred),
+                options
+            );
+            resolve(response);
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+const tokens = async () => {
+    console.log(await getSkyflowBearerToken());
+};
+
+tokens();
+```
+
 ### Vault APIs
 The [Vault](https://github.com/skyflowapi/skyflow-node/tree/master/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id's` and to invoke the connection.
 
 To use this module, the Skyflow client must first be initialized as follows.  
 
 ```javascript
-import {
-    Skyflow,
-    generateBearerToken,
-    isExpired
-} from 'skyflow-node';
+import { Skyflow, generateBearerToken, isExpired } from "skyflow-node";
 
-const filepath = 'LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE';
+const filepath = "LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE";
 
 // Initialize the Skyflow client
 const client = Skyflow.init({
     // Id of the vault that the client should connect to
-    vaultID: 'string',
-    // URL of the vault that the client should connect to  
-    vaultURL: 'string',
+    vaultID: "string",
+    // URL of the vault that the client should connect to
+    vaultURL: "string",
     // Helper function generates a Skyflow bearer token
-    getBearerToken: helperFunc
+    getBearerToken: helperFunc,
 });
+
 ```
 For the `getBearerToken` parameter, pass in a helper function that retrieves a Skyflow bearer token from your backend. This function will be invoked when the SDK needs to insert or retrieve data from the vault. A sample implementation is shown below: 
 
@@ -149,12 +419,12 @@ For example, if the response of the consumer tokenAPI is in the below format
 then, your getBearerToken Implementation should be as below
 
 ```javascript
-let bearerToken = ""
+let bearerToken = "";
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!isExpired(bearerToken)) resolve(bearerToken)
+            if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerToken(filepath);
                 bearerToken = response.accessToken;

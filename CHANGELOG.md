@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.17.0] - 2022-11-22
+
+### Added
+- Upsert support for `insert` method
+- Added support to generate skyflow bearer tokens with context.
+- Added support to generate scoped skyflow bearer tokens.
+- Added support to generate signed data tokens.
+
 ## [1.16.1] - 2022-06-28
 
 ### Added
