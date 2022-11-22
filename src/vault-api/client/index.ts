@@ -70,7 +70,6 @@ class Client {
   failureResponse = (err:any) => new Promise((_,reject) => {
     const contentType = err.response?.headers['content-type']
     const data = err.response.data
-    console.log(data)
     const requestId = err.response?.headers['x-request-id']
     if (contentType && contentType.includes('application/json')) {
       let description = JSON.parse(JSON.stringify(data));

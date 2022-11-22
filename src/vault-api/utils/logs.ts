@@ -1,12 +1,13 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
 const logs = {
   infoLogs: {
-    EMPTY_BEARER_TOKEN : "BearerToken is Empty",
-    BEARER_TOKEN_EXPIRED : "BearerToken is expired",
-    GENERATE_BEARER_TOKEN_TRIGGERED : "generateBearerToken is triggered",
-    GENERATE_BEARER_TOKEN_SUCCESS : "BearerToken is generated",
+    EMPTY_BEARER_TOKEN: "BearerToken is Empty",
+    BEARER_TOKEN_EXPIRED: "BearerToken is expired",
+    GENERATE_BEARER_TOKEN_TRIGGERED: "generateBearerToken is triggered",
+    GENERATE_BEARER_TOKEN_SUCCESS: "BearerToken is generated",
+    GENERATE_SIGNED_DATA_TOKEN_SUCCESS: 'Signed Data tokens are generated',
     INITIALIZE_CLIENT: 'Initializing skyflow client.',
     CLIENT_INITIALIZED: 'Initialized skyflow client successfully.',
     VALIDATE_RECORDS: 'Validating insert records.',
@@ -29,6 +30,8 @@ const logs = {
     INSERT_RECORDS_RESOLVED: 'Insert request is resolved.',
     GET_BY_SKYFLOWID_RESOLVED: 'GetById request is resolved.',
     SEND_INVOKE_CONNECTION_RESOLVED: 'Invoke connection request resolved.',
+    GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: "generateSignedDataTokens is triggered",
+
   },
   errorLogs: {
     CLIENT_CONNECTION: 'client connection not established.',
@@ -91,11 +94,19 @@ const logs = {
     CONNECTION_ERROR: 'Error while initializing the connection.',
     ERROR_OCCURED: 'Error occurred.',
     RESPONSE_BODY_KEY_MISSING: '%s1 is missing in the response.',
+    INVALID_UPSERT_OPTION_TYPE: 'Interface: insert method - Invalid upsert option, should be an array.',
+    EMPTY_UPSERT_OPTIONS_ARRAY: 'Interface: insert method - upsert option cannot be an empty array, atleast one object of table and column is required.',
+    INVALID_UPSERT_OPTION_OBJECT_TYPE: 'Interface: insert method - Invalid upsert object at index %s1, an object of table and column is required.',
+    MISSING_TABLE_IN_UPSERT_OPTION: 'Interface: insert method - "table" key is required in upsert options object at index %s1.',
+    MISSING_COLUMN_IN_UPSERT_OPTION: 'Interface: insert method - "column" key is required in upsert option at index %s1.',
+    INVALID_TABLE_IN_UPSERT_OPTION: 'Interface: insert method - Invalid table in upsert object at index %s1, table of type non empty string is required.',
+    INVALID_COLUMN_IN_UPSERT_OPTION: 'Interface: insert method - Invalid column in upsert object at index %s1, column of type non empty string is required.',
+    INVALID_TOKENS_IN_INSERT: 'Interface: insert method - Invalid tokens in options. tokens of type boolean is required.',
   },
-warnLogs:{
-  GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',
-  ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead'
-}
+  warnLogs: {
+    GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',
+    ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead'
+  }
 };
 
 export default logs;
