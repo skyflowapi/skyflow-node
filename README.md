@@ -19,9 +19,7 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
     - [Service Account Token Generation](#service-account-token-generation)
     - [Service Account Bearer Token with Context Generation](#service-account-bearer-token-with-context-generation)
     - [Service Account Scoped Bearer Token Generation](#service-account-scoped-bearer-token-generation)
-    - [Note:](#note)
     - [Skyflow Signed Data Tokens Generation](#skyflow-signed-data-tokens-generation)
-    - [Note:](#note-1)
     - [Vault APIs](#vault-apis)
       - [Insert](#insert)
       - [Detokenize](#detokenize)
@@ -55,11 +53,11 @@ import { Skyflow, generateBearerToken }  from 'skyflow-node';
 ```
 
 ### Service Account Token Generation
-[Service Account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) Node.js module is used to generate service account tokens from a service account credentials file. See [API Authentication](https://docs.skyflow.com/developer-portal/getting-started/api-authentication/#step-1-create-a-service-account--assign-a-role) for instructions on creating a service account.
+The [service account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) Node.js module uses a credentials file to generate service account tokens. See [API Authentication](https://docs.skyflow.com/developer-portal/getting-started/api-authentication/#step-1-create-a-service-account--assign-a-role) for instructions on creating a service account.
 
-The token generated from this module is valid for 60 minutes and can be used to make API calls to vault services as well as management API(s) based on the permissions of the service account.
+The token generated from this module is valid for 60 minutes and lets you make API calls to the Data API as well as the Management API based on the permissions of the Service Account.
 
-The `GenerateBearerToken(filepath,options)` function takes the service account credentials file path and an  optional options object for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials,options)`
+The `GenerateBearerToken(filepath,options)` function takes the service account credentials file path and an  optional options object for token generation. Alternatively, you can also send the entire credentials as a string, by using `GenerateBearerTokenFromCreds(credentials,options)`
 
 [Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts):
 
@@ -91,7 +89,7 @@ const tokens = async () => {
 tokens();
 ```
 
-[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/TokenGenerationExample.ts):
+[Example using credentials json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/TokenGenerationExample.ts):
 
 ```js
 import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
@@ -130,9 +128,9 @@ tokens();
 
 ###  Service Account Bearer Token with Context Generation 
 
-The service account generated with `context_id` identifier enabled can be used to generate bearer tokens with `context`, which is a `jwt` claim for a skyflow generated bearer token. The token generated from this service account will have a `context_identifier` claim and is valid for 60 minutes and can be used to make API calls to vault services as well as management API(s) based on the permissions of the service account.
+The service account generated with `context_id` identifier enabled can be used to generate bearer tokens with `context`, which is a `jwt` claim for a skyflow generated bearer token. The token generated from this service account will have a `context_identifier` claim and is valid for 60 minutes and lets you make API calls to the Data API as well as the Management API based on the permissions of the Service Account.
 
-The context can be passed as part of the options in `GenerateBearerToken(filepath,options)`  function, which takes the service account credentials file path and an optional options object for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials,options)`
+The context can be passed as part of the options in `GenerateBearerToken(filepath,options)`  function, which takes the service account credentials file path and an optional options object for token generation. Alternatively, you can also send the entire credentials as a string, by using `GenerateBearerTokenFromCreds(credentials,options)`
 
 [Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationWithContextExample.ts):
 
@@ -167,7 +165,7 @@ const tokens = async () => {
 tokens();
 ```
 
-[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/TokenGenerationWithContext.ts):
+[Example using credentials json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/TokenGenerationWithContext.ts):
 
 ```js
 import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
@@ -209,9 +207,9 @@ tokens();
 ```
 ### Service Account Scoped Bearer Token Generation
 
-A service account that has multiple roles can generate bearer tokens with access restricted to a specific role by providing the appropriate `roleID`. Generated bearer tokens are valid for 60 minutes and can only perform operations with the permissions associated with the specified role.
+A service account that has multiple roles can generate bearer tokens with access restricted to a specific role by providing the appropriate `roleID`. Generated bearer tokens are valid for 60 minutes and lets you perform operations with the permissions associated with the specified role.
 
-The role ids can be passed as part of the options in `GenerateBearerToken(filepath,options)`  function, which takes the service account credentials file path and an optional options object for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateBearerTokenFromCreds(credentials,options)`
+The role ids can be passed as part of the options in `GenerateBearerToken(filepath,options)`  function, which takes the service account credentials file path and an optional options object for token generation. Alternatively, you can also send the entire credentials as a string, by using `GenerateBearerTokenFromCreds(credentials,options)`
 
 [Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/ScopedTokenGenerationExample.ts):
 
@@ -257,7 +255,7 @@ const options = {
 }
 ```
 
-[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/ScopedTokenGeneration.ts):
+[Example using credentials json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/samples/service-account/ScopedTokenGeneration.ts):
 
 ```js
 import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
@@ -301,7 +299,7 @@ tokens();
 
 Skyflow generates data tokens when sensitive data is inserted into the vault. These data tokens can be digitally signed with the private key of the service account credentials, which adds an additional layer of protection. Signed tokens can be detokenized by passing the signed data token and a bearer token generated from service account credentials. The service account must have appropriate permissions and context to detokenize the signed data tokens.
 
-The data tokens can be passed as part of the options in `GenerateSignedDataTokens(filepath,options)`  function, which takes the service account credentials file path and an options object for token generation. Alternatively, you can also send the entire credentials as string, by using `GenerateSignedDataTokensFromCreds(credentials,options)`
+The data tokens can be passed as part of the options in `GenerateSignedDataTokens(filepath,options)`  function, which takes the service account credentials file path and an options object for token generation. Alternatively, you can also send the entire credentials as a string, by using `GenerateSignedDataTokensFromCreds(credentials,options)`
 
 [Example using credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts):
 
@@ -346,7 +344,7 @@ const options = {
 }
 ```
 
-[Example using credentails json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts):
+[Example using credentials json string](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts):
 
 ```javascript
 import { generateSignedDataTokensFromCreds } from "skyflow-node";
