@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.17.0] - 2022-11-22
+## [1.7.0] - 2022-11-22
 
 ### Added
 - Upsert support for `insert` method
@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 - Added support to generate scoped skyflow bearer tokens.
 - Added support to generate signed data tokens.
 
-## [1.16.1] - 2022-06-28
+## [1.6.1] - 2022-06-28
 
 ### Added
 - Copyright header to all files
