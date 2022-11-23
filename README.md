@@ -36,7 +36,7 @@ npm install skyflow-node
 ```
 ## Usage
 
-### Importing `skfylow-node`
+### Importing `skyflow-node`
 
 ```
 const { Skyflow, generateBearerToken } = require("skyflow-node");
@@ -52,7 +52,7 @@ The [service account](https://github.com/skyflowapi/skyflow-node/tree/master/src
 
 The token generated from this module is valid for 60 minutes and lets you make API calls to the Data API as well as the Management API based on the permissions of the service account.
 
-The `generateBearerToken(filepath,options)` function takes the service account credentials file path for token generation. Alternatively, you can send the entire service account credentials as a string, by using `generateBearerTokenFromCreds(credentials)` function.
+The `generateBearerToken(filepath)` function takes the service account credentials file path for token generation. Alternatively, you can send the entire service account credentials as a string, by using `generateBearerTokenFromCreds(credentials)` function.
 
 [Example using a service account credentials file path](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts):
 
