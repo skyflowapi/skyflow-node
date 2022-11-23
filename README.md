@@ -238,6 +238,7 @@ Sample response:
   ]
 }
 
+```
 #### Detokenize
 
 In order to retrieve data from your vault using tokens that you have previously generated for that data, you can use the `detokenize(records)` method. The first parameter must have a records key that takes an array of tokens to be fetched from the vault, as shown below.
