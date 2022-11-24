@@ -9,6 +9,7 @@ function getSignedTokenFromFilePath() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
+                 ctx:'ctx',
                  dataTokens: ['dataToken1','dataToken2'],
             };
 
@@ -34,6 +35,7 @@ function getSignedTokenFromCreds() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
+                ctx:'ctx',
                 dataTokens: ['dataToken1','dataToken2'],
             };
             let response = await generateSignedDataTokensFromCreds(
