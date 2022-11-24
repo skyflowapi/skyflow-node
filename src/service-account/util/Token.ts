@@ -16,14 +16,14 @@ export type ResponseSignedDataTokens = { token: string, signedToken: string }
 
 
 export type BearerTokenOptions = {
-  context?: string,
+  ctx?: string,
   roleIDs?: string[],
 }
 
 export type SignedDataTokensOptions = {
   dataTokens: string[],
   timeToLive?: number,
-  context?: string,
+  ctx?: string,
 }
 
 function generateBearerToken(credentialsFilePath, options?: BearerTokenOptions): Promise<ResponseToken> {
@@ -92,7 +92,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<ResponseTo
         aud: credentialsObj.tokenURI,
         exp: expiryTime,
         sub: credentialsObj.clientID,
-        ...(options && options.context ? { ctx: options.context } : {}),
+        ...(options && options.ctx ? { ctx: options.ctx } : {}),
       };
 
       if (claims.iss == null) {
@@ -313,7 +313,7 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
             exp: expiryTime,
             sub: credentialsObj.clientID,
             tok: token,
-            ...(options && options.context ? { ctx: options.context } : {}),
+            ...(options && options.ctx ? { ctx: options.ctx } : {}),
           };
 
           if (claims.key == null) {
