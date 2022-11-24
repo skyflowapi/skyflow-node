@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.1] - 2022-11-24
+
+### Changed
+- Rename context to 'ctx' in bearer token options.
+
 ## [1.7.0] - 2022-11-22
 
 ### Added

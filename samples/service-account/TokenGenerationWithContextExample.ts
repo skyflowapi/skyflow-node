@@ -19,7 +19,7 @@ function getSkyflowBearerTokenWithContextFromFilePath() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                context: "context_id",
+                ctx: "context_id",
             };
             if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
@@ -37,7 +37,7 @@ function getSkyflowBearerTokenWithContextFromCreds() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                context: "context_id",
+                ctx: "context_id",
             };
             if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
