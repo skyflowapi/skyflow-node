@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
 import SkyflowError from '../../libs/SkyflowError';
 import { ISkyflow } from '../../Skyflow';
@@ -61,11 +61,8 @@ export const validateGetByIdInput = (getByIdInput: IGetByIdInput) => {
     }
 
     const recordIds = record.ids;
-    if (!recordIds) {
-      throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_IDS);
-    }
-    if (recordIds.length === 0) throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IDS);
-    recordIds.forEach((skyflowId) => {
+    if (recordIds?.length === 0) throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IDS);
+    recordIds?.forEach((skyflowId) => {
       if (typeof skyflowId !== 'string') throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_ID_TYPE);
     });
 
@@ -79,6 +76,25 @@ export const validateGetByIdInput = (getByIdInput: IGetByIdInput) => {
     if (!Object.prototype.hasOwnProperty.call(record, 'table')) { throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE); }
 
     if (recordTable === '' || typeof recordTable !== 'string') { throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_TABLE_VALUE); }
+
+    if (record.columnName != undefined && record.columnValues === undefined) { throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORD_COLUMN_VALUE); }
+    if (record.columnName === undefined && record.columnValues !== undefined) { throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORD_COLUMN_NAME); }
+
+    const columnName = record.columnName;
+    if (columnName != null && typeof columnName !== 'string') { throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_COLUMN_VALUE); }
+    if (columnName != null && columnName === '') { throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_COLUMN_NAME); }
+
+    const columnValues = record.columnValues;
+    if (columnValues != null && !(columnValues && Array.isArray(columnValues)))
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_COLUMN_VALUES_OPTION_TYPE)
+
+    if (columnValues != null) {
+      if (columnValues.length === 0) throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORD_COLUMN_VALUES);
+      columnValues.forEach((eachColumnValue) => {
+        if (typeof eachColumnValue !== 'string') throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_COLUMN_VALUE_TYPE);
+        if (eachColumnValue === '') throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_COLUMN_VALUE);
+      });
+    }
   });
 };
 
