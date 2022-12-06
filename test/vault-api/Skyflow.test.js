@@ -6,6 +6,7 @@ import { LogLevel, RedactionType, RequestMethod } from '../../src/vault-api/util
 import { isValidURL} from '../../src/vault-api/utils/validators';
 import clientModule from '../../src/vault-api/client';
 import { setLogLevel } from '../../src/vault-api/Logging';
+import logs from '../../src/vault-api/utils/logs';
 jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
   __esModule: true,
   isTokenValid:jest.fn(()=>true),
@@ -537,6 +538,102 @@ const getByIdInputInvalidRedaction = {
   }],
 };
 
+const getByIdInputMissingColumnName= {
+  records: [
+    {
+      table: "cards",
+      columnValues: ["ab"],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputMissingColumnValues= {
+  records: [
+    {
+      table: "cards",
+      columnName: "cards",
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputEmptyColumnName= {
+  records: [
+    {
+      table: "cards",
+      columnName: " ",
+      columnValues: ["ab"],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputInvalidColumnNameType= {
+  records: [
+    {
+      table: "cards",
+      columnName: true,
+      columnValues: ["ab"],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+const getByIdInputInvalidColumnValuesType= {
+  records: [
+    {
+      table: "cards",
+      columnName: "abc",
+      columnValues: true,
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputEmptyColumnValues= {
+  records: [
+    {
+      table: "cards",
+      columnName: "abc",
+      columnValues: [],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputInvalidOptionsColumnValues= {
+  records: [
+    {
+      table: "cards",
+      columnName: "abc",
+      columnValues: [true],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputEmptydOptionsColumnValues= {
+  records: [
+    {
+      table: "cards",
+      columnName: "abc",
+      columnValues: [""],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdWithValidUniqColumnOptions= {
+  records: [
+    {
+      table: "cards",
+      columnName: "abc",
+      columnValues: ["value"],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
 const getByIdRes = {
   records: [
     {
@@ -656,7 +753,6 @@ describe('skyflow getById', () => {
       done();
     });
   });
-
   test('getById invalid input-5',(done)=>{
     const res = skyflow.getById(getByIdInputMissingIds);
     res.catch((err)=>{
@@ -664,7 +760,6 @@ describe('skyflow getById', () => {
       done();
     });
   });
-
   test('getById invalid input-6',(done)=>{
     const res = skyflow.getById(getByIdInputInvalidRedaction);
     res.catch((err)=>{
@@ -672,6 +767,54 @@ describe('skyflow getById', () => {
       done();
     });
   });
+  test("getById invalid input-7", () => {
+    const res = skyflow.getById(getByIdInputMissingColumnName);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.MISSING_RECORD_COLUMN_NAME);
+    });
+  });    
+  test("getById invalid input-8", () => {
+    const res = skyflow.getById(getByIdInputMissingColumnValues);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.MISSING_RECORD_COLUMN_VALUE);
+    });
+  });   
+  test("getById invalid input-9", () => {
+    const res = skyflow.getById(getByIdInputInvalidColumnNameType);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.INVALID_RECORD_COLUMN_VALUE);
+    });
+  }); 
+  test("getById invalid input-10", () => {
+    const res = skyflow.getById(getByIdInputInvalidColumnValuesType);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.INVALID_COLUMN_VALUES_OPTION_TYPE);
+    });
+  }); 
+  test("getById invalid input-11", () => {
+    const res = skyflow.getById(getByIdInputEmptyColumnValues);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.EMPTY_RECORD_COLUMN_VALUES);
+    });
+  }); 
+  test("getById invalid input-12", () => {
+    const res = skyflow.getById(getByIdInputInvalidOptionsColumnValues);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.INVALID_RECORD_COLUMN_VALUE_TYPE);
+    });
+  }); 
+  test("getById invalid input-13", () => {
+    const res = skyflow.getById(getByIdInputEmptydOptionsColumnValues);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.EMPTY_COLUMN_VALUE);
+    });
+  }); 
+  test("getById with valid column name and column values input", () => {
+    const res = skyflow.getById(getByIdWithValidUniqColumnOptions);
+    res.catch((err) => {
+      expect(err.message).toBe(undefined)
+    });
+  }); 
 });
 
 const invokeConnectionReq = {
