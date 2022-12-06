@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
 import logs from './logs';
 
@@ -13,7 +13,7 @@ const SKYFLOW_ERROR_CODE = {
     code: 400,
     description: logs.errorLogs.GET_BEARER_TOKEN_IS_REQUIRED,
   },
-  INVALID_BEARER_TOKEN : { code : 400, description: logs.errorLogs.INVALID_BEARER_TOKEN},
+  INVALID_BEARER_TOKEN: { code: 400, description: logs.errorLogs.INVALID_BEARER_TOKEN },
   INVALID_CREDENTIALS: { code: 400, description: logs.errorLogs.INVALID_CREDENTIALS },
   INVALID_CONTAINER_TYPE: { code: 400, description: logs.errorLogs.INVALID_CONTAINER_TYPE },
   INVALID_TABLE_OR_COLUMN: { code: 400, description: logs.errorLogs.INVALID_TABLE_OR_COLUMN },
@@ -22,13 +22,25 @@ const SKYFLOW_ERROR_CODE = {
   EMPTY_RECORDS: { code: 400, description: logs.errorLogs.EMPTY_RECORDS },
   MISSING_RECORDS: { code: 400, description: logs.errorLogs.MISSING_RECORDS },
   EMPTY_RECORD_IDS: { code: 400, description: logs.errorLogs.EMPTY_RECORD_IDS },
+  EMPTY_RECORD_COLUMN_VALUES: { code: 400, description: logs.errorLogs.EMPTY_RECORD_COLUMN_VALUES },
   INVALID_RECORD_ID_TYPE: { code: 400, description: logs.errorLogs.INVALID_RECORD_ID_TYPE },
+  INVALID_RECORD_COLUMN_VALUE_TYPE: { code: 400, description: logs.errorLogs.INVALID_RECORD_COLUMN_VALUE_TYPE },
+  INVALID_COLUMN_VALUES_OPTION_TYPE: { code: 400, description: logs.errorLogs.INVALID_COLUMN_VALUES_OPTION_TYPE },
+
+
   INVALID_RECORD_LABEL: { code: 400, description: logs.errorLogs.INVALID_RECORD_LABEL },
   INVALID_RECORD_ALT_TEXT: { code: 400, description: logs.errorLogs.INVALID_RECORD_ALT_TEXT },
   EMPTY_TABLE_AND_FIELDS: { code: 400, description: logs.errorLogs.EMPTY_TABLE_AND_FIELDS },
   EMPTY_TABLE: { code: 400, description: logs.errorLogs.EMPTY_TABLE },
   MISSING_TABLE: { code: 400, description: logs.errorLogs.MISSING_TABLE },
+  EMPTY_COLUMN_NAME: { code: 400, description: logs.errorLogs.EMPTY_COLUMN_NAME },
+  EMPTY_COLUMN_VALUE: { code: 400, description: logs.errorLogs.EMPTY_COLUMN_VALUE },
+
+
   INVALID_RECORD_TABLE_VALUE: { code: 400, description: logs.errorLogs.INVALID_RECORD_TABLE_VALUE },
+  INVALID_RECORD_COLUMN_VALUE: { code: 400, description: logs.errorLogs.INVALID_RECORD_COLUMN_VALUE },
+  MISSING_RECORD_COLUMN_VALUE: { code: 400, description: logs.errorLogs.MISSING_RECORD_COLUMN_VALUE },
+  MISSING_RECORD_COLUMN_NAME: { code: 400, description: logs.errorLogs.MISSING_RECORD_COLUMN_NAME },
 
   INVALID_TOKEN_ID: { code: 400, description: logs.errorLogs.INVALID_TOKEN_ID },
   MISSING_TOKEN: { code: 400, description: logs.errorLogs.MISSING_TOKEN },
