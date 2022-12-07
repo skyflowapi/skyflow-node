@@ -1,42 +1,48 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+	Copyright (c) 2022 Skyflow, Inc.
 */
-import {Skyflow, generateBearerToken, isExpired, setLogLevel, LogLevel} from "skyflow-node"
-var filePath = "<YOUR_CREDENTIAL_FILE>";
-setLogLevel(LogLevel.INFO)
-var bearerToken = ""
+import {
+  Skyflow,
+  generateBearerToken,
+  isExpired,
+  setLogLevel,
+  LogLevel,
+} from 'skyflow-node';
+
+const filePath = '<YOUR_CREDENTIAL_FILE>';
+setLogLevel(LogLevel.INFO);
+let bearerToken = '';
 
 const skyflow = Skyflow.init({
-  vaultID: "<VAULT_ID>",
-  vaultURL: "<VAULT_URL>",
+  vaultID: '<VAULT_ID>',
+  vaultURL: '<VAULT_URL>',
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
-      if(!isExpired(bearerToken)) {
-        resolve(bearerToken)
-      }
-      else {    
+      if (!isExpired(bearerToken)) {
+        resolve(bearerToken);
+      } else {
         generateBearerToken(filePath)
-        .then((res) => {
-            bearerToken = res.accessToken
+          .then(response => {
+            bearerToken = response.accessToken;
             resolve(bearerToken);
-        })
-        .catch((err) => {
+          })
+          .catch(err => {
             reject(err);
-        });
+          });
       }
-  })
-}
+    });
+  },
 });
 
 const result = skyflow.get({
   records: [
     // To to get records using skyflow_ids.
     {
-     ids:["<ID1>","<ID2>"],
-     redaction : Skyflow.RedactionType.PLAIN_TEXT,
-     table: "cards"
+      ids: ['<ID1>', '<ID2>'],
+      redaction: Skyflow.RedactionType.PLAIN_TEXT,
+      table: 'cards',
     },
-    //To get records using unique column name and values.
+    // To get records using unique column name and values.
     {
       redaction : Skyflow.RedactionType.PLAIN_TEXT,
       table: "persons",
@@ -45,13 +51,13 @@ const result = skyflow.get({
      }
   ],
 });
-    
-  result
-  .then((res) => {
-        console.log("getByID result:");
-        console.log(JSON.stringify(res));
+
+result
+  .then(response => {
+    console.log('getByID result:');
+    console.log(JSON.stringify(response));
   })
-  .catch((err) => {
-    console.log("getByID error: ");
-    console.log(JSON.stringify(err));
+  .catch(error => {
+    console.log('getByID error: ');
+    console.log(JSON.stringify(error));
   });

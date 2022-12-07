@@ -1,57 +1,65 @@
 /*
-    Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc.
 */
-import { generateSignedDataTokens, generateSignedDataTokensFromCreds } from "skyflow-node";
+import {
+  generateSignedDataTokens,
+  generateSignedDataTokensFromCreds,
+} from 'skyflow-node';
 
-let filepath = "CREDENTIALS_FILE_PATH";
+const filepath = 'CREDENTIALS_FILE_PATH';
 
-function getSignedTokenFromFilePath() {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const options = {
-                 ctx:'ctx',
-                 dataTokens: ['dataToken1','dataToken2'],
-                 timeToLive: 90 // In seconds.
-            };
-
-            let response = await generateSignedDataTokens(filepath, options);
-            resolve(response);
-
-        } catch (e) {
-            reject(e);
-        }
-    });
-}
-
-
-let cred = {
-    clientID: "<YOUR_clientID>",
-    clientName: "<YOUR_clientName>",
-    keyID: "<YOUR_keyID>",
-    tokenURI: "<YOUR_tokenURI>",
-    privateKey: "<YOUR_PEM_privateKey>",
+// To generate Bearer Token from credentials string.
+const cred = {
+  clientID: '<YOUR_CLIENT_ID>',
+  clientName: '<YOUR_CLIENT_NAME>',
+  keyID: '<YOUR_KEY_ID>',
+  tokenURI: '<YOUR_TOKEN_URI>',
+  privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
 
-function getSignedTokenFromCreds() {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const options = {
-                ctx:'ctx',
-                dataTokens: ['dataToken1','dataToken2'],
-                timeToLive: 90 // In seconds.
-            };
-            let response = await generateSignedDataTokensFromCreds(
-                JSON.stringify(cred),
-                options
-            );
-            resolve(response);
-            
-        } catch (e) {
-            reject(e);
-        }
-    });
+function getSignedTokenFromFilePath() {
+  return new Promise((resolve, reject) => {
+    try {
+      const options = {
+        ctx: 'ctx',
+        dataTokens: ['dataToken1', 'dataToken2'],
+        timeToLive: 90 // In seconds.
+      };
+
+      generateSignedDataTokens(filepath, options)
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        });
+    } catch (e) {
+      reject(e);
+    }
+  });
 }
 
+
+function getSignedTokenFromCreds() {
+  return new Promise((resolve, reject) => {
+    try {
+      const options = {
+        ctx: 'ctx',
+        dataTokens: ['dataToken1', 'dataToken2'],
+        timeToLive: 90 // In seconds.
+      };
+      generateSignedDataTokensFromCreds(JSON.stringify(cred), options)
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error => {
+          reject(error);
+        });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
 
 const tokens = async () => {
     try{

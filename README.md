@@ -62,28 +62,33 @@ The `generateBearerToken(filepath)` function takes the service account credentia
 Example using a service account credentials file path:
 
 ```javascript
-import { generateBearerToken, isExpired } from "skyflow-node";
+import {generateBearerToken, isExpired} from 'skyflow-node';
 
-let filepath = "CREDENTIALS_FILE_PATH";
-let bearerToken = "";
+const filepath = 'CREDENTIALS_FILE_PATH';
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (!isExpired(bearerToken)) resolve(bearerToken);
-            else {
-                let response = await generateBearerToken(filepath);
-                bearerToken = response.accessToken;
-                resolve(bearerToken);
-            }
-        } catch (e) {
-            reject(e);
-        }
-    });
+  return new Promise((resolve, reject) => {
+    try {
+      if (!isExpired(bearerToken)) resolve(bearerToken);
+      else {
+        generateBearerToken(filepath)
+          .then(response => {
+            bearerToken = response.accessToken;
+            resolve(bearerToken);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
 }
 
 const tokens = async () => {
-    console.log(await getSkyflowBearerToken());
+  console.log(await getSkyflowBearerToken());
 };
 
 tokens();
@@ -289,7 +294,7 @@ function getSkyflowBearerToken() {
 }
 
 const tokens = async () => {
-    console.log(await getSkyflowBearerToken());
+  console.log(await getSkyflowBearerToken());
 };
 
 tokens();
@@ -405,18 +410,18 @@ The [Vault](https://github.com/skyflowapi/skyflow-node/tree/master/src/vault-api
 To use this module, the Skyflow client must first be initialized as follows.  
 
 ```javascript
-import { Skyflow, generateBearerToken, isExpired } from "skyflow-node";
+import {Skyflow, generateBearerToken, isExpired} from 'skyflow-node';
 
-const filepath = "LOCATION_OF_SERVICE_ACCOUNT_KEY_FILE";
+const filepath = 'CREDENTIALS_FILE_PATH';
 
 // Initialize the Skyflow client
 const client = Skyflow.init({
-    // Id of the vault that the client should connect to
-    vaultID: "string",
-    // URL of the vault that the client should connect to
-    vaultURL: "string",
-    // Helper function generates a Skyflow bearer token
-    getBearerToken: helperFunc,
+  // Id of the vault that the client should connect to.
+  vaultID: 'string',
+  // URL of the vault that the client should connect to.
+  vaultURL: 'string',
+  // Helper function generates a Skyflow bearer token.
+  getBearerToken: helperFunc,
 });
 
 ```
@@ -426,28 +431,33 @@ For example, if the response of the consumer tokenAPI is in the below format
 
 ```
 {
-   "accessToken": string,
-   "tokenType": string
+   'accessToken': string,
+   'tokenType': string
 }
 ```
 then, your getBearerToken Implementation should be as below
 
 ```javascript
-let bearerToken = "";
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (!isExpired(bearerToken)) resolve(bearerToken);
-            else {
-                let response = await generateBearerToken(filepath);
-                bearerToken = response.accessToken;
-                resolve(bearerToken);
-            }
-        } catch (e) {
-            reject(e);
-        }
-    });
+  return new Promise((resolve, reject) => {
+    try {
+      if (!isExpired(bearerToken)) resolve(bearerToken);
+      else {
+        generateBearerToken(filepath)
+          .then(response => {
+            bearerToken = response.accessToken;
+            resolve(bearerToken);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
 }
 ```
 
@@ -461,12 +471,12 @@ See below:
 
 ```javascript
 data = {
-    records: [{
-        table: "<TABLE_NAME>",
-        fields: {
-            <FIELDNAME>: "<VALUE>"
-        }
-    }]
+  records: [{
+    table: '<TABLE_NAME>',
+    fields: {
+      '<FIELDNAME>': '<VALUE>'
+    }
+  }]
 };
 
 // The insert function inserts data into the vault and returns a promise.
@@ -484,43 +494,46 @@ const response = client.insert(data, {
 An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Insert.ts) of an insert call is given below:
 
 ```javascript
-const response = client.insert({
-    records: [{
+const result = client.insert(
+  {
+    records: [
+      {
         fields: {
-            expiry_date: "12/2026",
-            card_number: "411111111111111",
+          expiry_date: '12/2026',
+          card_number: '411111111111111',
         },
-        table: "cards",
-    }, ],
-}, {
-    tokens: true
-});
+        table: 'cards',
+      },
+    ],
+  },
+  {
+    tokens: true,
+  }
+);
 
-response.then(
-    (res) => {
-        console.log(JSON.stringify(res));
-    },
-    (err) => {
-        console.log(JSON.stringify(err));
-    }
-).catch((err) => {
-    console.log(JSON.stringify(err));
-});
+result
+  .then(response => {
+    console.log(JSON.stringify(response));
+  })
+  .catch(error => {
+    console.log(JSON.stringify(error));
+  });
+
 ```
 
 Sample response:
 
-```json
+```js
 {
-  "records": [
+  'records': [
     {
-      "table": "cards",
-      "fields": {
-        "card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
-        "expiry_date": "1989cb56-63a-4482-adf-1f74cd1a5"
-      }
-    }
-  ]
+      'table': 'cards',
+      'fields': {
+        'card_number': 'f37186-e7e2-466f-91e5-48e2bcbc1',
+        'expiry_date': '1989cb56-63a-4482-adf-1f74cd1a5',
+      },
+    },
+  ],
 }
 
 ```
@@ -558,45 +571,47 @@ response.then(
 ```
 
 #### Detokenize
-
 In order to retrieve data from your vault using tokens that you have previously generated for that data, you can use the `detokenize(records)` method. The first parameter must have a records key that takes an array of tokens to be fetched from the vault, as shown below.
 
 ```javascript
 data = {
-    records: [{
-        // Token for the record to be fetched
-        "token": "string"
-    }]
+  records: [{
+    // Token for the record to be fetched.
+    'token': 'string'
+  }]
 }
 ```
 An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Detokenize.ts) of a detokenize call:
 
 ```javascript
 const result = client.detokenize({
-    records: [{
-        token: "4017-f72b-4f5c-9b-8e719"
-    }]
+  records: [
+    {
+      token: '4017-f72b-4f5c-9b-8e719',
+    },
+  ],
 });
 
-result.then(
-    (res) => {
-        console.log(JSON.stringify(res));
-    }).catch((err) => {
-    console.log(JSON.stringify(err));
-});
+result
+  .then(response => {
+    console.log(JSON.stringify(response));
+  })
+  .catch(error => {
+    console.log(JSON.stringify(error));
+  });
 ```
 
 Sample response:
 
-```json
+```js
 {
-  "records": [
+  'records': [
     {
-      "token": "110dc-6f76-19-bd3-9051051",
-      "value": "1990-01-01"
-    }
-  ]
-}
+      'token': '110dc-6f76-19-bd3-9051051',
+      'value': '1990-01-01',
+    },
+  ],
+};
 ```
 
 #### Get By Id
@@ -803,20 +818,20 @@ Using the InvokeConnection method, you can integrate their server-side applicati
 
 ```javascript
 data = {
-    connectionURL: "<YOUR_CONNECTION_URL>",
-    methodName: Skyflow.RequestMethod.POST,
-    requestHeader: {
-        Authorization: "<YOUR_CONNECTION_BASIC_AUTH>"
+  connectionURL: '<YOUR_CONNECTION_URL>',
+  methodName: Skyflow.RequestMethod.POST,
+  requestHeader: {
+    Authorization: '<YOUR_CONNECTION_BASIC_AUTH>',
+  },
+  pathParams: {
+    card_number: '<YOUR_CARD_NUMBER>',
+  },
+  requestBody: {
+    expirationDate: {
+      mm: '01',
+      yy: '46',
     },
-    pathParams: {
-        card_number: "<YOUR_CARD_NUMBER>"
-    },
-    requestBody: {
-        expirationDate: {
-            mm: "01",
-            yy: "46"
-        }
-    }
+  },
 };
 ```
 
@@ -832,42 +847,42 @@ data = {
 An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/InvokeConnection.ts) of `invokeConnection`:
 
 ```javascript
-const response = client.invokeConnection({
-    connectionURL: "<YOUR_CONNECTION_URL>",
-    methodName: Skyflow.RequestMethod.POST,
-    requestHeader: {
-        "Content-Type": "application/json",
-        Authorization: "<YOUR_CONNECTION_BASIC_AUTH>"
+const result = client.invokeConnection({
+  connectionURL: '<YOUR_CONNECTION_URL>',
+  methodName: Skyflow.RequestMethod.POST,
+  requestHeader: {
+    'Content-Type': 'application/json',
+    Authorization: '<YOUR_CONNECTION_BASIC_AUTH>',
+  },
+  pathParams: {
+    card_number: '<YOUR_CARD_NUMBER>',
+  },
+  requestBody: {
+    expirationDate: {
+      mm: '01',
+      yy: '46',
     },
-    pathParams: {
-        card_number: "<YOUR_CARD_NUMBER>"
-    },
-    requestBody: {
-        expirationDate: {
-            mm: "01",
-            yy: "46"
-        }
-    }
+  },
 });
 
-response.then(
-    (res) => {
-        console.log(JSON.stringify(res));
-    }
-).catch((err) => {
-    console.log(JSON.stringify(err));
-});
+result
+  .then(response => {
+    console.log(JSON.stringify(response));
+  })
+  .catch(error => {
+    console.log(JSON.stringify(error));
+  });
 ```
 
 Sample response:
-```json
+```js
 {
-  "receivedTimestamp": "2021-11-05 13:43:12.534",
-  "processingTimeinMs": "12",
-  "resource": {
-    "cvv2": "558"
-  }
-}
+  'receivedTimestamp': '2021-11-05 13:43:12.534',
+  'processingTimeinMs': '12',
+  'resource': {
+    'cvv2': '558',
+  },
+};
 ```
 
 ### Logging
