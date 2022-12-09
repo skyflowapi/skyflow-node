@@ -4,7 +4,7 @@
 import Client from '../client';
 import SkyflowError from '../libs/SkyflowError';
 import {
-  ISkyflowIdRecord, IRevealRecord, IRevealResponseType,
+  ISkyflowIdRecord, IRevealRecord, IRevealResponseType, IUpdateRecord, IUpdateOptions,
 } from '../utils/common';
 import 'core-js/modules/es.promise.all-settled';
 interface IApiSuccessResponse {
@@ -15,6 +15,11 @@ interface IApiSuccessResponse {
       value: string;
     },
   ];
+}
+
+interface IUpdateApiResponse{
+  skyflow_id: string;
+  tokens: Record<string,any>
 }
 
 const formatForPureJsSuccess = (response: IApiSuccessResponse) => {
@@ -29,6 +34,25 @@ const formatForPureJsFailure = (cause, tokenId: string) => ({
     description: cause?.error?.description,
   }, [], true),
 });
+
+const formatUpdateSuccessResponse = (response:IUpdateApiResponse)=>{
+  return {
+    id: response.skyflow_id,
+    fields: {
+      ...response.tokens
+    }
+  }
+};
+
+const formatUpdateFailureResponse = (cause,id:string)=>{
+  return {
+    id: id,
+    ...new SkyflowError({
+      code : cause?.error?.code,
+      description: cause?.error?.description,
+    },[],true)
+  }
+}
 
 const getSkyflowIdRecordsFromVault = (
   skyflowIdRecord: ISkyflowIdRecord,
@@ -194,3 +218,77 @@ export const fetchRecordsBySkyflowID = async (
     else rootReject({ records: recordsResponse, errors: errorsResponse });
   });
 });
+
+
+const updateRecordInVault = (
+  updateRecord: IUpdateRecord,
+  options:IUpdateOptions,
+  client: Client,
+  authToken:string,
+): Promise<any> => {
+  const vaultEndPointURL: string = `${client.config.vaultURL}/v1/vaults/${client.config.vaultID}/${updateRecord.table}/${updateRecord.id}`;
+  return client.request({
+    requestMethod: 'PUT',
+    url: vaultEndPointURL,
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      'Content-Type': 'application/json',
+    },
+    body:
+      {
+        record:{
+          fields:{ ...updateRecord.fields }
+        },
+        tokenization: options.tokens
+      },
+  });
+};
+
+
+/** Update By Skyflow ID */
+export const updateRecordsBySkyflowID = (
+  updateRecords: IUpdateRecord[],
+  options,
+  client: Client,
+  authToken: String,
+)=>{
+  return new Promise((rootResolve,rootReject)=>{
+    const vaultResponseSet: Promise<any>[] = updateRecords.map(
+      (updateRecord) => new Promise((resolve) => {
+        const updateResponse: any = [];
+        updateRecordInVault(updateRecord, options, client, authToken as string)
+          .then(
+            (response: any) => {
+              updateResponse.push(formatUpdateSuccessResponse(response));
+            },
+            (cause: any) => {
+              updateResponse.push(formatUpdateFailureResponse(cause,updateRecord.id));
+            },
+          )
+          .finally(() => {
+            resolve(updateResponse);
+          });
+      }),
+    );
+
+    Promise.allSettled(vaultResponseSet).then((resultSet) => {
+      const recordsResponse: Record<string, any>[] = [];
+      const errorResponse: Record<string, any>[] = [];
+      resultSet.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          result.value.forEach((res: Record<string, any>) => {
+            if (Object.prototype.hasOwnProperty.call(res, 'error')) {
+              errorResponse.push(res);
+            } else {
+              recordsResponse.push(res);
+            }
+          });
+        }
+      });
+      if (errorResponse.length === 0) {
+        rootResolve({ records: recordsResponse });
+      } else if (recordsResponse.length === 0) rootReject({ errors: errorResponse });
+      else rootReject({ records: recordsResponse, errors: errorResponse });
+    });
+  });
+}

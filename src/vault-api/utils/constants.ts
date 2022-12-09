@@ -89,6 +89,43 @@ const SKYFLOW_ERROR_CODE = {
     code: 400,
     description: logs.errorLogs.INVALID_TOKENS_IN_INSERT,
   },
+  INVALID_TOKENS_IN_UPDATE: {
+    code: 400,
+    description: logs.errorLogs.INVALID_TOKENS_IN_UPDATE,
+  },
+  MISSING_TABLE_IN_IN_UPDATE: {
+    code: 400,
+    description: logs.errorLogs.MISSING_TABLE_IN_IN_UPDATE,
+  },
+  MISSING_FIELDS_IN_IN_UPDATE: {
+    code: 400,
+    description: logs.errorLogs.MISSING_FIELDS_IN_IN_UPDATE,
+  },
+  MISSING_ID_IN_UPDATE: {
+    code: 400,
+    description: logs.errorLogs.MISSING_ID_IN_UPDATE,
+  },
+  INVALID_ID_IN_UPDATE: {
+    code: 400,
+    description: logs.errorLogs.INVALID_ID_IN_UPDATE,
+  },
+  INVALID_TABLE_IN_UPDATE: {
+    code: 400,
+    description: logs.errorLogs.INVALID_TABLE_IN_UPDATE,
+  },
+  INVALID_FIELDS_IN_UPDATE: {
+    code: 400,
+    description: logs.errorLogs.INVALID_FIELDS_IN_UPDATE,
+  },
+  INVALID_UPDATE_INPUT: {
+    code: 400,
+    description: logs.errorLogs.INVALID_UPDATE_INPUT,
+  },
+  INVALID_RECORDS_UPDATE_INPUT:{
+    code: 400,
+    description: logs.errorLogs.INVALID_RECORDS_UPDATE_INPUT,
+  }
+
 };
 
 export default SKYFLOW_ERROR_CODE;
