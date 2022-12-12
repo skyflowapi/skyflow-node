@@ -19,6 +19,7 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
     - [Vault APIs](#vault-apis)
       - [Insert](#insert)
       - [Get By Id](#get-by-id)
+      - [Update](#update)
       - [Invoke Connection](#invoke-connection)
     - [Logging](#logging)
   - [Reporting a Vulnerability](#reporting-a-vulnerability)
@@ -373,6 +374,70 @@ Sample response:
 }
 ```
 
+#### Update
+To update records in your vault by skyflow_id, use the `update(records, options)` method. The first parameter, `records`, is a JSONObject that must have a records key and takes an array of records to update as a value in the vault. The options parameter takes an object of optional parameters for the update and includes an option to return tokenized data for the updated fields. 
+
+Call schema:
+```js
+const updateInput = {
+  records: [ // Array of records to update.
+    {
+      id: "<SKYFLOW_ID>", // Skyflow_id of record to update.
+      table: "<TABLE_NAME>", // Table name of given Skyflow_id. 
+      fields: {  // Fields to update.
+        "<FIELD_NAME_1>": "<FIELD_VALUE_1>", 
+        "<FIELD_NAME_2>": "<FIELD_VALUE_2>",
+      },
+    },
+  ]
+};
+
+const options = { // Optional
+  // Option to return updated field tokens in response.
+  // Defaults to 'true'.
+  tokens: true,
+}
+```
+
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Update.ts) to update by ID using `skyflow_ids`
+```js
+const updateInput = {
+  records: [
+    {
+      id: "29ebda8d-5272-4063-af58-15cc674e332b", // Valid record id.
+      table: "cards",
+      fields: {
+        card_number: "5105105105105100",
+        cardholder_name: "Thomas",
+        expiration_date: "07/2032",
+        ssn: "123-45-6722",          
+      },   
+    },    
+  ],
+};
+
+const options = { tokens: true };
+
+const response = skyflowClient.update(updateInput, options);
+console.log(response);
+```
+Response:
+```js
+{
+  "records":[
+    {
+      "id":"29ebda8d-5272-4063-af58-15cc674e332b",
+      "fields":{
+        "card_number":"93f28226-51b0-4f24-8151-78b5a61f028b",
+        "cardholder_name":"0838fd08-9b51-4db2-893c-48542f3b121e",
+        "expiration_date":"91d7ee77-262f-4d5d-8286-062b694c81fd",
+        "ssn":"e28bf55d-f3d8-49a6-aad9-71a13db54b82",
+      },
+      "table":"cards",
+    }
+  ]
+}
+```
 #### Invoke Connection
 
 Using the InvokeConnection method, you can integrate their server-side application with third party APIs and services without directly handling sensitive data. Prior to invoking the InvokeConnection method, you must have created a connection and have a connectionURL already generated. Once you have the connectionURL, you can invoke a connection by using the `invokeConnection(config)` method. The config object must include a connectionURL and methodName. The other fields are optional.
