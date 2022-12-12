@@ -31,6 +31,8 @@ const logs = {
     GET_BY_SKYFLOWID_RESOLVED: 'GetById request is resolved.',
     SEND_INVOKE_CONNECTION_RESOLVED: 'Invoke connection request resolved.',
     GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: "generateSignedDataTokens is triggered",
+    UPDATE_TRIGGERED: 'Update method triggered.',
+    UPDATE_REQUEST_RESOLVED:'Update request is resolved.',
 
   },
   errorLogs: {
@@ -64,6 +66,7 @@ const logs = {
     INSERT_RECORDS_REJECTED: 'Insert request is rejected.',
     GET_BY_SKYFLOWID_REJECTED: 'GetById request is rejected.',
     SEND_INVOKE_CONNECTION_REJECTED: 'Invoke connection request rejected.',
+    UPDATE_REQUEST_REJECTED: 'Update request is rejected.',
     INVALID_TABLE_NAME: 'Table Name passed doesn’t exist in the vault with id.',
     EMPTY_TABLE_NAME: 'Table Name is empty.',
     EMPTY_TABLE_AND_FIELDS: 'table or fields parameter cannot be passed as empty at index %s1 in records array.',
@@ -109,6 +112,15 @@ const logs = {
     INVALID_TABLE_IN_UPSERT_OPTION: 'Interface: insert method - Invalid table in upsert object at index %s1, table of type non empty string is required.',
     INVALID_COLUMN_IN_UPSERT_OPTION: 'Interface: insert method - Invalid column in upsert object at index %s1, column of type non empty string is required.',
     INVALID_TOKENS_IN_INSERT: 'Interface: insert method - Invalid tokens in options. tokens of type boolean is required.',
+    INVALID_TOKENS_IN_UPDATE: 'Interface: update method - Invalid tokens in options. tokens of type boolean is required.',
+    MISSING_TABLE_IN_IN_UPDATE: 'Interface: update method - table key is required in records object at index %s1',
+    MISSING_FIELDS_IN_IN_UPDATE: 'Interface: update method - fields key is required in records object at index %s1',
+    MISSING_ID_IN_UPDATE: 'Interface: update method - id key is required in records object at index %s1',
+    INVALID_ID_IN_UPDATE: 'Interface: update method - Invalid id in records object at index %s1, id of type non empty string is required.',
+    INVALID_TABLE_IN_UPDATE: 'Interface: update method - Invalid table in records object at index %s1, table of type non empty string is required.',
+    INVALID_FIELDS_IN_UPDATE: 'Interface: update method - Invalid fields in records object at index %s1, object with fields to be updated are required.',
+    INVALID_UPDATE_INPUT: 'Interface: update method - Invalid argument , object with records key is required.',
+    INVALID_RECORDS_UPDATE_INPUT: 'Interface: update method - Invalid records type, records should be an array of objects.'
   },
   warnLogs: {
     GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',

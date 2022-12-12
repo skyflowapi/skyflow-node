@@ -103,3 +103,16 @@ export interface IInsertOptions {
   tokens?: boolean;
   upsert?: IUpsertOption[];
 }
+
+export interface IUpdateRecord{
+  id: string,
+  table: string,
+  fields: Record<string,any>
+}
+export interface IUpdateInput{
+  records: IUpdateRecord[];
+}
+
+export interface IUpdateOptions{
+  tokens: boolean
+}

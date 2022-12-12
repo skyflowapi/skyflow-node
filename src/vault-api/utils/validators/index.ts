@@ -4,7 +4,7 @@
 import SkyflowError from '../../libs/SkyflowError';
 import { ISkyflow } from '../../Skyflow';
 import {
-  IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod,
+  IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod, IUpdateInput,
 } from '../common';
 import SKYFLOW_ERROR_CODE from '../constants';
 
@@ -179,4 +179,41 @@ export const validateUpsertOptions = (upsertOptions) => {
       throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_COLUMN_IN_UPSERT_OPTION, [index], true);
     }
   });
+};
+
+export const validateUpdateInput = (updateInput: IUpdateInput) => {
+  if(updateInput){
+    if (!Object.prototype.hasOwnProperty.call(updateInput, 'records')) 
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORDS);
+
+    if(!Array.isArray(updateInput.records))
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORDS_UPDATE_INPUT)
+    const { records } = updateInput;
+    if (records.length === 0) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
+    }
+    records.forEach((updateRecord,index) => {
+      if (Object.keys(updateRecord).length === 0) 
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
+  
+      if (!Object.prototype.hasOwnProperty.call(updateRecord, 'id'))
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_ID_IN_UPDATE,[index]);
+      if (typeof updateRecord.id !== 'string' || updateRecord.id.trim().length === 0)
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ID_IN_UPDATE,[index]);
+  
+      if (!Object.prototype.hasOwnProperty.call(updateRecord, 'table'))
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_IN_UPDATE,[index]);
+      
+      const recordTable = updateRecord.table;
+      if (typeof recordTable !== 'string' || recordTable.trim().length === 0)
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPDATE,[index]);
+      
+      if (!Object.prototype.hasOwnProperty.call(updateRecord, 'fields'))
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FIELDS_IN_IN_UPDATE,[index]);
+      if(typeof updateRecord?.fields !== 'object' || Object.keys(updateRecord).length === 0)
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FIELDS_IN_UPDATE,[index]);
+    });
+  }else{
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPDATE_INPUT);
+  }
 };
