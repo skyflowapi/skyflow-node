@@ -6,6 +6,7 @@ import { LogLevel, RedactionType, RequestMethod } from '../../src/vault-api/util
 import { isValidURL} from '../../src/vault-api/utils/validators';
 import clientModule from '../../src/vault-api/client';
 import { setLogLevel } from '../../src/vault-api/Logging';
+import SKYFLOW_ERROR_CODE from '../../src/vault-api/utils/constants';
 import logs from '../../src/vault-api/utils/logs';
 jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
   __esModule: true,
@@ -1046,5 +1047,207 @@ describe("Skyflow Enums",()=>{
     expect(isValidURL("httpsww.google.com")).toBe(false);
 
   })
+
+});
+
+const updateInput = {
+  records : [
+    {
+      id: "test_update_id",
+      table:"table1",
+      fields:{
+        "column":'update_value'
+      }
+    },
+  ]
+};
+const partialSuccessInput =  {
+  records:[
+    ...updateInput.records,
+  {
+    id: "invalid_update_id",
+    table:"table1",
+    fields:{
+      "column":'update_value'
+    }
+  }
+]
+}
+const successUpdateRequestResponse = {
+  "skyflow_id":'test_update_id',
+  "tokens": {
+    "column":"test_token"
+  }
+};
+
+const errorUpdateRequestResponse = {
+  error:{
+    code : '404',
+    description : "Token Not Found."
+  }
+};
+const updateResponse = {
+  "records":[
+    {
+      id: "test_update_id",
+      "fields": {
+        "column":"test_token"
+      }
+    }
+  ]
+}
+
+const updateFailure = {
+  "errors":[
+    {
+      id : 'test_update_id',
+      ...errorUpdateRequestResponse
+    }
+  ]
+}
+
+const partialUpdateFailure = {
+  "errors":[
+    {
+      id : 'invalid_update_id',
+      ...errorUpdateRequestResponse
+    }
+  ]
+}
+describe("Update method",()=>{
+
+  test("test update success case",(done)=>{
+    try{
+    jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
+      __esModule: true,
+      isTokenValid:jest.fn(()=>true),
+    }));
+    const clientReq = jest.fn(() => Promise.resolve(successUpdateRequestResponse));
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata:{}
+    }
+    clientModule.mockImplementation(() => {return mockClient});
+      const skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: ()=>{
+          return new Promise((resolve,_)=>{
+              resolve("token")
+          })
+        }
+      });
+    const result = skyflow.update(updateInput);
+    result.then((response)=>{
+      expect(response).toEqual(updateResponse);
+      done();
+    }).catch((err)=>{
+        done(err);
+    });
+  } catch (err) {
+    done(err);
+  }
+  });
+
+  test("test update partial success case",(done)=>{
+    try{
+    jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
+      __esModule: true,
+      isTokenValid:jest.fn(()=>true),
+    }));
+    const clientReq = jest.fn().mockImplementation((args) => {
+      const check = args.url.includes('test_update_id')
+      if(check)
+        return Promise.resolve(successUpdateRequestResponse);
+      else  
+        return Promise.reject(errorUpdateRequestResponse);
+    });
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata:{}
+    }
+    clientModule.mockImplementation(() => {return mockClient});
+      const skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: ()=>{
+          return new Promise((resolve,_)=>{
+              resolve("token")
+          })
+        }
+      });
+    const result = skyflow.update(partialSuccessInput);
+    result.then((response)=>{
+      done(response);
+    }).catch((error)=>{
+      expect(error).toEqual({...updateResponse,...partialUpdateFailure});
+      done();
+    });
+  } catch (err) {
+    done(err);
+  }
+  });
+  
+  test("test update error case",(done)=>{
+    try{
+      jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
+        __esModule: true,
+        isTokenValid:jest.fn(()=>true),
+      }));
+      const clientReq = jest.fn(() => Promise.reject(errorUpdateRequestResponse));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata:{}
+      }
+      clientModule.mockImplementation(() => {return mockClient});
+        const skyflow = Skyflow.init({
+          vaultID: '<VaultID>',
+          vaultURL: 'https://www.vaulturl.com',
+          getBearerToken: ()=>{
+            return new Promise((resolve,_)=>{
+                resolve("token")
+            })
+          }
+        });
+      const result = skyflow.update(updateInput,{tokens:true});
+      result.then((response)=>{
+        done(response);
+      }).catch((err)=>{
+        expect(err).toEqual(updateFailure);
+          done();
+      });
+    } catch (err) {
+      done(err);
+    }
+  });
+
+  test('test invalid option tokens type',(done)=>{
+    const clientReq = jest.fn(() => Promise.reject(errorUpdateRequestResponse));
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata:{}
+    }
+    clientModule.mockImplementation(() => {return mockClient});
+    const skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: ()=>{
+        return new Promise((resolve,_)=>{
+            resolve("token")
+        })
+      }
+    });
+  const result = skyflow.update(updateInput,{tokens:{}});
+  result.then((response)=>{
+    done(response);
+  }).catch((err)=>{
+    expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_UPDATE.description);
+    done();
+  });
+  });
 
 });

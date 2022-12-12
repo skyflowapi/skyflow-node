@@ -179,7 +179,7 @@ class Controller {
       try{
         validateInitConfig(this.#client.config);
         if (options && options.tokens && typeof options.tokens !== 'boolean') {
-          throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_UPDATE, [], true);
+          throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_UPDATE);
         }
         if (options) {
           options = { ...options, tokens: options?.tokens !== undefined ? options.tokens : true };
