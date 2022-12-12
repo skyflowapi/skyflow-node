@@ -283,94 +283,134 @@ Sample response:
 ```
 
 #### Get By Id
-In order to retrieve data from your vault using SkyflowIDs, use the `getById(records)` method. The records parameter takes a JSONObject that should contain an array of SkyflowIDs to be fetched, as shown below:
+To retrieve data from your vault using SkyflowIDs or unique column values, use the getById(records) method. The `records` parameter takes a JSONObject that should contain either an array of SkyflowIDs or a unique column name and values to fetch the records, as shown below:
 
 ```javascript
 data = {
-    records: [{
-        // List of skyflow_ids for the records to be fetched
-        ids: ["id1", "id2"],
-        // Name of table holding the above skyflow_ids
-        table: "NAME_OF_SKYFLOW_TABLE",
-        // Redaction to be applied to retrieved data
-        redaction: Skyflow.RedactionType,
-    }]
+  records: [
+    {
+      // List of skyflow_ids for the records to fetch.
+      ids: ["id1", "id2"], // Optional
+      // Name of table holding the records in the vault.
+      table: "NAME_OF_SKYFLOW_TABLE",
+      // Redaction type to apply to retrieved data.
+      redaction: Skyflow.RedactionType,
+      // Unique column name in the vault.
+      columnName: "UNIQUE_COLUMN_NAME", // Optional
+      // List of given unique column values.
+      columnValues: ["<value1>", "<value2>", "<value3>"], // Required if column name is provided
+    },
+  ],
 };
 ```
-There are 4 accepted values in `Skyflow.RedactionTypes`:
+`Skyflow.RedactionTypes` accept four values:
 * `PLAIN_TEXT`
 * `MASKED`
 * `REDACTED`
 * `DEFAULT`
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) of `getById` call:
+Note: You cannot pass an Array of skyflow_ids and unique column details together.
+
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) to get records using skyflow_ids:
 ```javascript
 let skyflowIds = [
     "f8622-b557-4c6b-a12c-c0b0bfd9",
-    "da26de53-95d5-4db-99db-8d35ff9"
+    "da26de53-95d5-4db-99db-8d35ff9",
 ];
 
 let record = {
     ids: skyflowIds,
     table: "cards",
-    redaction: RedactionType.PLAIN_TEXT
-};
-
-let invalidIds = ["invalid Skyflow ID"];
-let badRecord = {
-    ids: invalidIds,
-    table: "cards",
-    "redaction": RedactionType.PLAIN_TEXT
+    redaction: RedactionType.PLAIN_TEXT,
 };
 
 let records = {
-    records: [record, badRecord]
+    records: [record],
 };
 
 const result = client.getById(records);
-result.then(
-    (res) => {
+result
+    .then((res) => {
         console.log(JSON.stringify(res));
-    }).catch((err) => {
-    console.log(JSON.stringify(err));
-});
+    })
+    .catch((err) => {
+        console.log(JSON.stringify(err));
+    });
 ```
 
-Sample response:
+Response:
 
 ```json
 {
-  "records": [
-    {
-      "fields": {
-        "card_number": "4111111111111111",
-        "expiry_date": "11/35",
-        "fullname": "myname",
-        "skyflow_id": "f8d2-b557-4c6b-a12c-c5ebfd9"
-      },
-      "table": "cards"
-    },
-    {
-      "fields": {
-        "card_number": "4111111111111111",
-        "expiry_date": "10/23",
-        "fullname": "sam",
-        "skyflow_id": "da53-95d5-4bdb-99db-8d8c5ff9"
-      },
-      "table": "cards"
-    }
-  ],
-  "errors": [
-    {
-      "error": {
-        "code": "404",
-        "description": "No Records Found"
-      },
-      "skyflow_ids": [
-        "invalid Skyflow ID"
-      ]
-    }
-  ]
+    "records":[
+        {
+            "fields":{
+                "card_number":"4111111111111111",
+                "expiry_date":"11/35",
+                "fullname":"myname",
+                "skyflow_id":"f8d2-b557-4c6b-a12c-c5ebfd9"
+            },
+            "table":"cards"
+        },
+        {
+            "fields":{
+                "card_number":"4111111111111111",
+                "expiry_date":"10/23",
+                "fullname":"sam",
+                "skyflow_id":"da53-95d5-4bdb-99db-8d8c5ff9"
+            },
+            "table":"cards"
+        }
+    ]
+}
+```
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) to get records using unique column names and values:
+
+```javascript
+let record = {
+    table: "cards",
+    redaction: RedactionType.PLAIN_TEXT,
+    columnName: "card_id",
+    columnValues: ["123", "456"],
+};
+
+let records = {
+    records: [record],
+};
+
+const result = client.getById(records);
+result
+    .then((res) => {
+        console.log(JSON.stringify(res));
+    })
+    .catch((err) => {
+        console.log(JSON.stringify(err));
+    });
+```
+
+Response:
+```json
+{
+    "records":[
+        {
+            "fields":{
+                "card_id":"123",
+                "expiry_date":"11/35",
+                "fullname":"myname",
+                "skyflow_id":"f8d2-b557-4c6b-a12c-c5ebfd9"
+            },
+            "table":"cards"
+        },
+        {
+            "fields":{
+                "card_id":"456",
+                "expiry_date":"10/23",
+                "fullname":"sam",
+                "skyflow_id":"da53-95d5-4bdb-99db-8d8c5ff9"
+            },
+            "table":"cards"
+        }
+    ]
 }
 ```
 
