@@ -30,15 +30,18 @@ const skyflow = Skyflow.init({
 
 const result = skyflow.getById({
   records: [
+    // To to get records using skyflow_ids.
     {
      ids:["<ID1>","<ID2>"],
      redaction : Skyflow.RedactionType.PLAIN_TEXT,
      table: "cards"
     },
+    //To get records using unique column name and values.
     {
-      ids:["<ID1>"],
       redaction : Skyflow.RedactionType.PLAIN_TEXT,
-      table: "persons"
+      table: "persons",
+      columnName: "card_id",
+      columnValues: ["123", "456"],
      }
   ],
 });
