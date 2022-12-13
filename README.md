@@ -309,7 +309,9 @@ data = {
 * `REDACTED`
 * `DEFAULT`
 
-Note: You cannot pass an Array of skyflow_ids and unique column details together.
+You must apply a redaction type to retrieve data
+
+Note: You cannot pass an array of skyflow_ids and unique column details together. Using column name and column value with `skyflow_ids` will return an error message.
 
 [Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) to get records using skyflow_ids:
 ```javascript
