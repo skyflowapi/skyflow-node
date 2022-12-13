@@ -190,6 +190,7 @@ export const fetchRecordsBySkyflowID = async (
                   description: rejectedResult?.error?.description,
                 },
                 ids: skyflowIdRecord.ids,
+                ...(skyflowIdRecord?.columnName?{columnName:skyflowIdRecord?.columnName}:{})
               };
             }
             reject(errorResponse);
