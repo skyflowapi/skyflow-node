@@ -1080,6 +1080,9 @@ const successUpdateRequestResponse = {
   }
 };
 
+const successUpdateRequestWithoutTokensResponse = {
+  "skyflow_id":'test_update_id',
+};
 const errorUpdateRequestResponse = {
   error:{
     code : '404',
@@ -1093,6 +1096,13 @@ const updateResponse = {
       "fields": {
         "column":"test_token"
       }
+    }
+  ]
+}
+const updateResponseWithoutTokens = {
+  "records":[
+    {
+      id: "test_update_id"
     }
   ]
 }
@@ -1141,6 +1151,39 @@ describe("Update method",()=>{
     const result = skyflow.update(updateInput);
     result.then((response)=>{
       expect(response).toEqual(updateResponse);
+      done();
+    }).catch((err)=>{
+        done(err);
+    });
+  } catch (err) {
+    done(err);
+  }
+  });
+  test("test update success case with tokens false",(done)=>{
+    try{
+    jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
+      __esModule: true,
+      isTokenValid:jest.fn(()=>true),
+    }));
+    const clientReq = jest.fn(() => Promise.resolve(successUpdateRequestWithoutTokensResponse));
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata:{}
+    }
+    clientModule.mockImplementation(() => {return mockClient});
+      const skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: ()=>{
+          return new Promise((resolve,_)=>{
+              resolve("token")
+          })
+        }
+      });
+    const result = skyflow.update(updateInput);
+    result.then((response)=>{
+      expect(response).toEqual(updateResponseWithoutTokens);
       done();
     }).catch((err)=>{
         done(err);

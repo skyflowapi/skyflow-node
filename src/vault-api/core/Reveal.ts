@@ -38,9 +38,7 @@ const formatForPureJsFailure = (cause, tokenId: string) => ({
 const formatUpdateSuccessResponse = (response:IUpdateApiResponse)=>{
   return {
     id: response.skyflow_id,
-    fields: {
-      ...response.tokens
-    }
+    ...(response?.tokens?{fields:{...response.tokens}}:{}),
   }
 };
 
