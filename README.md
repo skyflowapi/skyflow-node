@@ -290,7 +290,7 @@ data = {
   records: [
     {
       // List of skyflow_ids for the records to fetch.
-      ids: ["id1", "id2"], // Optional
+      ids: ["SKYFLOW_ID_1", "SKYFLOW_ID_2"], // Optional
       // Name of table holding the records in the vault.
       table: "NAME_OF_SKYFLOW_TABLE",
       // Redaction type to apply to retrieved data.
@@ -298,7 +298,7 @@ data = {
       // Unique column name in the vault.
       columnName: "UNIQUE_COLUMN_NAME", // Optional
       // List of given unique column values.
-      columnValues: ["<value1>", "<value2>", "<value3>"], // Required if column name is provided
+      columnValues: ["<COLUMN_VALUE_1>", "<COLUMN_VALUE_2>", "<COLUMN_VALUE_3>"], // Required if column name is provided
     },
   ],
 };
@@ -350,7 +350,7 @@ Response:
                 "card_number":"4111111111111111",
                 "expiry_date":"11/35",
                 "fullname":"myname",
-                "skyflow_id":"f8d2-b557-4c6b-a12c-c5ebfd9"
+                "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
             },
             "table":"cards"
         },
@@ -359,7 +359,7 @@ Response:
                 "card_number":"4111111111111111",
                 "expiry_date":"10/23",
                 "fullname":"sam",
-                "skyflow_id":"da53-95d5-4bdb-99db-8d8c5ff9"
+                "id":"da53-95d5-4bdb-99db-8d8c5ff9"
             },
             "table":"cards"
         }
@@ -399,7 +399,7 @@ Response:
                 "card_id":"123",
                 "expiry_date":"11/35",
                 "fullname":"myname",
-                "skyflow_id":"f8d2-b557-4c6b-a12c-c5ebfd9"
+                "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
             },
             "table":"cards"
         },
@@ -408,7 +408,7 @@ Response:
                 "card_id":"456",
                 "expiry_date":"10/23",
                 "fullname":"sam",
-                "skyflow_id":"da53-95d5-4bdb-99db-8d8c5ff9"
+                "id":"da53-95d5-4bdb-99db-8d8c5ff9"
             },
             "table":"cards"
         }
