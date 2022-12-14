@@ -16,6 +16,8 @@ import {
   RedactionType,
   MessageType,
   IInsertOptions,
+  IUpdateInput,
+  IUpdateOptions,
 } from './utils/common';
 import { formatVaultURL } from './utils/helpers';
 
@@ -54,7 +56,7 @@ class Skyflow {
 
   insert(
     records: IInsertRecordInput,
-    options: IInsertOptions,
+    options?: IInsertOptions,
   ) {
     printLog(logs.infoLogs.INSERT_TRIGGERED, MessageType.LOG);
     return this.#Controller.insert(records, options);
@@ -77,6 +79,12 @@ class Skyflow {
       MessageType.LOG);
 
     return this.#Controller.invokeConnection(config);
+  }
+
+  update(updateInput: IUpdateInput,options?:IUpdateOptions){
+    printLog(logs.infoLogs.UPDATE_TRIGGERED,
+      MessageType.LOG);
+    return this.#Controller.update(updateInput,options);
   }
 
   static get RedactionType() {

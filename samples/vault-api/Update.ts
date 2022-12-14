@@ -24,34 +24,32 @@ const skyflow = Skyflow.init({
             reject(err);
         });
       }
-  })
-}
+    })
+  }
 });
 
-const result = skyflow.getById({
-  records: [
-    // To to get records using skyflow_ids.
-    {
-     ids:["<ID1>","<ID2>"],
-     redaction : Skyflow.RedactionType.PLAIN_TEXT,
-     table: "cards"
-    },
-    //To get records using unique column name and values.
-    {
-      redaction : Skyflow.RedactionType.PLAIN_TEXT,
-      table: "persons",
-      columnName: "card_id",
-      columnValues: ["123", "456"],
-     }
-  ],
-});
-    
-  result
-  .then((res) => {
-        console.log("getByID result:");
-        console.log(JSON.stringify(res));
-  })
-  .catch((err) => {
-    console.log("getByID error: ");
-    console.log(JSON.stringify(err));
-  });
+
+const result = skyflow.update(
+  {
+    records: [
+      {
+        id : "<SKYFLOW_ID>",
+        table: "<TABLE_NAME>",
+        "fields": {
+          "<FIELD_NAME>": "<FIELD_VALUE>"
+        }
+      }
+    ],
+  },
+  {
+    tokens: true,
+  }
+);
+
+result.then((response)=>{
+  console.log("Update result:");
+  console.log(JSON.stringify(response));
+}).catch((error)=>{
+  console.log("Update error:");
+  console.log(JSON.stringify(error));
+})

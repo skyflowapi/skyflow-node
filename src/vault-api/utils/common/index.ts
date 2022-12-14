@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
 export enum RedactionType {
   DEFAULT = 'DEFAULT',
@@ -16,7 +16,7 @@ export enum RequestMethod {
   DELETE = 'DELETE',
 }
 
-export enum LogLevel{
+export enum LogLevel {
   WARN = 'WARN',
   INFO = 'INFO',
   DEBUG = 'DEBUG',
@@ -25,7 +25,7 @@ export enum LogLevel{
 }
 
 
-export enum MessageType{
+export enum MessageType {
   LOG = 'LOG',
   WARN = 'WARN',
   ERROR = 'ERROR',
@@ -55,9 +55,11 @@ export interface IDetokenizeInput {
 }
 
 export interface ISkyflowIdRecord {
-  ids: string[];
+  ids?: string[];
   redaction: RedactionType;
   table: string;
+  columnName?: string;
+  columnValues?: string[];
 }
 
 export interface IGetByIdInput {
@@ -93,11 +95,24 @@ export enum ContentType {
 }
 
 export interface IUpsertOption {
-  table : string;
+  table: string;
   column: string;
 }
 
-export interface IInsertOptions{
+export interface IInsertOptions {
   tokens?: boolean;
   upsert?: IUpsertOption[];
+}
+
+export interface IUpdateRecord{
+  id: string,
+  table: string,
+  fields: Record<string,any>
+}
+export interface IUpdateInput{
+  records: IUpdateRecord[];
+}
+
+export interface IUpdateOptions{
+  tokens: boolean
 }

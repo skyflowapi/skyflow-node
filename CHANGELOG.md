@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.0] - 2022-12-14
+### Added
+- Added `update` interface.
+- Added support for Get by Unique column values in `getById` interface.
 ## [1.7.1] - 2022-11-24
 
 ### Changed

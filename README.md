@@ -18,7 +18,9 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
     - [Service Account Token Generation](#service-account-token-generation)
     - [Vault APIs](#vault-apis)
       - [Insert](#insert)
+      - [Detokenize](#detokenize)
       - [Get By Id](#get-by-id)
+      - [Update](#update)
       - [Invoke Connection](#invoke-connection)
     - [Logging](#logging)
   - [Reporting a Vulnerability](#reporting-a-vulnerability)
@@ -282,97 +284,203 @@ Sample response:
 ```
 
 #### Get By Id
-In order to retrieve data from your vault using SkyflowIDs, use the `getById(records)` method. The records parameter takes a JSONObject that should contain an array of SkyflowIDs to be fetched, as shown below:
+To retrieve data from your vault using SkyflowIDs or unique column values, use the getById(records) method. The `records` parameter takes a JSONObject that should contain either an array of SkyflowIDs or a unique column name and values to fetch the records, as shown below:
 
 ```javascript
 data = {
-    records: [{
-        // List of skyflow_ids for the records to be fetched
-        ids: ["id1", "id2"],
-        // Name of table holding the above skyflow_ids
-        table: "NAME_OF_SKYFLOW_TABLE",
-        // Redaction to be applied to retrieved data
-        redaction: Skyflow.RedactionType,
-    }]
+  records: [
+    {
+      // List of skyflow_ids for the records to fetch.
+      ids: ["SKYFLOW_ID_1", "SKYFLOW_ID_2"], // Optional
+      // Name of table holding the records in the vault.
+      table: "NAME_OF_SKYFLOW_TABLE",
+      // Redaction type to apply to retrieved data.
+      redaction: Skyflow.RedactionType,
+      // Unique column name in the vault.
+      columnName: "UNIQUE_COLUMN_NAME", // Optional
+      // List of given unique column values.
+      columnValues: ["<COLUMN_VALUE_1>", "<COLUMN_VALUE_2>", "<COLUMN_VALUE_3>"], // Required if column name is provided
+    },
+  ],
 };
 ```
-There are 4 accepted values in `Skyflow.RedactionTypes`:
+`Skyflow.RedactionTypes` accept four values:
 * `PLAIN_TEXT`
 * `MASKED`
 * `REDACTED`
 * `DEFAULT`
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) of `getById` call:
+You must apply a redaction type to retrieve data
+
+Note: You cannot pass an array of skyflow_ids and unique column details together. Using column name and column value with `skyflow_ids` will return an error message.
+
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) to get records using skyflow_ids:
 ```javascript
 let skyflowIds = [
     "f8622-b557-4c6b-a12c-c0b0bfd9",
-    "da26de53-95d5-4db-99db-8d35ff9"
+    "da26de53-95d5-4db-99db-8d35ff9",
 ];
 
 let record = {
     ids: skyflowIds,
     table: "cards",
-    redaction: RedactionType.PLAIN_TEXT
-};
-
-let invalidIds = ["invalid Skyflow ID"];
-let badRecord = {
-    ids: invalidIds,
-    table: "cards",
-    "redaction": RedactionType.PLAIN_TEXT
+    redaction: RedactionType.PLAIN_TEXT,
 };
 
 let records = {
-    records: [record, badRecord]
+    records: [record],
 };
 
 const result = client.getById(records);
-result.then(
-    (res) => {
+result
+    .then((res) => {
         console.log(JSON.stringify(res));
-    }).catch((err) => {
-    console.log(JSON.stringify(err));
-});
+    })
+    .catch((err) => {
+        console.log(JSON.stringify(err));
+    });
 ```
 
-Sample response:
+Response:
 
 ```json
 {
-  "records": [
+    "records":[
+        {
+            "fields":{
+                "card_number":"4111111111111111",
+                "expiry_date":"11/35",
+                "fullname":"myname",
+                "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
+            },
+            "table":"cards"
+        },
+        {
+            "fields":{
+                "card_number":"4111111111111111",
+                "expiry_date":"10/23",
+                "fullname":"sam",
+                "id":"da53-95d5-4bdb-99db-8d8c5ff9"
+            },
+            "table":"cards"
+        }
+    ]
+}
+```
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) to get records using unique column names and values:
+
+```javascript
+let record = {
+    table: "cards",
+    redaction: RedactionType.PLAIN_TEXT,
+    columnName: "card_id",
+    columnValues: ["123", "456"],
+};
+
+let records = {
+    records: [record],
+};
+
+const result = client.getById(records);
+result
+    .then((res) => {
+        console.log(JSON.stringify(res));
+    })
+    .catch((err) => {
+        console.log(JSON.stringify(err));
+    });
+```
+
+Response:
+```json
+{
+    "records":[
+        {
+            "fields":{
+                "card_id":"123",
+                "expiry_date":"11/35",
+                "fullname":"myname",
+                "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
+            },
+            "table":"cards"
+        },
+        {
+            "fields":{
+                "card_id":"456",
+                "expiry_date":"10/23",
+                "fullname":"sam",
+                "id":"da53-95d5-4bdb-99db-8d8c5ff9"
+            },
+            "table":"cards"
+        }
+    ]
+}
+```
+
+#### Update
+To update records in your vault by skyflow_id, use the `update(records, options)` method. The first parameter, `records`, is a JSONObject that must have a records key and takes an array of records to update as a value in the vault. The options parameter takes an object of optional parameters for the update and includes an option to return tokenized data for the updated fields. 
+
+Call schema:
+```js
+const updateInput = {
+  records: [ // Array of records to update.
     {
-      "fields": {
-        "card_number": "4111111111111111",
-        "expiry_date": "11/35",
-        "fullname": "myname",
-        "skyflow_id": "f8d2-b557-4c6b-a12c-c5ebfd9"
+      id: "<SKYFLOW_ID>", // Skyflow_id of record to update.
+      table: "<TABLE_NAME>", // Table name of given Skyflow_id. 
+      fields: {  // Fields to update.
+        "<FIELD_NAME_1>": "<FIELD_VALUE_1>", 
+        "<FIELD_NAME_2>": "<FIELD_VALUE_2>",
       },
-      "table": "cards"
     },
+  ]
+};
+
+const options = { // Optional
+  // Option to return updated field tokens in response.
+  // Defaults to 'true'.
+  tokens: true,
+}
+```
+
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Update.ts) to update by ID using `skyflow_ids`
+```js
+const updateInput = {
+  records: [
     {
-      "fields": {
-        "card_number": "4111111111111111",
-        "expiry_date": "10/23",
-        "fullname": "sam",
-        "skyflow_id": "da53-95d5-4bdb-99db-8d8c5ff9"
-      },
-      "table": "cards"
-    }
+      id: "29ebda8d-5272-4063-af58-15cc674e332b", // Valid record id.
+      table: "cards",
+      fields: {
+        card_number: "5105105105105100",
+        cardholder_name: "Thomas",
+        expiration_date: "07/2032",
+        ssn: "123-45-6722",          
+      },   
+    },    
   ],
-  "errors": [
+};
+
+const options = { tokens: true };
+
+const response = skyflowClient.update(updateInput, options);
+console.log(response);
+```
+Response:
+```js
+{
+  "records":[
     {
-      "error": {
-        "code": "404",
-        "description": "No Records Found"
+      "id":"29ebda8d-5272-4063-af58-15cc674e332b",
+      "fields":{
+        "card_number":"93f28226-51b0-4f24-8151-78b5a61f028b",
+        "cardholder_name":"0838fd08-9b51-4db2-893c-48542f3b121e",
+        "expiration_date":"91d7ee77-262f-4d5d-8286-062b694c81fd",
+        "ssn":"e28bf55d-f3d8-49a6-aad9-71a13db54b82",
       },
-      "skyflow_ids": [
-        "invalid Skyflow ID"
-      ]
+      "table":"cards",
     }
   ]
 }
 ```
-
 #### Invoke Connection
 
 Using the InvokeConnection method, you can integrate their server-side application with third party APIs and services without directly handling sensitive data. Prior to invoking the InvokeConnection method, you must have created a connection and have a connectionURL already generated. Once you have the connectionURL, you can invoke a connection by using the `invokeConnection(config)` method. The config object must include a connectionURL and methodName. The other fields are optional.
