@@ -18,6 +18,7 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
     - [Service Account Token Generation](#service-account-token-generation)
     - [Vault APIs](#vault-apis)
       - [Insert](#insert)
+      - [Detokenize](#detokenize)
       - [Get By Id](#get-by-id)
       - [Update](#update)
       - [Invoke Connection](#invoke-connection)
