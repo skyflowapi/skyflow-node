@@ -92,7 +92,7 @@ tokens();
 [Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts)
 
 ```js
-import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
+import { generateBearerTokenFromCreds, isExpired } from "skyflow-node";
 
 let credentials = {
     clientID: "<YOUR_CLIENT_ID>",
@@ -106,7 +106,7 @@ let bearerToken = "";
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
-            if (isValid(bearerToken)) resolve(bearerToken);
+            if (isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerTokenFromCreds(
                     JSON.stringify(credentials)
@@ -133,7 +133,7 @@ When you create a service account with context_id enabled, you can pass an addit
 
 The Skyflow Node SDK generates the JWT assertion for you with the context embedded. To do so you must pass the value for the ‘ctx’ claim as part of the `options` parameter in the `generateBearerToken(filepath, options)` function.
 
-`generateBearerToken(filepath, {context: “<context_id>”})`
+`generateBearerToken(filepath, {ctx: “<CONTEXT_ID>”})`
 
 Full example using a service account credentials file path:
 
@@ -147,7 +147,7 @@ function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                context: "CONTEXT_ID",
+                ctx: "CONTEXT_ID",
             };
             if(!isExpired(bearerToken)) resolve (bearerToken);
             else {
@@ -172,7 +172,7 @@ Alternatively, you can send the entire service account credentials as a string, 
 [Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationWithContextExample.ts)
 
 ```js
-import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
+import { generateBearerTokenFromCreds, isExpired } from "skyflow-node";
 
 let credentials = {
     clientID: "<YOUR_CLIENT_ID>",
@@ -187,9 +187,9 @@ function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                context: "CONTEXT_ID",
+                ctx: "CONTEXT_ID",
             }
-            if (isValid(bearerToken)) resolve(bearerToken);
+            if (isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerTokenFromCreds(
                     JSON.stringify(credentials),
@@ -256,7 +256,7 @@ By including context in the options, you can create scoped bearer tokens with th
 [Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/ScopedTokenGenerationExample.ts)
 
 ```js
-import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
+import { generateBearerTokenFromCreds, isExpired } from "skyflow-node";
 
 let credentials = {
     clientID: "<YOUR_CLIENT_ID>",
@@ -273,7 +273,7 @@ function getSkyflowBearerToken() {
             const options = {
                 roleIDs: ["ROLE_ID1", "ROLE_ID2"],
             };
-            if (isValid(bearerToken)) resolve(bearerToken);
+            if (isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerTokenFromCreds(
                     JSON.stringify(credentials),
@@ -314,7 +314,7 @@ The data tokens are passed as part of the `options` in the `generateSignedDataTo
 [Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts)
 
 ```js
-import { generateSignedDataTokens } from "skyflow-node";
+import { generateSignedDataTokens,isExpired } from "skyflow-node";
 
 let filepath = "CREDENTIALS_FILE_PATH";
 let bearerToken = "";
@@ -323,7 +323,9 @@ function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
+                ctx: "CONTEXT_ID",
                 dataTokens: ["DATA_TOKEN1", "DATA_TOKEN2"],
+                timeToLive: 90 // In seconds.
             };
             if(!isExpired(bearerToken)) resolve (bearerToken);
             else {
@@ -337,7 +339,11 @@ function getSkyflowBearerToken() {
 }
 
 const tokens = async () => {
-    console.log(await getSkyflowBearerToken());
+    const tokenResponseFromFilePath = await getSignedTokenFromFilePath();
+    tokenResponseFromFilePath.forEach((response)=>{
+        console.log(`Data Token: ${response.token}`);
+        console.log(`Signed Data Token: ${response.signedToken}`);
+    });
 };
 
 tokens();
@@ -349,7 +355,7 @@ By including context in the `options`, you can create signed data tokens with th
 [Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts)
 
 ```js
-import { generateSignedDataTokensFromCreds, isValid} from "skyflow-node";
+import { generateSignedDataTokensFromCreds, isExpired } from "skyflow-node";
 
 let credentials = {
     clientID: "<YOUR_CLIENT_ID>",
@@ -364,8 +370,11 @@ function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                dataTokens: ["DATA_TOKEN2", "DATA_TOKEN2"],,
+                ctx: "CONTEXT_ID",
+                dataTokens: ["DATA_TOKEN1", "DATA_TOKEN2"],
+                timeToLive: 90 // In seconds.
             };
+            if(!isExpired(bearerToken)) resolve (bearerToken);
             else {
                 let response = await generateSignedDataTokensFromCreds(
                     JSON.stringify(credentials),
@@ -380,7 +389,11 @@ function getSkyflowBearerToken() {
 }
 
 const tokens = async () => {
-    console.log(await getSkyflowBearerToken());
+    const tokenResponseFromCreds = await getSignedTokenFromCreds();
+    tokenResponseFromCreds.forEach((response)=>{
+        console.log(`Data Token: ${response.token}`);
+        console.log(`Signed Data Token: ${response.signedToken}`);
+    });
 };
 
 tokens();
@@ -511,7 +524,7 @@ Sample response:
 }
 
 ```
-Insert call example with upsert support:
+Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/UpsertSupport.ts) with upsert support:
 
 ```javascript
 const response = client.insert({
