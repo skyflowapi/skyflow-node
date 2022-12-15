@@ -15,8 +15,8 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
     - [Requirements](#requirements)
     - [Configuration](#configuration)
   - [Usage](#usage)
-    - [Generate a Bearer token from service account credentials](#Generate-a-Bearer-token-from-service-account-credentials)
-    - [Generate a Bearer token with additional context](#Generate-a-Bearer-token-with-additional-context)
+    - [Service Account Bearer Token Generation](#Service-Account-Bearer-Token-Generation)
+    - [Service Account Bearer Token Generation with Additional Context](#Service-Account-Bearer-Token-Generation-with-Additional-Context)
     - [Service Account Scoped Bearer Token Generation](#Service-Account-Scoped-Bearer-Token-Generation)
     - [Skyflow Signed Data Tokens Generation](#Skyflow-Signed-Data-Tokens-Generation)
     - [Vault APIs](#vault-apis)
@@ -52,7 +52,7 @@ Or using ES modules
 import { Skyflow, generateBearerToken }  from "skyflow-node";
 ```
 
-### Generate a Bearer token from service account credentials
+### Service Account Bearer Token Generation
 The [service account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) module uses a credentials file to generate service account tokens. See [API Authentication](https://docs.skyflow.com/developer-portal/getting-started/api-authentication/#step-1-create-a-service-account--assign-a-role) for instructions on creating a service account.
 
 The token generated from this module is valid for 60 minutes and lets you make API calls to the Data API as well as the Management API based on the permissions of the service account.
@@ -126,7 +126,7 @@ const tokens = async () => {
 
 tokens();
 ```
-### Generate a Bearer token with additional context
+### Service Account Bearer Token Generation with Additional Context
 Context-Aware Authorization enables you to embed context values into a Bearer token when you generate it, and reference those values in your policies for more dynamic access control of data in the vault or validating signed data tokens during detokenization. It can be used to track end user identity when making API calls using service accounts. 
  
 When you create a service account with context_id enabled, you can pass an additional claim called ctx in the JWT assertion used to authenticate the service account.  This  ctx parameter should ideally map to the identifier of the end user accessing your service for audit logging purposes. On successful validation of the JWT assertion, Skyflow generates a bearer token in the JWT format. This resulting bearer token generated will have the context embedded as a claim. You can now use this context embedded bearer token to make API calls to Skyflow APIs. Additionally, the ctx value contained in the bearer token is also audit logged.
