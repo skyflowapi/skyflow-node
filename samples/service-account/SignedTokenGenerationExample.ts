@@ -1,7 +1,7 @@
 /*
     Copyright (c) 2022 Skyflow, Inc. 
 */
-import { generateSignedDataTokens, generateSignedDataTokensFromCreds, isValid } from "skyflow-node";
+import { generateSignedDataTokens, generateSignedDataTokensFromCreds } from "skyflow-node";
 
 let filepath = "CREDENTIALS_FILE_PATH";
 
@@ -11,6 +11,7 @@ function getSignedTokenFromFilePath() {
             const options = {
                  ctx:'ctx',
                  dataTokens: ['dataToken1','dataToken2'],
+                 timeToLive: 90 // In seconds.
             };
 
             let response = await generateSignedDataTokens(filepath, options);
@@ -37,6 +38,7 @@ function getSignedTokenFromCreds() {
             const options = {
                 ctx:'ctx',
                 dataTokens: ['dataToken1','dataToken2'],
+                timeToLive: 90 // In seconds.
             };
             let response = await generateSignedDataTokensFromCreds(
                 JSON.stringify(cred),
@@ -52,9 +54,22 @@ function getSignedTokenFromCreds() {
 
 
 const tokens = async () => {
-    console.log(await getSignedTokenFromFilePath());
-    console.log(await getSignedTokenFromCreds());
+    try{
+        const tokenResponseFromFilePath:any = await getSignedTokenFromFilePath();
+        tokenResponseFromFilePath.forEach((response)=>{
+            console.log(`Data Token: ${response.token}`);
+            console.log(`Signed Data Token: ${response.signedToken}`);
+        });
 
+        const tokenResponseFromCreds:any = await getSignedTokenFromCreds();
+        tokenResponseFromCreds.forEach((response)=>{
+            console.log(`Data Token: ${response.token}`);
+            console.log(`Signed Data Token: ${response.signedToken}`);
+        });
+
+    }catch(error){
+        console.log(error);
+    }
 };
 
 tokens();
