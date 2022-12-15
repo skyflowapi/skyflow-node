@@ -16,6 +16,9 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
     - [Configuration](#configuration)
   - [Usage](#usage)
     - [Generate a Bearer token from service account credentials](#Generate-a-Bearer-token-from-service-account-credentials)
+    - [Generate a Bearer token with additional context](#Generate-a-Bearer-token-with-additional-context)
+    - [Service Account Scoped Bearer Token Generation](#Service-Account-Scoped-Bearer-Token-Generation)
+    - [Skyflow Signed Data Tokens Generation](#Skyflow-Signed-Data-Tokens-Generation)
     - [Vault APIs](#vault-apis)
       - [Insert](#insert)
       - [Detokenize](#detokenize)
@@ -123,7 +126,7 @@ const tokens = async () => {
 
 tokens();
 ```
-### Generate a Bearer token with additional `context`
+### Generate a Bearer token with additional context
 Context-Aware Authorization enables you to embed context values into a Bearer token when you generate it, and reference those values in your policies for more dynamic access control of data in the vault or validating signed data tokens during detokenization. It can be used to track end user identity when making API calls using service accounts. 
  
 When you create a service account with context_id enabled, you can pass an additional claim called ctx in the JWT assertion used to authenticate the service account.  This  ctx parameter should ideally map to the identifier of the end user accessing your service for audit logging purposes. On successful validation of the JWT assertion, Skyflow generates a bearer token in the JWT format. This resulting bearer token generated will have the context embedded as a claim. You can now use this context embedded bearer token to make API calls to Skyflow APIs. Additionally, the ctx value contained in the bearer token is also audit logged.
@@ -207,12 +210,12 @@ const tokens = async () => {
 
 tokens();
 ```
-### Service Account Scoped Bearer Token Generation
+### Service Account Scoped Bearer Token Generation 
 When a service account has multiple roles, you can generate bearer tokens that are scoped to a specific role by providing the appropriate role ID.Generated bearer tokens are valid for 60 minutes and let you perform operations with the permissions associated with the specified role.
 
 The role IDs are passed as part of the `options` in `generateBearerToken(filepath, options)` function, which takes the service account credentials file path and an optional `options` object for token generation. 
 
-Example using a service account credentials file path:
+[Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/ScopedTokenGenerationExample.ts)
 
 ```js
 import { generateBearerToken, isExpired } from "skyflow-node";
@@ -293,7 +296,7 @@ tokens();
 ```
 
 ### Skyflow Signed Data Tokens Generation
-Skyflow generates data tokens when you insert sensitive data into the vault. With the signed data tokens feature, you can add additional context to these data tokens such as the identity of the end user accessing the information. This additional context is structured in the form of a JWT that need to be signed using a private key contained in the “tokenSignatureCredentials.json'' credentials file that gets downloaded when you configure a service account to only support signed data tokens for detokenization. 
+Skyflow generates data tokens when you insert sensitive data into the vault. With the signed data tokens feature, you can add additional context to these data tokens such as the identity of the end user accessing the information. This additional context is structured in the form of a JWT that need to be signed using a private key contained in the `tokenSignatureCredentials.json` credentials file that gets downloaded when you configure a service account to only support signed data tokens for detokenization. 
 In a future release of this SDK we also plan to support an expiration period associated with the signed tokens making it very powerful when you want to detokenize data from your front end application. 
 
 When the context aware bearer tokens along with the signed data tokens are sent to the detokenize endpoint, Skyflow’s governance engine performs the following checks: 
@@ -306,7 +309,7 @@ When the context aware bearer tokens along with the signed data tokens are sent 
 
 Only if these conditions are met, will the detokenize request be successful 
 
-The data tokens are passed as part of the options in the generateSignedDataTokens(filepath, options) function, which takes the service account credentials file path and an options object for token generation. Alternatively, you can send the entire service account credentials as string, by using the generateSignedDataTokensFromCreds(credentials, options) function.
+The data tokens are passed as part of the `options` in the `generateSignedDataTokens(filepath, options)` function, which takes the service account credentials file path and an options object for token generation. Alternatively, you can send the entire service account credentials as string, by using the `generateSignedDataTokensFromCreds(credentials, options)` function.
 
 [Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts)
 
@@ -341,9 +344,9 @@ tokens();
 ```
 
 Note:
-By including context in the options, you can create signed data tokens with the context JWT claim.
+By including context in the `options`, you can create signed data tokens with the context JWT claim.
 
-Example using a service account credentials JSON string:
+[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts)
 
 ```js
 import { generateSignedDataTokensFromCreds, isValid} from "skyflow-node";
