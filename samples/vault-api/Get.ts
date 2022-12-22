@@ -1,7 +1,7 @@
 /*
 	Copyright (c) 2022 Skyflow, Inc. 
 */
-import {Skyflow, generateBearerToken, isExpired, setLogLevel, LogLevel} from "skyflow-node";
+import {Skyflow, generateBearerToken, isExpired, setLogLevel, LogLevel} from "skyflow-node"
 var filePath = "<YOUR_CREDENTIAL_FILE>";
 setLogLevel(LogLevel.INFO)
 var bearerToken = ""
@@ -28,7 +28,7 @@ const skyflow = Skyflow.init({
 }
 });
 
-const result = skyflow.getById({
+const result = skyflow.get({
   records: [
     // To to get records using skyflow_ids.
     {

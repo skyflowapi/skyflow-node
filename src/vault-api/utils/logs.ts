@@ -12,7 +12,7 @@ const logs = {
     CLIENT_INITIALIZED: 'Initialized skyflow client successfully.',
     VALIDATE_RECORDS: 'Validating insert records.',
     VALIDATE_DETOKENIZE_INPUT: 'Validating detokenize input.',
-    VALIDATE_GET_BY_ID_INPUT: 'Validating getByID input.',
+    VALIDATE_GET_BY_ID_INPUT: 'Validating get method input.',
     VALIDATE_CONNECTION_CONFIG: 'Validating connection config.',
     INSERT_DATA_SUCCESS: 'Data has been inserted successfully.',
     DETOKENIZE_SUCCESS: 'Data has been revealed successfully.',
@@ -24,11 +24,12 @@ const logs = {
     INSERT_TRIGGERED: 'Insert method triggered.',
     DETOKENIZE_TRIGGERED: 'Detokenize method triggered.',
     GET_BY_ID_TRIGGERED: 'Get by ID triggered.',
+    GET_CALL_TRIGGERED: 'Get call triggered.',
     INVOKE_CONNECTION_TRIGGERED: 'Invoke connection triggered.',
     EMIT_REQUEST: 'Emitted %s1 request.',
     FETCH_RECORDS_RESOLVED: 'Detokenize request is resolved.',
     INSERT_RECORDS_RESOLVED: 'Insert request is resolved.',
-    GET_BY_SKYFLOWID_RESOLVED: 'GetById request is resolved.',
+    GET_BY_SKYFLOWID_RESOLVED: 'Get request is resolved.',
     SEND_INVOKE_CONNECTION_RESOLVED: 'Invoke connection request resolved.',
     GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: "generateSignedDataTokens is triggered",
     UPDATE_TRIGGERED: 'Update method triggered.',
@@ -64,7 +65,7 @@ const logs = {
     INVALID_RECORD_ALT_TEXT: 'Invalid Record altText Type.',
     FETCH_RECORDS_REJECTED: 'Detokenize request is rejected.',
     INSERT_RECORDS_REJECTED: 'Insert request is rejected.',
-    GET_BY_SKYFLOWID_REJECTED: 'GetById request is rejected.',
+    GET_BY_SKYFLOWID_REJECTED: 'Get request is rejected.',
     SEND_INVOKE_CONNECTION_REJECTED: 'Invoke connection request rejected.',
     UPDATE_REQUEST_REJECTED: 'Update request is rejected.',
     INVALID_TABLE_NAME: 'Table Name passed doesn’t exist in the vault with id.',
@@ -124,7 +125,9 @@ const logs = {
   },
   warnLogs: {
     GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',
-    ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead'
+    ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead',
+    GET_BY_ID_DEPRECATED: 'This method has been deprecated and will be removed in future release, use Get method instead',
+
   }
 };
 

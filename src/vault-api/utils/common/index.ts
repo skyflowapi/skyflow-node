@@ -82,7 +82,7 @@ export interface IConnectionConfig {
 export const TYPES = {
   INSERT: 'INSERT',
   DETOKENIZE: 'DETOKENIZE',
-  GET_BY_SKYFLOWID: 'GET_BY_SKYFLOWID',
+  GET: 'GET',
   INVOKE_CONNECTION: 'INVOKE_CONNECTION',
 };
 
