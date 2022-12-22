@@ -818,6 +818,176 @@ describe('skyflow getById', () => {
   }); 
 });
 
+describe('skyflow get method', () => {
+
+  let skyflow;
+  beforeEach(() => {
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: jest.fn(),
+    });
+
+  });
+
+  test('get method success with valid bearer token', (done) => {
+    try {
+      jest.mock('../../src/vault-api/utils/jwt-utils',()=>({
+        __esModule: true,
+        isTokenValid:jest.fn(()=>true),
+      }));
+      const clientReq = jest.fn(() => Promise.resolve(getByIdRes));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata:{}
+      }
+      clientModule.mockImplementation(() => {return mockClient});
+        skyflow = Skyflow.init({
+          vaultID: '<VaultID>',
+          vaultURL: 'https://www.vaulturl.com',
+          getBearerToken: ()=>{
+            return new Promise((resolve,_)=>{
+                resolve("token")
+            })
+          }
+        });
+      const res = skyflow.get(getByIdInput);
+      let data;
+      res.then((res) => data = res);
+
+      setTimeout(() => {
+        expect(data.records.length).toBe(1);
+        expect(data.error).toBeUndefined();
+        done();
+      }, 1000);
+    } catch (err) {
+    }
+  });
+  
+
+  test('get method error', (done) => {
+   
+    try {
+      const clientReq = jest.fn(() => Promise.reject(getByIdError));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata:{}
+      }
+      clientModule.mockImplementation(() => {return mockClient});
+        skyflow = Skyflow.init({
+          vaultID: '<VaultID>',
+          vaultURL: 'https://www.vaulturl.com',
+          getBearerToken: ()=>{
+            return new Promise((resolve,_)=>{
+                resolve("token")
+            })
+          }
+        });
+      const res = skyflow.get(getByIdInput);
+      let error;
+      res.catch((err) => error = err);
+
+      setTimeout(() => {
+        expect(error).toBeDefined();
+        done();
+      }, 1000);
+    } catch (err) {
+    }
+  });
+  test('get method invalid input-1',(done)=>{
+    const res = skyflow.get({});
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+  test('get method invalid input-2',(done)=>{
+    const res = skyflow.get({"records":[]});
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+  test('get method invalid input-3',(done)=>{
+    const res = skyflow.get({"records":[{}]});
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+  test('get method invalid input-4',(done)=>{
+    const res = skyflow.get({"records":[{}]});
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+  test('get method invalid input-5',(done)=>{
+    const res = skyflow.get(getByIdInputMissingIds);
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+  test('get method invalid input-6',(done)=>{
+    const res = skyflow.get(getByIdInputInvalidRedaction);
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+  test("get method invalid input-7", () => {
+    const res = skyflow.get(getByIdInputMissingColumnName);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.MISSING_RECORD_COLUMN_NAME);
+    });
+  });    
+  test("get method invalid input-8", () => {
+    const res = skyflow.get(getByIdInputMissingColumnValues);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.MISSING_RECORD_COLUMN_VALUE);
+    });
+  });   
+  test("get method invalid input-9", () => {
+    const res = skyflow.get(getByIdInputInvalidColumnNameType);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.INVALID_RECORD_COLUMN_VALUE);
+    });
+  }); 
+  test("get method invalid input-10", () => {
+    const res = skyflow.get(getByIdInputInvalidColumnValuesType);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.INVALID_COLUMN_VALUES_OPTION_TYPE);
+    });
+  }); 
+  test("get method invalid input-11", () => {
+    const res = skyflow.get(getByIdInputEmptyColumnValues);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.EMPTY_RECORD_COLUMN_VALUES);
+    });
+  }); 
+  test("get method invalid input-12", () => {
+    const res = skyflow.get(getByIdInputInvalidOptionsColumnValues);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.INVALID_RECORD_COLUMN_VALUE_TYPE);
+    });
+  }); 
+  test("get method invalid input-13", () => {
+    const res = skyflow.get(getByIdInputEmptydOptionsColumnValues);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.EMPTY_COLUMN_VALUE);
+    });
+  }); 
+  test("get method with valid column name and column values input", () => {
+    const res = skyflow.get(getByIdWithValidUniqColumnOptions);
+    res.catch((err) => {
+      expect(err.message).toBe(undefined)
+    });
+  }); 
+});
+
 const invokeConnectionReq = {
   connectionURL: 'https://connectionurl.com',
   methodName: 'POST',
