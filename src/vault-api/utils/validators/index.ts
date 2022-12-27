@@ -77,6 +77,7 @@ export const validateGetByIdInput = (getByIdInput: IGetByIdInput) => {
 
     if (recordTable === '' || typeof recordTable !== 'string') { throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_TABLE_VALUE); }
 
+    if (record.columnName === undefined && record.columnValues === undefined && recordIds === undefined) { throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_ID_AND_COLUMN_NAME); }
     if (record.columnName != undefined && record.columnValues === undefined) { throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORD_COLUMN_VALUE); }
     if (record.columnName === undefined && record.columnValues !== undefined) { throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORD_COLUMN_NAME); }
 
@@ -182,38 +183,38 @@ export const validateUpsertOptions = (upsertOptions) => {
 };
 
 export const validateUpdateInput = (updateInput: IUpdateInput) => {
-  if(updateInput){
-    if (!Object.prototype.hasOwnProperty.call(updateInput, 'records')) 
+  if (updateInput) {
+    if (!Object.prototype.hasOwnProperty.call(updateInput, 'records'))
       throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORDS);
 
-    if(!Array.isArray(updateInput.records))
+    if (!Array.isArray(updateInput.records))
       throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORDS_UPDATE_INPUT)
     const { records } = updateInput;
     if (records.length === 0) {
       throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
     }
-    records.forEach((updateRecord,index) => {
-      if (Object.keys(updateRecord).length === 0) 
+    records.forEach((updateRecord, index) => {
+      if (Object.keys(updateRecord).length === 0)
         throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
-  
+
       if (!Object.prototype.hasOwnProperty.call(updateRecord, 'id'))
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_ID_IN_UPDATE,[index]);
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_ID_IN_UPDATE, [index]);
       if (typeof updateRecord.id !== 'string' || updateRecord.id.trim().length === 0)
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ID_IN_UPDATE,[index]);
-  
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ID_IN_UPDATE, [index]);
+
       if (!Object.prototype.hasOwnProperty.call(updateRecord, 'table'))
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_IN_UPDATE,[index]);
-      
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_IN_UPDATE, [index]);
+
       const recordTable = updateRecord.table;
       if (typeof recordTable !== 'string' || recordTable.trim().length === 0)
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPDATE,[index]);
-      
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPDATE, [index]);
+
       if (!Object.prototype.hasOwnProperty.call(updateRecord, 'fields'))
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FIELDS_IN_IN_UPDATE,[index]);
-      if(typeof updateRecord?.fields !== 'object' || Object.keys(updateRecord).length === 0)
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FIELDS_IN_UPDATE,[index]);
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FIELDS_IN_IN_UPDATE, [index]);
+      if (typeof updateRecord?.fields !== 'object' || Object.keys(updateRecord).length === 0)
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FIELDS_IN_UPDATE, [index]);
     });
-  }else{
+  } else {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPDATE_INPUT);
   }
 };

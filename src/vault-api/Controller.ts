@@ -120,7 +120,7 @@ class Controller {
           printLog(logs.infoLogs.VALIDATE_GET_BY_ID_INPUT, MessageType.LOG);
           validateGetByIdInput(getByIdInput);
           printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST,
-            TYPES.GET_BY_SKYFLOWID),
+            TYPES.GET),
           MessageType.LOG);
           this.getToken().then((res)=>{
             fetchRecordsBySkyflowID(

@@ -69,7 +69,14 @@ class Skyflow {
   }
 
   getById(getByIdInput: IGetByIdInput) {
+    printLog(logs.warnLogs.GET_BY_ID_DEPRECATED, MessageType.WARN)
     printLog(logs.infoLogs.GET_BY_ID_TRIGGERED,
+      MessageType.LOG);
+    return this.#Controller.getById(getByIdInput);
+  }
+
+  get(getByIdInput: IGetByIdInput) {
+    printLog(logs.infoLogs.GET_CALL_TRIGGERED,
       MessageType.LOG);
     return this.#Controller.getById(getByIdInput);
   }
