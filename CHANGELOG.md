@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.9.0] - 2022-12-27
+### Added
+- Added new `get` interface.
+- Deprecated `getById` interface.
 ## [1.8.0] - 2022-12-14
 ### Added
 - Added `update` interface.
