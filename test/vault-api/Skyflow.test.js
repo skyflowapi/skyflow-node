@@ -646,6 +646,15 @@ const getByIdRes = {
   ],
 };
 
+const getWithNoSkyflowIDAndColumnName = {
+  records: [
+    {
+      table: "cards",
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+}
+
 const getByIdError = { error: { message: "id doesn't exist", code: 404 } };
 
 describe('skyflow getById', () => {
@@ -808,6 +817,12 @@ describe('skyflow getById', () => {
     const res = skyflow.getById(getByIdInputEmptydOptionsColumnValues);
     res.catch((err) => {
       expect(err.message).toBe(logs.errorLogs.EMPTY_COLUMN_VALUE);
+    });
+  }); 
+  test("get method invalid input-14", () => {
+    const res = skyflow.get(getWithNoSkyflowIDAndColumnName);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.MISSING_ID_AND_COLUMN_NAME);
     });
   }); 
   test("getById with valid column name and column values input", () => {
@@ -978,6 +993,12 @@ describe('skyflow get method', () => {
     const res = skyflow.get(getByIdInputEmptydOptionsColumnValues);
     res.catch((err) => {
       expect(err.message).toBe(logs.errorLogs.EMPTY_COLUMN_VALUE);
+    });
+  }); 
+  test("get method invalid input-14", () => {
+    const res = skyflow.get(getWithNoSkyflowIDAndColumnName);
+    res.catch((err) => {
+      expect(err.message).toBe(logs.errorLogs.MISSING_ID_AND_COLUMN_NAME);
     });
   }); 
   test("get method with valid column name and column values input", () => {

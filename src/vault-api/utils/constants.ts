@@ -35,13 +35,11 @@ const SKYFLOW_ERROR_CODE = {
   MISSING_TABLE: { code: 400, description: logs.errorLogs.MISSING_TABLE },
   EMPTY_COLUMN_NAME: { code: 400, description: logs.errorLogs.EMPTY_COLUMN_NAME },
   EMPTY_COLUMN_VALUE: { code: 400, description: logs.errorLogs.EMPTY_COLUMN_VALUE },
-
-
   INVALID_RECORD_TABLE_VALUE: { code: 400, description: logs.errorLogs.INVALID_RECORD_TABLE_VALUE },
   INVALID_RECORD_COLUMN_VALUE: { code: 400, description: logs.errorLogs.INVALID_RECORD_COLUMN_VALUE },
   MISSING_RECORD_COLUMN_VALUE: { code: 400, description: logs.errorLogs.MISSING_RECORD_COLUMN_VALUE },
   MISSING_RECORD_COLUMN_NAME: { code: 400, description: logs.errorLogs.MISSING_RECORD_COLUMN_NAME },
-
+  MISSING_ID_AND_COLUMN_NAME: { code: 400, description: logs.errorLogs.MISSING_ID_AND_COLUMN_NAME },
   INVALID_TOKEN_ID: { code: 400, description: logs.errorLogs.INVALID_TOKEN_ID },
   MISSING_TOKEN: { code: 400, description: logs.errorLogs.MISSING_TOKEN },
   MISSING_TOKEN_KEY: { code: 400, description: logs.errorLogs.MISSING_TOKEN_KEY },

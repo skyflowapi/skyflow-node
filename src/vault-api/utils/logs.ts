@@ -80,6 +80,7 @@ const logs = {
     MISSING_TABLE: 'Missing Table Property.',
     MISSING_RECORD_COLUMN_VALUE: 'Column Values can not be empty when Column Name is specified.',
     MISSING_RECORD_COLUMN_NAME: 'Column Name can not be empty when Column Values are specified.',
+    MISSING_ID_AND_COLUMN_NAME:'Provide either ids or column name to get records',
     EMPTY_COLUMN_VALUE: 'Column Value is empty.',
     INVALID_RECORD_TABLE_VALUE: 'Invalid Record Table value.',
     INVALID_RECORD_COLUMN_VALUE: 'Invalid Record Column value.',
