@@ -44,12 +44,12 @@ npm install skyflow-node
 ### Importing `skyflow-node`
 
 ```
-const { Skyflow, generateBearerToken } = require("skyflow-node");
+const { Skyflow, generateBearerToken } = require('skyflow-node');
 ```
 Or using ES modules
 
 ```
-import { Skyflow, generateBearerToken }  from "skyflow-node";
+import { Skyflow, generateBearerToken }  from 'skyflow-node';
 ```
 
 ### Service Account Bearer Token Generation
@@ -97,16 +97,16 @@ tokens();
 [Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts)
 
 ```js
-import { generateBearerTokenFromCreds, isExpired } from "skyflow-node";
+import { generateBearerTokenFromCreds, isExpired } from 'skyflow-node';
 
 let credentials = {
-    clientID: "<YOUR_CLIENT_ID>",
-    clientName: "<YOUR_CLIENT_NAME>",
-    keyID: "<YOUR_KEY_ID>",
-    tokenURI: "<YOUR_TOKEN_URI>",
-    privateKey: "<YOUR_PEM_PRIVATE_KEY>",
+    clientID: '<YOUR_CLIENT_ID>',
+    clientName: '<YOUR_CLIENT_NAME>',
+    keyID: '<YOUR_KEY_ID>',
+    tokenURI: '<YOUR_TOKEN_URI>',
+    privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
-let bearerToken = "";
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
@@ -138,21 +138,21 @@ When you create a service account with context_id enabled, you can pass an addit
 
 The Skyflow Node SDK generates the JWT assertion for you with the context embedded. To do so you must pass the value for the ‘ctx’ claim as part of the `options` parameter in the `generateBearerToken(filepath, options)` function.
 
-`generateBearerToken(filepath, {ctx: “<CONTEXT_ID>”})`
+`generateBearerToken(filepath, {ctx: '<CONTEXT_ID>'})`
 
 Full example using a service account credentials file path:
 
 ```js
-import { generateBearerToken, isExpired } from "skyflow-node";
+import { generateBearerToken, isExpired } from 'skyflow-node';
 
-let filepath = "CREDENTIALS_FILE_PATH"
-let bearerToken = "";
+let filepath = 'CREDENTIALS_FILE_PATH'
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                ctx: "CONTEXT_ID",
+                ctx: 'CONTEXT_ID',
             };
             if(!isExpired(bearerToken)) resolve (bearerToken);
             else {
@@ -177,22 +177,22 @@ Alternatively, you can send the entire service account credentials as a string, 
 [Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationWithContextExample.ts)
 
 ```js
-import { generateBearerTokenFromCreds, isExpired } from "skyflow-node";
+import { generateBearerTokenFromCreds, isExpired } from 'skyflow-node';
 
 let credentials = {
-    clientID: "<YOUR_CLIENT_ID>",
-    clientName: "<YOUR_CLIENT_NAME>",
-    keyID: "<YOUR_KEY_ID>",
-    tokenURI: "<YOUR_TOKEN_URI>",
-    privateKey: "<YOUR_PEM_PRIVATE_KEY>",
+    clientID: '<YOUR_CLIENT_ID>',
+    clientName: '<YOUR_CLIENT_NAME>',
+    keyID: '<YOUR_KEY_ID>',
+    tokenURI: '<YOUR_TOKEN_URI>',
+    privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
-let bearerToken = "";
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                ctx: "CONTEXT_ID",
+                ctx: 'CONTEXT_ID',
             }
             if (isExpired(bearerToken)) resolve(bearerToken);
             else {
@@ -223,16 +223,16 @@ The role IDs are passed as part of the `options` in `generateBearerToken(filepat
 [Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/ScopedTokenGenerationExample.ts)
 
 ```js
-import { generateBearerToken, isExpired } from "skyflow-node";
+import { generateBearerToken, isExpired } from 'skyflow-node';
 
-let filepath = "CREDENTIALS_FILE_PATH"
-let bearerToken = "";
+let filepath = 'CREDENTIALS_FILE_PATH'
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                roleIDs: ["ROLE_ID1", "ROLE_ID2"],
+                roleIDs: ['ROLE_ID1', 'ROLE_ID2'],
             };
             if(!isExpired(bearerToken)) resolve (bearerToken);
             else {
@@ -261,22 +261,22 @@ By including context in the options, you can create scoped bearer tokens with th
 [Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/ScopedTokenGenerationExample.ts)
 
 ```js
-import { generateBearerTokenFromCreds, isExpired } from "skyflow-node";
+import { generateBearerTokenFromCreds, isExpired } from 'skyflow-node';
 
 let credentials = {
-    clientID: "<YOUR_CLIENT_ID>",
-    clientName: "<YOUR_CLIENT_NAME>",
-    keyID: "<YOUR_KEY_ID>",
-    tokenURI: "<YOUR_TOKEN_URI>",
-    privateKey: "<YOUR_PEM_PRIVATE_KEY>",
+    clientID: '<YOUR_CLIENT_ID>',
+    clientName: '<YOUR_CLIENT_NAME>',
+    keyID: '<YOUR_KEY_ID>',
+    tokenURI: '<YOUR_TOKEN_URI>',
+    privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
-let bearerToken = "";
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                roleIDs: ["ROLE_ID1", "ROLE_ID2"],
+                roleIDs: ['ROLE_ID1', 'ROLE_ID2'],
             };
             if (isExpired(bearerToken)) resolve(bearerToken);
             else {
@@ -319,17 +319,17 @@ The data tokens are passed as part of the `options` in the `generateSignedDataTo
 [Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts)
 
 ```js
-import { generateSignedDataTokens,isExpired } from "skyflow-node";
+import { generateSignedDataTokens,isExpired } from 'skyflow-node';
 
-let filepath = "CREDENTIALS_FILE_PATH";
-let bearerToken = "";
+let filepath = 'CREDENTIALS_FILE_PATH';
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                ctx: "CONTEXT_ID",
-                dataTokens: ["DATA_TOKEN1", "DATA_TOKEN2"],
+                ctx: 'CONTEXT_ID',
+                dataTokens: ['DATA_TOKEN1', 'DATA_TOKEN2'],
                 timeToLive: 90 // In seconds.
             };
             if(!isExpired(bearerToken)) resolve (bearerToken);
@@ -360,23 +360,23 @@ By including context in the `options`, you can create signed data tokens with th
 [Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts)
 
 ```js
-import { generateSignedDataTokensFromCreds, isExpired } from "skyflow-node";
+import { generateSignedDataTokensFromCreds, isExpired } from 'skyflow-node';
 
 let credentials = {
-    clientID: "<YOUR_CLIENT_ID>",
-    clientName: "<YOUR_CLIENT_NAME>",
-    keyID: "<YOUR_KEY_ID>",
-    tokenURI: "<YOUR_TOKEN_URI>",
-    privateKey: "<YOUR_PEM_PRIVATE_KEY>",
+    clientID: '<YOUR_CLIENT_ID>',
+    clientName: '<YOUR_CLIENT_NAME>',
+    keyID: '<YOUR_KEY_ID>',
+    tokenURI: '<YOUR_TOKEN_URI>',
+    privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
-let bearerToken = "";
+let bearerToken = '';
 
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
             const options = {
-                ctx: "CONTEXT_ID",
-                dataTokens: ["DATA_TOKEN1", "DATA_TOKEN2"],
+                ctx: 'CONTEXT_ID',
+                dataTokens: ['DATA_TOKEN1', 'DATA_TOKEN2'],
                 timeToLive: 90 // In seconds.
             };
             if(!isExpired(bearerToken)) resolve (bearerToken);
@@ -429,10 +429,10 @@ For the `getBearerToken` parameter, pass in a helper function that retrieves a S
 
 For example, if the response of the consumer tokenAPI is in the below format
 
-```
+```js
 {
-   'accessToken': string,
-   'tokenType': string
+   "accessToken": string,
+   "tokenType": string
 }
 ```
 then, your getBearerToken Implementation should be as below
@@ -484,8 +484,8 @@ const response = client.insert(data, {
     tokens: true  // A boolean that indicates if tokens should be returned for the inserted data. The default value is true.
     upsert:[ // An array that defines support for upsert operations in the vault.
         {
-            table: "<TABLE_NAME>", // A table name.
-            column: "value", // A unique column in the table.
+            table: '<TABLE_NAME>', // A table name.
+            column: 'value', // A unique column in the table.
         }
     ]
 });
@@ -523,14 +523,14 @@ result
 
 Sample response:
 
-```js
+```json
 {
-  'records': [
+  "records": [
     {
-      'table': 'cards',
-      'fields': {
-        'card_number': 'f37186-e7e2-466f-91e5-48e2bcbc1',
-        'expiry_date': '1989cb56-63a-4482-adf-1f74cd1a5',
+      "table": "cards",
+      "fields": {
+        "card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
+        "expiry_date": "1989cb56-63a-4482-adf-1f74cd1a5",
       },
     },
   ],
@@ -543,17 +543,17 @@ Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/master/sam
 const response = client.insert({
     records: [{
         fields: {
-            expiry_date: "12/2026",
-            card_number: "411111111111111",
+            expiry_date: '12/2026',
+            card_number: '411111111111111',
         },
-        table: "cards",
+        table: 'cards',
     }, ],
 }, {
     tokens: true,
     upsert: [
         {
-            table: "cards",
-            column: "card_number",
+            table: 'cards',
+            column: 'card_number',
         }
     ]
 });
@@ -577,7 +577,7 @@ In order to retrieve data from your vault using tokens that you have previously 
 data = {
   records: [{
     // Token for the record to be fetched.
-    'token': 'string'
+    token: 'string'
   }]
 }
 ```
@@ -603,15 +603,15 @@ result
 
 Sample response:
 
-```js
+```json
 {
-  'records': [
+  "records": [
     {
-      'token': '110dc-6f76-19-bd3-9051051',
-      'value': '1990-01-01',
+      "token": "110dc-6f76-19-bd3-9051051",
+      "value": "1990-01-01",
     },
   ],
-};
+}
 ```
 
 #### Get By Id
@@ -622,15 +622,15 @@ data = {
   records: [
     {
       // List of skyflow_ids for the records to fetch.
-      ids: ["SKYFLOW_ID_1", "SKYFLOW_ID_2"], // Optional
+      ids: ['SKYFLOW_ID_1', 'SKYFLOW_ID_2'], // Optional
       // Name of table holding the records in the vault.
-      table: "NAME_OF_SKYFLOW_TABLE",
+      table: 'NAME_OF_SKYFLOW_TABLE',
       // Redaction type to apply to retrieved data.
       redaction: Skyflow.RedactionType,
       // Unique column name in the vault.
-      columnName: "UNIQUE_COLUMN_NAME", // Optional
+      columnName: 'UNIQUE_COLUMN_NAME', // Optional
       // List of given unique column values.
-      columnValues: ["<COLUMN_VALUE_1>", "<COLUMN_VALUE_2>", "<COLUMN_VALUE_3>"], // Required if column name is provided
+      columnValues: ['<COLUMN_VALUE_1>', '<COLUMN_VALUE_2>', '<COLUMN_VALUE_3>'], // Required if column name is provided
     },
   ],
 };
@@ -648,13 +648,13 @@ Note: You cannot pass an array of skyflow_ids and unique column details together
 [Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) to get records using skyflow_ids:
 ```javascript
 let skyflowIds = [
-    "f8622-b557-4c6b-a12c-c0b0bfd9",
-    "da26de53-95d5-4db-99db-8d35ff9",
+    'f8622-b557-4c6b-a12c-c0b0bfd9',
+    'da26de53-95d5-4db-99db-8d35ff9',
 ];
 
 let record = {
     ids: skyflowIds,
-    table: "cards",
+    table: 'cards',
     redaction: RedactionType.PLAIN_TEXT,
 };
 
@@ -702,10 +702,10 @@ Response:
 
 ```javascript
 let record = {
-    table: "cards",
+    table: 'cards',
     redaction: RedactionType.PLAIN_TEXT,
-    columnName: "card_id",
-    columnValues: ["123", "456"],
+    columnName: 'card_id',
+    columnValues: ['123', '456'],
 };
 
 let records = {
@@ -756,11 +756,11 @@ Call schema:
 const updateInput = {
   records: [ // Array of records to update.
     {
-      id: "<SKYFLOW_ID>", // Skyflow_id of record to update.
-      table: "<TABLE_NAME>", // Table name of given Skyflow_id. 
+      id: '<SKYFLOW_ID>', // Skyflow_id of record to update.
+      table: '<TABLE_NAME>', // Table name of given Skyflow_id. 
       fields: {  // Fields to update.
-        "<FIELD_NAME_1>": "<FIELD_VALUE_1>", 
-        "<FIELD_NAME_2>": "<FIELD_VALUE_2>",
+        '<FIELD_NAME_1>': '<FIELD_VALUE_1>', 
+        '<FIELD_NAME_2>': '<FIELD_VALUE_2>',
       },
     },
   ]
@@ -778,13 +778,13 @@ const options = { // Optional
 const updateInput = {
   records: [
     {
-      id: "29ebda8d-5272-4063-af58-15cc674e332b", // Valid record id.
-      table: "cards",
+      id: '29ebda8d-5272-4063-af58-15cc674e332b', // Valid record id.
+      table: 'cards',
       fields: {
-        card_number: "5105105105105100",
-        cardholder_name: "Thomas",
-        expiration_date: "07/2032",
-        ssn: "123-45-6722",          
+        card_number: '5105105105105100',
+        cardholder_name: 'Thomas',
+        expiration_date: '07/2032',
+        ssn: '123-45-6722',          
       },   
     },    
   ],
@@ -796,7 +796,7 @@ const response = skyflowClient.update(updateInput, options);
 console.log(response);
 ```
 Response:
-```js
+```json
 {
   "records":[
     {
@@ -875,21 +875,21 @@ result
 ```
 
 Sample response:
-```js
+```json
 {
-  'receivedTimestamp': '2021-11-05 13:43:12.534',
-  'processingTimeinMs': '12',
-  'resource': {
-    'cvv2': '558',
+  "receivedTimestamp": "2021-11-05 13:43:12.534",
+  "processingTimeinMs": "12",
+  "resource": {
+    "cvv2": "558",
   },
-};
+}
 ```
 
 ### Logging
 The Skyflow Node.js SDK provides useful logging. By default the logging level of the SDK is set to `LogLevel.ERROR`. This can be changed by using `setLogLevel(logLevel)` as shown below:
 
 ```javascript
-import { setLogLevel } from "skyflow-node";
+import { setLogLevel } from 'skyflow-node';
 
 // Sets the Skyflow SDK log level to INFO
 setLogLevel(LogLevel.INFO);

@@ -45,9 +45,9 @@ const result = skyflow.get({
     // To get records using unique column name and values.
     {
       redaction : Skyflow.RedactionType.PLAIN_TEXT,
-      table: "persons",
-      columnName: "card_id",
-      columnValues: ["123", "456"],
+      table: 'persons',
+      columnName: 'card_id',
+      columnValues: ['123', '456'],
      }
   ],
 });
