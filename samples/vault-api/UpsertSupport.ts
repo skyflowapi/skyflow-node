@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+	Copyright (c) 2022 Skyflow, Inc.
 */
 import {
   Skyflow,
@@ -7,26 +7,26 @@ import {
   isExpired,
   setLogLevel,
   LogLevel,
-} from "skyflow-node";
+} from 'skyflow-node';
 
-var filePath = "<YOUR_CREDENTIAL_FILE>";
+const filePath = '<YOUR_CREDENTIAL_FILE>';
 setLogLevel(LogLevel.INFO);
-var bearerToken = "";
+let bearerToken = '';
 
 const skyflow = Skyflow.init({
-  vaultID: "<VAULT_ID>",
-  vaultURL: "<VAULT_URL>",
+  vaultID: '<VAULT_ID>',
+  vaultURL: '<VAULT_URL>',
   getBearerToken: () => {
     return new Promise((resolve, reject) => {
       if (!isExpired(bearerToken)) {
         resolve(bearerToken);
       } else {
         generateBearerToken(filePath)
-          .then((res) => {
-            bearerToken = res.accessToken;
+          .then(response => {
+            bearerToken = response.accessToken;
             resolve(bearerToken);
           })
-          .catch((err) => {
+          .catch(err => {
             reject(err);
           });
       }
@@ -34,41 +34,36 @@ const skyflow = Skyflow.init({
   },
 });
 
-const response = skyflow.insert({
+const result = skyflow.insert(
+  {
     records: [
       {
         fields: {
-            card_number: "411111111111111",
-            expiry_date: "11/22",
-            fullname : "firstNameTest"
+          card_number: '411111111111111',
+          expiry_date: '11/22',
+          fullname: 'firstNameTest',
         },
-        table: "cards",
+        table: 'cards',
       },
     ],
   },
   {
-    tokens:true,
-    upsert:[
-        {
-            table: 'cards',       // table
-            column: 'card_number' // unique column in the table.
-        }
-    ]
+    tokens: true,
+    upsert: [
+      {
+        table: 'cards', // Table.
+        column: 'card_number', // Unique column in the table.
+      },
+    ],
   }
 );
 
-response
-  .then(
-    (res) => {
-      console.log("insert result:");
-      console.log(JSON.stringify(res));
-    },
-    (err) => {
-      console.log("insert error:");
-      console.log(JSON.stringify(err));
-    }
-  )
-  .catch((err) => {
-    console.log("insert exception:");
-    console.log(JSON.stringify(err));
+result
+  .then(response => {
+    console.log('insert result:');
+    console.log(JSON.stringify(response));
+  })
+  .catch(error => {
+    console.log('insert error:');
+    console.log(JSON.stringify(error));
   });

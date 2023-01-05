@@ -1,56 +1,67 @@
 /*
-    Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc.
 */
-import { generateBearerToken, generateBearerTokenFromCreds, isExpired } from "skyflow-node";
+import {
+  generateBearerToken,
+  generateBearerTokenFromCreds,
+  isExpired,
+} from 'skyflow-node';
 
-let filepath = "CREDENTIALS_FILE_PATH";
-let bearerToken = "";
+const filepath = 'CREDENTIALS_FILE_PATH';
+let bearerToken = '';
 
-// To generate Bearer Token from credentials string
-let cred = {
-    clientID: "<YOUR_clientID>",
-    clientName: "<YOUR_clientName>",
-    keyID: "<YOUR_keyID>",
-    tokenURI: "<YOUR_tokenURI>",
-    privateKey: "<YOUR_PEM_privateKey>",
+// To generate Bearer Token from credentials string.
+const cred = {
+  clientID: '<YOUR_CLIENT_ID>',
+  clientName: '<YOUR_CLIENT_NAME>',
+  keyID: '<YOUR_KEY_ID>',
+  tokenURI: '<YOUR_TOKEN_URI>',
+  privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
 
 function getSkyflowBearerTokenFromFilePath() {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (!isExpired(bearerToken)) resolve(bearerToken);
-            else {
-                let response = await generateBearerToken(filepath);
-                bearerToken = response.accessToken;
-                resolve(bearerToken);
-            }
-        } catch (e) {
-            reject(e);
-        }
-    });
+  return new Promise((resolve, reject) => {
+    try {
+      if (!isExpired(bearerToken)) resolve(bearerToken);
+      else {
+        generateBearerToken(filepath)
+          .then(response => {
+            bearerToken = response.accessToken;
+            resolve(bearerToken);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
 }
 
 function getSkyflowBearerTokenFromCreds() {
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (!isExpired(bearerToken)) resolve(bearerToken);
-            else {
-                let response = await generateBearerTokenFromCreds(
-                    JSON.stringify(cred)
-                );
-                bearerToken = response.accessToken;
-                resolve(bearerToken);
-            }
-        } catch (e) {
-            reject(e);
-        }
-    });
+  return new Promise((resolve, reject) => {
+    try {
+      if (!isExpired(bearerToken)) resolve(bearerToken);
+      else {
+        generateBearerTokenFromCreds(JSON.stringify(cred))
+          .then(response => {
+            bearerToken = response.accessToken;
+            resolve(bearerToken);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
 }
 
 const tokens = async () => {
-    console.log(await getSkyflowBearerTokenFromFilePath());
-    console.log(await getSkyflowBearerTokenFromCreds());
-
+  console.log(await getSkyflowBearerTokenFromFilePath());
+  console.log(await getSkyflowBearerTokenFromCreds());
 };
 
 tokens();
