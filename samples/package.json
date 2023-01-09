@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "skyflow-node": "^1.6.0"
+    "skyflow-node": "^1.9.0"
   }
 }

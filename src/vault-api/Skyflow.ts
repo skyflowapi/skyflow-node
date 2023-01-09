@@ -15,6 +15,9 @@ import {
   IGetByIdInput,
   RedactionType,
   MessageType,
+  IInsertOptions,
+  IUpdateInput,
+  IUpdateOptions,
 } from './utils/common';
 import { formatVaultURL } from './utils/helpers';
 
@@ -53,7 +56,7 @@ class Skyflow {
 
   insert(
     records: IInsertRecordInput,
-    options: Record<string, any> = { tokens: true },
+    options?: IInsertOptions,
   ) {
     printLog(logs.infoLogs.INSERT_TRIGGERED, MessageType.LOG);
     return this.#Controller.insert(records, options);
@@ -66,7 +69,14 @@ class Skyflow {
   }
 
   getById(getByIdInput: IGetByIdInput) {
+    printLog(logs.warnLogs.GET_BY_ID_DEPRECATED, MessageType.WARN)
     printLog(logs.infoLogs.GET_BY_ID_TRIGGERED,
+      MessageType.LOG);
+    return this.#Controller.getById(getByIdInput);
+  }
+
+  get(getByIdInput: IGetByIdInput) {
+    printLog(logs.infoLogs.GET_CALL_TRIGGERED,
       MessageType.LOG);
     return this.#Controller.getById(getByIdInput);
   }
@@ -76,6 +86,12 @@ class Skyflow {
       MessageType.LOG);
 
     return this.#Controller.invokeConnection(config);
+  }
+
+  update(updateInput: IUpdateInput,options?:IUpdateOptions){
+    printLog(logs.infoLogs.UPDATE_TRIGGERED,
+      MessageType.LOG);
+    return this.#Controller.update(updateInput,options);
   }
 
   static get RedactionType() {

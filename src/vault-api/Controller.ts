@@ -4,11 +4,14 @@
 import Client from './client';
 
 import {
-  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput, validateInitConfig,
+  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput, validateInitConfig, validateUpsertOptions, validateUpdateInput,
 } from './utils/validators';
 
 import {
   ContentType,
+  IInsertOptions,
+  IUpdateInput,
+  IUpdateOptions,
   TYPES,
 } from './utils/common';
 import {
@@ -28,11 +31,11 @@ import {
 import {
   fetchRecordsBySkyflowID,
   fetchRecordsByTokenId,
+  updateRecordsBySkyflowID,
 } from './core/Reveal';
 import {
  fillUrlWithPathAndQueryParams, toLowerKeys,
 } from './utils/helpers';
-import jwt_decode,{ JwtPayload } from 'jwt-decode';
 import { isTokenValid } from './utils/jwt-utils';
 import SKYFLOW_ERROR_CODE from './utils/constants';
 import SkyflowError from './libs/SkyflowError';
@@ -75,10 +78,21 @@ class Controller {
       });
   }
 
-  insert(records, options): Promise<any> {
+  insert(records, options?:IInsertOptions): Promise<any> {
       return new Promise((resolve, reject) => {
         try {
-          validateInitConfig(this.#client.config)
+          validateInitConfig(this.#client.config);
+          if (options && options.tokens && typeof options.tokens !== 'boolean') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_INSERT, [], true);
+          }
+          if (options) {
+            options = { ...options, tokens: options?.tokens !== undefined ? options.tokens : true };
+          } else {
+            options = { tokens: true,};
+          }
+          if (options?.upsert) {
+            validateUpsertOptions(options.upsert);
+          }
           printLog(logs.infoLogs.VALIDATE_RECORDS, MessageType.LOG);
           validateInsertRecords(records);  
           printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES.INSERT),
@@ -106,7 +120,7 @@ class Controller {
           printLog(logs.infoLogs.VALIDATE_GET_BY_ID_INPUT, MessageType.LOG);
           validateGetByIdInput(getByIdInput);
           printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST,
-            TYPES.GET_BY_SKYFLOWID),
+            TYPES.GET),
           MessageType.LOG);
           this.getToken().then((res)=>{
             fetchRecordsBySkyflowID(
@@ -158,6 +172,40 @@ class Controller {
         }
       });
     
+  }
+
+  update(updateInput: IUpdateInput, options?: IUpdateOptions){
+    return new Promise((resolve,reject)=>{
+      try{
+        validateInitConfig(this.#client.config);
+        if (options && options.tokens && typeof options.tokens !== 'boolean') {
+          throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_UPDATE);
+        }
+        if (options) {
+          options = { ...options, tokens: options?.tokens !== undefined ? options.tokens : true };
+        } else {
+          options = { tokens: true,};
+        }
+        validateUpdateInput(updateInput);
+        this.getToken().then((authToken)=>{
+          updateRecordsBySkyflowID(updateInput.records,options,this.#client,authToken)
+            .then((response)=>{
+              printLog(logs.infoLogs.UPDATE_REQUEST_RESOLVED, MessageType.LOG);
+              resolve(response);
+          }).catch((error)=>{
+              printLog(logs.errorLogs.UPDATE_REQUEST_REJECTED, MessageType.ERROR);
+              reject(error);
+          });
+        }).catch((err)=>{
+          reject(err);
+        })
+
+      }catch(error){
+        if(error instanceof Error)
+        printLog(error.message, MessageType.ERROR);
+        reject(error);
+      }
+    });
   }
 
 

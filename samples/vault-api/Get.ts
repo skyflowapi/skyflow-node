@@ -34,24 +34,30 @@ const skyflow = Skyflow.init({
   },
 });
 
-const result = skyflow.invokeConnection({
-  connectionURL: '<ConnectionURL>',
-  methodName: Skyflow.RequestMethod.POST,
-  requestHeader: {
-    Authorization: '',
-  },
-  requestBody: {
-    expirationDate: {
-      mm: '01',
-      yy: '46',
+const result = skyflow.get({
+  records: [
+    // To to get records using skyflow_ids.
+    {
+      ids: ['<ID1>', '<ID2>'],
+      redaction: Skyflow.RedactionType.PLAIN_TEXT,
+      table: 'cards',
     },
-  },
+    // To get records using unique column name and values.
+    {
+      redaction : Skyflow.RedactionType.PLAIN_TEXT,
+      table: 'persons',
+      columnName: 'card_id',
+      columnValues: ['123', '456'],
+     }
+  ],
 });
 
 result
   .then(response => {
+    console.log('getByID result:');
     console.log(JSON.stringify(response));
   })
   .catch(error => {
+    console.log('getByID error: ');
     console.log(JSON.stringify(error));
   });

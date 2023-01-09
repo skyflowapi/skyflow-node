@@ -1,17 +1,18 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc. 
+  Copyright (c) 2022 Skyflow, Inc. 
 */
 const logs = {
   infoLogs: {
-    EMPTY_BEARER_TOKEN : "BearerToken is Empty",
-    BEARER_TOKEN_EXPIRED : "BearerToken is expired",
-    GENERATE_BEARER_TOKEN_TRIGGERED : "generateBearerToken is triggered",
-    GENERATE_BEARER_TOKEN_SUCCESS : "BearerToken is generated",
+    EMPTY_BEARER_TOKEN: "BearerToken is Empty",
+    BEARER_TOKEN_EXPIRED: "BearerToken is expired",
+    GENERATE_BEARER_TOKEN_TRIGGERED: "generateBearerToken is triggered",
+    GENERATE_BEARER_TOKEN_SUCCESS: "BearerToken is generated",
+    GENERATE_SIGNED_DATA_TOKEN_SUCCESS: 'Signed Data tokens are generated',
     INITIALIZE_CLIENT: 'Initializing skyflow client.',
     CLIENT_INITIALIZED: 'Initialized skyflow client successfully.',
     VALIDATE_RECORDS: 'Validating insert records.',
     VALIDATE_DETOKENIZE_INPUT: 'Validating detokenize input.',
-    VALIDATE_GET_BY_ID_INPUT: 'Validating getByID input.',
+    VALIDATE_GET_BY_ID_INPUT: 'Validating get method input.',
     VALIDATE_CONNECTION_CONFIG: 'Validating connection config.',
     INSERT_DATA_SUCCESS: 'Data has been inserted successfully.',
     DETOKENIZE_SUCCESS: 'Data has been revealed successfully.',
@@ -23,12 +24,17 @@ const logs = {
     INSERT_TRIGGERED: 'Insert method triggered.',
     DETOKENIZE_TRIGGERED: 'Detokenize method triggered.',
     GET_BY_ID_TRIGGERED: 'Get by ID triggered.',
+    GET_CALL_TRIGGERED: 'Get call triggered.',
     INVOKE_CONNECTION_TRIGGERED: 'Invoke connection triggered.',
     EMIT_REQUEST: 'Emitted %s1 request.',
     FETCH_RECORDS_RESOLVED: 'Detokenize request is resolved.',
     INSERT_RECORDS_RESOLVED: 'Insert request is resolved.',
-    GET_BY_SKYFLOWID_RESOLVED: 'GetById request is resolved.',
+    GET_BY_SKYFLOWID_RESOLVED: 'Get request is resolved.',
     SEND_INVOKE_CONNECTION_RESOLVED: 'Invoke connection request resolved.',
+    GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: "generateSignedDataTokens is triggered",
+    UPDATE_TRIGGERED: 'Update method triggered.',
+    UPDATE_REQUEST_RESOLVED:'Update request is resolved.',
+
   },
   errorLogs: {
     CLIENT_CONNECTION: 'client connection not established.',
@@ -52,13 +58,16 @@ const logs = {
     MISSING_RECORDS: 'Missing records property.',
     INVALID_RECORDS: 'Invalid Records.',
     EMPTY_RECORD_IDS: 'Record ids cannot be Empty.',
+    EMPTY_RECORD_COLUMN_VALUES: 'Record column values cannot be empty.',
     INVALID_RECORD_ID_TYPE: 'Invalid Type of Records Id.',
+    INVALID_RECORD_COLUMN_VALUE_TYPE: 'Invalid Type of Records Column Values.',
     INVALID_RECORD_LABEL: 'Invalid Record Label Type.',
     INVALID_RECORD_ALT_TEXT: 'Invalid Record altText Type.',
     FETCH_RECORDS_REJECTED: 'Detokenize request is rejected.',
     INSERT_RECORDS_REJECTED: 'Insert request is rejected.',
-    GET_BY_SKYFLOWID_REJECTED: 'GetById request is rejected.',
+    GET_BY_SKYFLOWID_REJECTED: 'Get request is rejected.',
     SEND_INVOKE_CONNECTION_REJECTED: 'Invoke connection request rejected.',
+    UPDATE_REQUEST_REJECTED: 'Update request is rejected.',
     INVALID_TABLE_NAME: 'Table Name passed doesn’t exist in the vault with id.',
     EMPTY_TABLE_NAME: 'Table Name is empty.',
     EMPTY_TABLE_AND_FIELDS: 'table or fields parameter cannot be passed as empty at index %s1 in records array.',
@@ -69,7 +78,13 @@ const logs = {
     INVALID_COLUMN_NAME: 'Column with given name is not present in the table in vault.',
     EMPTY_COLUMN_NAME: 'Column name is empty.',
     MISSING_TABLE: 'Missing Table Property.',
+    MISSING_RECORD_COLUMN_VALUE: 'Column Values can not be empty when Column Name is specified.',
+    MISSING_RECORD_COLUMN_NAME: 'Column Name can not be empty when Column Values are specified.',
+    MISSING_ID_AND_COLUMN_NAME:'Provide either ids or column name to get records',
+    EMPTY_COLUMN_VALUE: 'Column Value is empty.',
     INVALID_RECORD_TABLE_VALUE: 'Invalid Record Table value.',
+    INVALID_RECORD_COLUMN_VALUE: 'Invalid Record Column value.',
+    INVALID_COLUMN_VALUES_OPTION_TYPE: 'Invalid Column Values type, should be an Array.',
     INVALID_TOKEN_ID: 'Token provided is invalid.',
     INVALID_TOKEN_ID_WITH_ID: 'Token %s1 provided is invalid',
     EMPTY_TOKEN_ID: 'Token is empty.',
@@ -91,11 +106,30 @@ const logs = {
     CONNECTION_ERROR: 'Error while initializing the connection.',
     ERROR_OCCURED: 'Error occurred.',
     RESPONSE_BODY_KEY_MISSING: '%s1 is missing in the response.',
+    INVALID_UPSERT_OPTION_TYPE: 'Interface: insert method - Invalid upsert option, should be an array.',
+    EMPTY_UPSERT_OPTIONS_ARRAY: 'Interface: insert method - upsert option cannot be an empty array, atleast one object of table and column is required.',
+    INVALID_UPSERT_OPTION_OBJECT_TYPE: 'Interface: insert method - Invalid upsert object at index %s1, an object of table and column is required.',
+    MISSING_TABLE_IN_UPSERT_OPTION: 'Interface: insert method - "table" key is required in upsert options object at index %s1.',
+    MISSING_COLUMN_IN_UPSERT_OPTION: 'Interface: insert method - "column" key is required in upsert option at index %s1.',
+    INVALID_TABLE_IN_UPSERT_OPTION: 'Interface: insert method - Invalid table in upsert object at index %s1, table of type non empty string is required.',
+    INVALID_COLUMN_IN_UPSERT_OPTION: 'Interface: insert method - Invalid column in upsert object at index %s1, column of type non empty string is required.',
+    INVALID_TOKENS_IN_INSERT: 'Interface: insert method - Invalid tokens in options. tokens of type boolean is required.',
+    INVALID_TOKENS_IN_UPDATE: 'Interface: update method - Invalid tokens in options. tokens of type boolean is required.',
+    MISSING_TABLE_IN_IN_UPDATE: 'Interface: update method - table key is required in records object at index %s1',
+    MISSING_FIELDS_IN_IN_UPDATE: 'Interface: update method - fields key is required in records object at index %s1',
+    MISSING_ID_IN_UPDATE: 'Interface: update method - id key is required in records object at index %s1',
+    INVALID_ID_IN_UPDATE: 'Interface: update method - Invalid id in records object at index %s1, id of type non empty string is required.',
+    INVALID_TABLE_IN_UPDATE: 'Interface: update method - Invalid table in records object at index %s1, table of type non empty string is required.',
+    INVALID_FIELDS_IN_UPDATE: 'Interface: update method - Invalid fields in records object at index %s1, object with fields to be updated are required.',
+    INVALID_UPDATE_INPUT: 'Interface: update method - Invalid argument , object with records key is required.',
+    INVALID_RECORDS_UPDATE_INPUT: 'Interface: update method - Invalid records type, records should be an array of objects.'
   },
-warnLogs:{
-  GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',
-  ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead'
-}
+  warnLogs: {
+    GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',
+    ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead',
+    GET_BY_ID_DEPRECATED: 'This method has been deprecated and will be removed in future release, use Get method instead',
+
+  }
 };
 
 export default logs;

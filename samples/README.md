@@ -1,9 +1,9 @@
-# Python SDK samples
+# Node.js SDK samples
 Test the SDK by adding `VAULT-ID`, `VAULT-URL`, and `SERVICE-ACCOUNT` details in the required places for each sample.
 
 ## Prerequisites
 - A Skylow account. If you don't have one, register for one on the [Try Skyflow](https://skyflow.com/try-skyflow) page.
-- Node 7.6.0 and above.
+- [Node 7.6.0](https://nodejs.org/en/) and above.
 
 ## Prepare
 - Install the Node SDK:
@@ -41,13 +41,13 @@ Detokenize a data token from the vault. Make sure the specified token is for dat
 ### GetById
 Get data using skyflow id. 
 #### Configure
-    - Replace **<VAULT_ID>** with **VAULT ID**
-    - Replace **<VAULT_URL>** with **VAULT URL**.
-    - Replace **<ID1>** with **Skyflow Id 1**.
-    - Replace **<ID2>** with **Skyflow Id 2**.
-    - Replace **<ID3>** with **Skyflow Id 3**.
-    - Replace **<YOUR_CREDENTIAL_FILE>** with relative  path of **SERVICE ACCOUNT CREDENTIAL FILE**.
-    - Replace **<TABLE_NAME>** with **credit_cards**.
+1. Replace **<VAULT_ID>** with **VAULT ID**
+2. Replace **<VAULT_URL>** with **VAULT URL**.
+3. Replace **<ID1>** with **Skyflow Id 1**.
+4. Replace **<ID2>** with **Skyflow Id 2**.
+5. Replace **<ID3>** with **Skyflow Id 3**.
+6. Replace **<YOUR_CREDENTIAL_FILE>** with relative  path of **SERVICE ACCOUNT CREDENTIAL FILE**.
+7. Replace **<TABLE_NAME>** with **credit_cards**.
 #### Run the sample
     
         ts-node GetById.ts
@@ -77,7 +77,7 @@ Skyflow Connections is a gateway service that uses Skyflow's underlying tokeniza
     
         ts-node InvokeConnection.ts
 ### Service account token generation
-Generates SA Token using path of credentials file.
+Generates a service account Bearer token using the file path of credentials.json.
 #### Configure
 1. Replace **<YOUR_CREDNTIALS_FILE_PATH>** with relative  path of **SERVICE ACCOUNT CREDENTIAL FILE**.
 
@@ -86,7 +86,7 @@ Generates SA Token using path of credentials file.
         ts-node TokenGenerationExample.ts
 
 ### Generate Bearer Token From Credentails
-Generates SA Token using json content of credentials file.
+Generates a service account bearer token using the JSON content of a credentials file.
 #### Configure
 1. Replace **credentials*** with json data of downloaded credentials file while creation Service account.
 

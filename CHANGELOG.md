@@ -2,7 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.16.1] - 2022-06-28
+## [1.9.0] - 2022-12-27
+### Added
+- Added new `get` interface.
+- Deprecated `getById` interface.
+## [1.8.0] - 2022-12-14
+### Added
+- Added `update` interface.
+- Added support for Get by Unique column values in `getById` interface.
+## [1.7.1] - 2022-11-24
+
+### Changed
+- Rename context to 'ctx' in bearer token options.
+
+## [1.7.0] - 2022-11-22
+
+### Added
+- Upsert support for `insert` method
+- Added support to generate skyflow bearer tokens with context.
+- Added support to generate scoped skyflow bearer tokens.
+- Added support to generate signed data tokens.
+
+## [1.6.1] - 2022-06-28
 
 ### Added
 - Copyright header to all files

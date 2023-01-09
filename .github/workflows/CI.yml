@@ -15,7 +15,7 @@ jobs:
       - name: Check JIRA ID
         uses: gsactions/commit-message-checker@v1
         with:
-          pattern: '\[?[A-Z]{1,5}-[1-9][0-9]*.+$'
+          pattern: '(\[?[A-Z]{1,5}-[1-9][0-9]*)|(\[AUTOMATED\])|(Merge)|(Release).+$'
           flags: 'gm'
           excludeDescription: 'true'
           checkAllCommitMessages: 'true'
@@ -29,8 +29,13 @@ jobs:
       - name: install modules
         run: npm install
 
+
       - name: Run tests
+        env:
+          SA_WITHOUT_CONTEXT: ${{ secrets.SA_WITHOUT_CONTEXT }}
+          SIGNED_TOKEN_SA: ${{ secrets.SIGNED_TOKEN_SA }}
         run: npm run test
+
       
       - name: Codecov
         uses: codecov/codecov-action@v2.1.0

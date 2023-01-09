@@ -34,24 +34,36 @@ const skyflow = Skyflow.init({
   },
 });
 
-const result = skyflow.invokeConnection({
-  connectionURL: '<ConnectionURL>',
-  methodName: Skyflow.RequestMethod.POST,
-  requestHeader: {
-    Authorization: '',
+const result = skyflow.insert(
+  {
+    records: [
+      {
+        fields: {
+          card_number: '411111111111111',
+          expiry_date: '11/22',
+          fullname: 'firstNameTest',
+        },
+        table: 'cards',
+      },
+    ],
   },
-  requestBody: {
-    expirationDate: {
-      mm: '01',
-      yy: '46',
-    },
-  },
-});
+  {
+    tokens: true,
+    upsert: [
+      {
+        table: 'cards', // Table.
+        column: 'card_number', // Unique column in the table.
+      },
+    ],
+  }
+);
 
 result
   .then(response => {
+    console.log('insert result:');
     console.log(JSON.stringify(response));
   })
   .catch(error => {
+    console.log('insert error:');
     console.log(JSON.stringify(error));
   });
