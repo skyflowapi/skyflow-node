@@ -1,5 +1,5 @@
 /*
-	Copyright (c) 2022 Skyflow, Inc.
+  Copyright (c) 2022 Skyflow, Inc.
 */
 import {
   Skyflow,
@@ -34,7 +34,7 @@ const skyflow = Skyflow.init({
   },
 });
 
-const result = skyflow.get({
+const result = skyflow.getById({
   records: [
     // To to get records using skyflow_ids.
     {
@@ -42,22 +42,15 @@ const result = skyflow.get({
       redaction: Skyflow.RedactionType.PLAIN_TEXT,
       table: 'cards',
     },
-    // To get records using unique column name and values.
-    {
-      redaction : Skyflow.RedactionType.PLAIN_TEXT,
-      table: 'persons',
-      columnName: 'card_id',
-      columnValues: ['123', '456'],
-     }
   ],
 });
 
 result
   .then(response => {
-    console.log('get result:');
+    console.log('getByID result:');
     console.log(JSON.stringify(response));
   })
   .catch(error => {
-    console.log('get error: ');
+    console.log('getByID error: ');
     console.log(JSON.stringify(error));
   });

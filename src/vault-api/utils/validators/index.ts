@@ -4,7 +4,7 @@
 import SkyflowError from '../../libs/SkyflowError';
 import { ISkyflow } from '../../Skyflow';
 import {
-  IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod, IUpdateInput,
+  IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod, IUpdateInput, IGetInput,
 } from '../common';
 import SKYFLOW_ERROR_CODE from '../constants';
 
@@ -51,6 +51,47 @@ export const validateGetByIdInput = (getByIdInput: IGetByIdInput) => {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORDS);
   }
   const { records } = getByIdInput;
+  if (records.length === 0) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
+  }
+
+  records.forEach((record) => {
+    if (Object.keys(record).length === 0) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
+    }
+
+    const recordIds = record.ids;
+
+    if (!recordIds) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_IDS);
+    }
+    if (recordIds?.length === 0) throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IDS);
+    recordIds?.forEach((skyflowId) => {
+      if (typeof skyflowId !== 'string') throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_ID_TYPE);
+    });
+
+    const recordRedaction = record.redaction;
+    if (!recordRedaction) throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_REDACTION);
+    if (!Object.values(RedactionType).includes(recordRedaction)) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
+    }
+
+    const recordTable = record.table;
+    if (!Object.prototype.hasOwnProperty.call(record, 'table')) { throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE); }
+
+    if (recordTable === '' || typeof recordTable !== 'string') { throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_TABLE_VALUE); }
+  
+    if(record.hasOwnProperty('columnName') || record.hasOwnProperty('columnValues')) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_GET_BY_ID_INPUT);
+    }
+  });
+};
+
+export const validateGetInput = (getInput: IGetInput) => {
+  if (!Object.prototype.hasOwnProperty.call(getInput, 'records')) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORDS);
+  }
+  const { records } = getInput;
   if (records.length === 0) {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
   }
