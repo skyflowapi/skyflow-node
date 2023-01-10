@@ -12,7 +12,8 @@ const logs = {
     CLIENT_INITIALIZED: 'Initialized skyflow client successfully.',
     VALIDATE_RECORDS: 'Validating insert records.',
     VALIDATE_DETOKENIZE_INPUT: 'Validating detokenize input.',
-    VALIDATE_GET_BY_ID_INPUT: 'Validating get method input.',
+    VALIDATE_GET_BY_ID_INPUT: 'Validating getById method input.',
+    VALIDATE_GET_INPUT: 'Validating get method input.',
     VALIDATE_CONNECTION_CONFIG: 'Validating connection config.',
     INSERT_DATA_SUCCESS: 'Data has been inserted successfully.',
     DETOKENIZE_SUCCESS: 'Data has been revealed successfully.',
@@ -122,13 +123,12 @@ const logs = {
     INVALID_TABLE_IN_UPDATE: 'Interface: update method - Invalid table in records object at index %s1, table of type non empty string is required.',
     INVALID_FIELDS_IN_UPDATE: 'Interface: update method - Invalid fields in records object at index %s1, object with fields to be updated are required.',
     INVALID_UPDATE_INPUT: 'Interface: update method - Invalid argument , object with records key is required.',
-    INVALID_RECORDS_UPDATE_INPUT: 'Interface: update method - Invalid records type, records should be an array of objects.'
+    INVALID_RECORDS_UPDATE_INPUT: 'Interface: update method - Invalid records type, records should be an array of objects.',
+    INVALID_GET_BY_ID_INPUT: 'Interface: getById method - columnName or columnValues cannot be passed, use get method instead.', 
   },
   warnLogs: {
     GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',
-    ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead',
-    GET_BY_ID_DEPRECATED: 'This method has been deprecated and will be removed in future release, use Get method instead',
-
+    ISVALID_DEPRECATED: 'This method has been deprecated will be removed in future release, use isExpired instead'
   }
 };
 

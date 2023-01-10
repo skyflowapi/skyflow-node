@@ -122,6 +122,10 @@ const SKYFLOW_ERROR_CODE = {
   INVALID_RECORDS_UPDATE_INPUT:{
     code: 400,
     description: logs.errorLogs.INVALID_RECORDS_UPDATE_INPUT,
+  },
+  INVALID_GET_BY_ID_INPUT:{
+    code: 400,
+    description: logs.errorLogs.INVALID_GET_BY_ID_INPUT,
   }
 
 };
