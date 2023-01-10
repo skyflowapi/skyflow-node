@@ -559,10 +559,11 @@ const getByIdInputMissingColumnValues= {
   ],
 };
 
-const getByIdInputEmptyColumnName= {
+const getByIdInputWithColumnName= {
   records: [
     {
       table: "cards",
+      ids: ['id'],
       columnName: " ",
       columnValues: ["ab"],
       redaction: "PLAIN_TEXT",
@@ -774,6 +775,13 @@ describe('skyflow getById', () => {
     const res = skyflow.getById(getByIdInputInvalidRedaction);
     res.catch((err)=>{
       expect(err).toBeDefined();
+      done();
+    });
+  });
+  test('getById invalid input-7',(done)=>{
+    const res = skyflow.getById(getByIdInputWithColumnName);
+    res.catch((err)=>{
+      expect(err.message).toBe(logs.errorLogs.INVALID_GET_BY_ID_INPUT);
       done();
     });
   });
