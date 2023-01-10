@@ -571,6 +571,25 @@ const getByIdInputWithColumnName= {
   ],
 };
 
+const getByIdInputWithEmptyTable= {
+  records: [
+    {
+      table: " ",
+      ids: ['id'],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputWithMissingTable= {
+  records: [
+    {
+      ids: ['id'],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
 const getByIdInputInvalidColumnNameType= {
   records: [
     {
@@ -682,6 +701,7 @@ describe('skyflow getById', () => {
         request: clientReq,
         metadata:{}
       }
+
       clientModule.mockImplementation(() => {return mockClient});
         skyflow = Skyflow.init({
           vaultID: '<VaultID>',
@@ -782,6 +802,27 @@ describe('skyflow getById', () => {
     const res = skyflow.getById(getByIdInputWithColumnName);
     res.catch((err)=>{
       expect(err.message).toBe(logs.errorLogs.INVALID_GET_BY_ID_INPUT);
+      done();
+    });
+  });
+  test('getById invalid input-8',(done)=>{
+    const res = skyflow.getById(getByIdInputWithColumnName);
+    res.catch((err)=>{
+      expect(err.message).toBe(logs.errorLogs.INVALID_GET_BY_ID_INPUT);
+      done();
+    });
+  });
+  test('getById invalid input-9',(done)=>{
+    const res = skyflow.getById(getByIdInputWithEmptyTable);
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+  test('getById invalid input-10',(done)=>{
+    const res = skyflow.getById(getByIdInputWithMissingTable);
+    res.catch((err)=>{
+      expect(err).toBeDefined;
       done();
     });
   });
