@@ -18,6 +18,7 @@ import {
   IInsertOptions,
   IUpdateInput,
   IUpdateOptions,
+  IGetInput,
 } from './utils/common';
 import { formatVaultURL } from './utils/helpers';
 
@@ -74,10 +75,10 @@ class Skyflow {
     return this.#Controller.getById(getByIdInput);
   }
 
-  get(getByIdInput: IGetByIdInput) {
+  get(getInput: IGetInput) {
     printLog(logs.infoLogs.GET_CALL_TRIGGERED,
       MessageType.LOG);
-    return this.#Controller.get(getByIdInput);
+    return this.#Controller.get(getInput);
   }
 
   invokeConnection(config: IConnectionConfig) {
