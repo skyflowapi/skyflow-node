@@ -6,8 +6,11 @@ import {
   generateSignedDataTokens, generateSignedDataTokensFromCreds
 } from "../src/service-account/util/Token";
 import { errorMessages } from "../src/service-account/errors/Messages";
+import { setLogLevel } from "../src/vault-api/Logging";
+import { LogLevel } from "../src/vault-api/utils/common";
 
 describe("fileValidityTest", () => {
+  setLogLevel(LogLevel.WARN)
   test("invalidJSON", async () => {
     try {
       const res = await generateToken("test/demo-credentials/invalidJson.json")
