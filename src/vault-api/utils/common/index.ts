@@ -62,7 +62,17 @@ export interface ISkyflowIdRecord {
   columnValues?: string[];
 }
 
+export interface ISkyflowRecord {
+  ids: string[];
+  redaction: RedactionType;
+  table: string;
+}
+
 export interface IGetByIdInput {
+  records: ISkyflowRecord[];
+}
+
+export interface IGetInput {
   records: ISkyflowIdRecord[];
 }
 
@@ -82,6 +92,7 @@ export interface IConnectionConfig {
 export const TYPES = {
   INSERT: 'INSERT',
   DETOKENIZE: 'DETOKENIZE',
+  GET_BY_ID: 'GET_BY_ID',
   GET: 'GET',
   INVOKE_CONNECTION: 'INVOKE_CONNECTION',
 };

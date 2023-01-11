@@ -23,6 +23,7 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
       - [Insert](#insert)
       - [Detokenize](#detokenize)
       - [Get By Id](#get-by-id)
+      - [Get](#get)
       - [Update](#update)
       - [Invoke Connection](#invoke-connection)
     - [Logging](#logging)
@@ -613,9 +614,102 @@ Sample response:
   ],
 }
 ```
-
 #### Get By Id
-To retrieve data from your vault using SkyflowIDs or unique column values, use the getById(records) method. The `records` parameter takes a JSONObject that should contain either an array of SkyflowIDs or a unique column name and values to fetch the records, as shown below:
+In order to retrieve data from your vault using SkyflowIDs, use the `getById(records)` method. The records parameter takes a JSONObject that should contain an array of SkyflowIDs to be fetched, as shown below:
+
+```javascript
+data = {
+    records: [{
+        // List of skyflow_ids for the records to be fetched
+        ids: ['id1', 'id2'],
+        // Name of table holding the above skyflow_ids
+        table: 'NAME_OF_SKYFLOW_TABLE',
+        // Redaction to be applied to retrieved data
+        redaction: Skyflow.RedactionType,
+    }]
+};
+```
+`Skyflow.RedactionTypes` accept four values:
+* `PLAIN_TEXT`
+* `MASKED`
+* `REDACTED`
+* `DEFAULT`
+
+You must apply a redaction type to retrieve data
+
+An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) of `getById` call:
+```javascript
+let skyflowIds = [
+    'f8622-b557-4c6b-a12c-c0b0bfd9',
+    'da26de53-95d5-4db-99db-8d35ff9'
+];
+
+let record = {
+    ids: skyflowIds,
+    table: 'cards',
+    redaction: RedactionType.PLAIN_TEXT
+};
+
+let invalidIds = ['invalid Skyflow ID'];
+let badRecord = {
+    ids: invalidIds,
+    table: 'cards',
+    'redaction': RedactionType.PLAIN_TEXT
+};
+
+let records = {
+    records: [record, badRecord]
+};
+
+const result = client.getById(records);
+result.then(
+    (res) => {
+        console.log(JSON.stringify(res));
+    }).catch((err) => {
+    console.log(JSON.stringify(err));
+});
+```
+
+Sample response:
+
+```json
+{
+  "records": [
+    {
+      "fields": {
+        "card_number": "4111111111111111",
+        "expiry_date": "11/35",
+        "fullname": "myname",
+        "skyflow_id": "f8d2-b557-4c6b-a12c-c5ebfd9"
+      },
+      "table": "cards"
+    },
+    {
+      "fields": {
+        "card_number": "4111111111111111",
+        "expiry_date": "10/23",
+        "fullname": "sam",
+        "skyflow_id": "da53-95d5-4bdb-99db-8d8c5ff9"
+      },
+      "table": "cards"
+    }
+  ],
+  "errors": [
+    {
+      "error": {
+        "code": "404",
+        "description": "No Records Found"
+      },
+      "skyflow_ids": [
+        "invalid Skyflow ID"
+      ]
+    }
+  ]
+}
+```
+
+#### Get 
+To retrieve data from your vault using SkyflowIDs or unique column values, use the get(records) method. The `records` parameter takes a JSONObject that should contain either an array of SkyflowIDs or a unique column name and values to fetch the records, as shown below:
 
 ```javascript
 data = {
@@ -635,17 +729,10 @@ data = {
   ],
 };
 ```
-`Skyflow.RedactionTypes` accept four values:
-* `PLAIN_TEXT`
-* `MASKED`
-* `REDACTED`
-* `DEFAULT`
-
-You must apply a redaction type to retrieve data
 
 Note: You cannot pass an array of skyflow_ids and unique column details together. Using column name and column value with `skyflow_ids` will return an error message.
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) to get records using skyflow_ids:
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Get.ts) to get records using skyflow_ids:
 ```javascript
 let skyflowIds = [
     'f8622-b557-4c6b-a12c-c0b0bfd9',
@@ -662,7 +749,7 @@ let records = {
     records: [record],
 };
 
-const result = client.getById(records);
+const result = client.get(records);
 result
     .then((res) => {
         console.log(JSON.stringify(res));
@@ -698,7 +785,7 @@ Response:
     ]
 }
 ```
-[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) to get records using unique column names and values:
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Get.ts) to get records using unique column names and values:
 
 ```javascript
 let record = {
@@ -712,7 +799,7 @@ let records = {
     records: [record],
 };
 
-const result = client.getById(records);
+const result = client.get(records);
 result
     .then((res) => {
         console.log(JSON.stringify(res));
