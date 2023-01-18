@@ -1,5 +1,5 @@
 import { isTokenValid, isExpired, isValid } from "../src/vault-api/utils/jwt-utils/index";
-import { sign } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 describe("isTokenValid", () => {
   it("should return false for an empty token", () => {
@@ -9,7 +9,7 @@ describe("isTokenValid", () => {
   });
 
   it("should return false for a token with expired exp claim", () => {
-    const token = sign(
+    const token = jwt.sign(
       {  exp: Math.floor(Date.now() / 1000) - 3600  },
       "secret"
     );
@@ -18,7 +18,7 @@ describe("isTokenValid", () => {
   });
 
   it("should return true for a token with valid exp claim", () => {
-    const token = sign(
+    const token = jwt.sign(
       { exp: Math.floor(Date.now() / 1000) + 3600 },
       "secret"
     );
@@ -35,13 +35,13 @@ describe("isExpired", () => {
   });
 
   it("should return true for a token with expired exp claim", () => {
-    const token = sign({ exp: Math.floor(Date.now() / 1000) - 3600 }, "secret");
+    const token = jwt.sign({ exp: Math.floor(Date.now() / 1000) - 3600 }, "secret");
     const result = isExpired(token);
     expect(result).toBe(true);
   });
 
   it("should return false for a token with valid exp claim", () => {
-    const token = sign({ exp: Math.floor(Date.now() / 1000) + 3600 }, "secret");
+    const token = jwt.sign({ exp: Math.floor(Date.now() / 1000) + 3600 }, "secret");
     const result = isExpired(token);
     expect(result).toBe(false);
   });
@@ -49,13 +49,13 @@ describe("isExpired", () => {
 
 describe("isValid", () => {
   it("should return true for a valid token", () => {
-    const token = sign({ exp: Math.floor(Date.now() / 1000) + 3600 }, "secret");
+    const token = jwt.sign({ exp: Math.floor(Date.now() / 1000) + 3600 }, "secret");
     const result = isValid(token);
     expect(result).toBe(true);
   });
 
   it("should return false for an expired token", () => {
-    const token = sign({ exp: Math.floor(Date.now() / 1000) - 3600 }, "secret");
+    const token = jwt.sign({ exp: Math.floor(Date.now() / 1000) - 3600 }, "secret");
     const result = isValid(token);
     expect(result).toBe(false);
   });
