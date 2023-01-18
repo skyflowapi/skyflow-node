@@ -8,9 +8,11 @@ import {
 import SKYFLOW_ERROR_CODE from "../../src/vault-api/utils/constants";
 import { parameterizedString } from "../../src/vault-api/utils/logs-helper";
 import SkyflowError from "../../src/vault-api/libs/SkyflowError";
+import { fillUrlWithPathAndQueryParams, formatVaultURL, toLowerKeys, objectToFormData } from "../../src/vault-api/utils/helpers";
+const FormData = require('form-data');
 
 describe("validate upsert options in collect", () => {
-  test("invalid upsert options type", () => {
+  it("invalid upsert options type", () => {
     try {
       validateUpsertOptions({});
     } catch (err) {
@@ -19,7 +21,7 @@ describe("validate upsert options in collect", () => {
       );
     }
   });
-  test("empty upsert array", () => {
+  it("empty upsert array", () => {
     try {
       validateUpsertOptions([]);
     } catch (err) {
@@ -28,7 +30,7 @@ describe("validate upsert options in collect", () => {
       );
     }
   });
-  test("invalid upsert object type", () => {
+  it("invalid upsert object type", () => {
     try {
       validateUpsertOptions([undefined]);
     } catch (err) {
@@ -40,7 +42,7 @@ describe("validate upsert options in collect", () => {
       );
     }
   });
-  test("missing table key", () => {
+  it("missing table key", () => {
     try {
       validateUpsertOptions([
         {
@@ -56,7 +58,7 @@ describe("validate upsert options in collect", () => {
       );
     }
   });
-  test("missing column key", () => {
+  it("missing column key", () => {
     try {
       validateUpsertOptions([
         {
@@ -72,7 +74,7 @@ describe("validate upsert options in collect", () => {
       );
     }
   });
-  test("invalid table key type", () => {
+  it("invalid table key type", () => {
     try {
       validateUpsertOptions([
         {
@@ -89,7 +91,7 @@ describe("validate upsert options in collect", () => {
       );
     }
   });
-  test("invalid column key type", () => {
+  it("invalid column key type", () => {
     try {
       validateUpsertOptions([
         {
@@ -108,8 +110,8 @@ describe("validate upsert options in collect", () => {
   });
 });
 
-describe("test validateUpdateInput", () => {
-  test("test invalid update input", () => {
+describe("it validateUpdateInput", () => {
+  it("it invalid update input", () => {
     try {
       validateUpdateInput(null);
     } catch (err) {
@@ -126,7 +128,7 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test missing records key in update input", () => {
+  it("it missing records key in update input", () => {
     try {
       validateUpdateInput({});
     } catch (err) {
@@ -136,7 +138,7 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test records not array input", () => {
+  it("it records not array input", () => {
     try {
       validateUpdateInput({ records: {} });
     } catch (err) {
@@ -154,7 +156,7 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test records empty array input", () => {
+  it("it records empty array input", () => {
     try {
       validateUpdateInput({ records: {} });
     } catch (err) {
@@ -164,7 +166,7 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test records empty array input", () => {
+  it("it records empty array input", () => {
     try {
       validateUpdateInput({ records: [] });
     } catch (err) {
@@ -174,7 +176,7 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test invalid empty record object", () => {
+  it("it invalid empty record object", () => {
     try {
       validateUpdateInput({ records: [{}] });
     } catch (err) {
@@ -184,7 +186,7 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test missing id key in record object", () => {
+  it("it missing id key in record object", () => {
     try {
       validateUpdateInput({ records: [{ ids: [] }] });
     } catch (err) {
@@ -197,7 +199,7 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test invalid id values in record object", () => {
+  it("it invalid id values in record object", () => {
     try {
       validateUpdateInput({ records: [{ id: {} }] });
     } catch (err) {
@@ -230,9 +232,9 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test missing table key in record object", () => {
+  it("it missing table key in record object", () => {
     try {
-      validateUpdateInput({ records: [{ id: "test_id" }] });
+      validateUpdateInput({ records: [{ id: "it_id" }] });
     } catch (err) {
       expect(err?.errors[0].description).toEqual(
         parameterizedString(
@@ -243,9 +245,9 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test invalid table values in record object", () => {
+  it("it invalid table values in record object", () => {
     try {
-      validateUpdateInput({ records: [{ id: "test_id", table: {} }] });
+      validateUpdateInput({ records: [{ id: "it_id", table: {} }] });
     } catch (err) {
       expect(err?.errors[0].description).toEqual(
         parameterizedString(
@@ -255,7 +257,7 @@ describe("test validateUpdateInput", () => {
       );
     }
     try {
-      validateUpdateInput({ records: [{ id: "test_id", table: true }] });
+      validateUpdateInput({ records: [{ id: "it_id", table: true }] });
     } catch (err) {
       expect(err?.errors[0].description).toEqual(
         parameterizedString(
@@ -265,7 +267,7 @@ describe("test validateUpdateInput", () => {
       );
     }
     try {
-      validateUpdateInput({ records: [{ id: "test_id", table: "" }] });
+      validateUpdateInput({ records: [{ id: "it_id", table: "" }] });
     } catch (err) {
       expect(err?.errors[0].description).toEqual(
         parameterizedString(
@@ -276,9 +278,9 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test missing fields key in record object", () => {
+  it("it missing fields key in record object", () => {
     try {
-      validateUpdateInput({ records: [{ id: "test_id", table: "table1" }] });
+      validateUpdateInput({ records: [{ id: "it_id", table: "table1" }] });
     } catch (err) {
       expect(err?.errors[0].description).toEqual(
         parameterizedString(
@@ -289,10 +291,10 @@ describe("test validateUpdateInput", () => {
     }
   });
 
-  test("test invalid fields values in record object", () => {
+  it("it invalid fields values in record object", () => {
     try {
       validateUpdateInput({
-        records: [{ id: "test_id", table: "table1", fields: true }],
+        records: [{ id: "it_id", table: "table1", fields: true }],
       });
     } catch (err) {
       expect(err?.errors[0].description).toEqual(
@@ -304,7 +306,7 @@ describe("test validateUpdateInput", () => {
     }
     try {
       validateUpdateInput({
-        records: [{ id: "test_id", table: "table1", fields: "" }],
+        records: [{ id: "it_id", table: "table1", fields: "" }],
       });
     } catch (err) {
       expect(err?.errors[0].description).toEqual(
@@ -316,7 +318,7 @@ describe("test validateUpdateInput", () => {
     }
     try {
       validateUpdateInput({
-        records: [{ id: "test_id", table: "table1", fields: {} }],
+        records: [{ id: "it_id", table: "table1", fields: {} }],
       });
     } catch (err) {
       expect(err?.errors[0].description).toEqual(
@@ -418,7 +420,7 @@ describe("validateInitConfig", () => {
 });
 
 describe("validateURL", () => {
-  it("should test for Valid URL for given url's", () => {
+  it("should it for Valid URL for given url's", () => {
     expect(isValidURL("https://example.com")).toBe(true);
     expect(isValidURL("http://example.com")).toBe(false);
     expect(isValidURL("example.com")).toBe(false);
@@ -426,4 +428,129 @@ describe("validateURL", () => {
     expect(isValidURL("https://www .example.com")).toBe(false);
     expect(isValidURL("https://www.example.com")).toBe(true);
   });
+});
+
+describe("URL helper its", () => {
+  
+  it('fillUrlWithPathAndQueryParams should add query params to the url', () => {
+    const url = 'https://example.com';
+    const queryParams = { param1: 'value1', param2: 'value2' };
+    const expectedUrl = 'https://example.com?param1=value1&param2=value2';
+    
+    const result = fillUrlWithPathAndQueryParams(url, undefined, queryParams);
+    
+    expect(result).toEqual(expectedUrl);
+  });
+  
+  it('fillUrlWithPathAndQueryParams should replace path params and add query params to the url', () => {
+    const url = 'https://example.com/{param1}';
+    const pathParams = { param1: 'path1' };
+    const queryParams = { param2: 'value2', param3: 'value3' };
+    const expectedUrl = 'https://example.com/path1?param2=value2&param3=value3';
+    
+    const result = fillUrlWithPathAndQueryParams(url, pathParams, queryParams);
+    
+    expect(result).toEqual(expectedUrl);
+  });
+  
+  it('fillUrlWithPathAndQueryParams should not change the url if no pathParams and queryParams are passed', () => {
+    const url = 'https://example.com';
+    const expectedUrl = 'https://example.com';
+    
+    const result = fillUrlWithPathAndQueryParams(url);
+    
+    expect(result).toEqual(expectedUrl);
+  });
+
+  it('formatVaultURL should remove trailing slash from the url', () => {
+    const url = 'https://example.com/';
+    const expectedUrl = 'https://example.com';
+    
+    const result = formatVaultURL(url);
+    
+    expect(result).toEqual(expectedUrl);
+  });
+  
+  it('formatVaultURL should remove leading and trailing whitespaces from the url', () => {
+    const url = ' https://example.com ';
+    const expectedUrl = 'https://example.com';
+    
+    const result = formatVaultURL(url);
+    
+    expect(result).toEqual(expectedUrl);
+  });
+  
+  it('formatVaultURL should not change the url if it is already formatted', () => {
+    const url = 'https://example.com';
+    const expectedUrl = 'https://example.com';
+    
+    const result = formatVaultURL(url);
+    
+    expect(result).toEqual(expectedUrl);
+  });
+  
+  it('formatVaultURL should not change the url if it is not a string', () => {
+    const url = { key: 'value' };
+    const expectedUrl = { key: 'value' };
+    
+    const result = formatVaultURL(url);
+    
+    expect(result).toEqual(expectedUrl);
+  });
+  
+  it('toLowerKeys should convert object keys to lowercase', () => {
+    const obj = { Key1: 'value1', Key2: 'value2' };
+    const expectedObj = { key1: 'value1', key2: 'value2' };
+    
+    const result = toLowerKeys(obj);
+    
+    expect(result).toEqual(expectedObj);
+  });
+  
+  it('toLowerKeys should return an empty object if input is not an object', () => {
+    const obj = 'string';
+    const expectedObj = {};
+    
+    const result = toLowerKeys(obj);
+    
+    expect(result).toEqual(expectedObj);
+  });
+  
+  it('toLowerKeys should return an empty object if input is null or undefined', () => {
+    const obj = null;
+    const expectedObj = {};
+    
+    const result = toLowerKeys(obj);
+    
+    expect(result).toEqual(expectedObj);
+  });
+
+  it('objectToFormData should convert object to form data', () => {
+    const obj = { key1: 'value1', key2: 'value2' };
+    const form = new FormData();
+    form.append('key1', 'value1');
+    form.append('key2', 'value2');
+    const result = objectToFormData(obj);
+    expect(result).toBeDefined()
+  });
+  
+  it('objectToFormData should convert nested object to form data', () => {
+    const obj = { key1: 'value1', key2: { key3: 'value3', key4: 'value4' } };
+    const form = new FormData();
+    form.append('key1', 'value1');
+    form.append('key2[key3]', 'value3');
+    form.append('key2[key4]', 'value4');
+    const result = objectToFormData(obj);
+    expect(result).toBeDefined();
+  });
+  
+  it('objectToFormData should convert array of objects to form data', () => {
+    const obj = { key1: 'value1', key2: [{ key3: 'value3' }, { key4: 'value4' }] };
+    const form = new FormData();
+    form.append('key1', 'value1');
+    form.append('key2[0][key3]', 'value3');
+    form.append('key2[1][key4]', 'value4');
+    const result = objectToFormData(obj);
+    expect(result).toBeDefined();
+  });  
 });
