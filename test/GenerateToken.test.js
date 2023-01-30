@@ -8,6 +8,7 @@ import {
 import { errorMessages } from "../src/service-account/errors/Messages";
 import { setLogLevel } from "../src/vault-api/Logging";
 import { LogLevel } from "../src/vault-api/utils/common";
+import SkyflowError from "../src/vault-api/libs/SkyflowError";
 
 describe("fileValidityTest", () => {
   setLogLevel(LogLevel.WARN)
@@ -158,6 +159,44 @@ test("failure response processing Unknown format", async () => {
 describe('context and scoped token options test', () => {
 
   const creds_without_context = process.env.SA_WITHOUT_CONTEXT
+
+  const credentials = {
+    clientID: "test-client-id",
+    keyID: "test-key-id",
+    tokenURI: "https://test-token-uri.com",
+    privateKey: null,
+    data: "no-data",
+  };
+
+  test("empty roleID array passed to generate scoped token", async () => {
+    const expectedError = new SkyflowError({
+      code: 400,
+      description: errorMessages.ScopedRolesEmpty,
+    });
+
+    const options = {
+      roleIDs: [],
+    };
+    try {
+      await generateBearerTokenFromCreds(credentials, options);
+    } catch (err) {
+      expect(err.description).toBe(expectedError.description);
+    }
+  });
+  test("invlaid type passed to generate scoped token", async () => {
+    const expectedError = new SkyflowError({
+      code: 400,
+      description: errorMessages.ExpectedRoleIDParameter,
+    });
+    const options = {
+      roleIDs: true,
+    };
+    try {
+      await generateBearerTokenFromCreds(credentials, options);
+    } catch (err) {
+      expect(err.description).toBe(expectedError.description);
+    }
+  });
 
   test('empty roleID array passed to generate scoped token', async () => {
     const options = {
