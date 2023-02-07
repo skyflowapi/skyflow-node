@@ -79,7 +79,7 @@ Skyflow Connections is a gateway service that uses Skyflow's underlying tokeniza
 ### Service account token generation
 Generates a service account Bearer token using the file path of credentials.json.
 #### Configure
-1. Replace **<YOUR_CREDNTIALS_FILE_PATH>** with relative  path of **SERVICE ACCOUNT CREDENTIAL FILE**.
+1. Replace **<YOUR_CREDENTIAL_FILE_PATH>** with relative  path of **SERVICE ACCOUNT CREDENTIAL FILE**.
 
 #### Run the sample
         

@@ -54,10 +54,10 @@ const result = skyflow.get({
 
 result
   .then(response => {
-    console.log('getByID result:');
+    console.log('get result:');
     console.log(JSON.stringify(response));
   })
   .catch(error => {
-    console.log('getByID error: ');
+    console.log('get error: ');
     console.log(JSON.stringify(error));
   });

@@ -1,6 +1,6 @@
 {
   "name": "skyflow-node",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Skyflow SDK for Node.js",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -57,7 +57,7 @@
     "@babel/runtime": "^7.10.2",
     "@types/axios": "^0.14.0",
     "@types/form-data": "^2.5.0",
-    "@types/jsonwebtoken": "^8.5.5",
+    "@types/jsonwebtoken": "^9.0.0",
     "@types/jwt-decode": "^3.1.0",
     "@types/node": "^16.11.7",
     "@types/qs": "^6.9.7",

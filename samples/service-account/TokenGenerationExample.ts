@@ -6,7 +6,7 @@ import {
   isValid,
 } from "skyflow-node";
 
-let filepath = "<YOUR_CREDNTIALS_FILE_PATH>";
+let filepath = "CREDENTIALS_FILE_PATH";
 let bearerToken = "";
 function getSkyflowBearerToken() {
   return new Promise(async (resolve, reject) => {

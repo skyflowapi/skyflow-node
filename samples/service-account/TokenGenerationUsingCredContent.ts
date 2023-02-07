@@ -4,11 +4,11 @@
 import { generateBearerTokenFromCreds, isValid } from "skyflow-node";
 
 let cred = {
-  clientID: "<YOUR_clientID>",
-  clientName: "<YOUR_clientName>",
-  keyID: "<YOUR_keyID>",
-  tokenURI: "<YOUR_tokenURI>",
-  privateKey: "<YOUR_PEM_privateKey>",
+  clientID: '<YOUR_CLIENT_ID>',
+  clientName: '<YOUR_CLIENT_NAME>',
+  keyID: '<YOUR_KEY_ID>',
+  tokenURI: '<YOUR_TOKEN_URI>',
+  privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
 let bearerToken = "";
 function getSkyflowBearerToken() {

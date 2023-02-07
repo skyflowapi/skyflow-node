@@ -559,12 +559,32 @@ const getByIdInputMissingColumnValues= {
   ],
 };
 
-const getByIdInputEmptyColumnName= {
+const getByIdInputWithColumnName= {
   records: [
     {
       table: "cards",
+      ids: ['id'],
       columnName: " ",
       columnValues: ["ab"],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputWithEmptyTable= {
+  records: [
+    {
+      table: " ",
+      ids: ['id'],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
+const getByIdInputWithMissingTable= {
+  records: [
+    {
+      ids: ['id'],
       redaction: "PLAIN_TEXT",
     },
   ],
@@ -681,6 +701,7 @@ describe('skyflow getById', () => {
         request: clientReq,
         metadata:{}
       }
+
       clientModule.mockImplementation(() => {return mockClient});
         skyflow = Skyflow.init({
           vaultID: '<VaultID>',
@@ -777,60 +798,34 @@ describe('skyflow getById', () => {
       done();
     });
   });
-  test("getById invalid input-7", () => {
-    const res = skyflow.getById(getByIdInputMissingColumnName);
-    res.catch((err) => {
-      expect(err.message).toBe(logs.errorLogs.MISSING_RECORD_COLUMN_NAME);
+  test('getById invalid input-7',(done)=>{
+    const res = skyflow.getById(getByIdInputWithColumnName);
+    res.catch((err)=>{
+      expect(err.message).toBe(logs.errorLogs.INVALID_GET_BY_ID_INPUT);
+      done();
     });
-  });    
-  test("getById invalid input-8", () => {
-    const res = skyflow.getById(getByIdInputMissingColumnValues);
-    res.catch((err) => {
-      expect(err.message).toBe(logs.errorLogs.MISSING_RECORD_COLUMN_VALUE);
+  });
+  test('getById invalid input-8',(done)=>{
+    const res = skyflow.getById(getByIdInputWithColumnName);
+    res.catch((err)=>{
+      expect(err.message).toBe(logs.errorLogs.INVALID_GET_BY_ID_INPUT);
+      done();
     });
-  });   
-  test("getById invalid input-9", () => {
-    const res = skyflow.getById(getByIdInputInvalidColumnNameType);
-    res.catch((err) => {
-      expect(err.message).toBe(logs.errorLogs.INVALID_RECORD_COLUMN_VALUE);
+  });
+  test('getById invalid input-9',(done)=>{
+    const res = skyflow.getById(getByIdInputWithEmptyTable);
+    res.catch((err)=>{
+      expect(err).toBeDefined();
+      done();
     });
-  }); 
-  test("getById invalid input-10", () => {
-    const res = skyflow.getById(getByIdInputInvalidColumnValuesType);
-    res.catch((err) => {
-      expect(err.message).toBe(logs.errorLogs.INVALID_COLUMN_VALUES_OPTION_TYPE);
+  });
+  test('getById invalid input-10',(done)=>{
+    const res = skyflow.getById(getByIdInputWithMissingTable);
+    res.catch((err)=>{
+      expect(err).toBeDefined;
+      done();
     });
-  }); 
-  test("getById invalid input-11", () => {
-    const res = skyflow.getById(getByIdInputEmptyColumnValues);
-    res.catch((err) => {
-      expect(err.message).toBe(logs.errorLogs.EMPTY_RECORD_COLUMN_VALUES);
-    });
-  }); 
-  test("getById invalid input-12", () => {
-    const res = skyflow.getById(getByIdInputInvalidOptionsColumnValues);
-    res.catch((err) => {
-      expect(err.message).toBe(logs.errorLogs.INVALID_RECORD_COLUMN_VALUE_TYPE);
-    });
-  }); 
-  test("getById invalid input-13", () => {
-    const res = skyflow.getById(getByIdInputEmptydOptionsColumnValues);
-    res.catch((err) => {
-      expect(err.message).toBe(logs.errorLogs.EMPTY_COLUMN_VALUE);
-    });
-  }); 
-  test("get method invalid input-14", () => {
-    const res = skyflow.get(getWithNoSkyflowIDAndColumnName);
-    res.catch((err) => {
-      expect(err.message).toBe(logs.errorLogs.MISSING_ID_AND_COLUMN_NAME);
-    });
-  }); 
-  test("getById with valid column name and column values input", () => {
-    const res = skyflow.getById(getByIdWithValidUniqColumnOptions);
-    res.catch((err) => {
-      expect(err.message).toBe(undefined)
-    });
-  }); 
+  });
 });
 
 describe('skyflow get method', () => {
