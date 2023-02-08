@@ -95,7 +95,7 @@ const tokens = async () => {
 tokens();
 ```
 
-[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts)
+[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationUsingCredContent.ts)
 
 ```js
 import { generateBearerTokenFromCreds, isExpired } from 'skyflow-node';

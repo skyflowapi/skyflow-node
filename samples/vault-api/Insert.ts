@@ -39,11 +39,9 @@ const result = skyflow.insert(
     records: [
       {
         fields: {
-          card_number: '411111111111111',
-          expiry_date: '11/22',
-          fullname: 'firstNameTest',
+            "<FIELD_NAME>" : "<VALUE>"
         },
-        table: 'cards',
+        table: "<TABLE_NAME>",
       },
     ],
   },

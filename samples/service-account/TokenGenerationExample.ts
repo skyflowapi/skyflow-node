@@ -3,55 +3,19 @@
 */
 import {
   generateBearerToken,
-  generateBearerTokenFromCreds,
-  isExpired,
-} from 'skyflow-node';
+  isValid,
+} from "skyflow-node";
 
-const filepath = 'CREDENTIALS_FILE_PATH';
-let bearerToken = '';
-
-// To generate Bearer Token from credentials string.
-const cred = {
-  clientID: '<YOUR_CLIENT_ID>',
-  clientName: '<YOUR_CLIENT_NAME>',
-  keyID: '<YOUR_KEY_ID>',
-  tokenURI: '<YOUR_TOKEN_URI>',
-  privateKey: '<YOUR_PEM_PRIVATE_KEY>',
-};
-
-function getSkyflowBearerTokenFromFilePath() {
-  return new Promise((resolve, reject) => {
+let filepath = "CREDENTIALS_FILE_PATH";
+let bearerToken = "";
+function getSkyflowBearerToken() {
+  return new Promise(async (resolve, reject) => {
     try {
-      if (!isExpired(bearerToken)) resolve(bearerToken);
+      if (isValid(bearerToken)) resolve(bearerToken);
       else {
-        generateBearerToken(filepath)
-          .then(response => {
-            bearerToken = response.accessToken;
-            resolve(bearerToken);
-          })
-          .catch(error => {
-            reject(error);
-          });
-      }
-    } catch (e) {
-      reject(e);
-    }
-  });
-}
-
-function getSkyflowBearerTokenFromCreds() {
-  return new Promise((resolve, reject) => {
-    try {
-      if (!isExpired(bearerToken)) resolve(bearerToken);
-      else {
-        generateBearerTokenFromCreds(JSON.stringify(cred))
-          .then(response => {
-            bearerToken = response.accessToken;
-            resolve(bearerToken);
-          })
-          .catch(error => {
-            reject(error);
-          });
+        let response = await generateBearerToken(filepath);
+        bearerToken = response.accessToken;
+        resolve(bearerToken);
       }
     } catch (e) {
       reject(e);
@@ -60,8 +24,7 @@ function getSkyflowBearerTokenFromCreds() {
 }
 
 const tokens = async () => {
-  console.log(await getSkyflowBearerTokenFromFilePath());
-  console.log(await getSkyflowBearerTokenFromCreds());
-};
+    console.log(await getSkyflowBearerToken());
+}
 
 tokens();
