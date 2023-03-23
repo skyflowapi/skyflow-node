@@ -18,6 +18,7 @@ export type ResponseSignedDataTokens = { token: string, signedToken: string }
 export type BearerTokenOptions = {
   ctx?: string,
   roleIDs?: string[],
+  exp?: number, 
 }
 
 export type SignedDataTokensOptions = {
@@ -84,7 +85,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<ResponseTo
         printLog(errorMessages.NotAValidJSON, MessageType.ERROR);
         throw new SkyflowError({ code: 400, description: errorMessages.NotAValidJSON });
       }
-      const expiryTime = Math.floor(Date.now() / 1000) + 3600;
+      const expiryTime = options?.exp !== undefined ? Math.min(Math.max(options.exp), 1) : (Math.floor(Date.now() / 1000) + 3600);
 
       const claims = {
         iss: credentialsObj.clientID,
