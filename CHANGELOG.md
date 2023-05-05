@@ -2,16 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.9.3] - 2023-03-17
+### Changed
+- Removed grace period logic for bearer token generation.
+
+## [1.9.2] - 2023-03-01
+### Fixed
+- Fixed grace period of token caching
+
+## [1.9.1] - 2023-01-11
+### Changed
+- Upgraded jsonwebtoken from 8.5.1 to 9.0.0
+
 ## [1.9.0] - 2022-12-27
 ### Added
 - Added new `get` interface.
 - Deprecated `getById` interface.
+
 ## [1.8.0] - 2022-12-14
 ### Added
 - Added `update` interface.
 - Added support for Get by Unique column values in `getById` interface.
-## [1.7.1] - 2022-11-24
 
+## [1.7.1] - 2022-11-24
 ### Changed
 - Rename context to 'ctx' in bearer token options.
 
