@@ -1,11 +1,11 @@
 /*
 	Copyright (c) 2022 Skyflow, Inc. 
 */
-import axios from "axios";
-import Client, { IClientRequest } from "../../client";
-import { ContentType, IConnectionConfig } from "../common";
-const qs = require('qs');
-const FormData = require('form-data');
+import * as sdkDetails from "../../../../package.json";
+const FormData = require("form-data");
+const os = require("os");
+const process = require("process");
+
 export function fillUrlWithPathAndQueryParams(url:string,
   pathParams?:object,
   queryParams?:object) {
@@ -60,3 +60,13 @@ export function objectToFormData(obj: any, form?: FormData, namespace?: string) 
 
   return fd;
 }
+
+
+export const generateSDKMetrics = ()=>{
+  return {
+    "sdk_name_version": `${sdkDetails.name}@${sdkDetails.version}`,
+    "sdk_client_device_model": `${process.platform} ${process.arch}`,  
+    "sdk_client_os_details": `${os.version()}`,
+    "sdk_runtime_details": `Node@${process.version}`, 
+  } 
+};
