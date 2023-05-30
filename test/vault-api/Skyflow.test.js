@@ -1488,6 +1488,313 @@ describe("Update method",()=>{
 
 });
 
+describe('skyflow detokenize with redaction', () => {
+
+  let skyflow;
+  beforeEach(() => {
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: jest.fn(),
+    });
+  });
+
+  test('request body should contains plain text redaction when passed plain text', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(detokenizeRes)
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.detokenize({
+      records: [
+        {
+          token: '123',
+          redaction: RedactionType.PLAIN_TEXT
+        }
+      ]
+    });
+
+    response.then(() => {
+      console.log(reqArg.body);
+      const tokenRecords = reqArg.body.detokenizationParameters
+      tokenRecords.forEach((record) => {
+        expect(record.token).toBe('123');
+        expect(record.redaction).toBe('PLAIN_TEXT');
+      })
+      done();
+    }).catch((err) => {
+      done(err);
+    })
+
+
+  });
+
+  test('request body should contains redacted redaction when passed redacted', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(detokenizeRes)
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.detokenize({
+      records: [
+        {
+          token: '123',
+          redaction: RedactionType.REDACTED
+        }
+      ]
+    });
+
+    response.then(() => {
+      console.log(reqArg.body);
+      const tokenRecords = reqArg.body.detokenizationParameters
+      tokenRecords.forEach((record) => {
+        expect(record.token).toBe('123');
+        expect(record.redaction).toBe('REDACTED');
+      })
+      done();
+    }).catch((err) => {
+      done(err);
+    })
+
+
+  });
+
+  test('request body should contains masked redaction when passed masked', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(detokenizeRes)
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.detokenize({
+      records: [
+        {
+          token: '123',
+          redaction: RedactionType.MASKED
+        }
+      ]
+    });
+
+    response.then(() => {
+      console.log(reqArg.body);
+      const tokenRecords = reqArg.body.detokenizationParameters
+      tokenRecords.forEach((record) => {
+        expect(record.token).toBe('123');
+        expect(record.redaction).toBe('MASKED');
+      })
+      done();
+    }).catch((err) => {
+      done(err);
+    })
+
+
+  });
+
+  test('request body should contains default redaction when passed default', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(detokenizeRes)
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.detokenize({
+      records: [
+        {
+          token: '123',
+          redaction: RedactionType.DEFAULT
+        }
+      ]
+    });
+
+    response.then(() => {
+      console.log(reqArg.body);
+      const tokenRecords = reqArg.body.detokenizationParameters
+      tokenRecords.forEach((record) => {
+        expect(record.token).toBe('123');
+        expect(record.redaction).toBe('DEFAULT');
+      })
+      done();
+    }).catch((err) => {
+      done(err);
+    })
+
+
+  });
+
+  test('request body should contains plain text redaction when not passed.', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(detokenizeRes)
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.detokenize({
+      records: [
+        {
+          token: '123',
+        }
+      ]
+    });
+
+    response.then(() => {
+      console.log(reqArg.body);
+      const tokenRecords = reqArg.body.detokenizationParameters
+      tokenRecords.forEach((record) => {
+        expect(record.token).toBe('123');
+        expect(record.redaction).toBe('PLAIN_TEXT');
+      })
+      done();
+    }).catch((err) => {
+      done(err);
+    })
+
+
+  });
+
+  test('detokenize should throw error when invalid null redaction value is passed.', (done) => {
+    const response = skyflow.detokenize({
+      records: [
+        {
+          token: '123',
+          redaction: null
+        }
+      ]
+    });
+
+    response.then((res) => {
+      done('should throw error');
+    }).catch((err) => {
+      expect(err.errors[0].description).toBe(SKYFLOW_ERROR_CODE.DETOKENIZE_INVALID_REDACTION_TYPE.description);
+      done();
+    })
+
+  });
+
+  test('detokenize should throw error when invalid undefined redaction value is passed.', (done) => {
+    const response = skyflow.detokenize({
+      records: [
+        {
+          token: '123',
+          redaction: undefined
+        }
+      ]
+    });
+
+    response.then((res) => {
+      done('should throw error');
+    }).catch((err) => {
+      expect(err.errors[0].description).toBe(SKYFLOW_ERROR_CODE.DETOKENIZE_INVALID_REDACTION_TYPE.description);
+      done();
+    })
+
+  });
+
+  test('detokenize should throw error when invalid type redaction value is passed.', (done) => {
+    const response = skyflow.detokenize({
+      records: [
+        {
+          token: '123',
+          redaction: ''
+        }
+      ]
+    });
+
+    response.then((res) => {
+      done('should throw error');
+    }).catch((err) => {
+      expect(err.errors[0].description).toBe(SKYFLOW_ERROR_CODE.DETOKENIZE_INVALID_REDACTION_TYPE.description);
+      done();
+    })
+
+  });
+});
 
 describe('get method with options', () => {
   let skyflow;

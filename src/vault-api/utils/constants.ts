@@ -139,7 +139,10 @@ const SKYFLOW_ERROR_CODE = {
     code: 400,
     description: logs.errorLogs.REDACTION_WITH_TOKENS_NOT_SUPPORTED,
   },
-
+  DETOKENIZE_INVALID_REDACTION_TYPE:{
+    code: 400,
+    description: logs.errorLogs.DETOKENIZE_INVALID_REDACTION_TYPE,
+  }
 };
 
 export default SKYFLOW_ERROR_CODE;
