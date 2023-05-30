@@ -126,7 +126,19 @@ const SKYFLOW_ERROR_CODE = {
   INVALID_GET_BY_ID_INPUT:{
     code: 400,
     description: logs.errorLogs.INVALID_GET_BY_ID_INPUT,
-  }
+  },
+  INVALID_TOKENS_IN_GET: {
+    code: 400,
+    description: logs.errorLogs.INVALID_TOKENS_IN_GET,
+  },
+  TOKENS_GET_COLUMN_NOT_SUPPORTED: {
+    code: 400,
+    description: logs.errorLogs.TOKENS_GET_COLUMN_NOT_SUPPORTED,
+  },
+  REDACTION_WITH_TOKENS_NOT_SUPPORTED: {
+    code: 400,
+    description: logs.errorLogs.REDACTION_WITH_TOKENS_NOT_SUPPORTED,
+  },
 
 };
 

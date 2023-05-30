@@ -10,6 +10,7 @@ import {
 import {
   ContentType,
   IGetInput,
+  IGetOptions,
   IInsertOptions,
   IUpdateInput,
   IUpdateOptions,
@@ -148,12 +149,12 @@ class Controller {
     });
   }
 
-  get(getInput: IGetInput) {
+  get(getInput: IGetInput,options:IGetOptions={}) {
     return new Promise((resolve, reject) => {
       try {
         validateInitConfig(this.#client.config)
         printLog(logs.infoLogs.VALIDATE_GET_INPUT, MessageType.LOG);
-        validateGetInput(getInput);
+        validateGetInput(getInput,options);
         printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST,
           TYPES.GET),
           MessageType.LOG);
@@ -161,7 +162,8 @@ class Controller {
           fetchRecordsBySkyflowID(
             getInput.records,
             this.#client,
-            res
+            res,
+            options
           ).then(
             (resolvedResult) => {
               printLog(logs.infoLogs.GET_BY_SKYFLOWID_RESOLVED, MessageType.LOG);

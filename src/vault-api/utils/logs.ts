@@ -125,6 +125,9 @@ const logs = {
     INVALID_UPDATE_INPUT: 'Interface: update method - Invalid argument , object with records key is required.',
     INVALID_RECORDS_UPDATE_INPUT: 'Interface: update method - Invalid records type, records should be an array of objects.',
     INVALID_GET_BY_ID_INPUT: 'Interface: getById method - columnName or columnValues cannot be passed, use get method instead.', 
+    INVALID_TOKENS_IN_GET: 'Interface: get method - Invalid tokens in options. tokens of type boolean is required.',
+    TOKENS_GET_COLUMN_NOT_SUPPORTED: 'Interface: get method - column_name or column_values cannot be used with tokens in options.',
+    REDACTION_WITH_TOKENS_NOT_SUPPORTED: 'Interface: get method - redaction cannot be used when tokens are true in options.'
   },
   warnLogs: {
     GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',

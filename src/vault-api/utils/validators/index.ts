@@ -4,7 +4,7 @@
 import SkyflowError from '../../libs/SkyflowError';
 import { ISkyflow } from '../../Skyflow';
 import {
-  IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod, IUpdateInput, IGetInput,
+  IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod, IUpdateInput, IGetInput, IGetOptions,
 } from '../common';
 import SKYFLOW_ERROR_CODE from '../constants';
 
@@ -87,13 +87,17 @@ export const validateGetByIdInput = (getByIdInput: IGetByIdInput) => {
   });
 };
 
-export const validateGetInput = (getInput: IGetInput) => {
+export const validateGetInput = (getInput: IGetInput,options?:IGetOptions) => {
   if (!Object.prototype.hasOwnProperty.call(getInput, 'records')) {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORDS);
   }
   const { records } = getInput;
   if (records.length === 0) {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(options, 'tokens') && (typeof options?.tokens !== 'boolean')) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_GET);
   }
 
   records.forEach((record) => {
@@ -108,10 +112,13 @@ export const validateGetInput = (getInput: IGetInput) => {
     });
 
     const recordRedaction = record.redaction;
-    if (!recordRedaction) throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_REDACTION);
-    if (!Object.values(RedactionType).includes(recordRedaction)) {
-      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
+    if(!(options && Object.prototype.hasOwnProperty.call(options, 'tokens') && options?.tokens === true)){
+      if (!recordRedaction) throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_REDACTION);
+      if (!Object.values(RedactionType).includes(recordRedaction)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
+      }
     }
+
 
     const recordTable = record.table;
     if (!Object.prototype.hasOwnProperty.call(record, 'table')) { throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE); }
@@ -136,6 +143,13 @@ export const validateGetInput = (getInput: IGetInput) => {
         if (typeof eachColumnValue !== 'string') throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_COLUMN_VALUE_TYPE);
         if (eachColumnValue === '') throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_COLUMN_VALUE);
       });
+    }
+    if(options && Object.prototype.hasOwnProperty.call(options, 'tokens') && options?.tokens === true){
+        if(columnName || columnValues)
+          throw new SkyflowError(SKYFLOW_ERROR_CODE.TOKENS_GET_COLUMN_NOT_SUPPORTED)
+
+        if(recordRedaction)
+          throw new SkyflowError(SKYFLOW_ERROR_CODE.REDACTION_WITH_TOKENS_NOT_SUPPORTED)
     }
   });
 };
