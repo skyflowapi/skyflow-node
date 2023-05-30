@@ -125,6 +125,7 @@ const logs = {
     INVALID_UPDATE_INPUT: 'Interface: update method - Invalid argument , object with records key is required.',
     INVALID_RECORDS_UPDATE_INPUT: 'Interface: update method - Invalid records type, records should be an array of objects.',
     INVALID_GET_BY_ID_INPUT: 'Interface: getById method - columnName or columnValues cannot be passed, use get method instead.', 
+    DETOKENIZE_INVALID_REDACTION_TYPE:'Interface: detokenize method - Invalid redaction type, use Skyflow.RedactionType enum.',
   },
   warnLogs: {
     GENERATE_BEARER_DEPRECATED: 'This method has been deprecated will be removed in future release, use GenerateBearerToken instead',

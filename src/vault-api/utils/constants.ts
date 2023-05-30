@@ -126,6 +126,10 @@ const SKYFLOW_ERROR_CODE = {
   INVALID_GET_BY_ID_INPUT:{
     code: 400,
     description: logs.errorLogs.INVALID_GET_BY_ID_INPUT,
+  },
+  DETOKENIZE_INVALID_REDACTION_TYPE:{
+    code: 400,
+    description: logs.errorLogs.DETOKENIZE_INVALID_REDACTION_TYPE,
   }
 
 };
