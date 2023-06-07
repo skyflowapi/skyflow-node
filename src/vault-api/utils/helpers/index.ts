@@ -2,6 +2,9 @@
 	Copyright (c) 2022 Skyflow, Inc. 
 */
 import * as sdkDetails from "../../../../package.json";
+import { MessageType } from "../common";
+import logs from "../logs";
+import { parameterizedString, printLog } from "../logs-helper";
 const FormData = require("form-data");
 const os = require("os");
 const process = require("process");
@@ -62,11 +65,59 @@ export function objectToFormData(obj: any, form?: FormData, namespace?: string) 
 }
 
 
-export const generateSDKMetrics = ()=>{
+export const generateSDKMetrics = () => {
+  let sdkNameVersion = "";
+  let clientDeviceModel = "";
+  let clientOSDetails = "";
+  let runtimeDetails = "";
+  try {
+    sdkNameVersion = `${sdkDetails.name ? `${sdkDetails.name}@` : ""}${
+      sdkDetails.version ? sdkDetails.version : ""
+    }`;
+  } catch (err) {
+    printLog(
+      parameterizedString(logs.infoLogs.UNABLE_TO_GENERATE_SDK_METRIC,"sdkNameVersion")
+      ,MessageType.LOG
+    );
+    sdkNameVersion = "";
+  }
+
+  try {
+    clientDeviceModel = `${process.platform ? `${process.platform} ` : ""} ${
+      process.arch ? process.arch : ""
+    }`;
+  } catch (err) {
+    printLog(
+      parameterizedString(logs.infoLogs.UNABLE_TO_GENERATE_SDK_METRIC,"clientDeviceModel")
+      ,MessageType.LOG
+    );
+    clientDeviceModel = "";
+  }
+
+  try {
+    clientOSDetails = `${os.version() ? os.version() : ""}`;
+  } catch (err) {
+    printLog(
+      parameterizedString(logs.infoLogs.UNABLE_TO_GENERATE_SDK_METRIC,"clientOSDetails")
+      ,MessageType.LOG
+    );
+    clientOSDetails = "";
+  }
+
+  try {
+    runtimeDetails = `${process.version ? `Node@${process.version}` : ""}`;
+  } catch (err) {
+    printLog(
+      parameterizedString(logs.infoLogs.UNABLE_TO_GENERATE_SDK_METRIC,"runtimeDetails")
+      ,MessageType.LOG
+    );
+    runtimeDetails = "";
+  }
+
   return {
-    "sdk_name_version": `${sdkDetails.name}@${sdkDetails.version}`,
-    "sdk_client_device_model": `${process.platform} ${process.arch}`,  
-    "sdk_client_os_details": `${os.version()}`,
-    "sdk_runtime_details": `Node@${process.version}`, 
-  } 
+    sdk_name_version: sdkNameVersion,
+    sdk_client_device_model: clientDeviceModel,
+    sdk_client_os_details: clientOSDetails,
+    sdk_runtime_details: runtimeDetails,
+  };
 };

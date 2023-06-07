@@ -131,12 +131,10 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<ResponseTo
           },
         })
           .then((res) => {
-            successResponse(res)
-              .then((response) => resolve(response))
-              .catch((err) => reject(err));
+            successResponse(res).then((response) => resolve(response)).catch(err => reject(err))
           })
           .catch((err) => {
-            failureResponse(err).catch((err) => reject(err));
+            failureResponse(err).catch(err => reject(err))
           });
       }
     }

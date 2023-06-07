@@ -8,8 +8,15 @@ import {
 import SKYFLOW_ERROR_CODE from "../../src/vault-api/utils/constants";
 import { parameterizedString } from "../../src/vault-api/utils/logs-helper";
 import SkyflowError from "../../src/vault-api/libs/SkyflowError";
-import { fillUrlWithPathAndQueryParams, formatVaultURL, toLowerKeys, objectToFormData } from "../../src/vault-api/utils/helpers";
+import { fillUrlWithPathAndQueryParams, formatVaultURL, toLowerKeys, objectToFormData, generateSDKMetrics } from "../../src/vault-api/utils/helpers";
 const FormData = require('form-data');
+
+let mockJson = {};
+jest.mock('../../package.json',()=>(mockJson));
+let mockProcess = {};
+jest.mock('process',()=>(mockProcess));
+let mockOS= {};
+jest.mock('os',()=>(mockOS))
 
 describe("validate upsert options in collect", () => {
   it("invalid upsert options type", () => {
@@ -554,3 +561,36 @@ describe("URL helper its", () => {
     expect(result).toBeDefined();
   });  
 });
+
+describe("test generateSDKMetrics",()=>{
+
+  test('should set it empty string when name version are undefined',()=>{
+      mockJson = {name:undefined,version:null}
+      const metrics = generateSDKMetrics();
+      expect(metrics.sdk_name_version).toBe('');
+  }); 
+
+  test('should set it device model empty string when process is invalid or empty',()=>{
+    mockProcess = {};
+    const metrics = generateSDKMetrics();
+    expect(metrics.sdk_client_device_model).toBe('');
+  });
+
+  test('should set it run time details empty string when process is invalid or empty',()=>{
+    mockProcess = {};
+    const metrics = generateSDKMetrics();
+    expect(metrics.sdk_runtime_details).toBe('');
+  });
+
+  test('should set it os details empty string when process is invalid or empty',()=>{
+    mockOS = {};
+    const metrics = generateSDKMetrics();
+    expect(metrics.sdk_client_os_details).toBe('');
+  });
+
+
+
+
+
+
+}); 
