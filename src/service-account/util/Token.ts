@@ -7,8 +7,9 @@ import jwt from "jsonwebtoken";
 import { errorMessages } from "../errors/Messages";
 import { printLog } from "../../vault-api/utils/logs-helper";
 import logs from "../../vault-api/utils/logs";
-import { MessageType } from "../../vault-api/utils/common";
+import { MessageType, SDK_METRICS_HEADER_KEY } from "../../vault-api/utils/common";
 import SkyflowError from '../../vault-api/libs/SkyflowError';
+import { generateSDKMetrics } from "../../vault-api/utils/helpers";
 
 export type ResponseToken = { accessToken: string, tokenType: string }
 export type ResponseSignedDataTokens = { token: string, signedToken: string }
@@ -119,7 +120,10 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<ResponseTo
         const scopedRoles = options?.roleIDs && getRolesForScopedToken(options.roleIDs)
         Axios(`${credentialsObj.tokenURI}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()),
+          },
           data: {
             grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
             assertion: signedJwt,

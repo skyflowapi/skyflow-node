@@ -35,6 +35,7 @@ const logs = {
     GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: "generateSignedDataTokens is triggered",
     UPDATE_TRIGGERED: 'Update method triggered.',
     UPDATE_REQUEST_RESOLVED:'Update request is resolved.',
+    UNABLE_TO_GENERATE_SDK_METRIC:'Unable to generate %s1 metric.'
 
   },
   errorLogs: {

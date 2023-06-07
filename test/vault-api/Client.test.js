@@ -3,6 +3,7 @@
 */
 import Client from "../../src/vault-api/client";
 import axios from "axios";
+import { generateSDKMetrics } from "../../src/vault-api/utils/helpers";
 
 jest.mock("axios", () => {
   return {
@@ -30,7 +31,7 @@ describe("Client Class",()=>{
         headers: { "Content-Type": "application/json" },
       };
       const data = JSON.stringify({ name: "John Doe", age: 30 });
-      const headers = { "content-type": "application/json" };
+      const headers = { "content-type": "application/json","sky-metadata":JSON.stringify(generateSDKMetrics()) };
       axios.mockImplementation(() =>
         Promise.resolve({ data: { message: "Success" } })
       );
