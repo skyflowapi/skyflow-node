@@ -127,3 +127,5 @@ export interface IUpdateInput{
 export interface IUpdateOptions{
   tokens: boolean
 }
+
+export const SDK_METRICS_HEADER_KEY = "sky-metadata";
