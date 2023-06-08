@@ -4,7 +4,7 @@
 import Client from '../client';
 import SkyflowError from '../libs/SkyflowError';
 import {
-  ISkyflowIdRecord, IRevealRecord, IRevealResponseType, IUpdateRecord, IUpdateOptions,
+  ISkyflowIdRecord, IRevealRecord, IRevealResponseType, IUpdateRecord, IUpdateOptions,RedactionType
 } from '../utils/common';
 import 'core-js/modules/es.promise.all-settled';
 interface IApiSuccessResponse {
@@ -81,7 +81,7 @@ const getSkyflowIdRecordsFromVault = (
 };
 
 const getTokenRecordsFromVault = (
-  token: string,
+  tokenRecord: IRevealRecord,
   client: Client,
   authToken: string,
 ): Promise<any> => {
@@ -97,7 +97,8 @@ const getTokenRecordsFromVault = (
     {
       detokenizationParameters: [
         {
-          token,
+          token : tokenRecord.token,
+          redaction: (tokenRecord?.redaction ? tokenRecord.redaction : RedactionType.PLAIN_TEXT)
         },
       ],
     },
@@ -112,7 +113,7 @@ export const fetchRecordsByTokenId = (
   const vaultResponseSet: Promise<any>[] = tokenIdRecords.map(
     (tokenRecord) => new Promise((resolve) => {
       const apiResponse: any = [];
-      getTokenRecordsFromVault(tokenRecord.token, client, authToken as string)
+      getTokenRecordsFromVault(tokenRecord, client, authToken as string)
         .then(
           (response: IApiSuccessResponse) => {
             const fieldsData = formatForPureJsSuccess(response);

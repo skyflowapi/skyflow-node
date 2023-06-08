@@ -43,6 +43,12 @@ export const validateDetokenizeInput = (detokenizeInput: IDetokenizeInput) => {
     }
     if (recordToken === '' || typeof recordToken !== 'string') { throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_ID); }
 
+    if (Object.prototype.hasOwnProperty.call(record, 'redaction')) {
+      if (!Object.values(RedactionType).includes(record.redaction as RedactionType)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.DETOKENIZE_INVALID_REDACTION_TYPE);
+      }
+    }
+
   });
 };
 

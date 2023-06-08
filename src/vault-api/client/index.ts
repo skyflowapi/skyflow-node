@@ -10,10 +10,11 @@ import {
 } from '../utils/logs-helper';
 import {
   ContentType,
-   MessageType
+   MessageType,
+   SDK_METRICS_HEADER_KEY
 } from '../utils/common';
 import axios, { Method } from 'axios';
-import { objectToFormData, toLowerKeys } from '../utils/helpers';
+import { generateSDKMetrics, objectToFormData, toLowerKeys } from '../utils/helpers';
 export interface IClientRequest {
   body?: any;
   headers?: Record<string, string>;
@@ -52,6 +53,7 @@ class Client {
   request = (request: IClientRequest) => new Promise((resolve, reject) => {
     const headerKeys = toLowerKeys(request.headers);
     let contentType = headerKeys['content-type']
+    headerKeys[SDK_METRICS_HEADER_KEY] = JSON.stringify(generateSDKMetrics());
     const data = this.convertRequestBody(request.body,contentType) 
     const headers = this.getHeaders(data,headerKeys)
     axios({
