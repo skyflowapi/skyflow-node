@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.10.0] - 2023-06-08
+### Added
+- `redaction` in detokenize interface.
+### Changed
+- Removed grace period logic for bearer token generation.
 ## [1.9.3] - 2023-03-17
 ### Changed
 - Removed grace period logic for bearer token generation.
