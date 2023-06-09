@@ -577,11 +577,20 @@ In order to retrieve data from your vault using tokens that you have previously 
 ```javascript
 data = {
   records: [{
-    // Token for the record to be fetched.
-    token: 'string'
+    token: 'string',                 // Required, token for the record to be fetched.
+    redaction: Skyflow.RedactionType // Optional, redaction type to be applied to retrieved data, ex: Skyflow.RedactionType.PLAIN_TEXT
   }]
 }
 ```
+`Skyflow.RedactionType` accept four values:
+* `PLAIN_TEXT`
+* `MASKED`
+* `REDACTED`
+* `DEFAULT`
+
+Note:
+- `redaction` defaults to Skyflow.RedactionType.PLAIN_TEXT.
+
 An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Detokenize.ts) of a detokenize call:
 
 ```javascript
@@ -589,6 +598,7 @@ const result = client.detokenize({
   records: [
     {
       token: '4017-f72b-4f5c-9b-8e719',
+      redaction: Skyflow.RedactionType.PLAIN_TEXT
     },
   ],
 });
@@ -629,7 +639,7 @@ data = {
     }]
 };
 ```
-`Skyflow.RedactionTypes` accept four values:
+`Skyflow.RedactionType` accept four values:
 * `PLAIN_TEXT`
 * `MASKED`
 * `REDACTED`
