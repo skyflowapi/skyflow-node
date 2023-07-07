@@ -128,4 +128,17 @@ export interface IUpdateOptions{
   tokens: boolean
 }
 
+export interface IDeleteRecord {
+  id: string;
+  table: string;
+}
+
+export interface IDeleteInput {
+  records: IDeleteRecord[];
+}
+
+export interface IDeleteOptions {
+
+}
+
 export const SDK_METRICS_HEADER_KEY = "sky-metadata";
