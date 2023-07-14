@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.11.0] - 2023-07-18
+### Added
+- Added new `delete` interface.
 ## [1.10.0] - 2023-06-08
 ### Added
 - `redaction` in detokenize interface.
