@@ -15,16 +15,18 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
     - [Requirements](#requirements)
     - [Configuration](#configuration)
   - [Usage](#usage)
-    - [Service Account Bearer Token Generation](#Service-Account-Bearer-Token-Generation)
-    - [Service Account Bearer Token Generation with Additional Context](#Service-Account-Bearer-Token-Generation-with-Additional-Context)
-    - [Service Account Scoped Bearer Token Generation](#Service-Account-Scoped-Bearer-Token-Generation)
-    - [Skyflow Signed Data Tokens Generation](#Skyflow-Signed-Data-Tokens-Generation)
+    - [Importing `skyflow-node`](#importing-skyflow-node)
+    - [Service Account Bearer Token Generation](#service-account-bearer-token-generation)
+    - [Service Account Bearer Token Generation with Additional Context](#service-account-bearer-token-generation-with-additional-context)
+    - [Service Account Scoped Bearer Token Generation](#service-account-scoped-bearer-token-generation)
+    - [Skyflow Signed Data Tokens Generation](#skyflow-signed-data-tokens-generation)
     - [Vault APIs](#vault-apis)
       - [Insert](#insert)
       - [Detokenize](#detokenize)
       - [Get By Id](#get-by-id)
       - [Get](#get)
       - [Update](#update)
+      - [Delete](#delete)
       - [Invoke Connection](#invoke-connection)
     - [Logging](#logging)
   - [Reporting a Vulnerability](#reporting-a-vulnerability)
@@ -905,6 +907,65 @@ Response:
         "ssn":"e28bf55d-f3d8-49a6-aad9-71a13db54b82",
       },
       "table":"cards",
+    }
+  ]
+}
+```
+#### Delete
+
+To delete data from the vault, use the `delete(records, options?)` method of the Skyflow client. The `records` parameter takes an array of records to delete in the following format. The `options` parameter is optional and takes an object of deletion parameters. Currently, there are no supported deletion parameters.
+
+Call schema:
+```js
+const deleteInput = {
+  records: [
+    {
+      id: "<SKYFLOW_ID_1>", // skyflow id of the record to delete
+      table: "<TABLE_NAME>" // Table from which the record is to be deleted
+    },
+    {
+      // ...additional records here
+    },
+  ]
+};
+
+const options = {
+  // Optional
+}
+```
+
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Delete.ts) to delete by ID using `skyflow_ids`
+
+```js
+const deleteInput = {
+  records: [
+    {
+      id: "29ebda8d-5272-4063-af58-15cc674e332b",
+      table: "cards",
+    },
+    {
+      id: "d5f4b926-7b1a-41df-8fac-7950d2cbd923",
+      table: "cards",
+    }
+  ],
+};
+
+const options = {};
+
+const response = skyflowClient.delete(deleteInput, options);
+console.log(response);
+```
+Response:
+```json
+{
+  "records": [
+    {
+     "skyflow_id": "29ebda8d-5272-4063-af58-15cc674e332b",
+     "deleted": true,
+    },
+    {
+     "skyflow_id": "29ebda8d-5272-4063-af58-15cc674e332b",
+     "deleted": true,
     }
   ]
 }
