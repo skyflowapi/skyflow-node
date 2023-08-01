@@ -721,10 +721,22 @@ Sample response:
 ```
 
 #### Get 
-To retrieve data from your vault using SkyflowIDs or unique column values, use the get(records) method. The `records` parameter takes a JSONObject that should contain either an array of SkyflowIDs or a unique column name and values to fetch the records, as shown below:
+To retrieve data from your vault using SkyflowIDs or unique column values, use the get(input,options) method. 
+The `input` parameter takes a Dictionary object that contains `records` to be fetched as shown below. Each object inside array should contain:
+
+    - Either an array of Skyflow IDs to fetch
+    - Or a column name and an array of column values
+
+The second parameter, `options` retrieves tokens of Skyflow IDs.
+
+Notes:
+ - You cannot pass an array of skyflow_ids and unique column details together. Using column name and column value with `skyflow_ids` will return an error message.
+ - The options parameter is applicable only for retrieving tokens using Skyflow ID.
+ - You can't pass options along with the redaction type.
+ - tokens defaults to false.
 
 ```javascript
-data = {
+inpuut = {
   records: [
     {
       // List of skyflow_ids for the records to fetch.
@@ -740,13 +752,14 @@ data = {
     },
   ],
 };
+options = {
+      options:boolean, // Default value is false
+ };
 ```
-
-Note: You cannot pass an array of skyflow_ids and unique column details together. Using column name and column value with `skyflow_ids` will return an error message.
 
 [Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Get.ts) to get records using skyflow_ids:
 ```javascript
-let skyflowIds = [
+let skyflowIds = [	
     'f8622-b557-4c6b-a12c-c0b0bfd9',
     'da26de53-95d5-4db-99db-8d35ff9',
 ];
@@ -757,11 +770,16 @@ let record = {
     redaction: RedactionType.PLAIN_TEXT,
 };
 
-let records = {
+let input = {
     records: [record],
 };
 
-const result = client.get(records);
+let options = {
+   options: false,
+};
+
+
+const result = client.get(input,options);
 result
     .then((res) => {
         console.log(JSON.stringify(res));
@@ -807,11 +825,15 @@ let record = {
     columnValues: ['123', '456'],
 };
 
-let records = {
+let input = {
     records: [record],
 };
 
-const result = client.get(records);
+let options = {
+    options: false
+};
+
+const result = client.get(input,options);
 result
     .then((res) => {
         console.log(JSON.stringify(res));
@@ -846,6 +868,64 @@ Response:
     ]
 }
 ```
+[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Get.ts) to get records as token using skyflow_ids:
+```javascript
+let skyflowIds = [	
+    'f8622-b557-4c6b-a12c-c0b0bfd9',
+    'da26de53-95d5-4db-99db-8d35ff9',
+];
+
+let record = {
+    ids: skyflowIds,
+    table: 'cards',
+};
+
+let input = {
+    records: [record],
+};
+
+let options = {
+   options: true,
+};
+
+
+const result = client.get(input,options);
+result
+    .then((res) => {
+        console.log(JSON.stringify(res));
+    })
+    .catch((err) => {
+        console.log(JSON.stringify(err));
+    });
+```
+
+Response:
+
+```json
+{
+    "records":[
+        {
+            "fields":{
+                "card_number":"b8e79a4d-5b2c-4c9d-a00b-9223d64cfdcd",
+                "expiry_date":"a79bf6f0-496b-4aa0-91b9-dad1b336517d",
+                "fullname":"4da7ac9e-2cdc-4574-8369-13919c737d26",
+                "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
+            },
+            "table":"cards"
+        },
+        {
+            "fields":{
+                "card_number":"97f52e8e-4e27-4a61-a7ef-5d711f19ddcf",
+                "expiry_date":"bef3713-aaad-46c9-80ff-31c74d0ed792",
+                "fullname":"1034b460-f1d7-44e8-8d10-1b5506edf7a9",
+                "id":"da53-95d5-4bdb-99db-8d8c5ff9"
+            },
+            "table":"cards"
+        }
+    ]
+}
+```
+
 
 #### Update
 To update records in your vault by skyflow_id, use the `update(records, options)` method. The first parameter, `records`, is a JSONObject that must have a records key and takes an array of records to update as a value in the vault. The options parameter takes an object of optional parameters for the update and includes an option to return tokenized data for the updated fields. 
