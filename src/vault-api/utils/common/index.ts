@@ -3,12 +3,11 @@
 */
 
 /**
- * This is the doc comment for Utils Module
  * @module Utils
  */
 
 /**
- * This is documentation for RedactionType enumeration.
+ * Supported redaction types.
  */
  export enum RedactionType {
   DEFAULT = 'DEFAULT',
@@ -18,7 +17,7 @@
 }
 
 /**
- * This is documentation for RequestMethod enumeration.
+ * Supported request methods.
  */
 export enum RequestMethod {
   GET = 'GET',
@@ -29,7 +28,7 @@ export enum RequestMethod {
 }
 
 /**
- * This is documentation for LogLevel enumeration.
+ * Supported log levels.
  */
 export enum LogLevel {
   WARN = 'WARN',
@@ -40,7 +39,7 @@ export enum LogLevel {
 }
 
 /**
- * This is documentation for MessageType enumeration.
+ * Supported message types.
  */
 export enum MessageType {
   LOG = 'LOG',
@@ -49,17 +48,17 @@ export enum MessageType {
 }
 
 /**
- * This is documentation for interface IInsertRecordInput.
- *  @property records This is the description for the records property
+ * Wraps the parameters required for the insert record input. 
+ *  @property records An array of insert records.
  */
 export interface IInsertRecordInput {
   records: IInsertRecord[];
 }
 
 /**
- * This is documentation for interface IInsertRecord.
- *  @property table This is the description for the table property
- *  @property fields This is the description for the fields property
+ * Wraps the parameters required for inserting a record.
+ *  @property table Table that the data belongs to.
+ *  @property fields Fields to insert data into.
  */
 export interface IInsertRecord {
   table: string;
@@ -67,9 +66,9 @@ export interface IInsertRecord {
 }
 
 /**
- * This is documentation for interface IRevealRecord.
- *  @property redaction This is the description for the redaction property
- *  @property token This is the description for the token property
+ * Wraps the parameters required by the Reveal record.
+ *  @property redaction Redaction type applied to the data. Defaults to `RedactionType.PLAIN_TEXT`.
+ *  @property token Token of the revealed data.
  */
 export interface IRevealRecord {
   token: string;
@@ -77,9 +76,9 @@ export interface IRevealRecord {
 }
 
 /**
- * This is documentation for interface IRevealResponseType.
- *  @property records This is the description for the records property
- *  @property errors This is the description for the errors property
+ * Wraps the parameters required by the reveal response.
+ *  @property records Records revealed, if any.
+ *  @property errors Errors, if any.
  */
 export interface IRevealResponseType {
   records?: Record<string, string>[];
@@ -87,20 +86,20 @@ export interface IRevealResponseType {
 }
 
 /**
- * This is documentation for interface IDetokenizeInput.
- * @property records This is the description for the records property
+ * Wraps the parameters required for detokenizing input.
+ * @property records Revealed records.
  */
 export interface IDetokenizeInput {
   records: IRevealRecord[];
 }
 
 /**
- * This is documentation for interface ISkyflowIdRecord.
- *  @property ids This is the description for the ids property
- *  @property redaction This is the description for the redaction property
- *  @property table This is the description for the table property
- *  @property columnName This is the description for the columnName property
- *  @property columnValues This is the description for the columnValues property
+ * Wrapper for the parameters required by Skyflow ID record.
+ *  @property ids Skyflow IDs of the records to get.
+ *  @property redaction Type of redaction for values.
+ *  @property table Type of redaction for values.
+ *  @property columnName Column the data belongs to.
+ *  @property columnValues Values of the records.
  */
 export interface ISkyflowIdRecord {
   ids?: string[];
@@ -111,10 +110,10 @@ export interface ISkyflowIdRecord {
 }
 
 /**
- * This is documentation for interface ISkyflowRecord.
- *  @property ids This is the description for the ids property
- *  @property redaction This is the description for the redaction property
- *  @property table This is the description for the table property
+ * Wrapper for the parameters required by Skyflow record.
+ *  @property ids Skyflow IDs of the records to get.
+ *  @property redaction Type of redaction for values.
+ *  @property table Type of redaction for values.
  */
 export interface ISkyflowRecord {
   ids: string[];
@@ -123,16 +122,16 @@ export interface ISkyflowRecord {
 }
 
 /**
- * This is documentation for interface IGetByIdInput.
- *  @property records This is the description for the records property
+ * Wrapper for the parameters that are required by the getbyid input.
+ *  @property records Records to get.
  */
 export interface IGetByIdInput {
   records: ISkyflowRecord[];
 }
 
 /**
- * This is documentation for interface IGetInput.
- * @property records This is the description for the records property
+ * Wrapper for the parameters that are required to retrieve input.
+ * @property records Records to retrieve.
  */
 export interface IGetInput {
   records: ISkyflowIdRecord[];
@@ -143,13 +142,13 @@ export interface IGetInput {
 // }
 
 /**
- * This is documentation for interface IConnectionConfig.
- *  @property connectionURL This is the description for the connectionURL property
- *  @property methodName This is the description for the methodName property
- *  @property pathParams This is the description for the pathParams property
- *  @property queryParams This is the description for the queryParams property
- *  @property requestBody This is the description for the requestBody property
- *  @property requestHeader This is the description for the requestHeader property
+ * Wraps the configuration required to establish a connection.
+ *  @property connectionURL URL of the outbound/inbound connection.
+ *  @property methodName The HTTP request method to be used.
+ *  @property pathParams Parameters to be included in the URL path.
+ *  @property queryParams Query parameters to be included in the URL.
+ *  @property requestBody Data to be included in the request body.
+ *  @property requestHeader Headers to be included in the request.
  */
 export interface IConnectionConfig {
   connectionURL: string;
@@ -169,7 +168,7 @@ export const TYPES = {
 };
 
 /**
- * This is documentation for ContentType enumeration.
+ * Supported content types.
  */
 export enum ContentType {
   APPLICATIONORJSON = 'application/json',
@@ -180,9 +179,9 @@ export enum ContentType {
 }
 
 /**
- * This is documentation for interface IUpsertOption.
- *  @property table This is the description for the table property
- *  @property column This is the description for the column property
+ * Wrapper for parameters required by upsert option.
+ *  @property table Table that the data belongs to.
+ *  @property column Name of the unique column.
  */
 export interface IUpsertOption {
   table: string;
@@ -190,9 +189,9 @@ export interface IUpsertOption {
 }
 
 /**
- * This is documentation for interface IInsertOptions.
- * @property tokens This is the description for the tokens property
- * @property upsert This is the description for the upsert property
+ * Wrapper for parameters required by insert options.
+ * @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
+ * @property upsert If specified, upserts data. If not specified, inserts data.
  */
 export interface IInsertOptions {
   tokens?: boolean;
@@ -200,10 +199,10 @@ export interface IInsertOptions {
 }
 
 /**
- * This is documentation for interface IUpdateRecord.
- *  @property id This is the description for the id property
- *  @property table This is the description for the table property
- *  @property fields This is the description for the fields property
+ * Wraps the parameters required for updating a record.
+ *  @property id Skyflow ID of the record to update.
+ *  @property table Table that the data belongs to.
+ *  @property fields Fields to update data into.
  */
 export interface IUpdateRecord{
   id: string,
@@ -212,16 +211,16 @@ export interface IUpdateRecord{
 }
 
 /**
- * This is documentation for interface IUpdateInput.
- *  @property records This is the description for the records property
+ * Wraps the parameters required for updating a record.
+ *  @property records An array of update records.
  */
 export interface IUpdateInput{
   records: IUpdateRecord[];
 }
 
 /**
- * This is documentation for interface IUpdateOptions.
- *  @property tokens This is the description for the tokens property
+ * Wrapper for parameters required by update options.
+ *  @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
  */
 export interface IUpdateOptions{
   tokens: boolean

@@ -3,7 +3,6 @@
 */
 
 /**
- * This is the doc comment for Skyflow Module
  * @module Skyflow
  */
 
@@ -29,11 +28,11 @@
  
 
  /**
- * This is documentation for interface ISkyflow.
- * @property vaultID This is the vaultID property
- * @property vaultURL This is the vaultURL property
- * @property getBearerToken This is the getBearerToken property
- * @property options This is the options property
+ * Wraps the parameters required by Skyflow.
+ * @property vaultID ID of the vault to connect to.
+ * @property vaultURL URL of the vault to connect to.
+ * @property getBearerToken Function that retrieves a Skyflow bearer token from your backend.
+ * @property options Additional configuration options.
  */
  export interface ISkyflow {
    vaultID?: string;
@@ -43,7 +42,7 @@
  }
  
  /**
-  * This is the documentation for Skyflow Class
+  * Parent Skyflow class consists of all the methods exposed to the client.
   * @class Skyflow
   */
  class Skyflow {
@@ -63,8 +62,7 @@
    #Controller: Controller;
  
   /**
-  * Some documentation for constructor
-  * @param config This is a description of the first parameter.
+  * @internal
   */
    constructor(config: ISkyflow) {
      this.#client = new Client(
@@ -81,10 +79,10 @@
  
  
   /**
-  * Some documentation for init method
+  * Initializes the Skyflow client.
   * @public
-  * @param config This is a description of the first parameter.
-  * @returns This is a description of what the method returns.
+  * @param config Configuration for the Skyflow client.
+  * @returns Returns an instance of the Skyflow client.
   */
    static init(config: ISkyflow): Skyflow {
      printLog(logs.infoLogs.INITIALIZE_CLIENT, MessageType.LOG);
@@ -95,11 +93,11 @@
    }
  
   /**
-  * Some documentation for insert method
+  * Inserts data into the vault.
   * @public
-  * @param records This is a description of the first parameter.
-  * @param options This is a description of the second parameter.
-  * @returns This is a description of what the method returns.
+  * @param records Records to insert.
+  * @param options Options for the insertion.
+  * @returns Returns the insert response.
   */
    insert(
      records: IInsertRecordInput,
@@ -110,10 +108,10 @@
    }
  
   /**
-  * Some documentation for detokenize method
+  * Returns values that correspond to the specified tokens.
   * @public
-  * @param detokenizeInput This is a description of the first parameter.
-  * @returns This is a description of what the method returns.
+  * @param detokenizeInput Tokens to return values for.
+  * @returns Tokens to return values for.
   */
    detokenize(detokenizeInput: IDetokenizeInput): Promise<IRevealResponseType> {
      printLog(logs.infoLogs.DETOKENIZE_TRIGGERED,
@@ -122,11 +120,12 @@
    }
  
   /**
-  * Some documentation for getById method
+  * Reveals records by Skyflow ID.
   * @public
   * @deprecated Use {@link get} instead.
-  * @param getByIdInput This is a description of the first parameter.
-  * @returns This is a description of what the method returns.
+  * @param getByIdInput Skyflow IDs.
+  * @returns Returns the specified records and any errors.
+  * @public
   */
    getById(getByIdInput: IGetByIdInput) {
      printLog(logs.infoLogs.GET_BY_ID_TRIGGERED,
@@ -135,10 +134,10 @@
    }
  
   /**
-  * Some documentation for get method
+  * Returns records by Skyflow IDs or column values.
   * @public
-  * @param getInput This is a description of the first parameter.
-  * @returns This is a description of what the method returns.
+  * @param getInput Identifiers for the records.
+  * @returns Returns the specified records and any errors.
   */
    get(getInput: IGetInput) {
      printLog(logs.infoLogs.GET_CALL_TRIGGERED,
@@ -147,10 +146,10 @@
    }
  
   /**
-  * Some documentation for invokeConnection method
+  * Invokes a connection to a third-party service.
   * @public
-  * @param config This is a description of the first parameter.
-  * @returns This is a description of what the method returns.
+  * @param config Configuration for the connection.
+  * @returns Returns the connection response.
   */
    invokeConnection(config: IConnectionConfig) {
      printLog(logs.infoLogs.INVOKE_CONNECTION_TRIGGERED,
@@ -160,11 +159,11 @@
    }
  
   /**
-  * Some documentation for update method
+  * Updates the configuration of elements inside the composable container.
   * @public
-  * @param updateInput This is a description of the first parameter.
-  * @param options This is a description of the second parameter.
-  * @returns This is a description of what the method returns.
+  * @param updateInput Input data for the update operation.
+  * @param options Options for the container update.
+  * @returns Returns the response for the update operation.
   */
    update(updateInput: IUpdateInput,options?:IUpdateOptions){
      printLog(logs.infoLogs.UPDATE_TRIGGERED,
