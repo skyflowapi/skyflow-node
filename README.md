@@ -114,7 +114,7 @@ let bearerToken = '';
 function getSkyflowBearerToken() {
     return new Promise(async (resolve, reject) => {
         try {
-            if (isExpired(bearerToken)) resolve(bearerToken);
+            if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerTokenFromCreds(
                     JSON.stringify(credentials)
@@ -197,7 +197,7 @@ function getSkyflowBearerToken() {
             const options = {
                 ctx: 'CONTEXT_ID',
             }
-            if (isExpired(bearerToken)) resolve(bearerToken);
+            if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerTokenFromCreds(
                     JSON.stringify(credentials),
@@ -281,7 +281,7 @@ function getSkyflowBearerToken() {
             const options = {
                 roleIDs: ['ROLE_ID1', 'ROLE_ID2'],
             };
-            if (isExpired(bearerToken)) resolve(bearerToken);
+            if (!isExpired(bearerToken)) resolve(bearerToken);
             else {
                 let response = await generateBearerTokenFromCreds(
                     JSON.stringify(credentials),
