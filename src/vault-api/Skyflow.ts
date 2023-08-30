@@ -28,7 +28,7 @@
  
 
  /**
- * Wraps the parameters required by Skyflow.
+ * Parameters for the Skyflow client.
  * @property vaultID ID of the vault to connect to.
  * @property vaultURL URL of the vault to connect to.
  * @property getBearerToken Function that retrieves a Skyflow bearer token from your backend.
@@ -42,7 +42,7 @@
  }
  
  /**
-  * Parent Skyflow class consists of all the methods exposed to the client.
+  * Parent Skyflow class that consists of all the methods exposed to the client.
   * @class Skyflow
   */
  class Skyflow {
@@ -120,7 +120,7 @@
    }
  
   /**
-  * Reveals records by Skyflow ID.
+  * Returns records by Skyflow ID.
   * @public
   * @deprecated Use {@link get} instead.
   * @param getByIdInput Skyflow IDs.

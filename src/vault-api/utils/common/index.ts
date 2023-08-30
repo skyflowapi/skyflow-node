@@ -48,7 +48,7 @@ export enum MessageType {
 }
 
 /**
- * Wraps the parameters required for the insert record input. 
+ * Parameters for the insert record input. 
  *  @property records An array of insert records.
  */
 export interface IInsertRecordInput {
@@ -56,7 +56,7 @@ export interface IInsertRecordInput {
 }
 
 /**
- * Wraps the parameters required for inserting a record.
+ * Parameters for inserting a record.
  *  @property table Table that the data belongs to.
  *  @property fields Fields to insert data into.
  */
@@ -66,7 +66,7 @@ export interface IInsertRecord {
 }
 
 /**
- * Wraps the parameters required by the Reveal record.
+ * Parameters by the Reveal record.
  *  @property redaction Redaction type applied to the data. Defaults to `RedactionType.PLAIN_TEXT`.
  *  @property token Token of the revealed data.
  */
@@ -76,7 +76,7 @@ export interface IRevealRecord {
 }
 
 /**
- * Wraps the parameters required by the reveal response.
+ * Parameters by the reveal response.
  *  @property records Records revealed, if any.
  *  @property errors Errors, if any.
  */
@@ -86,7 +86,7 @@ export interface IRevealResponseType {
 }
 
 /**
- * Wraps the parameters required for detokenizing input.
+ * Parameters for detokenizing input.
  * @property records Revealed records.
  */
 export interface IDetokenizeInput {
@@ -94,7 +94,7 @@ export interface IDetokenizeInput {
 }
 
 /**
- * Wrapper for the parameters required by Skyflow ID record.
+ * Parameters for Skyflow ID record.
  *  @property ids Skyflow IDs of the records to get.
  *  @property redaction Type of redaction for values.
  *  @property table Type of redaction for values.
@@ -110,7 +110,7 @@ export interface ISkyflowIdRecord {
 }
 
 /**
- * Wrapper for the parameters required by Skyflow record.
+ * Parameters by Skyflow record.
  *  @property ids Skyflow IDs of the records to get.
  *  @property redaction Type of redaction for values.
  *  @property table Type of redaction for values.
@@ -122,7 +122,7 @@ export interface ISkyflowRecord {
 }
 
 /**
- * Wrapper for the parameters that are required by the getbyid input.
+ * Parameters by the getbyid input.
  *  @property records Records to get.
  */
 export interface IGetByIdInput {
@@ -130,7 +130,7 @@ export interface IGetByIdInput {
 }
 
 /**
- * Wrapper for the parameters that are required to retrieve input.
+ * Parameters to retrieve input.
  * @property records Records to retrieve.
  */
 export interface IGetInput {
@@ -142,7 +142,7 @@ export interface IGetInput {
 // }
 
 /**
- * Wraps the configuration required to establish a connection.
+ * Configuration to establish a connection.
  *  @property connectionURL URL of the outbound/inbound connection.
  *  @property methodName The HTTP request method to be used.
  *  @property pathParams Parameters to be included in the URL path.
@@ -179,7 +179,7 @@ export enum ContentType {
 }
 
 /**
- * Wrapper for parameters required by upsert option.
+ * Parameters by upsert option.
  *  @property table Table that the data belongs to.
  *  @property column Name of the unique column.
  */
@@ -189,7 +189,7 @@ export interface IUpsertOption {
 }
 
 /**
- * Wrapper for parameters required by insert options.
+ * Parameters by insert options.
  * @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
  * @property upsert If specified, upserts data. If not specified, inserts data.
  */
@@ -199,7 +199,7 @@ export interface IInsertOptions {
 }
 
 /**
- * Wraps the parameters required for updating a record.
+ * Parameters for updating a record.
  *  @property id Skyflow ID of the record to update.
  *  @property table Table that the data belongs to.
  *  @property fields Fields to update data into.
@@ -211,7 +211,7 @@ export interface IUpdateRecord{
 }
 
 /**
- * Wraps the parameters required for updating a record.
+ * Parameters for updating a record.
  *  @property records An array of update records.
  */
 export interface IUpdateInput{
@@ -219,7 +219,7 @@ export interface IUpdateInput{
 }
 
 /**
- * Wrapper for parameters required by update options.
+ * Parameters by update options.
  *  @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
  */
 export interface IUpdateOptions{
