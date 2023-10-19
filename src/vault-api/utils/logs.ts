@@ -27,6 +27,8 @@ const logs = {
     GET_BY_ID_TRIGGERED: 'Get by ID triggered.',
     GET_CALL_TRIGGERED: 'Get call triggered.',
     INVOKE_CONNECTION_TRIGGERED: 'Invoke connection triggered.',
+    DELETE_TRIGGERED: 'Delete method Triggered',
+    DELETE_REQUEST_RESOLVED: 'Delete method is resolved',
     EMIT_REQUEST: 'Emitted %s1 request.',
     FETCH_RECORDS_RESOLVED: 'Detokenize request is resolved.',
     INSERT_RECORDS_RESOLVED: 'Insert request is resolved.',
@@ -35,6 +37,7 @@ const logs = {
     GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: "generateSignedDataTokens is triggered",
     UPDATE_TRIGGERED: 'Update method triggered.',
     UPDATE_REQUEST_RESOLVED:'Update request is resolved.',
+    UNABLE_TO_GENERATE_SDK_METRIC:'Unable to generate %s1 metric.'
 
   },
   errorLogs: {
@@ -129,6 +132,13 @@ const logs = {
     INVALID_TOKENS_IN_GET: 'Interface: get method - Invalid tokens in options. tokens of type boolean is required.',
     TOKENS_GET_COLUMN_NOT_SUPPORTED: 'Interface: get method - column_name or column_values cannot be used with tokens in options.',
     REDACTION_WITH_TOKENS_NOT_SUPPORTED: 'Interface: get method - redaction cannot be used when tokens are true in options.',
+    INVALID_DELETE_INPUT: 'Interface: delete method - Invalid argument , object with records key is required.',
+    INVLAID_DELETE_RECORDS_INPUT: 'Interface: delete method - Invalid records type, records should be an array of objects.',
+    MISSING_ID_IN_DELETE: 'Interface: delete method - id key is required in records object at index %s1',
+    INVALID_ID_IN_DELETE: 'Interface: delete method - Invalid id in records object at index %s1, id of type non empty string is required.',
+    MISSING_TABLE_IN_DELETE: 'Interface: delete method - table key is required in records object at index %s1',
+    INVALID_TABLE_IN_DELETE: 'Interface: delete method - Invalid table in records object at index %s1, table of type non empty string is required.',
+    DELETE_REQUEST_REJECTED: 'Delete request is rejected.',
     DETOKENIZE_INVALID_REDACTION_TYPE:'Interface: detokenize method - Invalid redaction type, use Skyflow.RedactionType enum.',
   },
   warnLogs: {

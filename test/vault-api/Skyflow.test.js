@@ -2034,5 +2034,206 @@ describe('get method with options', () => {
       done();
     })
   });
+});
 
+const deleteInput = {
+  records: [
+    {
+      id: 'test_delete_id',
+      table: 'table1',
+    }
+  ]
+};
+
+const errorDeleteInput = {
+  records: [
+    {
+      id: 'invalid_delete_id',
+      table: 'table1',
+    }
+  ]
+};
+
+const partialDeleteSuccessInput = {
+  records: [
+    ...deleteInput.records,
+    ...errorDeleteInput.records,
+  ]
+};
+
+const successDeleteRequestResponse = {  
+  skyflow_id: 'test_delete_id',
+  deleted: true
+};
+
+const errorDeleteRequestResponse = {
+  error: {
+    code: '404',
+    description: 'No Records Found.'
+  }
+};
+
+const deleteResponse = {
+  records: [
+    {
+      skyflow_id: 'test_delete_id',
+      deleted: true
+    }
+  ]
+};
+
+const deleteFailure = {
+  errors: [
+    {
+      id : 'invalid_delete_id',
+      ...errorDeleteRequestResponse,
+    }
+  ]
+};
+
+const partialDeleteSuccess = {
+  ...deleteResponse,
+  ...deleteFailure,
+};
+
+describe('skyflow delete method', () => {
+  test('delete success', (done) => {
+    try {
+      jest.mock('../../src/vault-api/utils/jwt-utils', () => ({
+        __esModule: true,
+        isTokenValid: jest.fn(() => true),
+      }));
+
+      const clientReq = jest.fn(() => Promise.resolve(successDeleteRequestResponse));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata:{}
+      }
+      
+      clientModule.mockImplementation(() => { return mockClient });
+      const skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: () => {
+          return new Promise((resolve, _) => {
+            resolve("token")
+          })
+        }
+      });
+
+      const result = skyflow.delete(deleteInput);
+      result.then((response) => {
+        expect(response).toEqual(deleteResponse);
+        done();
+      }).catch((err) => {
+        done(err);
+      });
+    } catch (err) {
+      done(err);
+    }
+  })
+
+  test('delete failure', (done) => {
+    try {
+      jest.mock('../../src/vault-api/utils/jwt-utils', () => ({
+        __esModule: true,
+        isTokenValid: jest.fn(() => true),
+      }));
+
+      const clientReq = jest.fn(() => Promise.reject(errorDeleteRequestResponse));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata:{}
+      }
+      
+      clientModule.mockImplementation(() => { return mockClient });
+      const skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: () => {
+          return new Promise((resolve, _) => {
+            resolve("token")
+          })
+        }
+      });
+
+      const result = skyflow.delete(errorDeleteInput);
+      try {
+        result.catch((err) => {
+          expect(err).toEqual(deleteFailure);
+          done();
+        });
+      } catch (err) {
+        done(err);
+      }
+    } catch (err) {
+      done(err);
+    }
+  })
+
+  test('delete partial success', (done) => {
+    try {
+      jest.mock('../../src/vault-api/utils/jwt-utils', () => ({
+        __esModule: true,
+        isTokenValid: jest.fn(() => true),
+      }));
+
+      const clientReq = jest.fn((args) => {
+        const check = args.url.includes('test_delete_id')
+        if (check) {
+          return Promise.resolve(successDeleteRequestResponse);
+        } else {
+          return Promise.reject(errorDeleteRequestResponse);
+        }
+      });
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata:{}
+      }
+      
+      clientModule.mockImplementation(() => { return mockClient });
+      const skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: () => {
+          return new Promise((resolve, _) => {
+            resolve("token")
+          })
+        }
+      });
+
+      const result = skyflow.delete(partialDeleteSuccessInput);
+      try {
+        result.catch((err) => {
+          expect(err).toEqual(partialDeleteSuccess);
+          done();
+        });
+      } catch (err) {
+        done(err);
+      }
+    } catch (err) {
+      done(err);
+    }
+  })
+
+  test('Invalid Input - missing table', async () => {
+    try {
+      const skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: () => {
+          return new Promise((resolve, _) => {
+            resolve("token")
+          })
+        }
+      });
+
+      const result = await skyflow.delete({ records: [{ id: 'skyflow_id' }]});
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
+  })
 });

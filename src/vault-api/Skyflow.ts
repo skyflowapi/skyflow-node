@@ -20,6 +20,8 @@ import {
   IUpdateOptions,
   IGetInput,
   IGetOptions,
+  IDeleteInput,
+  IDeleteOptions,
 } from './utils/common';
 import { formatVaultURL } from './utils/helpers';
 
@@ -93,6 +95,11 @@ class Skyflow {
     printLog(logs.infoLogs.UPDATE_TRIGGERED,
       MessageType.LOG);
     return this.#Controller.update(updateInput,options);
+  }
+
+  delete(deleteInput: IDeleteInput, options?: IDeleteOptions) {
+    printLog(logs.infoLogs.UPDATE_TRIGGERED, MessageType.LOG);
+    return this.#Controller.delete(deleteInput, options)
   }
 
   static get RedactionType() {

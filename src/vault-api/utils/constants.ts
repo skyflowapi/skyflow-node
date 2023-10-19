@@ -143,6 +143,30 @@ const SKYFLOW_ERROR_CODE = {
     code: 400,
     description: logs.errorLogs.INVALID_ENCODE_URI_IN_GET,
   },
+  MISSING_ID_IN_DELETE: {
+    code: 400,
+    description: logs.errorLogs.MISSING_ID_IN_DELETE,
+  },
+  INVALID_ID_IN_DELETE: {
+    code: 400,
+    description: logs.errorLogs.INVALID_ID_IN_DELETE,
+  },
+  MISSING_TABLE_IN_DELETE: {
+    code: 400,
+    description: logs.errorLogs.MISSING_TABLE_IN_DELETE,
+  },
+  INVALID_TABLE_IN_DELETE: {
+    code: 400,
+    description: logs.errorLogs.INVALID_TABLE_IN_DELETE,
+  },
+  INVALID_DELETE_INPUT: {
+    code: 400,
+    description: logs.errorLogs.INVALID_DELETE_INPUT,
+  },
+  INVLAID_DELETE_RECORDS_INPUT: {
+    code: 400,
+    description: logs.errorLogs.INVLAID_DELETE_RECORDS_INPUT,
+  },
   DETOKENIZE_INVALID_REDACTION_TYPE:{
     code: 400,
     description: logs.errorLogs.DETOKENIZE_INVALID_REDACTION_TYPE,

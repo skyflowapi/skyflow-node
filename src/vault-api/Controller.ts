@@ -4,11 +4,13 @@
 import Client from './client';
 
 import {
-  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput, validateInitConfig, validateUpsertOptions, validateUpdateInput, validateGetInput,
+  validateConnectionConfig, validateInsertRecords, validateDetokenizeInput, validateGetByIdInput, validateInitConfig, validateUpsertOptions, validateUpdateInput, validateGetInput, validateDeleteInputAndOptions
 } from './utils/validators';
 
 import {
   ContentType,
+  IDeleteInput,
+  IDeleteOptions,
   IGetInput,
   IGetOptions,
   IInsertOptions,
@@ -41,6 +43,7 @@ import {
 import { isTokenValid } from './utils/jwt-utils';
 import SKYFLOW_ERROR_CODE from './utils/constants';
 import SkyflowError from './libs/SkyflowError';
+import { deleteRecordsBySkyflowID } from './core/Delete';
 
 class Controller {
   #client: Client;
@@ -243,6 +246,32 @@ class Controller {
         reject(error);
       }
     });
+  }
+
+  delete(deleteInput: IDeleteInput, options?: IDeleteOptions) {
+    return new Promise((resolve, reject) => {
+      try {
+        validateInitConfig(this.#client.config);
+        validateDeleteInputAndOptions(deleteInput, options);
+        this.getToken().then((authToken) => {
+          deleteRecordsBySkyflowID(deleteInput.records, options = {}, this.#client, authToken)
+            .then((response) => {
+              printLog(logs.infoLogs.DELETE_REQUEST_RESOLVED, MessageType.LOG);
+              resolve(response);
+            }).catch((error) => {
+              printLog(logs.errorLogs.DELETE_REQUEST_REJECTED, MessageType.ERROR);
+              reject(error);
+            });
+        }).catch((err) => {
+          reject(err);
+        })
+
+      } catch (error) {
+        if (error instanceof Error)
+          printLog(error.message, MessageType.ERROR);
+        reject(error);
+      }
+    })
   }
 
   insertData(records, options) {

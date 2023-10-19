@@ -38,12 +38,15 @@ const result = skyflow.detokenize({
   records: [
     {
       token: '<TOKEN1>',
+      redaction: Skyflow.RedactionType.DEFAULT  // optional
     },
     {
       token: '<TOKEN2>',
+      redaction: Skyflow.RedactionType.MASKED  // optional
     },
     {
       token: '<TOKEN3>',
+      redaction: Skyflow.RedactionType.REDACTED // optional
     },
     {
       token: '<TOKEN4>',

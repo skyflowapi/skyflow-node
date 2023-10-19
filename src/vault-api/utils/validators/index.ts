@@ -4,7 +4,7 @@
 import SkyflowError from '../../libs/SkyflowError';
 import { ISkyflow } from '../../Skyflow';
 import {
-  IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod, IUpdateInput, IGetInput, IGetOptions,
+  IInsertRecordInput, IDetokenizeInput, RedactionType, IGetByIdInput, IConnectionConfig, RequestMethod, IUpdateInput, IGetInput, IGetOptions, IDeleteInput, IDeleteOptions,
 } from '../common';
 import SKYFLOW_ERROR_CODE from '../constants';
 
@@ -283,3 +283,43 @@ export const validateUpdateInput = (updateInput: IUpdateInput) => {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPDATE_INPUT);
   }
 };
+
+export const validateDeleteInputAndOptions = (deleteInput: IDeleteInput, options?: IDeleteOptions) => {
+  if (deleteInput) {
+    if (!Object.prototype.hasOwnProperty.call(deleteInput, 'records')) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_RECORDS);
+    }
+
+    if (!Array.isArray(deleteInput.records)) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.INVLAID_DELETE_RECORDS_INPUT)
+    }
+    const { records } = deleteInput;
+    if (records.length === 0) {
+      throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
+    }
+    records.forEach((deleteRecord, index) => {
+      if (Object.keys(deleteRecord).length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(deleteRecord, 'id')){
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_ID_IN_DELETE, [index]);
+      }
+
+      if (typeof deleteRecord.id !== 'string' || deleteRecord.id.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ID_IN_DELETE, [index]);
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(deleteRecord, 'table')) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_DELETE, [index]);
+      }
+
+      const recordTable = deleteRecord.table;
+      if (typeof recordTable !== 'string' || recordTable.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_DELETE, [index]);
+      }
+    });
+  } else {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DELETE_INPUT);
+  }
+}

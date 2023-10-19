@@ -3,13 +3,22 @@ import {
   validateUpdateInput,
   validateInsertRecords,
   validateInitConfig,
-  isValidURL
+  isValidURL,
+  validateDeleteInputAndOptions
 } from "../../src/vault-api/utils/validators";
 import SKYFLOW_ERROR_CODE from "../../src/vault-api/utils/constants";
 import { parameterizedString } from "../../src/vault-api/utils/logs-helper";
 import SkyflowError from "../../src/vault-api/libs/SkyflowError";
-import { fillUrlWithPathAndQueryParams, formatVaultURL, toLowerKeys, objectToFormData } from "../../src/vault-api/utils/helpers";
+import { fillUrlWithPathAndQueryParams, formatVaultURL, toLowerKeys, objectToFormData, generateSDKMetrics } from "../../src/vault-api/utils/helpers";
+import logs from "../../src/vault-api/utils/logs";
 const FormData = require('form-data');
+
+let mockJson = {};
+jest.mock('../../package.json',()=>(mockJson));
+let mockProcess = {};
+jest.mock('process',()=>(mockProcess));
+let mockOS= {};
+jest.mock('os',()=>(mockOS))
 
 describe("validate upsert options in collect", () => {
   it("invalid upsert options type", () => {
@@ -553,4 +562,146 @@ describe("URL helper its", () => {
     const result = objectToFormData(obj);
     expect(result).toBeDefined();
   });  
+});
+
+describe("test generateSDKMetrics",()=>{
+
+  test('should set it empty string when name version are undefined',()=>{
+      mockJson = {name:undefined,version:null}
+      const metrics = generateSDKMetrics();
+      expect(metrics.sdk_name_version).toBe('');
+  }); 
+
+  test('should set it device model empty string when process is invalid or empty',()=>{
+    mockProcess = {};
+    const metrics = generateSDKMetrics();
+    expect(metrics.sdk_client_device_model).toBe('');
+  });
+
+  test('should set it run time details empty string when process is invalid or empty',()=>{
+    mockProcess = {};
+    const metrics = generateSDKMetrics();
+    expect(metrics.sdk_runtime_details).toBe('');
+  });
+
+  test('should set it os details empty string when process is invalid or empty',()=>{
+    mockOS = {};
+    const metrics = generateSDKMetrics();
+    expect(metrics.sdk_client_os_details).toBe('');
+  });
+
+}); 
+
+describe('skyflow delete method validation tests', () => { 
+  test('Invalid Input - null delete input', () => {
+    try {
+      validateDeleteInputAndOptions(null);
+    } catch (err) {
+      expect(err).toBeDefined();
+      expect(err.message).toBe(logs.errorLogs.INVALID_DELETE_INPUT);
+    }
+  })
+  
+  test('Invalid Input - missing records key', () => {
+    try {
+      validateDeleteInputAndOptions({});
+    } catch (err) {
+      expect(err).toBeDefined();
+      expect(err.message).toBe(logs.errorLogs.MISSING_RECORDS);
+    }
+  })
+
+  test('Invalid Input - invalid records key type', () => {
+    try {
+      validateDeleteInputAndOptions({ records: {}});
+    } catch (err) {
+      expect(err).toBeDefined();
+      expect(err.message).toBe(logs.errorLogs.INVLAID_DELETE_RECORDS_INPUT);
+    }
+  })
+
+  test('Invalid Input - empty records array', () => {
+    try {
+      validateDeleteInputAndOptions({ records: []});
+    } catch (err) {
+      expect(err).toBeDefined();
+      expect(err.message).toBe(logs.errorLogs.EMPTY_RECORDS);
+    }
+  })
+
+  test('Invalid Input - empty record in records', () => {
+    try {
+      validateDeleteInputAndOptions({ records: [{}]});
+    } catch (err) {
+      expect(err).toBeDefined();
+      expect(err.message).toBe(logs.errorLogs.EMPTY_RECORDS);
+    }
+  })
+
+  test('Invalid Input - missing ID', () => {
+    try {
+      validateDeleteInputAndOptions({ records: [{ table: 'table' }]});
+    } catch (err) {
+      const skyflowError = new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_ID_IN_DELETE, [0], true);
+
+      expect(err).toBeDefined();
+      expect(err.message).toBe(skyflowError.error.description);
+    }
+  })
+
+  test('Invalid Input - invalid ID 1', () => {
+    try {
+      validateDeleteInputAndOptions({ records: [{ id: 123 }]});
+    } catch (err) {
+      const skyflowError = new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ID_IN_DELETE, [0], true);
+      
+      expect(err).toBeDefined();
+      expect(err.message).toBe(skyflowError.error.description);
+    }
+  })
+  
+  test('Invalid Input - invalid ID 2', () => {
+    try {
+      validateDeleteInputAndOptions({ records: [{ id: '   ' }]});
+    } catch (err) {
+      const skyflowError = new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ID_IN_DELETE, [0], true);
+     
+      expect(err).toBeDefined();
+      expect(err.message).toBe(skyflowError.error.description);
+    }
+  })
+
+  test('Invalid Input - missing table', () => {
+    try {
+      validateDeleteInputAndOptions({ records: [{ id: 'skyflow_id' }]});
+    } catch (err) {
+      const skyflowError = new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_DELETE, [0], true);
+
+      expect(err).toBeDefined();
+      expect(err.message).toBe(skyflowError.error.description);
+    }
+  })
+  
+  test('Invalid Input - invalid table 1', () => {
+    try {
+      validateDeleteInputAndOptions({ records: [{ id: 'skyflow_id', table: {} }]});
+    } catch (err) {
+      const skyflowError = new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_DELETE, [0], true);
+     
+      expect(err).toBeDefined();
+      expect(err.message).toBe(skyflowError.error.description);
+    }
+  })
+  
+  test('Invalid Input - invalid table 2', () => {
+    try {
+      validateDeleteInputAndOptions({ records: [{ id: 'skyflow_id', table: '   ' }]});
+    } catch (err) {
+      const skyflowError = new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_DELETE, [0], true);
+     
+      expect(err).toBeDefined();
+      expect(err.message).toBe(skyflowError.error.description);
+    }
+  })
+
 });
