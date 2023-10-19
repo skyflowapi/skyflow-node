@@ -139,6 +139,10 @@ const SKYFLOW_ERROR_CODE = {
     code: 400,
     description: logs.errorLogs.REDACTION_WITH_TOKENS_NOT_SUPPORTED,
   },
+  INVALID_ENCODE_URI_IN_GET: {
+    code: 400,
+    description: logs.errorLogs.INVALID_ENCODE_URI_IN_GET,
+  },
   DETOKENIZE_INVALID_REDACTION_TYPE:{
     code: 400,
     description: logs.errorLogs.DETOKENIZE_INVALID_REDACTION_TYPE,

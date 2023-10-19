@@ -106,6 +106,10 @@ export const validateGetInput = (getInput: IGetInput,options?:IGetOptions) => {
     throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_GET);
   }
 
+  if (Object.prototype.hasOwnProperty.call(options, 'encodeURI') && (typeof options?.encodeURI !== 'boolean')) {
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENCODE_URI_IN_GET);
+  }
+
   records.forEach((record) => {
     if (Object.keys(record).length === 0) {
       throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORDS);

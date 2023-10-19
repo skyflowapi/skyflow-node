@@ -130,4 +130,5 @@ export interface IUpdateOptions{
 
 export interface IGetOptions{
   tokens?: boolean
+  encodeURI?: boolean
 }

@@ -46,6 +46,7 @@ const logs = {
     INVALID_VAULTURL_IN_INIT: 'Interface: init - Invalid client credentials. Expecting https://XYZ for vaultURL',
     GET_BEARER_TOKEN_IS_REQUIRED: 'Interface: init - Invalid client credentials. getBearerToken is required.',
     BEARER_TOKEN_REJECTED: 'Interface: init - GetBearerToken promise got rejected.',
+    INVALID_ENCODE_URI_IN_GET: 'Interface: get method - Invalid encodeURI type in get.',
     INVALID_BEARER_TOKEN: 'Bearer token is invalid or expired.',
     INVALID_VAULT_ID: 'Vault Id is invalid or cannot be found.',
     EMPTY_VAULT_ID: 'VaultID is empty.',

@@ -1974,4 +1974,65 @@ describe('get method with options', () => {
     })
   });
 
+  test('get method should encode column values when encodeURI option is true', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(getByIdRes);
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {},
+    };
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: true });
+    response.then((res) => {
+      expect((reqArg.url).includes('tokenization=false')).toBe(false);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+  });
+
+  test('get method should throw error when encodeURI options is invalid type value', (done) => {
+
+    skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: '12343' }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_ENCODE_URI_IN_GET.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when encodeURI options is null', (done) => {
+    skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: null }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_ENCODE_URI_IN_GET.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when encodeURI options is undefined', (done) => {
+    skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: undefined }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_ENCODE_URI_IN_GET.description);
+      done();
+    })
+  });
+
 });
