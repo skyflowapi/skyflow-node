@@ -65,7 +65,7 @@ const getSkyflowIdRecordsFromVault = (
     paramList += `skyflow_ids=${skyflowId}&`;
   });
 
-  if(Object.prototype.hasOwnProperty.call(options, 'encodeURI') && options?.encodeURI === true) {
+  if(options && Object.prototype.hasOwnProperty.call(options, 'encodeURI') && options?.encodeURI === true) {
     skyflowIdRecord.columnValues?.forEach((column) => {
       var encode_column_value = encodeURIComponent(column)
       paramList += `column_name=${skyflowIdRecord.columnName}&column_values=${encode_column_value}&`;
