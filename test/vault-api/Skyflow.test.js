@@ -1993,7 +1993,7 @@ describe('get method with options', () => {
       vaultURL: 'https://www.vaulturl.com',
       getBearerToken: () => {
         return new Promise((resolve, _) => {
-          resolve("token")
+          resolve("encodeURI")
         })
       }
     });
@@ -2007,6 +2007,39 @@ describe('get method with options', () => {
     });
   });
 
+  test('get method should not encode column values when encodeURI option is false', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(getByIdRes);
+    });
+  
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {},
+    };
+  
+    clientModule.mockImplementation(() => mockClient);
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("encodeURI")
+        })
+      }
+      });
+  
+    const response = skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: false });
+    response.then((res) => {
+      expect((reqArg.url).includes('tokenization=false')).toBe(false);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+  });
+  
   test('get method should throw error when encodeURI options is invalid type value', (done) => {
 
     skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: '12343' }).then((res) => {
