@@ -524,6 +524,13 @@ const getByIdInput = {
   }],
 };
 
+const getByIdInputWithoutRedaction = {
+  records: [{
+    ids: ['id'],
+    table: 'cards',
+  }],
+};
+
 const getByIdInputMissingIds = {
   records: [{
     table: 'cards',
@@ -1786,6 +1793,279 @@ describe('skyflow detokenize with redaction', () => {
       done();
     })
 
+  });
+});
+
+describe('get method with options', () => {
+  let skyflow;
+  beforeEach(() => {
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: jest.fn(),
+    });
+  });
+
+
+  test('get method should send request url with tokenization true when tokens are true', (done) => {
+
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(getByIdRes)
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.get(getByIdInputWithoutRedaction, { tokens: true });
+    response.then((res) => {
+      expect((reqArg.url).includes('tokenization=true')).toBe(true);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+
+
+  });
+
+
+  test('get method should send request url with tokenization false and redaction when tokens are false', (done) => {
+
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(getByIdRes)
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.get(getByIdInput, { tokens: false });
+    response.then((res) => {
+      expect((reqArg.url).includes('tokenization=false')).toBe(true);
+      expect((reqArg.url).includes('redaction=PLAIN_TEXT')).toBe(true);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+
+
+  });
+
+  test('get method should not send redaction along with url if redaction is not passed.', (done) => {
+
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(getByIdRes)
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.get(getByIdInputWithoutRedaction, { tokens: true });
+    response.then((res) => {
+      console.log(reqArg.url);
+      expect((reqArg.url).includes('redaction=PLAIN_TEXT')).toBe(false);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+
+
+  });
+
+  test('get method should throw error when tokens options is invalid type value', (done) => {
+
+    skyflow.get(getByIdInput, { tokens: '12343' }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_GET.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when tokens options is invalid type value', (done) => {
+
+    skyflow.get(getByIdInput, { tokens: "true" }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_GET.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when tokens options is null', (done) => {
+    skyflow.get(getByIdInput, { tokens: null }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_GET.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when tokens options is undefined', (done) => {
+    skyflow.get(getByIdInput, { tokens: undefined }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_GET.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when tokens options along with column values', (done) => {
+    skyflow.get(getByIdWithValidUniqColumnOptions, { tokens: true }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.TOKENS_GET_COLUMN_NOT_SUPPORTED.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when tokens options used along with redaction', (done) => {
+    skyflow.get(getByIdInput, { tokens: true }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.REDACTION_WITH_TOKENS_NOT_SUPPORTED.description);
+      done();
+    })
+  });
+
+  test('get method should encode column values when encodeURI option is true', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(getByIdRes);
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {},
+    };
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("encodeURI")
+        })
+      }
+    });
+
+    const response = skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: true });
+    response.then((res) => {
+      expect((reqArg.url).includes('tokenization=false')).toBe(false);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+  });
+
+  test('get method should not encode column values when encodeURI option is false', (done) => {
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve(getByIdRes);
+    });
+  
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {},
+    };
+  
+    clientModule.mockImplementation(() => mockClient);
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("encodeURI")
+        })
+      }
+      });
+  
+    const response = skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: false });
+    response.then((res) => {
+      expect((reqArg.url).includes('tokenization=false')).toBe(false);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+  });
+  
+  test('get method should throw error when encodeURI options is invalid type value', (done) => {
+
+    skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: '12343' }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_ENCODE_URI_IN_GET.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when encodeURI options is null', (done) => {
+    skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: null }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_ENCODE_URI_IN_GET.description);
+      done();
+    })
+  });
+
+  test('get method should throw error when encodeURI options is undefined', (done) => {
+    skyflow.get(getByIdWithValidUniqColumnOptions, { encodeURI: undefined }).then((res) => {
+      done('Should throw error.')
+    }).catch((err) => {
+      expect(err.errors[0].description).toEqual(SKYFLOW_ERROR_CODE.INVALID_ENCODE_URI_IN_GET.description);
+      done();
+    })
   });
 });
 

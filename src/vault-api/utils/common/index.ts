@@ -56,7 +56,7 @@ export interface IDetokenizeInput {
 
 export interface ISkyflowIdRecord {
   ids?: string[];
-  redaction: RedactionType;
+  redaction?: RedactionType;
   table: string;
   columnName?: string;
   columnValues?: string[];
@@ -128,6 +128,10 @@ export interface IUpdateOptions{
   tokens: boolean
 }
 
+export interface IGetOptions{
+  tokens?: boolean
+  encodeURI?: boolean
+}
 export interface IDeleteRecord {
   id: string;
   table: string;

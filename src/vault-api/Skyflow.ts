@@ -19,6 +19,7 @@ import {
   IUpdateInput,
   IUpdateOptions,
   IGetInput,
+  IGetOptions,
   IDeleteInput,
   IDeleteOptions,
 } from './utils/common';
@@ -77,10 +78,10 @@ class Skyflow {
     return this.#Controller.getById(getByIdInput);
   }
 
-  get(getInput: IGetInput) {
+  get(getInput: IGetInput,options?:IGetOptions) {
     printLog(logs.infoLogs.GET_CALL_TRIGGERED,
       MessageType.LOG);
-    return this.#Controller.get(getInput);
+    return this.#Controller.get(getInput,options);
   }
 
   invokeConnection(config: IConnectionConfig) {
