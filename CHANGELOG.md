@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.12.0] - 2023-10-20
+### Added
+- `tokens` option in `get` interface.
+- `encodeURI` option in `get` interface.
+
+## [1.11.0] - 2023-07-19
+### Added
+- Added new `delete` interface.
 ## [1.10.0] - 2023-06-08
 ### Added
 - `redaction` in detokenize interface.

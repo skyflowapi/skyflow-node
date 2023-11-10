@@ -6,25 +6,28 @@
  * @module Skyflow
  */
 
- import Client from './client';
- import { printLog } from './utils/logs-helper';
- import logs from './utils/logs';
- import Controller from './Controller';
- import {
-   IRevealResponseType,
-   IConnectionConfig,
-   RequestMethod,
-   IInsertRecordInput,
-   IDetokenizeInput,
-   IGetByIdInput,
-   RedactionType,
-   MessageType,
-   IInsertOptions,
-   IUpdateInput,
-   IUpdateOptions,
-   IGetInput,
- } from './utils/common';
- import { formatVaultURL } from './utils/helpers';
+import Client from './client';
+import { printLog } from './utils/logs-helper';
+import logs from './utils/logs';
+import Controller from './Controller';
+import {
+  IRevealResponseType,
+  IConnectionConfig,
+  RequestMethod,
+  IInsertRecordInput,
+  IDetokenizeInput,
+  IGetByIdInput,
+  RedactionType,
+  MessageType,
+  IInsertOptions,
+  IUpdateInput,
+  IUpdateOptions,
+  IGetInput,
+  IGetOptions,
+  IDeleteInput,
+  IDeleteOptions,
+} from './utils/common';
+import { formatVaultURL } from './utils/helpers';
  
 
  /**
@@ -171,6 +174,11 @@
      return this.#Controller.update(updateInput,options);
    }
  
+   delete(deleteInput: IDeleteInput, options?: IDeleteOptions) {
+    printLog(logs.infoLogs.UPDATE_TRIGGERED, MessageType.LOG);
+    return this.#Controller.delete(deleteInput, options)
+  }
+  
    static get RedactionType() {
      return RedactionType;
    }

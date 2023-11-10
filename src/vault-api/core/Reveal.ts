@@ -4,7 +4,7 @@
 import Client from '../client';
 import SkyflowError from '../libs/SkyflowError';
 import {
-  ISkyflowIdRecord, IRevealRecord, IRevealResponseType, IUpdateRecord, IUpdateOptions,RedactionType
+  ISkyflowIdRecord, IRevealRecord, IRevealResponseType, IUpdateRecord, IUpdateOptions,RedactionType, IGetOptions
 } from '../utils/common';
 import 'core-js/modules/es.promise.all-settled';
 interface IApiSuccessResponse {
@@ -56,6 +56,7 @@ const getSkyflowIdRecordsFromVault = (
   skyflowIdRecord: ISkyflowIdRecord,
   client: Client,
   authToken: string,
+  options?: IGetOptions
 ) => {
   let paramList: string = '';
 
@@ -64,11 +65,26 @@ const getSkyflowIdRecordsFromVault = (
     paramList += `skyflow_ids=${skyflowId}&`;
   });
 
-  skyflowIdRecord.columnValues?.forEach((column) => {
-    paramList += `column_name=${skyflowIdRecord.columnName}&column_values=${column}&`;
-  })
+  if (options && Object.prototype.hasOwnProperty.call(options, 'encodeURI') && options?.encodeURI === false){
+    skyflowIdRecord.columnValues?.forEach((column) => {
+      paramList += `column_name=${skyflowIdRecord.columnName}&column_values=${column}&`;
+    });
+  } else {
+    skyflowIdRecord.columnValues?.forEach((column) => {
+      var encode_column_value = encodeURIComponent(column)
+      paramList += `column_name=${skyflowIdRecord.columnName}&column_values=${encode_column_value}&`;
+    });
+  }
 
-  const vaultEndPointurl: string = `${client.config.vaultURL}/v1/vaults/${client.config.vaultID}/${skyflowIdRecord.table}?${paramList}redaction=${skyflowIdRecord.redaction}`;
+  if(options && Object.prototype.hasOwnProperty.call(options,'tokens')){
+    paramList += `tokenization=${options.tokens}&`
+  }
+ 
+  if(skyflowIdRecord?.redaction){
+    paramList += `redaction=${skyflowIdRecord.redaction}`
+  }
+  
+  const vaultEndPointurl: string = `${client.config.vaultURL}/v1/vaults/${client.config.vaultID}/${skyflowIdRecord.table}?${paramList}`;
 
   return client.request({
     requestMethod: 'GET',
@@ -158,12 +174,13 @@ export const fetchRecordsByTokenId = (
 export const fetchRecordsBySkyflowID = async (
   skyflowIdRecords: ISkyflowIdRecord[],
   client: Client,
-  authToken: string
+  authToken: string,
+  options?: IGetOptions
 ) => new Promise((rootResolve, rootReject) => {
   let vaultResponseSet: Promise<any>[];
   vaultResponseSet = skyflowIdRecords.map(
     (skyflowIdRecord) => new Promise((resolve, reject) => {
-      getSkyflowIdRecordsFromVault(skyflowIdRecord, client, authToken as string)
+      getSkyflowIdRecordsFromVault(skyflowIdRecord, client, authToken as string,options)
         .then(
           (resolvedResult: any) => {
             const response: any[] = [];
