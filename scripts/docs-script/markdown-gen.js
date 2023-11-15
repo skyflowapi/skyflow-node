@@ -12,7 +12,7 @@ function getModuleName(filePath) {
   return moduleName;
 }
 
-const directoryPath = path.join(__dirname, './docs/classes');
+const directoryPath = path.join(__dirname, '../../docs/classes');
 
 fs.readdir(directoryPath, (err, files) => {
   if (err) {
