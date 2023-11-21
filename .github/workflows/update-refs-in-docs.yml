@@ -21,6 +21,7 @@ jobs:
 
     - name: Generate Node SDK references
       run: |
+        ls
         npm run docs-gen
         cd ..
         mkdir refs
