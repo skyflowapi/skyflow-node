@@ -17,12 +17,13 @@ jobs:
         persist-credentials: false
     
     - name: install modules
-      run: npm install
+      run: |
+        npm install
+        npm run docs-gen
 
     - name: Generate Node SDK references
       run: |
-        ls
-        npm run docs-gen
+        # npm run docs-gen
         cd ..
         mkdir refs
         ls
