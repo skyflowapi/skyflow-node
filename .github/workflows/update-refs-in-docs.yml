@@ -24,6 +24,7 @@ jobs:
         npm run docs-gen
         cd ..
         mkdir refs
+        ls
         cp skyflow-node/docs/* refs/
     
     - name: Remove specific file
