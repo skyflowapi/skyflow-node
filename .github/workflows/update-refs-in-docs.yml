@@ -18,13 +18,15 @@ jobs:
     
     - name: install modules
       run: |
-        npm install
-        npm run docs-gen
+        # npm install
 
     - name: Generate Node SDK references
       run: |
         # npm run docs-gen
-        cd ..
+        mkdir docs
+        cd docs/
+        echo "This is the content from node sdk" > node-ref-file.txt
+        cd ../..
         mkdir refs
         ls
         cp skyflow-node/docs/* refs/
