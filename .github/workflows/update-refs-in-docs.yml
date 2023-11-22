@@ -18,7 +18,7 @@ jobs:
     
     - name: install modules
       run: |
-        # npm install
+        npm install
 
     - name: Generate Node SDK references
       run: |
