@@ -30,9 +30,12 @@ jobs:
         # cd skyflow-node/
         ls
         cp -r skyflow-node/skyflow-node/docs/* refs/
+        echo "github sha: $GITHUB_SHA"
     
     - name: Remove specific file
-      run: rm -r docs/
+      run: |
+        rm -r docs/
+        git checkout -- package-lock.jsonrevert
 
     - name: Create a branch in skyflow-docs
       env:
