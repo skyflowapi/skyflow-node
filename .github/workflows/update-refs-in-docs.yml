@@ -12,7 +12,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        ref: master
+        ref: DEX-416/test-docs-workflow
         fetch-depth: 0
         persist-credentials: false
     
