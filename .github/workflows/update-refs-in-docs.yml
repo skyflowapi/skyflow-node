@@ -22,20 +22,18 @@ jobs:
 
     - name: Generate Node SDK references
       run: |
-        npm run 
         npm run docs-gen
         cd ../..
         mkdir refs
-        # ls
-        # cd skyflow-node/
-        ls
         cp -r skyflow-node/skyflow-node/docs/* refs/
         echo "github sha: $GITHUB_SHA"
-    
-    - name: Remove specific file
-      run: |
         rm -r docs/
         git checkout -- package-lock.json
+    
+    - name: Discard the changes
+      run: |
+        # rm -r docs/
+        # git checkout -- package-lock.json
 
     - name: Create a branch in skyflow-docs
       env:
@@ -52,7 +50,7 @@ jobs:
         BRANCH_NAME="feature-branch-${{ github.run_number }}"
         git remote set-url --push skyflow-docs https://${ACTOR}:${TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git
         git checkout -b $BRANCH_NAME skyflow-docs/main
-        cp ../../refs/* src/pages/content/docs/sdks/skyflow-node/
+        cp -r ../../refs/* src/pages/content/docs/sdks/skyflow-node/
 
     - name: Push files and raise a PR
       env:
