@@ -27,9 +27,9 @@ jobs:
         cd ../..
         mkdir refs
         # ls
-        cd skyflow-node/
+        # cd skyflow-node/
         ls
-        cp skyflow-node/docs/* refs/
+        cp skyflow-node/skyflow-node/docs/* refs/
     
     - name: Remove specific file
       run: rm -r docs/
