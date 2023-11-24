@@ -24,11 +24,6 @@ jobs:
       run: |
         npm run 
         npm run docs-gen
-        pwd
-        ls -l
-        mkdir docs
-        cd docs/
-        echo "This is the content from node sdk" > node-ref-file.txt
         cd ../..
         mkdir refs
         cp skyflow-node/docs/* refs/
