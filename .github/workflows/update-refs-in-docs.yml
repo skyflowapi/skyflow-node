@@ -6,7 +6,7 @@ on:
       - DEX-416/test-docs-workflow
 
 jobs:
-  create-branch:
+  generate-node-sdk-refs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -24,6 +24,7 @@ jobs:
       run: |
         npm run 
         npm run docs-gen
+        ls
         cd ../..
         mkdir refs
         ls
