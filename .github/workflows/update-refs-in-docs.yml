@@ -72,7 +72,7 @@ jobs:
           git push skyflow-docs $BRANCH_NAME
           # Raise a pull request
           BASE_BRANCH="main"
-          BRANCH_NAME="DEX-${{ github.run_number }}/node-sdk"
+          BRANCH_NAME="feature-branch-${{ github.run_number }}"
           TITLE="DEX-${{ github.run_number }} Updated Node SDK references"
           BODY="This pull request adds the latest Node SDK references."
           API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/pulls"
