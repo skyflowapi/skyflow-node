@@ -4,7 +4,7 @@
   "testEnvironment": "jsdom",
   "testTimeout": 3000,
   "testEnvironmentOptions": {
-    "url": "https://sb.area51.vault.skyflowapis.dev"
+    "url": "https://skyflow-test.com"
   }, 
   "moduleNameMapper":{
     "^.+\\.svg$": "<rootDir>/tests/__mocks__/fileMock.js"
