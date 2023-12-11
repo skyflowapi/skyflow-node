@@ -136,4 +136,10 @@ const folderPath = './docs/';
 readFolderStructure(folderPath, false);
 // const transformedMarkdown = processMarkdown(markdown, true);
 // console.log(transformedMarkdown);
-  
+const readmePath = path.join(folderPath, 'README.md');
+try {
+    unlinkSync(readmePath);
+    console.log(`Removed README file: ${readmePath}`);
+} catch (error: any) {
+    console.error(`Error removing README file: ${error.message}`);
+}
