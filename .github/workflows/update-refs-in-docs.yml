@@ -3,7 +3,7 @@ name: Update references in Docsite
 on:
   push:
     branches:
-      - DEX-413
+      - master
 
 jobs:
   generate-node-sdk-refs:
@@ -12,7 +12,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        ref: DEX-413
+        ref: master
         fetch-depth: 0
         persist-credentials: false
     
@@ -26,7 +26,6 @@ jobs:
         cd ../..
         mkdir refs
         cp -r skyflow-node/skyflow-node/docs/* refs/
-        echo "github sha: $GITHUB_SHA"
         cd skyflow-node/skyflow-node/
         rm -r docs/
         git checkout -- package-lock.json
