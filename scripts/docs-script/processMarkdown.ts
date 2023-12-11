@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
+import { readdirSync, readFileSync, statSync, writeFileSync, unlinkSync } from "fs";
 import path from "path";
 
 function removeListCharacters(markdown: string): string {
