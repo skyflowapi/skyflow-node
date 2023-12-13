@@ -226,19 +226,37 @@ export interface IUpdateOptions{
   tokens: boolean
 }
 
+/**
+ * Parameters by get records options.
+ *  @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
+ *  @property encodeURI If `true`, encoded column values will be sent in API call. Defaults to `true`.
+ */
 export interface IGetOptions{
   tokens?: boolean
   encodeURI?: boolean
 }
+
+/**
+ * Parameters for deleting a record.
+ *  @property id Skyflow ID of the record to be deleted.
+ *  @property table Table name from which the record has to be deleted.
+ */
 export interface IDeleteRecord {
   id: string;
   table: string;
 }
 
+/**
+ * Parameters for deleting a record.
+ *  @property records An array of delete records.
+ */
 export interface IDeleteInput {
   records: IDeleteRecord[];
 }
 
+/**
+ * Parameters by delete options.
+ */
 export interface IDeleteOptions {
 
 }

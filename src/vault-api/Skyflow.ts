@@ -138,6 +138,7 @@ class Skyflow {
   * Returns records by Skyflow IDs or column values.
   * @public
   * @param getInput Identifiers for the records.
+  * @param options options for getting the records.
   * @returns Returns the specified records and any errors.
   */
   get(getInput: IGetInput,options?:IGetOptions) {
@@ -172,6 +173,13 @@ class Skyflow {
     return this.#Controller.update(updateInput,options);
   }
 
+  /**
+  * Deletes record from vault
+  * @public
+  * @param deleteInput Input data for the delete operation.
+  * @param options Options for the deletion.
+  * @returns Returns the response for the delete operation.
+  */
   delete(deleteInput: IDeleteInput, options?: IDeleteOptions) {
     printLog(logs.infoLogs.UPDATE_TRIGGERED, MessageType.LOG);
     return this.#Controller.delete(deleteInput, options)
