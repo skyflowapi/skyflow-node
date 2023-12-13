@@ -139,7 +139,6 @@ readFolderStructure(folderPath, false);
 const readmePath = path.join(folderPath, 'README.md');
 try {
     unlinkSync(readmePath);
-    console.log(`Removed README file: ${readmePath}`);
 } catch (error: any) {
-    console.error(`Error removing README file: ${error.message}`);
+    console.error(`Error updating file: ${error.message}`);
 }
