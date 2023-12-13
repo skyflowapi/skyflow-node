@@ -1,6 +1,14 @@
 /*
   Copyright (c) 2022 Skyflow, Inc. 
 */
+
+/**
+ * @module Utils
+ */
+
+/**
+ * Supported redaction types.
+ */
 export enum RedactionType {
   DEFAULT = 'DEFAULT',
   PLAIN_TEXT = 'PLAIN_TEXT',
@@ -8,6 +16,9 @@ export enum RedactionType {
   REDACTED = 'REDACTED',
 }
 
+/**
+ * Supported request methods.
+ */
 export enum RequestMethod {
   GET = 'GET',
   POST = 'POST',
@@ -16,6 +27,9 @@ export enum RequestMethod {
   DELETE = 'DELETE',
 }
 
+/**
+ * Supported log levels.
+ */
 export enum LogLevel {
   WARN = 'WARN',
   INFO = 'INFO',
@@ -24,36 +38,69 @@ export enum LogLevel {
   OFF = 'OFF'
 }
 
-
+/**
+ * Supported message types.
+ */
 export enum MessageType {
   LOG = 'LOG',
   WARN = 'WARN',
   ERROR = 'ERROR',
 }
 
+/**
+ * Parameters for the insert record input. 
+ *  @property records An array of insert records.
+ */
 export interface IInsertRecordInput {
   records: IInsertRecord[];
 }
 
+/**
+ * Parameters for inserting a record.
+ *  @property table Table that the data belongs to.
+ *  @property fields Fields to insert data into.
+ */
 export interface IInsertRecord {
   table: string;
   fields: Record<string, any>;
 }
 
+/**
+ * Parameters by the Reveal record.
+ *  @property redaction Redaction type applied to the data. Defaults to `RedactionType.PLAIN_TEXT`.
+ *  @property token Token of the revealed data.
+ */
 export interface IRevealRecord {
   token: string;
   redaction?: RedactionType;
 }
 
+/**
+ * Parameters by the reveal response.
+ *  @property records Records revealed, if any.
+ *  @property errors Errors, if any.
+ */
 export interface IRevealResponseType {
   records?: Record<string, string>[];
   errors?: Record<string, any>[];
 }
 
+/**
+ * Parameters for detokenizing input.
+ * @property records Revealed records.
+ */
 export interface IDetokenizeInput {
   records: IRevealRecord[];
 }
 
+/**
+ * Parameters for Skyflow ID record.
+ *  @property ids Skyflow IDs of the records to get.
+ *  @property redaction Type of redaction for values.
+ *  @property table Type of redaction for values.
+ *  @property columnName Column the data belongs to.
+ *  @property columnValues Values of the records.
+ */
 export interface ISkyflowIdRecord {
   ids?: string[];
   redaction?: RedactionType;
@@ -62,16 +109,30 @@ export interface ISkyflowIdRecord {
   columnValues?: string[];
 }
 
+/**
+ * Parameters by Skyflow record.
+ *  @property ids Skyflow IDs of the records to get.
+ *  @property redaction Type of redaction for values.
+ *  @property table Type of redaction for values.
+ */
 export interface ISkyflowRecord {
   ids: string[];
   redaction: RedactionType;
   table: string;
 }
 
+/**
+ * Parameters by the getbyid input.
+ *  @property records Records to get.
+ */
 export interface IGetByIdInput {
   records: ISkyflowRecord[];
 }
 
+/**
+ * Parameters to retrieve input.
+ * @property records Records to retrieve.
+ */
 export interface IGetInput {
   records: ISkyflowIdRecord[];
 }
@@ -80,6 +141,15 @@ export interface IGetInput {
 //   logLevel:LogLevel
 // }
 
+/**
+ * Configuration to establish a connection.
+ *  @property connectionURL URL of the outbound/inbound connection.
+ *  @property methodName The HTTP request method to be used.
+ *  @property pathParams Parameters to be included in the URL path.
+ *  @property queryParams Query parameters to be included in the URL.
+ *  @property requestBody Data to be included in the request body.
+ *  @property requestHeader Headers to be included in the request.
+ */
 export interface IConnectionConfig {
   connectionURL: string;
   methodName: RequestMethod;
@@ -97,6 +167,9 @@ export const TYPES = {
   INVOKE_CONNECTION: 'INVOKE_CONNECTION',
 };
 
+/**
+ * Supported content types.
+ */
 export enum ContentType {
   APPLICATIONORJSON = 'application/json',
   TEXTORPLAIN = 'text/plain',
@@ -105,42 +178,85 @@ export enum ContentType {
   FORMDATA = 'multipart/form-data',
 }
 
+/**
+ * Parameters by upsert option.
+ *  @property table Table that the data belongs to.
+ *  @property column Name of the unique column.
+ */
 export interface IUpsertOption {
   table: string;
   column: string;
 }
 
+/**
+ * Parameters by insert options.
+ * @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
+ * @property upsert If specified, upserts data. If not specified, inserts data.
+ */
 export interface IInsertOptions {
   tokens?: boolean;
   upsert?: IUpsertOption[];
 }
 
+/**
+ * Parameters for updating a record.
+ *  @property id Skyflow ID of the record to update.
+ *  @property table Table that the data belongs to.
+ *  @property fields Fields to update data into.
+ */
 export interface IUpdateRecord{
   id: string,
   table: string,
   fields: Record<string,any>
 }
+
+/**
+ * Parameters for updating a record.
+ *  @property records An array of update records.
+ */
 export interface IUpdateInput{
   records: IUpdateRecord[];
 }
 
+/**
+ * Parameters by update options.
+ *  @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
+ */
 export interface IUpdateOptions{
   tokens: boolean
 }
 
+/**
+ * Parameters by get records options.
+ *  @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
+ *  @property encodeURI If `true`, encoded column values will be sent in API call. Defaults to `true`.
+ */
 export interface IGetOptions{
   tokens?: boolean
   encodeURI?: boolean
 }
+
+/**
+ * Parameters for deleting a record.
+ *  @property id Skyflow ID of the record to be deleted.
+ *  @property table Table name from which the record has to be deleted.
+ */
 export interface IDeleteRecord {
   id: string;
   table: string;
 }
 
+/**
+ * Parameters for deleting a record.
+ *  @property records An array of delete records.
+ */
 export interface IDeleteInput {
   records: IDeleteRecord[];
 }
 
+/**
+ * Parameters by delete options.
+ */
 export interface IDeleteOptions {
 
 }
