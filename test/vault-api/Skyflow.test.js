@@ -131,7 +131,7 @@ const options = {
   tokens: true,
 };
 
-const insertResponse = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id"}]},{"fields":{"card_number":"token","cvv":"token","expiry_date":"token","fullname":"token"}}]}
+const insertResponse = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id","tokens":{"card_number":"token","cvv":"token","expiry_date":"token","fullname":"token"}}]}]}
 const insertResponseWithoutTokens = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id"}]}]}
 const on = jest.fn();
 
