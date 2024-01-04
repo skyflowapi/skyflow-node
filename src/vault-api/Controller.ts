@@ -90,10 +90,17 @@ class Controller {
         if (options && options.tokens && typeof options.tokens !== 'boolean') {
           throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_IN_INSERT, [], true);
         }
+        if (options && options.continueOnError && typeof options.continueOnError !== 'boolean') {
+          throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTINUE_ON_ERROR_IN_INSERT, [], true);
+        }
         if (options) {
-          options = { ...options, tokens: options?.tokens !== undefined ? options.tokens : true };
+          options = { 
+            ...options, 
+            tokens: options?.tokens !== undefined ? options.tokens : true,
+            continueOnError: options?.continueOnError !== undefined ? options.continueOnError : false
+          };
         } else {
-          options = { tokens: true,};
+          options = { tokens: true, continueOnError: false };
         }
         if (options?.upsert) {
           validateUpsertOptions(options.upsert);
@@ -280,7 +287,7 @@ class Controller {
       this.getToken().then((res)=>{
         this.#client
           .request({
-            body: { records: requestBody },
+            body: { ...requestBody },
             requestMethod: 'POST',
             url:
               `${this.#client.config.vaultURL
@@ -294,7 +301,7 @@ class Controller {
             rootResolve(
               constructInsertRecordResponse(
                 response,
-                options.tokens,
+                options,
                 records.records,
               ),
             );

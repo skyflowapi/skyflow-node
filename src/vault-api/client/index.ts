@@ -63,6 +63,7 @@ class Client {
       headers: this.getHeaders(data,headerKeys)
       }
     ).then((res)=> {
+      res.data['requestId'] = res.headers['x-request-id']
       resolve(res.data)
     }).catch((err)=> {
         this.failureResponse(err).catch((err)=>reject(err))

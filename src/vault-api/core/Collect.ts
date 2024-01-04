@@ -2,7 +2,7 @@
 	Copyright (c) 2022 Skyflow, Inc. 
 */
 import _ from 'lodash';
-import { IInsertRecordInput, IInsertRecord } from '../utils/common';
+import { IInsertRecordInput, IInsertRecord, IInsertOptions } from '../utils/common';
 
 const getUpsertColumn = (tableName: string, options: Record<string, any>) => {
   let uniqueColumn = '';
@@ -17,7 +17,7 @@ export const constructInsertRecordRequest = (
   records: IInsertRecordInput,
   options: Record<string, any> = { tokens: true },
 ) => {
-  const requestBody: any = [];
+  let requestBody: any = [];
     records.records.forEach((record, index) => {
       const upsertColumn = getUpsertColumn(record.table, options);
       requestBody.push({
@@ -29,15 +29,57 @@ export const constructInsertRecordRequest = (
         ...(options?.tokens ? { tokenization: true } : {}),
       });
     });
+  requestBody = { records: requestBody, continueOnError: options.continueOnError }
   return requestBody;
 };
 
 export const constructInsertRecordResponse = (
   responseBody: any,
-  tokens: boolean,
+  options: IInsertOptions,
   records: IInsertRecord[],
 ) => {
-  if (tokens) {
+  if (options.continueOnError) {
+    const successObjects: any = [];
+    const failureObjects: any= [];
+    responseBody.responses
+    .forEach((response, index) => {
+      const status = response['Status']
+      const body = response['Body']
+      if ('records' in body) {
+        const record = body['records'][0]
+        if (options.tokens) {
+          successObjects.push({
+            table: records[index].table,
+            fields: {
+              skyflow_id: record.skyflow_id,
+              ...record.tokens,
+            },
+            request_index: index,
+          })
+        } else {
+          successObjects.push({
+            table: records[index].table,
+            skyflow_id: record.skyflow_id,
+            request_index: index,
+          })
+        }
+      } else {
+        failureObjects.push({
+          code: status,
+          ddescription: `${body['error']} - requestId: ${responseBody.requestId}`,
+          request_index: index,
+        })
+      }
+    })
+    const finalResponse = {};
+    if (successObjects.length > 0) {
+      finalResponse['records'] = successObjects;
+    }
+    if (failureObjects.length > 0) {
+      finalResponse['errors'] = failureObjects;
+    }
+    return finalResponse;
+  } else if (options.tokens) {
     return {
       records: responseBody.responses
         .map((res, index) => {
