@@ -33,7 +33,7 @@ describe("Client Class",()=>{
       const data = JSON.stringify({ name: "John Doe", age: 30 });
       const headers = { "content-type": "application/json","sky-metadata":JSON.stringify(generateSDKMetrics()) };
       axios.mockImplementation(() =>
-        Promise.resolve({ data: { message: "Success" } })
+        Promise.resolve({ data: { message: "Success" }, headers: { "x-request-id": "22r5-dfbf-3543" }})
       );
 
       const response = await client.request(request);
@@ -44,7 +44,7 @@ describe("Client Class",()=>{
         data: data,
         headers: headers,
       });
-      expect(response).toEqual({ message: "Success" });
+      expect(response).toEqual({ message: "Success", requestId: "22r5-dfbf-3543" });
     });
 
     test("should return an error if the request to client fails", async () => {
