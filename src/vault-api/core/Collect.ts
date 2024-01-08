@@ -2,7 +2,7 @@
 	Copyright (c) 2022 Skyflow, Inc. 
 */
 import _ from 'lodash';
-import { IInsertRecordInput, IInsertRecord } from '../utils/common';
+import { IInsertRecordInput, IInsertRecord, IInsertOptions } from '../utils/common';
 
 const getUpsertColumn = (tableName: string, options: Record<string, any>) => {
   let uniqueColumn = '';
@@ -13,13 +13,11 @@ const getUpsertColumn = (tableName: string, options: Record<string, any>) => {
   });
   return uniqueColumn;
 };
-
 export const constructInsertRecordRequest = (
   records: IInsertRecordInput,
   options: Record<string, any> = { tokens: true },
 ) => {
-  const requestBody: any = [];
-  if (options.tokens) {
+  let requestBody: any = [];
     records.records.forEach((record, index) => {
       const upsertColumn = getUpsertColumn(record.table, options);
       requestBody.push({
@@ -28,51 +26,72 @@ export const constructInsertRecordRequest = (
         tableName: record.table,
         fields: record.fields,
         ...(options?.upsert ? { upsert: upsertColumn } : {}),
-      });
-      requestBody.push({
-        method: 'GET',
-        tableName: record.table,
-        ID: `$responses.${2 * index}.records.0.skyflow_id`,
-        tokenization: true,
+        ...(options?.tokens ? { tokenization: true } : {}),
       });
     });
-  } else {
-    records.records.forEach((record) => {
-      const upsertColumn = getUpsertColumn(record.table, options);
-      requestBody.push({
-        method: 'POST',
-        quorum: true,
-        tableName: record.table,
-        fields: record.fields,
-        ...(options?.upsert ? { upsert: upsertColumn } : {}),
-      });
-    });
-  }
+  requestBody = { records: requestBody, continueOnError: options.continueOnError }
   return requestBody;
 };
 
 export const constructInsertRecordResponse = (
   responseBody: any,
-  tokens: boolean,
+  options: IInsertOptions,
   records: IInsertRecord[],
 ) => {
-  if (tokens) {
+  if (options.continueOnError) {
+    const successObjects: any = [];
+    const failureObjects: any= [];
+    responseBody.responses
+    .forEach((response, index) => {
+      const status = response['Status']
+      const body = response['Body']
+      if ('records' in body) {
+        const record = body['records'][0]
+        if (options.tokens) {
+          successObjects.push({
+            table: records[index].table,
+            fields: {
+              skyflow_id: record.skyflow_id,
+              ...record.tokens,
+            },
+            request_index: index,
+          })
+        } else {
+          successObjects.push({
+            table: records[index].table,
+            skyflow_id: record.skyflow_id,
+            request_index: index,
+          })
+        }
+      } else {
+        failureObjects.push({
+          code: status,
+          ddescription: `${body['error']} - requestId: ${responseBody.requestId}`,
+          request_index: index,
+        })
+      }
+    })
+    const finalResponse = {};
+    if (successObjects.length > 0) {
+      finalResponse['records'] = successObjects;
+    }
+    if (failureObjects.length > 0) {
+      finalResponse['errors'] = failureObjects;
+    }
+    return finalResponse;
+  } else if (options.tokens) {
     return {
       records: responseBody.responses
         .map((res, index) => {
-          if (index % 2 !== 0) {
-            const skyflowId = responseBody.responses[index - 1].records[0].skyflow_id;
-            delete res.fields['*'];
+            const skyflowId = responseBody.responses[index].records[0].skyflow_id;
             return {
-              table: records[Math.floor(index/2)].table,
+              table: records[index].table,
               fields: {
                 skyflow_id: skyflowId,
-                ...res.fields,
+                ...res.tokens,
               },
             };
-          }
-          return res;
-        }).filter((res, index) => index % 2 !== 0),
+        }),
     };
   }
   return {

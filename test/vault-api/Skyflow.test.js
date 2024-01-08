@@ -131,8 +131,10 @@ const options = {
   tokens: true,
 };
 
-const insertResponse = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id"}]},{"fields":{"card_number":"token","cvv":"token","expiry_date":"token","fullname":"token"}}]}
+const insertResponse = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id","tokens":{"card_number":"token","cvv":"token","expiry_date":"token","fullname":"token"}}]}]}
 const insertResponseWithoutTokens = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id"}]}]}
+const insertResponseCOEWithTokens = {"vaultID":"<VaultID>","responses":[{"Status":400,"Body":{"error":"Error Inserting Records due to unique constraint violation"}},{"Status":200,"Body":{"records":[{"skyflow_id":"id","tokens":{"card_number":"token","cvv":"token","expiry_date":"token","fullname":"token"}}]}}]}
+const insertResponseCOEWithoutTokens = {"vaultID":"<VaultID>","responses":[{"Status":400,"Body":{"error":"Error Inserting Records due to unique constraint violation"}},{"Status":200,"Body":{"records":[{"skyflow_id":"id"}]}}]}
 const on = jest.fn();
 
 describe('skyflow insert', () => {
@@ -144,12 +146,10 @@ describe('skyflow insert', () => {
       vaultURL: 'https://www.vaulturl.com',
       getBearerToken: ()=>{
         return new Promise((resolve,_)=>{
-            resolve("token")
+          resolve("token")
         })
       }
     });
-
-   
   });
 
   test('insert invalid input', (done) => {
@@ -198,7 +198,6 @@ describe('skyflow insert', () => {
       });
     
   });
-
 
   test('insert success without tokens', () => {
 
@@ -317,6 +316,7 @@ describe('skyflow insert', () => {
           done(err);
         }
   });
+  
   test('insert without any options',(done)=>{
     try{
       skyflow = Skyflow.init({
@@ -338,6 +338,91 @@ describe('skyflow insert', () => {
     }
   });
 
+  test('insert with invalid continueOnError option type', (done) => {
+    try {
+      const res = skyflow.insert(records, { continueOnError: {} });
+      res.catch((err) => {
+        expect(err).toBeDefined();
+        done();
+      });
+    } catch (err) {
+      done(err);
+    }
+  });
+
+  test('insert success with continueOnError as true with tokens', (done) => {
+    try {
+      jest.mock('../../src/vault-api/utils/jwt-utils', () => ({
+        __esModule: true,
+        isTokenValid:jest.fn(() => true),
+      }));
+      const clientReq = jest.fn(() => Promise.resolve(insertResponseCOEWithTokens));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata: {}
+      }
+      setLogLevel(LogLevel.WARN)
+      clientModule.mockImplementation(() => { return mockClient });
+  
+      skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: () => {
+          return new Promise((resolve, _) => {
+            resolve("token");
+          })
+        }
+      });
+      const res = skyflow.insert({
+        records: [
+          records['records'][0],
+          records['records'][0]
+        ]
+      }, { tokens: true, continueOnError: true });
+      res.then((res) => {
+        expect(clientReq).toHaveBeenCalled();
+        expect(res.records.length).toBe(1);
+        expect(res.errors.length).toBe(1); 
+        done();
+      });
+    } catch (err) {
+      done(err);
+    }
+  });
+
+  test('insert success with continueOnError as true without tokens', (done) => {
+    try {
+      jest.mock('../../src/vault-api/utils/jwt-utils', () => ({
+        __esModule: true,
+        isTokenValid:jest.fn(() => true),
+      }));
+      const clientReq = jest.fn(() => Promise.resolve(insertResponseCOEWithoutTokens));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata: {}
+      }
+      setLogLevel(LogLevel.WARN)
+      clientModule.mockImplementation(() => { return mockClient });
+  
+      skyflow = Skyflow.init(skyflowConfig);
+      const res = skyflow.insert({
+        records: [
+          records['records'][0],
+          records['records'][0]
+        ]
+      }, { tokens: false, continueOnError: true });
+      res.then((res) => {
+        expect(clientReq).toHaveBeenCalled();
+        expect(res.records.length).toBe(1);
+        expect(res.errors.length).toBe(1); 
+        done();
+      });
+    } catch (err) {
+      done(err);
+    }
+  });
 });
 
 const detokenizeInput = {
