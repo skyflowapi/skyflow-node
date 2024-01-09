@@ -295,6 +295,7 @@ class Controller {
                 this.#client.config.vaultID}`,
             headers: {
               Authorization: `Bearer ${res}`,
+              'content-type': 'application/json',
             },
           })
           .then((response: any) => {
