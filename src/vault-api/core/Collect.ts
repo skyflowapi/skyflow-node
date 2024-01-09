@@ -83,14 +83,16 @@ export const constructInsertRecordResponse = (
     return {
       records: responseBody.responses
         .map((res, index) => {
-            const skyflowId = responseBody.responses[index].records[0].skyflow_id;
-            return {
-              table: records[index].table,
-              fields: {
-                skyflow_id: skyflowId,
-                ...res.tokens,
-              },
-            };
+          const skyflowId = responseBody.responses[index].records[0].skyflow_id;
+          const tokens = res.records[0].tokens;
+          return {
+            table: records[index].table,
+            fields: {
+              skyflow_id: skyflowId,
+              ...tokens,
+            },
+            "request_index": index,
+          };
         }),
     };
   }
@@ -98,6 +100,7 @@ export const constructInsertRecordResponse = (
     records: responseBody.responses.map((res, index) => ({
       table: records[index].table,
       skyflow_id: res.records[0].skyflow_id,
+      "request_index": index
     })),
   };
 };
