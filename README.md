@@ -573,6 +573,71 @@ response.then(
 });
 ```
 
+Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/InsertWithContinueOnError.ts) with contiueOnError support:
+
+```javascript
+const response = client.insert({
+  records: [
+    {
+      fields: {
+        expiry_date: '12/2026',
+        card_number: '411111111111111',
+        namee: 'john doe',
+      },
+      table: 'cards',
+    },
+    {
+      fields: {
+        expiry_date: '12/2027',
+        card_number: '411111111111111',
+        name: 'jane doe',
+      },
+      table: 'cards',
+    }
+  ],
+},
+{
+  tokens: true,
+  continueOnError: true,
+});
+
+response.then(
+  (res) => {
+    console.log(JSON.stringify(res));
+  },
+  (err) => {
+    console.log(JSON.stringify(err));
+  }
+).catch((err) => {
+  console.log(JSON.stringify(err));
+});
+```
+
+Sample Response:
+```json
+{
+  "records": [
+    {
+      "table": "cards",
+      "fields": {
+        "skyflow_id": "16419435-aa63-4823-aae7-19c6a2d6a19f",
+        "card_number": "f3907186-e7e2-466f-91e5-48e12c2bcbc1",
+        "expiry_date": "1989cb56-63da-4482-a2df-1f74cd0dd1a5",
+        "name": "245d3a0f-a2d3-443b-8a20-8c17de86e186",
+      },
+      "request_index": 1,
+    }
+  ],
+  "errors"; [
+    {
+      "code":400,
+      "description":"Invalid field present in JSON namee - requestId: 87fb2e32-6287-4e61-8304-9268df12bfe8",
+      "request_index": 0,
+    }
+  ]
+}
+```
+
 #### Detokenize
 In order to retrieve data from your vault using tokens that you have previously generated for that data, you can use the `detokenize(records)` method. The first parameter must have a records key that takes an array of tokens to be fetched from the vault, as shown below.
 

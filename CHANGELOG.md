@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.13.0] - 2024-01-10
+### Added
+- Continue on error support for batch Insert.
+
+### Fixed
+- Axios dependency vulnerability.
+
 ## [1.12.0] - 2023-10-20
 ### Added
 - `tokens` option in `get` interface.
