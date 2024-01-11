@@ -119,6 +119,7 @@ const logs = {
     INVALID_TABLE_IN_UPSERT_OPTION: 'Interface: insert method - Invalid table in upsert object at index %s1, table of type non empty string is required.',
     INVALID_COLUMN_IN_UPSERT_OPTION: 'Interface: insert method - Invalid column in upsert object at index %s1, column of type non empty string is required.',
     INVALID_TOKENS_IN_INSERT: 'Interface: insert method - Invalid tokens in options. tokens of type boolean is required.',
+    INVALID_CONTINUE_ON_ERROR_IN_INSERT: 'Interface: insert method - Invalid continueOnError in options. Value of type boolean is required.',
     INVALID_TOKENS_IN_UPDATE: 'Interface: update method - Invalid tokens in options. tokens of type boolean is required.',
     MISSING_TABLE_IN_IN_UPDATE: 'Interface: update method - table key is required in records object at index %s1',
     MISSING_FIELDS_IN_IN_UPDATE: 'Interface: update method - fields key is required in records object at index %s1',

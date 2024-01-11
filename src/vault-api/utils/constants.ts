@@ -87,6 +87,10 @@ const SKYFLOW_ERROR_CODE = {
     code: 400,
     description: logs.errorLogs.INVALID_TOKENS_IN_INSERT,
   },
+  INVALID_CONTINUE_ON_ERROR_IN_INSERT: {
+    code: 400,
+    description: logs.errorLogs.INVALID_TOKENS_IN_INSERT,
+  },
   INVALID_TOKENS_IN_UPDATE: {
     code: 400,
     description: logs.errorLogs.INVALID_TOKENS_IN_UPDATE,

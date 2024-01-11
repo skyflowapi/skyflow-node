@@ -192,10 +192,12 @@ export interface IUpsertOption {
  * Parameters by insert options.
  * @property tokens If `true`, returns tokens for the collected data. Defaults to `false`.
  * @property upsert If specified, upserts data. If not specified, inserts data.
+ * @property continueOnError If specified, decides whether to continue after experiencing failure.
  */
 export interface IInsertOptions {
   tokens?: boolean;
   upsert?: IUpsertOption[];
+  continueOnError?: boolean;
 }
 
 /**

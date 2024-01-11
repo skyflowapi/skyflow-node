@@ -131,8 +131,10 @@ const options = {
   tokens: true,
 };
 
-const insertResponse = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id"}]},{"fields":{"card_number":"token","cvv":"token","expiry_date":"token","fullname":"token"}}]}
+const insertResponse = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id","tokens":{"card_number":"token","cvv":"token","expiry_date":"token","fullname":"token"}}]}]}
 const insertResponseWithoutTokens = {"vaultID":"<VaultID>","responses":[{"records":[{"skyflow_id":"id"}]}]}
+const insertResponseCOEWithTokens = {"vaultID":"<VaultID>","responses":[{"Status":400,"Body":{"error":"Error Inserting Records due to unique constraint violation"}},{"Status":200,"Body":{"records":[{"skyflow_id":"id","tokens":{"card_number":"token","cvv":"token","expiry_date":"token","fullname":"token"}}]}}]}
+const insertResponseCOEWithoutTokens = {"vaultID":"<VaultID>","responses":[{"Status":400,"Body":{"error":"Error Inserting Records due to unique constraint violation"}},{"Status":200,"Body":{"records":[{"skyflow_id":"id"}]}}]}
 const on = jest.fn();
 
 describe('skyflow insert', () => {
@@ -144,12 +146,10 @@ describe('skyflow insert', () => {
       vaultURL: 'https://www.vaulturl.com',
       getBearerToken: ()=>{
         return new Promise((resolve,_)=>{
-            resolve("token")
+          resolve("token")
         })
       }
     });
-
-   
   });
 
   test('insert invalid input', (done) => {
@@ -171,7 +171,7 @@ describe('skyflow insert', () => {
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
-    const clientReq = jest.fn(() => Promise.resolve(insertResponse));
+    const clientReq = jest.fn(() => Promise.resolve({data:insertResponse}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -199,11 +199,10 @@ describe('skyflow insert', () => {
     
   });
 
-
   test('insert success without tokens', () => {
 
   
-    const clientReq = jest.fn(() => Promise.resolve(insertResponseWithoutTokens));
+    const clientReq = jest.fn(() => Promise.resolve({data:insertResponseWithoutTokens}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -266,7 +265,7 @@ describe('skyflow insert', () => {
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
-    const clientReq = jest.fn(() => Promise.resolve(insertResponse));
+    const clientReq = jest.fn(() => Promise.resolve({data:insertResponse}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -317,6 +316,7 @@ describe('skyflow insert', () => {
           done(err);
         }
   });
+  
   test('insert without any options',(done)=>{
     try{
       skyflow = Skyflow.init({
@@ -338,6 +338,95 @@ describe('skyflow insert', () => {
     }
   });
 
+  test('insert with invalid continueOnError option type', (done) => {
+    try {
+      const res = skyflow.insert(records, { continueOnError: {} });
+      res.catch((err) => {
+        expect(err).toBeDefined();
+        done();
+      });
+    } catch (err) {
+      done(err);
+    }
+  });
+
+  test('insert success with continueOnError as true with tokens', (done) => {
+    try {
+      jest.mock('../../src/vault-api/utils/jwt-utils', () => ({
+        __esModule: true,
+        isTokenValid:jest.fn(() => true),
+      }));
+      const clientReq = jest.fn(() => Promise.resolve({
+        data: insertResponseCOEWithTokens, metadata: {requestId: 123}
+      }));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata: {}
+      }
+      setLogLevel(LogLevel.WARN)
+      clientModule.mockImplementation(() => { return mockClient });
+  
+      skyflow = Skyflow.init({
+        vaultID: '<VaultID>',
+        vaultURL: 'https://www.vaulturl.com',
+        getBearerToken: () => {
+          return new Promise((resolve, _) => {
+            resolve("token");
+          })
+        }
+      });
+      const res = skyflow.insert({
+        records: [
+          records['records'][0],
+          records['records'][0]
+        ]
+      }, { tokens: true, continueOnError: true });
+      res.then((res) => {
+        expect(clientReq).toHaveBeenCalled();
+        expect(res.records.length).toBe(1);
+        expect(res.errors.length).toBe(1); 
+        done();
+      });
+    } catch (err) {
+      done(err);
+    }
+  });
+
+  test('insert success with continueOnError as true without tokens', (done) => {
+    try {
+      jest.mock('../../src/vault-api/utils/jwt-utils', () => ({
+        __esModule: true,
+        isTokenValid:jest.fn(() => true),
+      }));
+      const clientReq = jest.fn(() => Promise.resolve({
+        data: insertResponseCOEWithoutTokens, metadata: {requestId: 123}
+      }));
+      const mockClient = {
+        config: skyflowConfig,
+        request: clientReq,
+        metadata: {}
+      }
+      setLogLevel(LogLevel.WARN)
+      clientModule.mockImplementation(() => { return mockClient });
+  
+      skyflow = Skyflow.init(skyflowConfig);
+      const res = skyflow.insert({
+        records: [
+          records['records'][0],
+          records['records'][0]
+        ]
+      }, { tokens: false, continueOnError: true });
+      res.then((res) => {
+        expect(clientReq).toHaveBeenCalled();
+        expect(res.records.length).toBe(1);
+        expect(res.errors.length).toBe(1); 
+        done();
+      });
+    } catch (err) {
+      done(err);
+    }
+  });
 });
 
 const detokenizeInput = {
@@ -396,7 +485,7 @@ describe('skyflow detokenize', () => {
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(detokenizeRes));
+      const clientReq = jest.fn(() => Promise.resolve({data:detokenizeRes}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -702,7 +791,7 @@ describe('skyflow getById', () => {
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(getByIdRes));
+      const clientReq = jest.fn(() => Promise.resolve({data:getByIdRes}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -853,7 +942,7 @@ describe('skyflow get method', () => {
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(getByIdRes));
+      const clientReq = jest.fn(() => Promise.resolve({data:getByIdRes}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -1111,7 +1200,7 @@ describe('skyflow invoke connection', () => {
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(invokeConnectionRes));
+      const clientReq = jest.fn(() => Promise.resolve({data:invokeConnectionRes}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -1325,7 +1414,7 @@ describe("Update method",()=>{
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
-    const clientReq = jest.fn(() => Promise.resolve(successUpdateRequestResponse));
+    const clientReq = jest.fn(() => Promise.resolve({data:successUpdateRequestResponse}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -1358,7 +1447,7 @@ describe("Update method",()=>{
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
-    const clientReq = jest.fn(() => Promise.resolve(successUpdateRequestWithoutTokensResponse));
+    const clientReq = jest.fn(() => Promise.resolve({data:successUpdateRequestWithoutTokensResponse}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -1395,7 +1484,7 @@ describe("Update method",()=>{
     const clientReq = jest.fn().mockImplementation((args) => {
       const check = args.url.includes('test_update_id')
       if(check)
-        return Promise.resolve(successUpdateRequestResponse);
+        return Promise.resolve({data:successUpdateRequestResponse});
       else  
         return Promise.reject(errorUpdateRequestResponse);
     });
@@ -1503,7 +1592,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1551,7 +1640,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1599,7 +1688,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1647,7 +1736,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1695,7 +1784,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1812,7 +1901,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes)
+      return Promise.resolve({data:getByIdRes})
     });
 
     const mockClient = {
@@ -1849,7 +1938,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes)
+      return Promise.resolve({data:getByIdRes})
     });
 
     const mockClient = {
@@ -1886,7 +1975,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes)
+      return Promise.resolve({data:getByIdRes})
     });
 
     const mockClient = {
@@ -1978,7 +2067,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes);
+      return Promise.resolve({data:getByIdRes});
     });
 
     const mockClient = {
@@ -2011,7 +2100,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes);
+      return Promise.resolve({data:getByIdRes});
     });
   
     const mockClient = {
@@ -2137,7 +2226,7 @@ describe('skyflow delete method', () => {
         isTokenValid: jest.fn(() => true),
       }));
 
-      const clientReq = jest.fn(() => Promise.resolve(successDeleteRequestResponse));
+      const clientReq = jest.fn(() => Promise.resolve({data:successDeleteRequestResponse}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -2216,7 +2305,7 @@ describe('skyflow delete method', () => {
       const clientReq = jest.fn((args) => {
         const check = args.url.includes('test_delete_id')
         if (check) {
-          return Promise.resolve(successDeleteRequestResponse);
+          return Promise.resolve({data:successDeleteRequestResponse});
         } else {
           return Promise.reject(errorDeleteRequestResponse);
         }
