@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.13.0] - 2024-01-10
+## [1.13.0] - 2024-01-11
 ### Added
 - Continue on error support for batch Insert.
 
