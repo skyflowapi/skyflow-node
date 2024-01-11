@@ -47,7 +47,7 @@ export const deleteRecordsBySkyflowID = (
           )
             .then(
               (response: any) => {
-                deleteResponse.push(response);
+                deleteResponse.push(response.data);
               },
               (cause: any) => {
                 deleteResponse.push(formatForPureJsFailure(cause, deleteRecord.id));

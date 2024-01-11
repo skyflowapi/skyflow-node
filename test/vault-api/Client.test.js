@@ -44,7 +44,10 @@ describe("Client Class",()=>{
         data: data,
         headers: headers,
       });
-      expect(response).toEqual({ message: "Success", requestId: "22r5-dfbf-3543" });
+      expect(response).toEqual({
+        data: {message: "Success"},
+        metadata: {requestId: "22r5-dfbf-3543"}
+      });
     });
 
     test("should return an error if the request to client fails", async () => {

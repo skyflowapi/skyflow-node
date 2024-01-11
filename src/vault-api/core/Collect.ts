@@ -41,7 +41,7 @@ export const constructInsertRecordResponse = (
   if (options.continueOnError) {
     const successObjects: any = [];
     const failureObjects: any= [];
-    responseBody.responses
+    responseBody.data.responses
     .forEach((response, index) => {
       const status = response['Status']
       const body = response['Body']
@@ -65,9 +65,11 @@ export const constructInsertRecordResponse = (
         }
       } else {
         failureObjects.push({
-          code: status,
-          ddescription: `${body['error']} - requestId: ${responseBody.requestId}`,
-          request_index: index,
+          error: {
+            code: status,
+            description: `${body['error']} - requestId: ${responseBody.metadata.requestId}`,
+            request_index: index,
+          }
         })
       }
     })
@@ -81,9 +83,9 @@ export const constructInsertRecordResponse = (
     return finalResponse;
   } else if (options.tokens) {
     return {
-      records: responseBody.responses
+      records: responseBody.data.responses
         .map((res, index) => {
-          const skyflowId = responseBody.responses[index].records[0].skyflow_id;
+          const skyflowId = res.records[0].skyflow_id;
           const tokens = res.records[0].tokens;
           return {
             table: records[index].table,
@@ -97,7 +99,7 @@ export const constructInsertRecordResponse = (
     };
   }
   return {
-    records: responseBody.responses.map((res, index) => ({
+    records: responseBody.data.responses.map((res, index) => ({
       table: records[index].table,
       skyflow_id: res.records[0].skyflow_id,
       "request_index": index

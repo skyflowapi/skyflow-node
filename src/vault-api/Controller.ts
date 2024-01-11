@@ -326,8 +326,8 @@ class Controller {
           body: config.requestBody,
           headers: { 'x-skyflow-authorization': res, 'content-type': ContentType.APPLICATIONORJSON,...toLowerKeys(config.requestHeader) },
         });
-        invokeRequest.then((response) => {
-          rootResolve(response);
+        invokeRequest.then((response: any) => {
+          rootResolve(response.data);
         }).catch((err) => {
           rootReject({ errors: [err] });
         });

@@ -131,8 +131,8 @@ export const fetchRecordsByTokenId = (
       const apiResponse: any = [];
       getTokenRecordsFromVault(tokenRecord, client, authToken as string)
         .then(
-          (response: IApiSuccessResponse) => {
-            const fieldsData = formatForPureJsSuccess(response);
+          (response: any) => {
+            const fieldsData = formatForPureJsSuccess(response.data);
             apiResponse.push(...fieldsData);
           },
           (cause: any) => {
@@ -184,7 +184,7 @@ export const fetchRecordsBySkyflowID = async (
         .then(
           (resolvedResult: any) => {
             const response: any[] = [];
-            const recordsData: any[] = resolvedResult.records;
+            const recordsData: any[] = resolvedResult.data.records;
             recordsData.forEach((fieldData) => {
               const id = fieldData.fields.skyflow_id;
               const currentRecord = {
@@ -276,7 +276,7 @@ export const updateRecordsBySkyflowID = (
         updateRecordInVault(updateRecord, options, client, authToken as string)
           .then(
             (response: any) => {
-              updateResponse.push(formatUpdateSuccessResponse(response));
+              updateResponse.push(formatUpdateSuccessResponse(response.data));
             },
             (cause: any) => {
               updateResponse.push(formatUpdateFailureResponse(cause,updateRecord.id));

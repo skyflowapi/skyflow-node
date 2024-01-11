@@ -171,7 +171,7 @@ describe('skyflow insert', () => {
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
-    const clientReq = jest.fn(() => Promise.resolve(insertResponse));
+    const clientReq = jest.fn(() => Promise.resolve({data:insertResponse}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -202,7 +202,7 @@ describe('skyflow insert', () => {
   test('insert success without tokens', () => {
 
   
-    const clientReq = jest.fn(() => Promise.resolve(insertResponseWithoutTokens));
+    const clientReq = jest.fn(() => Promise.resolve({data:insertResponseWithoutTokens}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -265,7 +265,7 @@ describe('skyflow insert', () => {
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
-    const clientReq = jest.fn(() => Promise.resolve(insertResponse));
+    const clientReq = jest.fn(() => Promise.resolve({data:insertResponse}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -356,7 +356,9 @@ describe('skyflow insert', () => {
         __esModule: true,
         isTokenValid:jest.fn(() => true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(insertResponseCOEWithTokens));
+      const clientReq = jest.fn(() => Promise.resolve({
+        data: insertResponseCOEWithTokens, metadata: {requestId: 123}
+      }));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -397,7 +399,9 @@ describe('skyflow insert', () => {
         __esModule: true,
         isTokenValid:jest.fn(() => true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(insertResponseCOEWithoutTokens));
+      const clientReq = jest.fn(() => Promise.resolve({
+        data: insertResponseCOEWithoutTokens, metadata: {requestId: 123}
+      }));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -481,7 +485,7 @@ describe('skyflow detokenize', () => {
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(detokenizeRes));
+      const clientReq = jest.fn(() => Promise.resolve({data:detokenizeRes}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -787,7 +791,7 @@ describe('skyflow getById', () => {
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(getByIdRes));
+      const clientReq = jest.fn(() => Promise.resolve({data:getByIdRes}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -938,7 +942,7 @@ describe('skyflow get method', () => {
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(getByIdRes));
+      const clientReq = jest.fn(() => Promise.resolve({data:getByIdRes}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -1196,7 +1200,7 @@ describe('skyflow invoke connection', () => {
         __esModule: true,
         isTokenValid:jest.fn(()=>true),
       }));
-      const clientReq = jest.fn(() => Promise.resolve(invokeConnectionRes));
+      const clientReq = jest.fn(() => Promise.resolve({data:invokeConnectionRes}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -1410,7 +1414,7 @@ describe("Update method",()=>{
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
-    const clientReq = jest.fn(() => Promise.resolve(successUpdateRequestResponse));
+    const clientReq = jest.fn(() => Promise.resolve({data:successUpdateRequestResponse}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -1443,7 +1447,7 @@ describe("Update method",()=>{
       __esModule: true,
       isTokenValid:jest.fn(()=>true),
     }));
-    const clientReq = jest.fn(() => Promise.resolve(successUpdateRequestWithoutTokensResponse));
+    const clientReq = jest.fn(() => Promise.resolve({data:successUpdateRequestWithoutTokensResponse}));
     const mockClient = {
       config: skyflowConfig,
       request: clientReq,
@@ -1480,7 +1484,7 @@ describe("Update method",()=>{
     const clientReq = jest.fn().mockImplementation((args) => {
       const check = args.url.includes('test_update_id')
       if(check)
-        return Promise.resolve(successUpdateRequestResponse);
+        return Promise.resolve({data:successUpdateRequestResponse});
       else  
         return Promise.reject(errorUpdateRequestResponse);
     });
@@ -1588,7 +1592,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1636,7 +1640,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1684,7 +1688,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1732,7 +1736,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1780,7 +1784,7 @@ describe('skyflow detokenize with redaction', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(detokenizeRes)
+      return Promise.resolve({data:detokenizeRes})
     });
 
     const mockClient = {
@@ -1897,7 +1901,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes)
+      return Promise.resolve({data:getByIdRes})
     });
 
     const mockClient = {
@@ -1934,7 +1938,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes)
+      return Promise.resolve({data:getByIdRes})
     });
 
     const mockClient = {
@@ -1971,7 +1975,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes)
+      return Promise.resolve({data:getByIdRes})
     });
 
     const mockClient = {
@@ -2063,7 +2067,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes);
+      return Promise.resolve({data:getByIdRes});
     });
 
     const mockClient = {
@@ -2096,7 +2100,7 @@ describe('get method with options', () => {
     let reqArg;
     const clientReq = jest.fn((arg) => {
       reqArg = arg;
-      return Promise.resolve(getByIdRes);
+      return Promise.resolve({data:getByIdRes});
     });
   
     const mockClient = {
@@ -2222,7 +2226,7 @@ describe('skyflow delete method', () => {
         isTokenValid: jest.fn(() => true),
       }));
 
-      const clientReq = jest.fn(() => Promise.resolve(successDeleteRequestResponse));
+      const clientReq = jest.fn(() => Promise.resolve({data:successDeleteRequestResponse}));
       const mockClient = {
         config: skyflowConfig,
         request: clientReq,
@@ -2301,7 +2305,7 @@ describe('skyflow delete method', () => {
       const clientReq = jest.fn((args) => {
         const check = args.url.includes('test_delete_id')
         if (check) {
-          return Promise.resolve(successDeleteRequestResponse);
+          return Promise.resolve({data:successDeleteRequestResponse});
         } else {
           return Promise.reject(errorDeleteRequestResponse);
         }
