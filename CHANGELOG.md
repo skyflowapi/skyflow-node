@@ -2,12 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.13.0] - 2024-01-11
+## [1.13.0] - 2024-01-12
 ### Added
+- Removed get call from batch Insert.
 - Continue on error support for batch Insert.
-
-### Fixed
-- Axios dependency vulnerability.
 
 ## [1.12.0] - 2023-10-20
 ### Added
