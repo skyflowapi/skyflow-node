@@ -7,8 +7,9 @@ Test the SDK by adding `VAULT-ID`, `VAULT-URL`, and `SERVICE-ACCOUNT` details in
 
 ## Prepare
 - Install the Node SDK:
-
-       npm install skyflow-node
+```bash
+npm install skyflow-node
+```
 
 ### Create the vault
 1. In a browser, navigate to Skyflow Studio.
@@ -23,7 +24,7 @@ Test the SDK by adding `VAULT-ID`, `VAULT-URL`, and `SERVICE-ACCOUNT` details in
 
 ## The samples
 ### Detokenize
-Detokenize a data token from the vault. Make sure the specified token is for data that exists in the vault. If you need a valid token, use [Insert.ts](Insert.ts) to insert the data, then use this data's token for detokenization.
+Detokenize a data token from the vault. Make sure the specified token is for data that exists in the vault. If you need a valid token, use [Insert.ts](./vault-api/Insert.ts) to insert the data, then use this data's token for detokenization.
 #### Configure
 1. Replace **<VAULT_ID>** with **VAULT ID**
 2. Replace **<VAULT_URL>** with **VAULT URL**.
@@ -35,8 +36,9 @@ Detokenize a data token from the vault. Make sure the specified token is for dat
 8. Replace **<YOUR_CREDENTIAL_FILE>** with relative  path of **SERVICE ACCOUNT CREDENTIAL FILE**.
 
 #### Run the sample
-            
-        ts-node Detokenize.ts
+```bash
+ts-node Detokenize.ts
+```            
 
 ### GetById
 Get data using skyflow id. 
@@ -49,8 +51,10 @@ Get data using skyflow id.
 6. Replace **<YOUR_CREDENTIAL_FILE>** with relative  path of **SERVICE ACCOUNT CREDENTIAL FILE**.
 7. Replace **<TABLE_NAME>** with **credit_cards**.
 #### Run the sample
-    
-        ts-node GetById.ts
+```bash
+ts-node GetById.ts
+```    
+
 ### Insert
 Insert data in the vault.
 #### Configure
@@ -61,8 +65,10 @@ Insert data in the vault.
 5. Replace **<FIELD_NAME>** with **column name**.
 6. Replace **<VALUE>** with **valid value corresponding to column name**.
 #### Run the sample
-        
-        ts-node Insert.ts
+```bash
+ts-node Insert.ts
+```        
+
 ### InvokeConnection
 Skyflow Connections is a gateway service that uses Skyflow's underlying tokenization capabilities to securely connect to first-party and third-party services. This way, your infrastructure is never directly exposed to sensitive data, and you offload security and compliance requirements to Skyflow.
 #### Configure
@@ -74,16 +80,19 @@ Skyflow Connections is a gateway service that uses Skyflow's underlying tokeniza
 6. Replace value of **requestBody** with your's request body content.
 
 #### Run the sample
-    
-        ts-node InvokeConnection.ts
+```bash
+ts-node InvokeConnection.ts
+```    
+
 ### Service account token generation
 Generates a service account Bearer token using the file path of credentials.json.
 #### Configure
 1. Replace **<YOUR_CREDENTIAL_FILE_PATH>** with relative  path of **SERVICE ACCOUNT CREDENTIAL FILE**.
 
 #### Run the sample
-        
-        ts-node TokenGenerationExample.ts
+```bash
+ts-node TokenGenerationExample.ts
+```
 
 ### Generate Bearer Token From Credentails
 Generates a service account bearer token using the JSON content of a credentials file.
@@ -91,5 +100,6 @@ Generates a service account bearer token using the JSON content of a credentials
 1. Replace **credentials*** with json data of downloaded credentials file while creation Service account.
 
 #### Run the sample
-    
-        ts-node TokenGenerationUsingCredContent.ts
+```bash
+ts-node TokenGenerationUsingCredContent.ts
+```
