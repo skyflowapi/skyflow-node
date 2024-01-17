@@ -56,7 +56,7 @@ import { Skyflow, generateBearerToken }  from 'skyflow-node';
 ```
 
 ### Service Account Bearer Token Generation
-The [service account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) module uses a credentials file to generate service account tokens. See [API Authentication](https://docs.skyflow.com/developer-portal/getting-started/api-authentication/#step-1-create-a-service-account--assign-a-role) for instructions on creating a service account.
+The [service account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) module uses a credentials file to generate service account tokens. See [API Authentication](https://docs.skyflow.com/api-authentication/#create-a-service-account) for instructions on creating a service account.
 
 The token generated from this module is valid for 60 minutes and lets you make API calls to the Data API as well as the Management API based on the permissions of the service account.
 
@@ -544,21 +544,21 @@ Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/master/sam
 
 ```javascript
 const response = client.insert({
-    records: [{
-        fields: {
-            expiry_date: '12/2026',
-            card_number: '411111111111111',
-        },
-        table: 'cards',
-    }, ],
+  records: [{
+    fields: {
+      expiry_date: '12/2026',
+      card_number: '411111111111111',
+    },
+    table: 'cards',
+  }],
 }, {
-    tokens: true,
-    upsert: [
-        {
-            table: 'cards',
-            column: 'card_number',
-        }
-    ]
+  tokens: true,
+  upsert: [
+    {
+      table: 'cards',
+      column: 'card_number',
+    }
+  ]
 });
 
 response.then(
@@ -571,6 +571,22 @@ response.then(
 ).catch((err) => {
     console.log(JSON.stringify(err));
 });
+```
+
+Samples Response:
+```json
+{
+  "records": [
+    {
+      "table": "cards",
+      "fields": {
+        "skyflow_id": "16419435-aa63-4823-aae7-19c6a2d6a19f",
+        "card_number": "f3907186-e7e2-466f-91e5-48e12c2bcbc1",
+        "cvv": "1989cb56-63da-4482-a2df-1f74cd0dd1a5",
+      },
+    }
+  ]
+}
 ```
 
 Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/InsertWithContinueOnError.ts) with contiueOnError support:
