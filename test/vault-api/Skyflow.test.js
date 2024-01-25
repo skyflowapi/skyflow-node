@@ -1979,6 +1979,42 @@ describe('get method with options', () => {
 
   });
 
+  test('get method should send request url with single column name for multiple column value', (done) => {
+
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve({data:getByIdRes})
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.get(getByIdWithValidMultipleUniqColumnOptions,{encodeURI:false});
+    response.then((res) => {
+      expect((reqArg.url).match(/column_name=abc/gi)?.length).toBe(1);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+
+
+  });
+
 
   test('get method should send request url with tokenization false and redaction when tokens are false', (done) => {
 
