@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.13.1] - 2024-01-25
+### Fixed
+- Fixed multiple column names error with unique column values in `get` interface. 
+
 ## [1.13.0] - 2024-01-12
 ### Added
 - Removed get call from batch Insert.
