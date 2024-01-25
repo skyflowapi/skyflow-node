@@ -66,13 +66,13 @@ const getSkyflowIdRecordsFromVault = (
   });
 
   if (options && Object.prototype.hasOwnProperty.call(options, 'encodeURI') && options?.encodeURI === false){
-    skyflowIdRecord.columnValues?.forEach((column) => {
-      paramList += `column_name=${skyflowIdRecord.columnName}&column_values=${column}&`;
+    skyflowIdRecord.columnValues?.forEach((column,index) => {
+      paramList += `${index === 0 ?`column_name=${skyflowIdRecord.columnName}&`:''}column_values=${column}&`;
     });
   } else {
-    skyflowIdRecord.columnValues?.forEach((column) => {
+    skyflowIdRecord.columnValues?.forEach((column,index) => {
       var encode_column_value = encodeURIComponent(column)
-      paramList += `column_name=${skyflowIdRecord.columnName}&column_values=${encode_column_value}&`;
+      paramList += `${index === 0 ?`column_name=${skyflowIdRecord.columnName}&`:''}column_values=${encode_column_value}&`;
     });
   }
 
