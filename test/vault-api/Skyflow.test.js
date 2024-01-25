@@ -751,6 +751,17 @@ const getByIdWithValidUniqColumnOptions= {
   ],
 };
 
+const getByIdWithValidMultipleUniqColumnOptions= {
+  records: [
+    {
+      table: "cards",
+      columnName: "abc",
+      columnValues: ["value","value2","value3"],
+      redaction: "PLAIN_TEXT",
+    },
+  ],
+};
+
 const getByIdRes = {
   records: [
     {
@@ -1924,6 +1935,42 @@ describe('get method with options', () => {
     const response = skyflow.get(getByIdInputWithoutRedaction, { tokens: true });
     response.then((res) => {
       expect((reqArg.url).includes('tokenization=true')).toBe(true);
+      done();
+    }).catch((er) => {
+      done(er)
+    });
+
+
+  });
+
+  test('get method should send request url with single column name for multiple column value', (done) => {
+
+    let reqArg;
+    const clientReq = jest.fn((arg) => {
+      reqArg = arg;
+      return Promise.resolve({data:getByIdRes})
+    });
+
+    const mockClient = {
+      config: skyflowConfig,
+      request: clientReq,
+      metadata: {}
+    }
+
+    clientModule.mockImplementation(() => { return mockClient });
+    skyflow = Skyflow.init({
+      vaultID: '<VaultID>',
+      vaultURL: 'https://www.vaulturl.com',
+      getBearerToken: () => {
+        return new Promise((resolve, _) => {
+          resolve("token")
+        })
+      }
+    });
+
+    const response = skyflow.get(getByIdWithValidMultipleUniqColumnOptions);
+    response.then((res) => {
+      expect((reqArg.url).match(/column_name=abc/gi)?.length).toBe(1);
       done();
     }).catch((er) => {
       done(er)
