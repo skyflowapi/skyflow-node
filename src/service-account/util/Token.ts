@@ -83,7 +83,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<ResponseTo
       }
       catch (e) {
         printLog(errorMessages.NotAValidJSON, MessageType.ERROR);
-        throw new SkyflowError({ code: 400, description: errorMessages.NotAValidJSON });
+        reject(new SkyflowError({ code: 400, description: errorMessages.NotAValidJSON }));
       }
       const expiryTime = Math.floor(Date.now() / 1000) + 3600;
 
@@ -296,7 +296,7 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
       }
       catch (e) {
         printLog(errorMessages.NotAValidJSON, MessageType.ERROR);
-        throw new SkyflowError({ code: 400, description: errorMessages.NotAValidJSON });
+        reject(new SkyflowError({ code: 400, description: errorMessages.NotAValidJSON }));
       }
 
       let expiryTime;
