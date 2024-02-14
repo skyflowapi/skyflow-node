@@ -1,6 +1,6 @@
 {
   "name": "skyflow-node",
-  "version": "1.13.1-dev.38895f7",
+  "version": "1.14.0",
   "description": "Skyflow SDK for Node.js",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
