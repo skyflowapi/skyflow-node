@@ -34,7 +34,7 @@ skyflow-node is the Node.js version of Skyflow SDK for the JavaScript programmin
 ## Installation
 
 ### Requirements
-- Node 7.6.0 and above
+- Node 12.22.12 and above
 
 ### Configuration
 
