@@ -15,6 +15,8 @@ SDK for the Skyflow Data Privacy Vault.
   - [Installation](#installation)
       - [Requirements](#requirements)
       - [Import / Require](#import--require)
+        - [Require](#require)
+        - [All imports](#all-imports)
   - [Vault APIs](#vault-apis)
     - [Insert: vault.insert()](#insert-vaultinsert)
       - [Example: Insert Records](#example-insert-records)
@@ -39,7 +41,7 @@ SDK for the Skyflow Data Privacy Vault.
       - [Service Account Scoped Bearer Token Generation](#service-account-scoped-bearer-token-generation)
       - [Skyflow Signed Data Tokens Generation](#skyflow-signed-data-tokens-generation)
     - [Logging](#logging)
-  - [Reporting a Vulnerability](#reporting-a-vulnerability)
+  - [Reporting a vulnerability](#reporting-a-vulnerability)
   
 ## Installation
 
@@ -55,7 +57,7 @@ npm install skyflow-node
 
 Depending on your project setup, you may use either the `require` method (common in Node.js projects) or the `import` statement (common in projects using ES modules).
 
-#####Require
+##### Require
 
 ```javascript
 const { Skyflow } = require('skyflow-node');
@@ -67,7 +69,7 @@ const { Skyflow } = require('skyflow-node');
 import { Skyflow }  from 'skyflow-node';
 ```
 
-#####All imports
+##### All imports
 
 ```javascript
 import { Skyflow,                         // Vault client
