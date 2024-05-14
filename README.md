@@ -793,7 +793,7 @@ Sample response:
 ## Authentication and Authorization
 
 ### Service Account Bearer Token Generation
-The [service account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) module uses a credentials file to generate service account tokens. See [API Authentication](https://docs.skyflow.com/api-authentication/#create-a-service-account) for instructions on creating a service account.
+The [service account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) module uses a credentials file to generate service account tokens. See [Authentication](https://docs.skyflow.com/api-authentication/#create-a-service-account) for instructions on creating a service account.
 
 The token generated from this module is valid for 60 minutes and lets you make API calls to the Data API as well as the Management API based on the permissions of the service account.
 
@@ -1215,6 +1215,6 @@ Current the following 5 log levels are supported:
 * The ranking of logging levels are as follows: `DEBUG` < `INFO` < `WARN` < `ERROR`
 * The default the logLevel for Skyflow SDK is `LogLevel.ERROR`.
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
 If you discover a potential security issue in this project, please reach out to us at security@skyflow.com. Please do not create public GitHub issues or Pull Requests, as malicious actors could potentially view them.
