@@ -11,7 +11,7 @@ SDK for the Skyflow Data Privacy Vault.
 ## Table of contents
 
 - [Skyflow Node.js SDK](#skyflow-nodejs-sdk)
-  - [Table of Contents](#table-of-contents)
+  - [Table of contents](#table-of-contents)
   - [Installation](#installation)
       - [Requirements](#requirements)
       - [Import / Require](#import--require)
@@ -29,7 +29,7 @@ SDK for the Skyflow Data Privacy Vault.
       - [Example: Get records by unique field values](#example-get-records-by-unique-field-values)
     - [Update records by IDs](#update-records-by-ids)
       - [Example: Update records by IDs](#example-update-records-by-ids)
-      - [Delete](#delete)
+    - [Delete](#delete)
     - [Invoke Connection](#invoke-connection)
       - [Example: Invoke Connection](#example-invoke-connection)
   - [Authentication and Authorization](#authentication-and-authorization)
@@ -650,9 +650,9 @@ Response:
   ]
 }
 ```
-#### Delete
+### Delete
 
-To delete data from the vault, use the `delete(records, options?)` method of the Skyflow client. The `records` parameter takes an array of records to delete in the following format. The `options` parameter is optional and takes an object of deletion parameters. Currently, there are no supported deletion parameters.
+To delete data from the vault, use the `delete(records, options?)` method of the Skyflow client. The `records` parameter takes an array of records with `id` and `table` to delete in the following format. The `options` parameter is optional and takes an object of deletion parameters. Currently, there are no supported deletion parameters.
 
 Call schema:
 
