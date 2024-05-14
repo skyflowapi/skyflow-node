@@ -220,10 +220,7 @@ Samples Response:
 
 #### Example: Insert with partial success support
 
-<details>
-<summary>
 Insert with partial success support
-</summary>
 
 Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/InsertWithContinueOnError.ts) with contiueOnError support:
 
@@ -294,7 +291,6 @@ response.then(
   ]
 }
 ```
-</details>
 
 ### Detokenize: vault.detokenize()
 
@@ -449,7 +445,7 @@ Sample response:
 
 ### Get records by unique values: vault.get()
 
-To retrieve data from your vault using SkyflowIDs or unique column values, use the get(records) method. The `records` parameter takes a JSONObject that should contain either an array of SkyflowIDs or a unique column name and values to fetch the records, as shown below:
+To retrieve data from your vault using SkyflowIDs or unique column values, use the `get(records)` method. The `records` parameter takes a JSONObject that should contain either an array of SkyflowIDs or a unique column name and values to fetch the records, as shown below:
 
 ```javascript
 data = {
