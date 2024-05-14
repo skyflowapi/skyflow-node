@@ -53,7 +53,9 @@ npm install skyflow-node
 
 #### Import / Require
 
-**Require**
+Depending on your project setup, you may use either the `require` method (common in Node.js projects) or the `import` statement (common in projects using ES modules).
+
+#####Require
 
 ```javascript
 const { Skyflow } = require('skyflow-node');
@@ -65,7 +67,7 @@ const { Skyflow } = require('skyflow-node');
 import { Skyflow }  from 'skyflow-node';
 ```
 
-**All imports**
+#####All imports
 
 ```javascript
 import { Skyflow,                         // Vault client
@@ -83,18 +85,19 @@ To use this module, the Skyflow client must first be initialized as follows:
 ```javascript
 import { Skyflow } from 'skyflow-node';
 
-// Initialize the Skyflow client
+// Initialize the Skyflow Vault client
 const vault = Skyflow.init({
   // Id of the vault that the client should connect to.
   vaultID: 'string',
   // URL of the vault that the client should connect to.
   vaultURL: 'string',
   // Helper function generates a Skyflow bearer token.
-  getBearerToken: helperFunc,
+  getBearerToken: auth,
 });
 
 // sample function to retrieve a bearer token from an environment variable
-const helperFunc = function () {
+// customize this according to your environment and security posture
+const auth = function () {
   return new Promise((resolve, reject) => {
     resolve(process.env.VAULT_BEARER_TOKEN);
   });
@@ -303,7 +306,7 @@ In order to retrieve data from your vault using tokens that you have previously 
 data = {
   records: [{
     token: 'string',                 // Required, token for the record to be fetched.
-    redaction: Skyflow.RedactionType // Optional, redaction type to be applied to retrieved data, ex: Skyflow.RedactionType.PLAIN_TEXT
+    redaction: Skyflow.RedactionType // Optional, redaction type to be applied ex: Skyflow.RedactionType.PLAIN_TEXT
   }]
 }
 ```
