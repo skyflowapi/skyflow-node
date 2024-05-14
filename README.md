@@ -8,7 +8,7 @@ SDK for the Skyflow Data Privacy Vault.
 [![License](https://img.shields.io/github/license/skyflowapi/skyflow-node)](https://github.com/skyflowapi/skyflow-node/blob/master/LICENSE)
 
 
-## Table of Contents
+## Table of contents
 
 - [Skyflow Node.js SDK](#skyflow-nodejs-sdk)
   - [Table of Contents](#table-of-contents)
