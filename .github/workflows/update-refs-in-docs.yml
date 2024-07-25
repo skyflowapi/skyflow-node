@@ -3,7 +3,7 @@ name: Update references in Docsite
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   generate-node-sdk-refs:
@@ -12,7 +12,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        ref: master
+        ref: main
         fetch-depth: 0
         persist-credentials: false
     

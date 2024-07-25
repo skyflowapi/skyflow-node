@@ -5,7 +5,7 @@ SDK for the Skyflow Data Privacy Vault.
 
 [![CI](https://img.shields.io/static/v1?label=CI&message=passing&color=green?style=plastic&logo=github)](https://github.com/skyflowapi/skyflow-node/actions)
 [![GitHub release](https://badge.fury.io/js/skyflow-node.svg)](https://www.npmjs.com/package/skyflow-node)
-[![License](https://img.shields.io/github/license/skyflowapi/skyflow-node)](https://github.com/skyflowapi/skyflow-node/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/skyflowapi/skyflow-node)](https://github.com/skyflowapi/skyflow-node/blob/main/LICENSE)
 
 
 ## Table of contents
@@ -80,7 +80,7 @@ import { Skyflow,                         // Vault client
 
 
 ## Vault APIs
-The [Vault](https://github.com/skyflowapi/skyflow-node/tree/master/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
+The [Vault](https://github.com/skyflowapi/skyflow-node/tree/main/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
 
 To use this module, the Skyflow client must first be initialized as follows: 
 
@@ -123,7 +123,7 @@ vault.insert(data, options?);
 
 #### Example: Insert Records
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Insert.ts) of a simple insert call is given below:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Insert.ts) of a simple insert call is given below:
 
 ```javascript
 const result = await vault.insert(
@@ -168,7 +168,7 @@ const result = await vault.insert(
 
 #### Example: Upsert Records (update or insert)
 
-Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/UpsertSupport.ts) with upsert support:
+Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/UpsertSupport.ts) with upsert support:
 
 ```javascript
 const response = vault.insert({
@@ -224,7 +224,7 @@ Samples Response:
 
 Insert with partial success support
 
-Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/InsertWithContinueOnError.ts) with contiueOnError support:
+Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/InsertWithContinueOnError.ts) with contiueOnError support:
 
 ```javascript
 const response = vault.insert({
@@ -320,7 +320,7 @@ Note:
 
 #### Detokenize example
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Detokenize.ts) of a detokenize call:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Detokenize.ts) of a detokenize call:
 
 ```javascript
 const result = await vault.detokenize({
@@ -373,7 +373,7 @@ You must apply a redaction type to retrieve data.
 
 #### Example: Get Records by IDs
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/GetById.ts) of `getById` call:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/GetById.ts) of `getById` call:
 
 ```javascript
 let skyflowIds = [
@@ -472,7 +472,7 @@ Note: You cannot pass an array of skyflow_ids and unique column details together
 
 #### Example: Get records by ID(s)
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Get.ts) to get records using skyflowIds:
+[Example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Get.ts) to get records using skyflowIds:
 ```javascript
 let skyflowIds = [
     'f8622-b557-4c6b-a12c-c0b0bfd9',
@@ -528,7 +528,7 @@ Response:
 
 #### Example: Get records by unique field values
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Get.ts) to get records using unique column names and values:
+[Example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Get.ts) to get records using unique column names and values:
 
 ```javascript
 let record = {
@@ -606,7 +606,7 @@ const options = { // Optional
 
 #### Example: Update records by IDs
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Update.ts) to update by ID using `skyflow_ids`:
+[Example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Update.ts) to update by ID using `skyflow_ids`:
 
 ```js
 const updateInput = {
@@ -672,7 +672,7 @@ const options = {
 }
 ```
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/Delete.ts) to delete by ID using `skyflow_ids`
+[Example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Delete.ts) to delete by ID using `skyflow_ids`
 
 ```js
 const deleteInput = {
@@ -750,7 +750,7 @@ Supported method names:
 
 #### Example: Invoke Connection
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/master/samples/vault-api/InvokeConnection.ts) of `invokeConnection`:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/InvokeConnection.ts) of `invokeConnection`:
 
 ```javascript
 const result = client.invokeConnection({
@@ -795,7 +795,7 @@ Sample response:
 ## Authentication and Authorization
 
 ### Service Account Bearer Token Generation
-The [service account](https://github.com/skyflowapi/skyflow-node/tree/master/src/service-account) module uses a credentials file to generate service account tokens. See [Authentication](https://docs.skyflow.com/api-authentication/#create-a-service-account) for instructions on creating a service account.
+The [service account](https://github.com/skyflowapi/skyflow-node/tree/main/src/service-account) module uses a credentials file to generate service account tokens. See [Authentication](https://docs.skyflow.com/api-authentication/#create-a-service-account) for instructions on creating a service account.
 
 The token generated from this module is valid for 60 minutes and lets you make API calls to the Data API as well as the Management API based on the permissions of the service account.
 
@@ -845,7 +845,7 @@ tokens();
 Example using a service account credentials in code
 </summary>
 
-[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationExample.ts):
+[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/main/samples/service-account/TokenGenerationExample.ts):
 
 
 ```js
@@ -940,7 +940,7 @@ tokens();
 ```
 Alternatively, you can send the entire service account credentials as a string, by using the generateBearerTokenFromCreds(credentials, options) function.
 
-[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/TokenGenerationWithContextExample.ts)
+[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/main/samples/service-account/TokenGenerationWithContextExample.ts)
 
 ```js
 import { generateBearerTokenFromCreds, isExpired } from 'skyflow-node';
@@ -994,7 +994,7 @@ The role IDs are passed as part of the `options` in `generateBearerToken(filepat
 Example using a service account credentials file path
 </summary>
 
-[Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/ScopedTokenGenerationExample.ts)
+[Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/main/samples/service-account/ScopedTokenGenerationExample.ts)
 
 ```js
 import { generateBearerToken, isExpired } from 'skyflow-node';
@@ -1032,7 +1032,7 @@ Note:
 By including context in the options, you can create scoped bearer tokens with the context JWT claim.
 
 
-[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/ScopedTokenGenerationExample.ts)
+[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/main/samples/service-account/ScopedTokenGenerationExample.ts)
 
 ```js
 import { generateBearerTokenFromCreds, isExpired } from 'skyflow-node';
@@ -1098,7 +1098,7 @@ The data tokens are passed as part of the `options` in the `generateSignedDataTo
 Example using a service account credentials file path
 </summary>
 
-[Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts)
+[Example using a service account credentials file path:](https://github.com/skyflowapi/skyflow-node/blob/main/samples/service-account/SignedTokenGenerationExample.ts)
 
 ```js
 import { generateSignedDataTokens,isExpired } from 'skyflow-node';
@@ -1139,7 +1139,7 @@ tokens();
 Note:
 By including context in the `options`, you can create signed data tokens with the context JWT claim.
 
-[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/master/samples/service-account/SignedTokenGenerationExample.ts)
+[Example using a service account credentials JSON string:](https://github.com/skyflowapi/skyflow-node/blob/main/samples/service-account/SignedTokenGenerationExample.ts)
 
 ```js
 import { generateSignedDataTokensFromCreds, isExpired } from 'skyflow-node';
