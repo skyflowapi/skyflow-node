@@ -10,7 +10,7 @@ class Audit {
         //return audit object
     }
 
-    public list() {
+    list() {
 
     }
 

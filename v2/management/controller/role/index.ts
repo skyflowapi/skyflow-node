@@ -10,15 +10,15 @@ class Role {
         //return role object
     }
 
-    public update() {
+    update() {
 
     }
 
-    public delete() {
+    delete() {
 
     }
 
-    public get() {
+    get() {
 
     }
 

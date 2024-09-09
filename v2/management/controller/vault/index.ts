@@ -10,15 +10,15 @@ class Vault {
         //return vault object
     }
 
-    public update() {
+    update() {
 
     }
 
-    public delete() {
+    delete() {
 
     }
 
-    public get() {
+    get() {
 
     }
 

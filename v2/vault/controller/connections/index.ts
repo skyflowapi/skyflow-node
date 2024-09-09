@@ -10,7 +10,7 @@ class Connection {
         //return connections object
     }
 
-    public invoke() {
+    invoke() {
 
     }
 

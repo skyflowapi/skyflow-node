@@ -10,45 +10,45 @@ class Vault {
         //return vault object
     }
 
-    public insert() {
+    insert() {
 
     }
 
-    public update() {
+    update() {
 
     }
 
-    public delete() {
+    delete() {
 
     }
 
-    public get() {
+    get() {
 
     }
 
-    public detokenize() {
+    detokenize() {
 
     }
 
-    public uploadFile() {
+    uploadFile() {
 
     }
 
-    public query() {
+    query() {
 
     }
 
-    public lookUpBin() {
+    lookUpBin() {
         // cache binlookup object if created
         // return binlookup object using static func
     }
 
-    public audit() {
+    audit() {
         // cache audit object if created
         // return audit object using static func
     }
 
-    public detect() {
+    detect() {
         // cache detect object if created
         // return detect object using static func
     }

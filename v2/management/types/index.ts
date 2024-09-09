@@ -1,5 +1,5 @@
-import { LogLevel } from "../../utils/common";
-import ManagementConfig from "../model/config/management";
+import { LogLevel } from "../../utils";
+import ManagementConfig from "../config/management";
 
 export interface SkyflowConfig {
     managementConfig: ManagementConfig[],

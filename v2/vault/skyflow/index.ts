@@ -1,6 +1,6 @@
-import { LogLevel } from "../../utils/common";
-import ConnectionConfig from "../model/config/connection";
-import VaultConfig from "../model/config/vault";
+import { LogLevel } from "../../utils";
+import ConnectionConfig from "../config/connection";
+import VaultConfig from "../config/vault";
 import { SkyflowConfig } from "../types";
 
 class Skyflow {
@@ -9,40 +9,40 @@ class Skyflow {
 
     }
 
-    public addVaultConfig(config: VaultConfig) {
+    addVaultConfig(config: VaultConfig) {
 
     }
 
-    public removeVaultConfig(id: string) {
+    removeVaultConfig(id: string) {
 
     }
 
-    public updateVaultConfig(config: VaultConfig) {
+    updateVaultConfig(config: VaultConfig) {
 
     }
 
-    public addConnectionConfig(config: ConnectionConfig) {
+    addConnectionConfig(config: ConnectionConfig) {
 
     }
 
-    public removeConnectionConfig(id: string) {
+    removeConnectionConfig(id: string) {
 
     }
 
-    public updateConnectionConfig(config: ConnectionConfig) {
+    updateConnectionConfig(config: ConnectionConfig) {
 
     }
 
-    public update_log_level(level: LogLevel) {
+    update_log_level(level: LogLevel) {
 
     }
 
-    public vault(vaultId: string) {
+    vault(vaultId: string) {
         //(cache) - store the vault object in a list, don't create object if object already exits
         //return vault Object using static func
     }
 
-    public connection(connectionId: string) {
+    connection(connectionId: string) {
         //(cache) - store the connection object in a list, don't create object if object already exits
         //return connection Object static func
     }

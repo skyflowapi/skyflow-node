@@ -6,7 +6,7 @@ class Skyflow {
 
     }
 
-    public management() {
+    management() {
         //cache management object if created
         // return management object using static func
     }

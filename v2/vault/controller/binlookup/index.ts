@@ -10,7 +10,7 @@ class BinLookUp {
         //return binlookup object
     }
 
-    public get() {
+    get() {
 
     }
 

@@ -10,15 +10,15 @@ class Detect {
         //return detect object
     }
 
-    public deIdentify() {
+    deIdentify() {
         return this;
     }
 
-    public text() {
+    text() {
 
     }
 
-    public file() {
+    file() {
 
     }
 

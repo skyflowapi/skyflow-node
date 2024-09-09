@@ -10,15 +10,15 @@ class Policy {
         //return policy object
     }
 
-    public update() {
+    update() {
 
     }
 
-    public delete() {
+    delete() {
 
     }
 
-    public get() {
+    get() {
 
     }
 
