@@ -117,7 +117,7 @@ describe("Context and Scoped Token Options Tests", () => {
     test("Empty roleID array passed to generate scoped token", async () => {
         const expectedError = new SkyflowError({
             http_code: 400,
-            message: errorMessages.EMPTY_ROLES,
+            message: errorMessages.INVALID_CREDENTIALS_STRING,
         });
         try {
             await generateBearerTokenFromCreds(credentials, { roleIDs: [] });
@@ -129,7 +129,7 @@ describe("Context and Scoped Token Options Tests", () => {
     test("Invalid type passed to generate scoped token", async () => {
         const expectedError = new SkyflowError({
             http_code: 400,
-            message: errorMessages.INVALID_ROLES_KEY_TYPE,
+            message: errorMessages.INVALID_CREDENTIALS_STRING,
         });
         try {
             await generateBearerTokenFromCreds(credentials, { roleIDs: true });

@@ -138,6 +138,7 @@ describe('VaultController insert method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce({})
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -327,6 +328,7 @@ describe('VaultController detokenize method', () => {
             },
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce({}),
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -483,6 +485,7 @@ describe('VaultController delete method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce({})
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -584,6 +587,7 @@ describe('VaultController tokenize method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce(new SkyflowError({http_code:500,message:"Invalid"}))
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -681,6 +685,7 @@ describe('VaultController query method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce({})
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -777,6 +782,7 @@ describe('VaultController update method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce({})
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -933,6 +939,7 @@ describe('VaultController uploadFile method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce({})
         };
         mockFormData = require('form-data');
         mockFs = require('fs');
@@ -1045,6 +1052,7 @@ describe('VaultController get method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce({})
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -1163,6 +1171,7 @@ describe('VaultController Error Handling', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
+            failureResponse: jest.fn().mockRejectedValueOnce(new SkyflowError({http_code:500,message:"Invalid"}))
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();

@@ -13,6 +13,10 @@ dotenv.config();
 
 export const SDK_METRICS_HEADER_KEY = "sky-metadata";
 
+export const SKYFLOW_AUTH_HEADER_KEY = "x-skyflow-authorization";
+
+export const REQUEST_ID_KEY = "x-request-id";
+
 export const LOGLEVEL = "loglevel";
 
 export const CREDENTIALS = "credentials";
