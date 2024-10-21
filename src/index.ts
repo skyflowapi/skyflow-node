@@ -16,6 +16,7 @@ import TokenizeResponse from './vault/model/response/tokenize';
 import { generateBearerToken, generateBearerTokenFromCreds } from './service-account';
 import { isExpired } from './utils/jwt-utils';
 import UpdateOptions from './vault/model/options/update';
+import InvokeConnectionRequest from './vault/model/request/inkove';
 
 export {
     Env,
@@ -39,4 +40,5 @@ export {
     QueryRequest,
     TokenizeRequest,
     TokenizeResponse,
+    InvokeConnectionRequest
 };
