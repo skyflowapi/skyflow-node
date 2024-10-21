@@ -143,7 +143,7 @@ describe("Context and Scoped Token Options Tests", () => {
         try {
             await generateBearerTokenFromCreds(credsWithoutContext, options);
         } catch (err) {
-            expect(err.message).toBe(errorMessages.INVALID_CREDENTIALS);
+            expect(err.message).toBe(errorMessages.EMPTY_ROLES);
         }
     });
 
@@ -152,7 +152,7 @@ describe("Context and Scoped Token Options Tests", () => {
         try {
             await generateBearerTokenFromCreds(credsWithoutContext, options);
         } catch (err) {
-            expect(err.message).toBe(errorMessages.INVALID_CREDENTIALS);
+            expect(err.message).toBe(errorMessages.INVALID_ROLES_KEY_TYPE);
         }
     });
 
