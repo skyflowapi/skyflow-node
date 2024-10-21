@@ -125,63 +125,6 @@ class VaultController {
         });
     }
 
-    private failureResponse = (err: any) => new Promise((_, reject) => {
-        const contentType = err.response?.headers['content-type'];
-        const data = err?.response?.data;
-        const requestId = err.response?.headers['x-request-id'];
-
-        if (contentType) {
-            if (contentType.includes('application/json')) {
-                this.handleJsonError(err, data, requestId, reject);
-            } else if (contentType.includes('text/plain')) {
-                this.handleTextError(err, data, requestId, reject);
-            } else {
-                this.handleGenericError(err, requestId, reject);
-            }
-        } else {
-            this.handleGenericError(err, requestId, reject);
-        }
-    });
-
-    private handleJsonError(err: any, data: any, requestId: string, reject: Function) {
-        let description = JSON.parse(JSON.stringify(data));
-        const statusCode = description?.error?.http_status;
-        const grpcCode = description?.error?.grpc_code;
-        const details = description?.error?.details;
-
-        description = description?.error?.message || description;
-        this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
-    }
-
-    private handleTextError(err: any, data: any, requestId: string, reject: Function) {
-        this.logAndRejectError(data, err, requestId, reject);
-    }
-
-    private handleGenericError(err: any, requestId: string, reject: Function) {
-        const description = errorMessages.ERROR_OCCURRED;
-        this.logAndRejectError(description, err, requestId, reject);
-    }
-
-    private logAndRejectError(
-        description: string,
-        err: any,
-        requestId: string,
-        reject: Function,
-        httpStatus?: number,
-        grpcCode?: number,
-        details?: any
-    ) {
-        printLog(description, MessageType.ERROR, this.client.getLogLevel());
-        reject(new SkyflowError({
-            http_code: err?.response?.status || 400,
-            message: description,
-            request_ID: requestId,
-            grpc_code: grpcCode,
-            http_status: httpStatus,
-            details: details,
-        }, []));
-    }
-
     private handleRequest(apiCall: Function, requestType: string): Promise<any> {
         return new Promise((resolve, reject) => {
             printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES[requestType]), MessageType.LOG, this.client.getLogLevel());
@@ -216,7 +159,7 @@ class VaultController {
                         // console.log(error.cause)
                         // handle JSON Parse issue
                         printLog(logs.errorLogs[`${requestType}_REQUEST_REJECTED`], MessageType.ERROR, this.client.getLogLevel());
-                        this.failureResponse(error).catch((err) => reject(err))
+                        this.client.failureResponse(error).catch((err) => reject(err))
                     });
             }).catch(reject);
         });
@@ -307,10 +250,10 @@ class VaultController {
             } catch (error) {
                 reject(error);
             }
-            const records = { fields: request.updateData };
+            const record = { fields: request.updateData };
             const strictMode = options?.getTokenMode() ? V1BYOT.Enable : V1BYOT.Disable;
             const updateData: RecordServiceUpdateRecordBody = {
-                record: records,
+                record: record,
                 tokenization: options?.getReturnTokens(),
                 byot: strictMode
             };

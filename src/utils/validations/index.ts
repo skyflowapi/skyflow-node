@@ -285,23 +285,13 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
         }
 
-        if (!Array.isArray(updateRequest.updateData)) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_UPDATE_DATA)
-        }
-
-        const records = updateRequest.updateData;
-        if (records.length === 0) {
+        if (!updateRequest.updateData) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_UPDATE_DATA);
         }
-        records.forEach((record, index) => {
-            if (!record) {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DATA_IN_UPDATE, [index]);
-            }
-            if (typeof record !== 'object') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DATA_IN_UPDATE, [index]);
-            }
-            validateInsertInput(record);
-        });
+        if (typeof updateRequest.updateData !== 'object') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_UPDATE_DATA);
+        }
+        validateInsertInput(updateRequest.updateData);
         validateUpdateOptions(updateOptions);
     } else {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPDATE_REQUEST);
@@ -624,13 +614,6 @@ function isStringKeyValueMap(obj: any): obj is StringKeyValueMapType {
 
 export const validateInvokeConnectionRequest = (invokeRequest: InvokeConnectionRequest) => {
     if (invokeRequest) {
-        if (!Object.prototype.hasOwnProperty.call(invokeRequest, 'url')) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_URL);
-        }
-
-        if (typeof invokeRequest.url !== 'string' || invokeRequest.url.trim().length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_URL);
-        }
 
         if (!Object.prototype.hasOwnProperty.call(invokeRequest, 'method'))
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_METHOD_NAME);

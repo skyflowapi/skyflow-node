@@ -52,7 +52,7 @@ class Skyflow {
 
     private addConnectionClient(config: ConnectionConfig, clients: ClientObj) {
         const client = new VaultClient(config.connectionUrl, '', config?.credentials, this.commonCredentials, this.logLevel);
-        const controller = new VaultController(client);
+        const controller = new ConnectionController(client);
         clients[config.connectionId] = { config, client, controller };
     }
 
