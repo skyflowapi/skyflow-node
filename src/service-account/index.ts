@@ -65,7 +65,7 @@ function generateBearerToken(credentialsFilePath: string, options?: BearerTokenO
 
 
 function generateBearerTokenFromCreds(credentials, options?: BearerTokenOptions): Promise<TokenResponse> {
-    return getToken(JSON.stringify(credentials), options)
+    return getToken(credentials, options)
 }
 
 function generateToken(credentialsFilePath: string, options?: GenerateTokenOptions): Promise<TokenResponse> {

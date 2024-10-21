@@ -1,6 +1,8 @@
 // imports 
 import { Configuration, QueryApi, RecordsApi, TokensApi } from "../../ _generated_/rest";
-import { AuthInfo, AuthType, LogLevel, TYPES } from "../../utils/index";
+import SkyflowError from "../../error";
+import errorMessages from "../../error/messages";
+import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES } from "../../utils/index";
 import { isExpired } from "../../utils/jwt-utils";
 import Credentials from "../config/credentials";
 
@@ -103,6 +105,64 @@ class VaultClient {
 
     updateSkyflowCredentials(credentials?: Credentials) {
         this.skyflowCredentials = credentials;
+    }
+
+    failureResponse = (err: any) => new Promise((_, reject) => {
+        const contentType = err.response?.headers['content-type'];
+        const data = err.response?.data;
+        const requestId = err.response?.headers['x-request-id'];
+
+        if (contentType) {
+            if (contentType.includes('application/json')) {
+                this.handleJsonError(err, data, requestId, reject);
+            } else if (contentType.includes('text/plain')) {
+                this.handleTextError(err, data, requestId, reject);
+            } else {
+                this.handleGenericError(err, requestId, reject);
+            }
+        } else {
+            this.handleGenericError(err, requestId, reject);
+        }
+    });
+
+    private handleJsonError(err: any, data: any, requestId: string, reject: Function) {
+        //handle parsing
+        let description = JSON.parse(JSON.stringify(data));
+        const statusCode = description?.error?.http_status;
+        const grpcCode = description?.error?.grpc_code;
+        const details = description?.error?.details;
+
+        description = description?.error?.message || description;
+        this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
+    }
+
+    private handleTextError(err: any, data: any, requestId: string, reject: Function) {
+        this.logAndRejectError(data, err, requestId, reject);
+    }
+
+    private handleGenericError(err: any, requestId: string, reject: Function) {
+        const description = errorMessages.ERROR_OCCURRED;
+        this.logAndRejectError(description, err, requestId, reject);
+    }
+
+    private logAndRejectError(
+        description: string,
+        err: any,
+        requestId: string,
+        reject: Function,
+        httpStatus?: number,
+        grpcCode?: number,
+        details?: any
+    ) {
+        printLog(description, MessageType.ERROR, this.getLogLevel());
+        reject(new SkyflowError({
+            http_code: err?.response?.status || 400,
+            message: description,
+            request_ID: requestId,
+            grpc_code: grpcCode,
+            http_status: httpStatus,
+            details: details,
+        }, []));
     }
 
 }

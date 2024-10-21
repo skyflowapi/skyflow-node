@@ -2,9 +2,11 @@ import VaultClient from '../../../src/vault/client'; // Adjust the import path
 import { Configuration, QueryApi, RecordsApi, TokensApi } from '../../../src/ _generated_/rest';
 import { AuthType, LogLevel, TYPES } from '../../../src/utils';
 import { isExpired } from '../../../src/utils/jwt-utils';
+import SkyflowError  from '../../../src/error';
 
 jest.mock('../../../src/ _generated_/rest');
 jest.mock('../../../src/utils/jwt-utils');
+jest.mock('../../../src/error');
 
 describe('VaultClient', () => {
     const url = 'https://vault.skyflow.com';
@@ -179,6 +181,134 @@ describe('VaultClient', () => {
             const newCredentials = { token: 'new_token_456' };
             vaultClient.updateSkyflowCredentials(newCredentials);
             expect(vaultClient.skyflowCredentials).toEqual(newCredentials);
+        });
+    });
+
+    describe('getCredentials', () => {
+
+        test('should return undefined if authInfo is undefined', () => {
+            vaultClient.authInfo = undefined;
+            const credentials = vaultClient.getCredentials();
+            expect(credentials).toEqual({ apiKey }); // Should fall back to skyflowCredentials
+        });
+
+        test('should return individualCredentials if authInfo.key is undefined', () => {
+            vaultClient.authInfo = { key: undefined, type: AuthType.API_KEY };
+            const credentials = vaultClient.getCredentials();
+            expect(credentials).toEqual({ apiKey }); // Should fall back to skyflowCredentials
+        });
+
+        test('should return individualCredentials if both credentials are undefined', () => {
+            vaultClient.individualCredentials = undefined;
+            vaultClient.skyflowCredentials = undefined;
+            const credentials = vaultClient.getCredentials();
+            expect(credentials).toBeUndefined(); // Should return undefined
+        });
+    });
+
+    describe('failureResponse', () => {
+        test('should handle JSON error responses correctly', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'application/json', 'x-request-id': '12345' },
+                    data: { error: { message: 'JSON error occurred', http_status: 400 } },
+                    status: 400,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle JSON error responses with empty error correctly', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'application/json', 'x-request-id': '12345' },
+                    data: { error: { } },
+                    status: 400,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle JSON error responses with empty data correctly', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'application/json', 'x-request-id': '12345' },
+                    data: { },
+                    status: 400,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle JSON error responses without data correctly', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'application/json', 'x-request-id': '12345' },
+                    status: 400,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SyntaxError);
+            })
+        });
+    
+        test('should handle without error responses correctly', () => {
+            const errorResponse = {};
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle text error responses correctly', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'text/plain', 'x-request-id': '12345' },
+                    data: 'Text error occurred',
+                    status: 500,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle errors without content-type correctly', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'none' },
+                    status: 500,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle generic errors without content-type correctly', () => {
+            const errorResponse = {
+                response: {
+                    headers: {},
+                    status: 500,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            });
+        });
+    });
+
+    describe('updateClientConfig', () => {
+        test('should retain existing state when no new credentials are provided', () => {
+            vaultClient.updateClientConfig(url, vaultId);
+            expect(vaultClient.url).toBe(url);
+            expect(vaultClient.vaultId).toBe(vaultId);
+            expect(vaultClient.logLevel).toBe(LogLevel.ERROR); 
         });
     });
 });
