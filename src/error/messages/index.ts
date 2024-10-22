@@ -18,6 +18,16 @@ const errorMessages = {
     INVALID_LOG_LEVEL: `${errorPrefix} Initialization failed. Invalid log level. Specify a valid log level.`,
     EMPTY_CREDENTIAL_FILE_PATH: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid file path.`,
     INVALID_CREDENTIAL_FILE_PATH: `${errorPrefix} Initialization failed. Invalid credentials. Expected file path to be a string.`,
+    
+    INVALID_FILE_PATH: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Expected file path to exists.`,
+    INVALID_API_KEY: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid api key.`,
+    INVALID_PARSED_CREDENTIALS_STRING: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid credentials string.`,
+    INVALID_BEARER_TOKEN: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid token.`,
+
+    INVALID_FILE_PATH_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Expected file path to exists for %s1 with %s2 %s3.`,
+    INVALID_API_KEY_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid api key for %s1 with %s2 %s3.`,
+    INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid credentials string for %s1 with %s2 %s3.`,
+    INVALID_BEARER_TOKEN_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid token for %s1 with %s2 %s3.`,
 
     EMPTY_CONNECTION_ID: `${errorPrefix} Initialization failed. Invalid connection ID. Specify a valid connection Id.`,
     INVALID_CONNECTION_ID: `${errorPrefix} Initialization failed. Invalid connection ID. Specify connection Id as a string.`,
@@ -162,6 +172,8 @@ const errorMessages = {
 
     INVALID_ORDER_BY: `${errorPrefix} Validation error. The orderBy key has a value of type %s1. Specify orderBy as string.`,
     INVALID_FIELDS: `${errorPrefix} Validation error. The fields key has a value of type %s1. Specify fields as array of strings.`,
+
+    INVAILD_JSON_RESPONSE: `${errorPrefix} Validation error. The invalid json response. Please reach out to skyflow using requestId - %s1.`,
 };
 
 export default errorMessages;
