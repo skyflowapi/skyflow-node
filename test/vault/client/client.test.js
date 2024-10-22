@@ -254,7 +254,7 @@ describe('VaultClient', () => {
                 },
             };
             vaultClient.failureResponse(errorResponse).catch(err => {
-                expect(err).toBeInstanceOf(SyntaxError);
+                expect(err).toBeInstanceOf(SkyflowError);
             })
         });
     
