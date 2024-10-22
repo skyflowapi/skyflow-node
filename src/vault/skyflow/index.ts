@@ -8,7 +8,7 @@ import VaultClient from "../client";
 import Credentials from "../config/credentials";
 import SkyflowError from "../../error";
 import logs from "../../utils/logs";
-import { isLogLevel, validateConnectionConfig, validateSkyflowConfig, validateSkyflowCredentials, validateVaultConfig } from "../../utils/validations";
+import { isLogLevel, validateConnectionConfig, validateSkyflowConfig, validateSkyflowCredentials, validateUpdateConnectionConfig, validateUpdateVaultConfig, validateVaultConfig } from "../../utils/validations";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
 
 class Skyflow {
@@ -73,8 +73,6 @@ class Skyflow {
             const vaultUrl = getVaultURL(updatedConfig.clusterId, updatedConfig.env || Env.PROD);
             existingClient.config = updatedConfig;
             existingClient.client.updateClientConfig(vaultUrl, updatedConfig.vaultId, updatedConfig.credentials, this.commonCredentials, this.logLevel);
-        } else if (!config[idKey]) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_ID);
         } else {
             this.throwErrorForUnknownId(config[idKey], idKey)
         }
@@ -86,20 +84,18 @@ class Skyflow {
             const updatedConfig = { ...existingClient.config, ...config };
             existingClient.config = updatedConfig;
             existingClient.client.updateClientConfig(updatedConfig.connectionUrl, '', updatedConfig.credentials, this.commonCredentials, this.logLevel);
-        } else if (!config[idKey]) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_ID);
         } else {
             this.throwErrorForUnknownId(config[idKey], idKey)
         }
     }
 
     updateVaultConfig(config: VaultConfig) {
-        // validateVaultConfig(config);
+        validateUpdateVaultConfig(config);
         this.updateVaultClient(config, this.vaultClients, VAULT_ID);
     }
 
     updateConnectionConfig(config: ConnectionConfig) {
-        // validateConnectionConfig(config);
+        validateUpdateConnectionConfig(config);
         this.updateConnectionClient(config, this.connectionClients, CONNECTION_ID);
     }
 

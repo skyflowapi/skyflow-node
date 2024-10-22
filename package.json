@@ -2,8 +2,8 @@
   "name": "skyflow-node",
   "version": "1.14.0",
   "description": "Skyflow SDK for Node.js",
-  "main": "./lib/index.js",
-  "module": "./lib/index.js",
+  "main": "./lib/src/index.js",
+  "module": "./lib/src/index.js",
   "scripts": {
     "test": "jest --coverage",
     "build": "tsc",
@@ -35,7 +35,7 @@
     "axios": "^1.6.1",
     "dotenv": "^16.4.5",
     "jsonwebtoken": "^9.0.2",
-    "jwt-decode": "^4.0.0"
+    "jwt-decode": "^2.2.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.25.7",

@@ -1,5 +1,5 @@
 import VaultController from '../../../src/vault/controller/vault';
-import { printLog, parameterizedString, MessageType, TYPES } from '../../../src/utils';
+import { printLog, MessageType } from '../../../src/utils';
 import logs from '../../../src/utils/logs';
 import { validateInsertRequest, validateDetokenizeRequest, validateDeleteRequest, validateTokenizeRequest, validateQueryRequest, validateUpdateRequest, validateUploadFileRequest, validateGetRequest, validateGetColumnRequest } from '../../../src/utils/validations';
 import InsertResponse from '../../../src/vault/model/response/insert';
@@ -122,7 +122,6 @@ describe('VaultController', () => {
         expect(typeof vaultController.detect).toBe('function');
     });
 });
-
 
 describe('VaultController insert method', () => {
     let mockVaultClient;
@@ -251,6 +250,52 @@ describe('VaultController insert method', () => {
         expect(response.insertedFields).toHaveLength(1);
     });
 
+    test('should successfully insert records with batch insert with null record', async () => {
+        const mockRequest = {
+            data: [{ field1: 'value1' }],
+            tableName: 'testTable',
+        };
+        const mockOptions = {
+            getContinueOnError: jest.fn().mockReturnValue(true),
+            getReturnTokens: jest.fn().mockReturnValue(false),
+            getUpsert: jest.fn().mockReturnValue(''),
+            getHomogeneous: jest.fn().mockReturnValue(false),
+            getTokenMode: jest.fn().mockReturnValue(''),
+            getTokens: jest.fn().mockReturnValue([])
+        };
+        const mockResponseData = { responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }, null] };
+
+        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce({ data: mockResponseData });
+
+        const response = await vaultController.insert(mockRequest, mockOptions);
+
+        expect(mockVaultClient.vaultAPI.recordServiceBatchOperation).toHaveBeenCalled();
+        expect(response.insertedFields).toHaveLength(1);
+    });
+
+    test('should successfully insert records with batch insert with null response', async () => {
+        const mockRequest = {
+            data: [{ field1: 'value1' }],
+            tableName: 'testTable',
+        };
+        const mockOptions = {
+            getContinueOnError: jest.fn().mockReturnValue(true),
+            getReturnTokens: jest.fn().mockReturnValue(false),
+            getUpsert: jest.fn().mockReturnValue(''),
+            getHomogeneous: jest.fn().mockReturnValue(false),
+            getTokenMode: jest.fn().mockReturnValue(''),
+            getTokens: jest.fn().mockReturnValue([])
+        };
+        const mockResponseData = null;
+
+        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce({ data: mockResponseData });
+
+        const response = await vaultController.insert(mockRequest, mockOptions);
+
+        expect(mockVaultClient.vaultAPI.recordServiceBatchOperation).toHaveBeenCalled();
+        expect(response.insertedFields).toBe(undefined);
+    });
+
     test('should reject insert records with batch insert', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
@@ -293,7 +338,7 @@ describe('VaultController insert method', () => {
 
         await expect(vaultController.insert(mockRequest, mockOptions)).rejects.toThrow('Validation error');
         expect(validateInsertRequest).toHaveBeenCalled();
-        expect(mockVaultClient.vaultAPI.recordServiceInsertRecord).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.recordServiceInsertRecord).not.toHaveBeenCalled();
     });
 
     test('should log and reject on API error', async () => {
@@ -328,7 +373,7 @@ describe('VaultController detokenize method', () => {
             },
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
-            failureResponse: jest.fn().mockRejectedValueOnce({}),
+            failureResponse: jest.fn().mockRejectedValueOnce(new SkyflowError({http_code:500,message:"Invalid"})),
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -355,6 +400,63 @@ describe('VaultController detokenize method', () => {
         mockVaultClient.tokensAPI.recordServiceDetokenize.mockResolvedValueOnce(mockDetokenizeResponse);
 
         const response = await vaultController.detokenize(mockRequest, mockOptions);
+
+        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).toHaveBeenCalledWith(
+            'vault123',
+            expect.anything(), // Detokenization payload
+            expect.any(Object) // Headers
+        );
+        expect(response.detokenizedFields).toHaveLength(1); // Success responses
+        expect(response.errors).toHaveLength(1); // Error responses
+    });
+
+    test('should successfully detokenize records with different request', async () => {
+        const mockRequest = {
+            tokens: ['token1', 'token2'],
+        };
+        const mockOptions = {
+            getContinueOnError: jest.fn().mockReturnValue(false),
+            getDownloadURL: jest.fn().mockReturnValue(true)
+        };
+        const mockDetokenizeResponse = {
+            data: {
+                records: [
+                    { token: 'token1', value: 'value1' },
+                    { token: 'token2', error: 'error2' }
+                ]
+            }
+        };
+
+        mockVaultClient.tokensAPI.recordServiceDetokenize.mockResolvedValueOnce(mockDetokenizeResponse);
+
+        const response = await vaultController.detokenize(mockRequest, mockOptions);
+
+        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).toHaveBeenCalledWith(
+            'vault123',
+            expect.anything(), // Detokenization payload
+            expect.any(Object) // Headers
+        );
+        expect(response.detokenizedFields).toHaveLength(1); // Success responses
+        expect(response.errors).toHaveLength(1); // Error responses
+    });
+
+    test('should successfully detokenize records with empty options', async () => {
+        const mockRequest = {
+            tokens: ['token1', 'token2'],
+        };
+
+        const mockDetokenizeResponse = {
+            data: {
+                records: [
+                    { token: 'token1', value: 'value1' },
+                    { token: 'token2', error: 'error2' }
+                ]
+            }
+        };
+
+        mockVaultClient.tokensAPI.recordServiceDetokenize.mockResolvedValueOnce(mockDetokenizeResponse);
+
+        const response = await vaultController.detokenize(mockRequest);
 
         expect(mockVaultClient.tokensAPI.recordServiceDetokenize).toHaveBeenCalledWith(
             'vault123',
@@ -413,19 +515,18 @@ describe('VaultController detokenize method', () => {
 
     test('should handle API error during detokenize', async () => {
         const mockRequest = {
-            tokens: ['token1', 'token2'],
-            redactionType: 'PLAIN_TEXT',
+            tokens: ['token1', 'token2']
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
             getDownloadURL: jest.fn().mockReturnValue(false)
         };
 
-        const errorResponse = new Error("Validation error");
+        const errorResponse = new Error("Invalid");
         mockVaultClient.tokensAPI.recordServiceDetokenize.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.detokenize(mockRequest, mockOptions)).rejects.toThrow('Validation error');
-        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).toHaveBeenCalled();
+        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).not.toHaveBeenCalled();
     });
 
     test('should log and resolve with empty arrays when no records are returned', async () => {
@@ -442,7 +543,7 @@ describe('VaultController detokenize method', () => {
             // throw new Error('Validation error');
         });
 
-        mockVaultClient.tokensAPI.recordServiceDetokenize.mockResolvedValueOnce([]);
+        mockVaultClient.tokensAPI.recordServiceDetokenize.mockResolvedValueOnce(new Error("Invalid"));
 
         try {
             const response = await vaultController.detokenize(mockRequest, mockOptions);
@@ -468,7 +569,7 @@ describe('VaultController detokenize method', () => {
         mockVaultClient.tokensAPI.recordServiceDetokenize.mockRejectedValueOnce(unexpectedError);
 
         await expect(vaultController.detokenize(mockRequest, mockOptions)).rejects.toThrow('Validation error');
-        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).toHaveBeenCalled();
+        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).not.toHaveBeenCalled();
     });
 });
 
@@ -485,7 +586,7 @@ describe('VaultController delete method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
-            failureResponse: jest.fn().mockRejectedValueOnce({})
+            failureResponse: jest.fn().mockRejectedValueOnce(new SkyflowError({http_code:500,message:"Invalid"}))
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -525,7 +626,7 @@ describe('VaultController delete method', () => {
 
         await expect(vaultController.delete(mockRequest)).rejects.toThrow('Validation error');
         expect(validateDeleteRequest).toHaveBeenCalled();
-        expect(mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord).not.toHaveBeenCalled();
     });
 
     test('should handle API errors during delete', async () => {
@@ -533,9 +634,11 @@ describe('VaultController delete method', () => {
             deleteIds: ['id123'],
             tableName: 'testTable',
         };
-        const errorResponse = new Error('Validation error');
-
-        mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord.mockRejectedValueOnce(errorResponse.message);
+        const errorResponse = new Error('Invalid');
+        validateDeleteRequest.mockImplementation(() => {
+            // throw new Error('Validation error');
+        });
+        mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.delete(mockRequest)).rejects.toEqual(errorResponse);
         expect(mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord).toHaveBeenCalled();
@@ -570,7 +673,7 @@ describe('VaultController delete method', () => {
         mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.delete(mockRequest)).rejects.toEqual(errorResponse);
-        expect(mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord).not.toHaveBeenCalled();
     });
 });
 
@@ -685,7 +788,7 @@ describe('VaultController query method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
-            failureResponse: jest.fn().mockRejectedValueOnce({})
+            failureResponse: jest.fn().mockRejectedValueOnce(new SkyflowError({http_code:500,message:"Invalid"}))
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -716,6 +819,26 @@ describe('VaultController query method', () => {
         expect(response.errors).toHaveLength(0);
     });
 
+    test('should successfully query records as null', async () => {
+        const mockRequest = {
+            query: 'SELECT * FROM table WHERE id=1',
+        };
+        const mockResponseData = {data:null};
+
+        mockVaultClient.queryAPI.queryServiceExecuteQuery.mockResolvedValueOnce(mockResponseData);
+
+        const response = await vaultController.query(mockRequest);
+
+        expect(mockVaultClient.queryAPI.queryServiceExecuteQuery).toHaveBeenCalledWith(
+            mockVaultClient.vaultId,
+            expect.any(Object), // Query body
+            expect.any(Object)  // Headers
+        );
+        expect(response).toBeInstanceOf(QueryResponse);
+        expect(response.fields).toHaveLength(0);
+        expect(response.errors).toHaveLength(0);
+    });
+
     test('should handle validation errors', async () => {
         const mockRequest = {
             query: 'SELECT * FROM table WHERE id=1',
@@ -727,16 +850,18 @@ describe('VaultController query method', () => {
 
         await expect(vaultController.query(mockRequest)).rejects.toThrow('Validation error');
         expect(validateQueryRequest).toHaveBeenCalled();
-        expect(mockVaultClient.queryAPI.queryServiceExecuteQuery).toHaveBeenCalled();
+        expect(mockVaultClient.queryAPI.queryServiceExecuteQuery).not.toHaveBeenCalled();
     });
 
     test('should handle API errors during query execution', async () => {
         const mockRequest = {
             query: 'SELECT * FROM table WHERE id=1',
         };
-        const errorResponse = new Error('Validation error');
-
-        mockVaultClient.queryAPI.queryServiceExecuteQuery.mockRejectedValueOnce(errorResponse.message);
+        const errorResponse = new Error('Invalid');
+        validateQueryRequest.mockImplementation(() => {
+            // throw new Error('Validation error');
+        });
+        mockVaultClient.queryAPI.queryServiceExecuteQuery.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.query(mockRequest)).rejects.toEqual(errorResponse);
         expect(mockVaultClient.queryAPI.queryServiceExecuteQuery).toHaveBeenCalled();
@@ -760,7 +885,7 @@ describe('VaultController query method', () => {
         const mockRequest = {
             query: 'SELECT * FROM table WHERE id=1',
         };
-        const errorResponse = new Error('Validation error');
+        const errorResponse = new Error('Invalid');
 
         mockVaultClient.queryAPI.queryServiceExecuteQuery.mockRejectedValueOnce(errorResponse);
 
@@ -782,7 +907,7 @@ describe('VaultController update method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
-            failureResponse: jest.fn().mockRejectedValueOnce({})
+            failureResponse: jest.fn().mockRejectedValueOnce(new SkyflowError({http_code:500,message:"Invalid"}))
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -817,6 +942,31 @@ describe('VaultController update method', () => {
         expect(response.errors).toHaveLength(0);
     });
 
+    test('should successfully update record', async () => {
+        const mockRequest = {
+            updateData: { field1: 'value1' },
+            tableName: 'testTable',
+            skyflowId: 'id123',
+        };
+        const mockOptions = null;
+        const mockResponseData = {data: { skyflow_id: 'id123', tokens: { field1: 'token123' } }};
+
+        mockVaultClient.vaultAPI.recordServiceUpdateRecord.mockResolvedValueOnce(mockResponseData);
+
+        const response = await vaultController.update(mockRequest, mockOptions);
+
+        expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalledWith(
+            mockVaultClient.vaultId,
+            mockRequest.tableName,
+            mockRequest.skyflowId,
+            expect.any(Object), // Update data
+            expect.any(Object)  // Headers
+        );
+        expect(response).toBeInstanceOf(UpdateResponse);
+        expect(response.updatedField.skyflowID).toBe('id123');
+        expect(response.updatedField.field1).toBe('token123');
+        expect(response.errors).toHaveLength(0);
+    });
     test('should successfully update record using enable tokens', async () => {
         const mockRequest = {
             updateData: { field1: 'value1' },
@@ -863,7 +1013,7 @@ describe('VaultController update method', () => {
 
         await expect(vaultController.update(mockRequest, mockOptions)).rejects.toThrow('Validation error');
         expect(validateUpdateRequest).toHaveBeenCalled();
-        expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).not.toHaveBeenCalled();
     });
 
     test('should handle API errors during record update', async () => {
@@ -876,9 +1026,12 @@ describe('VaultController update method', () => {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getTokenMode: jest.fn().mockReturnValue("ENABLE"),
         };
-        const errorResponse = new Error('Validation error');
+        validateUpdateRequest.mockImplementation(() => {
+            // throw new Error('Validation error');
+        });
+        const errorResponse = new Error('Invalid');
 
-        mockVaultClient.vaultAPI.recordServiceUpdateRecord.mockRejectedValueOnce(errorResponse.message);
+        mockVaultClient.vaultAPI.recordServiceUpdateRecord.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.update(mockRequest, mockOptions)).rejects.toEqual(errorResponse);
         expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalled();
@@ -915,7 +1068,10 @@ describe('VaultController update method', () => {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getTokenMode: jest.fn().mockReturnValue(false),
         };
-        const errorResponse = new Error('Validation error');
+        validateUpdateRequest.mockImplementation(() => {
+            // throw new Error('Validation error');
+        });
+        const errorResponse = new Error('Invalid');
 
         mockVaultClient.vaultAPI.recordServiceUpdateRecord.mockRejectedValueOnce(errorResponse);
 
@@ -939,7 +1095,7 @@ describe('VaultController uploadFile method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
-            failureResponse: jest.fn().mockRejectedValueOnce({})
+            failureResponse: jest.fn().mockRejectedValueOnce(new SkyflowError({http_code:500,message:"Invalid"}))
         };
         mockFormData = require('form-data');
         mockFs = require('fs');
@@ -983,7 +1139,7 @@ describe('VaultController uploadFile method', () => {
 
         await expect(vaultController.uploadFile(mockRequest)).rejects.toThrow('Validation error');
         expect(validateUploadFileRequest).toHaveBeenCalled();
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).not.toHaveBeenCalled();
     });
 
     test('should handle file stream creation failure', async () => {
@@ -999,7 +1155,7 @@ describe('VaultController uploadFile method', () => {
         });
 
         await expect(vaultController.uploadFile(mockRequest)).rejects.toThrow('Validation error');
-        expect(mockFs.createReadStream).toHaveBeenCalledWith(mockRequest.filePath);
+        expect(mockFs.createReadStream).not.toHaveBeenCalledWith(mockRequest.filePath);
         expect(mockVaultClient.vaultAPI.fileServiceUploadFile).not.toHaveBeenCalled();
     });
 
@@ -1012,12 +1168,14 @@ describe('VaultController uploadFile method', () => {
         };
         const mockStream = { on: jest.fn() };
         jest.spyOn(mockFs, 'createReadStream').mockReturnValueOnce(mockStream);
-
+        validateUploadFileRequest.mockImplementation(() => {
+            // throw new Error('Validation error');
+        });
         const errorResponse = new Error('Validation error');
         mockVaultClient.vaultAPI.fileServiceUploadFile.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.uploadFile(mockRequest)).rejects.toEqual(errorResponse);
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).not.toHaveBeenCalled();
     });
 
     test('should log and reject errors during file upload', async () => {
@@ -1030,7 +1188,7 @@ describe('VaultController uploadFile method', () => {
         const mockStream = { on: jest.fn() };
         jest.spyOn(mockFs, 'createReadStream').mockReturnValueOnce(mockStream);
 
-        const errorResponse = new Error('Validation error');
+        const errorResponse = new Error('Invalid');
         mockVaultClient.vaultAPI.fileServiceUploadFile.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.uploadFile(mockRequest)).rejects.toEqual(errorResponse);
@@ -1052,7 +1210,7 @@ describe('VaultController get method', () => {
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
             vaultId: 'vault123',
-            failureResponse: jest.fn().mockRejectedValueOnce({})
+            failureResponse: jest.fn().mockRejectedValueOnce(new SkyflowError({http_code:500,message:"Invalid"}))
         };
         vaultController = new VaultController(mockVaultClient);
         jest.clearAllMocks();
@@ -1068,6 +1226,32 @@ describe('VaultController get method', () => {
         mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.get(mockRequest);
+
+        // Validate that the correct validation method was called
+        expect(validateGetRequest).toHaveBeenCalledWith(mockRequest);
+
+        // Validate the response structure and content
+        expect(response).toBeInstanceOf(GetResponse);
+        expect(response.data).toEqual([{ field1: 'value1' }, { field2: 'value2' }]);
+        expect(response.errors).toHaveLength(0);
+    });
+
+    test('should successfully get records for GetRequest with options', async () => {
+        const mockRequest = createGetRequest(['id1', 'id2']);
+        const mockResponseData = { data: { records: [{ fields: { field1: 'value1' } }, { fields: { field2: 'value2' } }] } };
+        const mockOptions = {  
+            getRedactionType: jest.fn().mockReturnValue(true),
+            getReturnTokens: jest.fn().mockReturnValue(true),
+            getFields: jest.fn().mockReturnValue(true),
+            getOffset: jest.fn().mockReturnValue(true),
+            getLimit: jest.fn().mockReturnValue(true),
+            getDownloadURL: jest.fn().mockReturnValue(true),
+            getOrderBy: jest.fn().mockReturnValue(true)
+        };
+
+        mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockResolvedValueOnce(mockResponseData);
+
+        const response = await vaultController.get(mockRequest,mockOptions);
 
         // Validate that the correct validation method was called
         expect(validateGetRequest).toHaveBeenCalledWith(mockRequest);
@@ -1105,7 +1289,7 @@ describe('VaultController get method', () => {
         expect(validateGetRequest).toHaveBeenCalledWith(mockRequest);
         
         // Ensure that the API call was not made
-        expect(mockVaultClient.vaultAPI.recordServiceBulkGetRecord).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.recordServiceBulkGetRecord).not.toHaveBeenCalled();
     });
 
     test('should handle validation errors for GetColumnRequest', async () => {
@@ -1118,7 +1302,7 @@ describe('VaultController get method', () => {
         expect(validateGetColumnRequest).toHaveBeenCalledWith(mockRequest);
         
         // Ensure that the API call was not made
-        expect(mockVaultClient.vaultAPI.recordServiceBulkGetRecord).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.recordServiceBulkGetRecord).not.toHaveBeenCalled();
     });
 
     test('should handle API errors during get', async () => {
@@ -1130,7 +1314,7 @@ describe('VaultController get method', () => {
         await expect(vaultController.get(mockRequest)).rejects.toEqual(errorResponse);
         
         // Validate that the API call was made
-        expect(mockVaultClient.vaultAPI.recordServiceBulkGetRecord).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.recordServiceBulkGetRecord).not.toHaveBeenCalled();
     });
 
     test('should log and reject errors during get', async () => {

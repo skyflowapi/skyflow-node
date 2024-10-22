@@ -126,14 +126,17 @@ class VaultClient {
     });
 
     private handleJsonError(err: any, data: any, requestId: string, reject: Function) {
-        //handle parsing
-        let description = JSON.parse(JSON.stringify(data));
-        const statusCode = description?.error?.http_status;
-        const grpcCode = description?.error?.grpc_code;
-        const details = description?.error?.details;
+        try {
+            let description = JSON.parse(JSON.stringify(data));
+            const statusCode = description?.error?.http_status;
+            const grpcCode = description?.error?.grpc_code;
+            const details = description?.error?.details;
 
-        description = description?.error?.message || description;
-        this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
+            description = description?.error?.message || description;
+            this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
+        } catch (err) {
+            this.logAndRejectError(errorMessages.INVAILD_JSON_RESPONSE, err, requestId, reject, 500, undefined, undefined);
+        }
     }
 
     private handleTextError(err: any, data: any, requestId: string, reject: Function) {
