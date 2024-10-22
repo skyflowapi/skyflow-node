@@ -20,6 +20,8 @@ import QueryRequest from "../../vault/model/request/query";
 import TokenizeRequest from "../../vault/model/request/tokenize";
 import UpdateRequest from "../../vault/model/request/update";
 import { SkyflowConfig, StringKeyValueMapType } from "../../vault/types";
+import { isValid } from "../jwt-utils";
+import * as fs from 'fs';
 
 export function isEnv(value?: string): boolean {
     return value !== undefined && Object.values(Env).includes(value as Env);
@@ -40,6 +42,45 @@ export function isMethod(value?: string): boolean {
 export function isLogLevel(value?: string): boolean {
     return value !== undefined && Object.values(LogLevel).includes(value as LogLevel);
 }
+
+function isValidAPIKey(apiKey: string) {
+    if(!apiKey || apiKey===null || apiKey===undefined){
+        return false;
+    }
+    if(apiKey && typeof apiKey === 'string' && apiKey.startsWith("sky-")){
+        return true;
+    }
+    return false;
+};
+
+function isValidCredentialsString(credentialsString: string) {
+    if(!credentialsString || credentialsString===null || credentialsString===undefined){
+        return false;
+    }
+    if(credentialsString && typeof credentialsString === 'string'){
+        try {
+            let credentialsObj = JSON.parse("{}")
+            credentialsObj = JSON.parse(credentialsString);
+            if ( credentialsObj?.clientID === null || credentialsObj?.keyID === null || credentialsObj?.clientID === null) {
+                return false;
+            }
+            return true;
+        } catch(err) {
+            return false;
+        }
+    }
+    return false;
+};
+
+function isValidPath(path: string) {
+    if(!path || path===null || path===undefined){
+        return false;
+    }
+    if(path && typeof path === 'string' && fs.existsSync(path)){
+        return true;
+    }
+    return false;
+};
 
 export const validateSkyflowConfig = (config: SkyflowConfig) => {
     if (config) {
@@ -82,6 +123,22 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         throw new SkyflowError(SKYFLOW_ERROR_CODE.MULTIPLE_CREDENTIALS_PASSED_WITH_ID, [type, typeId, id]);
     }
 
+    if (credentials?.token && typeof credentials?.token !== 'string' && !isValid(credentials?.token)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BEARER_TOKEN_WITH_ID, [type, typeId, id]);
+    }
+
+    if (credentials?.credentialsString && typeof credentials?.credentialsString !== 'string' && !isValidCredentialsString(credentials?.credentialsString)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING_WITH_ID, [type, typeId, id]);
+    }
+
+    if (credentials?.apiKey && typeof credentials?.apiKey !== 'string' && !isValidAPIKey(credentials?.apiKey)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY_WITH_ID, [type, typeId, id]);
+    }
+
+    if (credentials?.path && typeof credentials?.path !== 'string' && !isValidPath(credentials?.path)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH_WITH_ID, [type, typeId, id]);
+    }
+
 };
 
 export const validateVaultConfig = (vaultConfig: VaultConfig) => {
@@ -105,6 +162,24 @@ export const validateVaultConfig = (vaultConfig: VaultConfig) => {
     }
 };
 
+export const validateUpdateVaultConfig = (vaultConfig: VaultConfig) => {
+    if (!Object.prototype.hasOwnProperty.call(vaultConfig, 'vaultId')) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_ID);
+    }
+    if (!vaultConfig?.vaultId || typeof vaultConfig?.vaultId !== 'string') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_VAULT_ID);
+    }
+    if (vaultConfig?.clusterId && typeof vaultConfig.clusterId !== 'string') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CLUSTER_ID, [vaultConfig?.vaultId]);
+    }
+    if (vaultConfig?.env && !isEnv(vaultConfig.env)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENV, [vaultConfig?.vaultId]);
+    }
+    if (vaultConfig?.credentials) {
+        validateCredentialsWithId(vaultConfig.credentials, VAULT, VAULT_ID, vaultConfig.vaultId);
+    }
+};
+
 export const validateSkyflowCredentials = (credentials: Credentials) => {
     const { token, path, credentialsString, apiKey } = credentials;
 
@@ -119,6 +194,22 @@ export const validateSkyflowCredentials = (credentials: Credentials) => {
     // If more than one is present
     if (definedFields > 1) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.MULTIPLE_CREDENTIALS_PASSED);
+    }
+
+    if (credentials?.token && typeof credentials?.token !== 'string' && !isValid(credentials?.token)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BEARER_TOKEN);
+    }
+
+    if (credentials?.credentialsString && typeof credentials?.credentialsString !== 'string' && !isValidCredentialsString(credentials?.credentialsString)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+    }
+
+    if (credentials?.apiKey && typeof credentials?.apiKey !== 'string' && !isValidAPIKey(credentials?.apiKey)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY);
+    }
+
+    if (credentials?.path && typeof credentials?.path !== 'string' && !isValidPath(credentials?.path)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH);
     }
 
 };
@@ -141,6 +232,28 @@ export const validateConnectionConfig = (connectionConfig: ConnectionConfig) => 
     }
 
     if (connectionConfig.connectionUrl && !isValidURL(connectionConfig.connectionUrl)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
+    }
+
+    if (connectionConfig?.credentials) {
+        validateCredentialsWithId(connectionConfig.credentials, CONNECTION, CONNECTION_ID, connectionConfig.connectionId);
+    }
+};
+
+export const validateUpdateConnectionConfig = (connectionConfig: ConnectionConfig) => {
+    if (!Object.prototype.hasOwnProperty.call(connectionConfig, 'connectionId')) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_ID);
+    }
+
+    if (typeof connectionConfig?.connectionId !== 'string' || connectionConfig?.connectionId.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_ID);
+    }
+
+    if (connectionConfig?.connectionUrl && (typeof connectionConfig?.connectionUrl !== 'string' || connectionConfig?.connectionUrl.trim().length === 0)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
+    }
+
+    if (connectionConfig?.connectionUrl && !isValidURL(connectionConfig.connectionUrl)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
     }
 
