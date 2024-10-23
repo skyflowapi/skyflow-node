@@ -13,7 +13,7 @@ import QueryRequest from './vault/model/request/query';
 import Credentials from './vault/config/credentials';
 import TokenizeRequest from './vault/model/request/tokenize';
 import TokenizeResponse from './vault/model/response/tokenize';
-import { generateBearerToken, generateBearerTokenFromCreds } from './service-account';
+import { generateBearerToken, generateBearerTokenFromCreds, generateSignedDataTokens, generateSignedDataTokensFromCreds } from './service-account';
 import { isExpired } from './utils/jwt-utils';
 import UpdateOptions from './vault/model/options/update';
 import InvokeConnectionRequest from './vault/model/request/inkove';
@@ -24,6 +24,8 @@ export {
     Skyflow,
     generateBearerToken,
     generateBearerTokenFromCreds,
+    generateSignedDataTokens,
+    generateSignedDataTokensFromCreds,
     isExpired,
     Credentials,
     RedactionType,
