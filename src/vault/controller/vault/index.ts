@@ -325,10 +325,10 @@ class VaultController {
 
                 // Validation checks
                 if (request instanceof GetRequest) {
-                    validateGetRequest(request);
+                    validateGetRequest(request, options);
                 }
                 if (request instanceof GetColumnRequest) {
-                    validateGetColumnRequest(request);
+                    validateGetColumnRequest(request, options);
                 }
 
 

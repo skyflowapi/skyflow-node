@@ -1,4 +1,4 @@
-import { CONNECTION_ID, CREDENTIALS, Env, getVaultURL, LOGLEVEL, LogLevel, MessageType, printLog, VAULT_ID } from "../../utils";
+import { CONNECTION_ID, CREDENTIALS, Env, getVaultURL, ISkyflowError, LOGLEVEL, LogLevel, MessageType, printLog, VAULT_ID } from "../../utils";
 import ConnectionConfig from "../config/connection";
 import VaultConfig from "../config/vault";
 import { SkyflowConfig, ClientObj } from "../types";
@@ -115,14 +115,36 @@ class Skyflow {
         this.removeConfig(connectionId, this.connectionClients, CONNECTION_ID);
     }
 
-    private throwErrorForUnknownId(id: string, idKey: string) {
-        switch (idKey) {
-            case VAULT_ID:
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.VAULT_ID_NOT_IN_CONFIG_LIST, [id]);
-            case CONNECTION_ID:
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.CONNECTION_ID_NOT_IN_CONFIG_LIST, [id]);
+    private throwSkyflowError(idKey: string, errorMapping: { [key: string]: ISkyflowError }, params?: string[]) {
+        const errorCode = errorMapping[idKey];
+        if (errorCode) {
+            throw new SkyflowError(errorCode, params);
         }
     }
+
+    private throwErrorForUnknownId(id: string, idKey: string) {
+        const errorMapping = {
+            [VAULT_ID]: SKYFLOW_ERROR_CODE.VAULT_ID_NOT_IN_CONFIG_LIST,
+            [CONNECTION_ID]: SKYFLOW_ERROR_CODE.CONNECTION_ID_NOT_IN_CONFIG_LIST,
+        };
+        this.throwSkyflowError(idKey, errorMapping, [id]);
+    }
+    
+    private throwErrorForEmptyClients(idKey: string) {
+        const errorMapping = {
+            [VAULT_ID]: SKYFLOW_ERROR_CODE.EMPTY_VAULT_CLIENTS,
+            [CONNECTION_ID]: SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_CLIENTS,
+        };
+        this.throwSkyflowError(idKey, errorMapping);
+    }
+    
+    private throwErrorForEmptyId(idKey: string) {
+        const errorMapping = {
+            [VAULT_ID]: SKYFLOW_ERROR_CODE.EMPTY_VAULT_ID_VALIDATION,
+            [CONNECTION_ID]: SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_ID_VALIDATION,
+        };
+        this.throwSkyflowError(idKey, errorMapping);
+    }    
 
     private removeConfig(id: string, clients: ClientObj, idKey: string) {
         if (!clients[id]) this.throwErrorForUnknownId(id, idKey);
@@ -130,6 +152,7 @@ class Skyflow {
     }
 
     private getConfig(id: string, clients: ClientObj, idKey: string) {
+        if(!id) this.throwErrorForEmptyId(idKey);
         if (!clients[id]) this.throwErrorForUnknownId(id, idKey);
         return clients[id].config;
     }
@@ -167,6 +190,7 @@ class Skyflow {
     }
 
     private getClient(id: string | undefined, clients: ClientObj, idKey: string) {
+        if(Object.keys(clients).length === 0) this.throwErrorForEmptyClients(idKey)
         const clientId = id || Object.keys(clients)[0];
         if (clientId && clients[clientId]?.controller) {
             return clients[clientId].controller;
