@@ -12,7 +12,7 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
+    "resolveJsonModule": false,
     "isolatedModules": false,
     "noEmit": false,
     "declaration": true,

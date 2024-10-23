@@ -2,8 +2,8 @@
   "name": "skyflow-node",
   "version": "1.14.0-dev.9f8a7da",
   "description": "Skyflow SDK for Node.js",
-  "main": "./lib/src/index.js",
-  "module": "./lib/src/index.js",
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
   "scripts": {
     "test": "jest --coverage",
     "build": "tsc",

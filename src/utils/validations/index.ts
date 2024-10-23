@@ -1,4 +1,4 @@
-import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, METHOD, OrderByEnum, VAULT, VAULT_ID } from "..";
+import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, METHOD, OrderByEnum, RedactionType, VAULT, VAULT_ID } from "..";
 import { V1BYOT } from "../../ _generated_/rest";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
@@ -25,6 +25,10 @@ import * as fs from 'fs';
 
 export function isEnv(value?: string): boolean {
     return value !== undefined && Object.values(Env).includes(value as Env);
+}
+
+export function isRedactionType(value?: string): boolean {
+    return value !== undefined && Object.values(RedactionType).includes(value as RedactionType);
 }
 
 export function isByot(value?: string): boolean {
@@ -142,41 +146,49 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
 };
 
 export const validateVaultConfig = (vaultConfig: VaultConfig) => {
-    if (!Object.prototype.hasOwnProperty.call(vaultConfig, 'vaultId')) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_ID);
-    }
-    if (!vaultConfig.vaultId || typeof vaultConfig.vaultId !== 'string') {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_VAULT_ID);
-    }
-    if (!Object.prototype.hasOwnProperty.call(vaultConfig, 'clusterId')) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CLUSTER_ID, [vaultConfig?.vaultId]);
-    }
-    if (!vaultConfig.clusterId || typeof vaultConfig.clusterId !== 'string') {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CLUSTER_ID, [vaultConfig?.vaultId]);
-    }
-    if (vaultConfig.env && !isEnv(vaultConfig.env)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENV, [vaultConfig?.vaultId]);
-    }
-    if (vaultConfig?.credentials) {
-        validateCredentialsWithId(vaultConfig.credentials, VAULT, VAULT_ID, vaultConfig.vaultId);
+    if (vaultConfig) {
+        if (!Object.prototype.hasOwnProperty.call(vaultConfig, 'vaultId')) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_ID);
+        }
+        if (!vaultConfig.vaultId || typeof vaultConfig.vaultId !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_VAULT_ID);
+        }
+        if (!Object.prototype.hasOwnProperty.call(vaultConfig, 'clusterId')) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CLUSTER_ID, [vaultConfig?.vaultId]);
+        }
+        if (!vaultConfig.clusterId || typeof vaultConfig.clusterId !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CLUSTER_ID, [vaultConfig?.vaultId]);
+        }
+        if (vaultConfig.env && !isEnv(vaultConfig.env)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENV, [vaultConfig?.vaultId]);
+        }
+        if (vaultConfig?.credentials) {
+            validateCredentialsWithId(vaultConfig.credentials, VAULT, VAULT_ID, vaultConfig.vaultId);
+        }
+    } else {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_CONFIG);
     }
 };
 
 export const validateUpdateVaultConfig = (vaultConfig: VaultConfig) => {
-    if (!Object.prototype.hasOwnProperty.call(vaultConfig, 'vaultId')) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_ID);
-    }
-    if (!vaultConfig?.vaultId || typeof vaultConfig?.vaultId !== 'string') {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_VAULT_ID);
-    }
-    if (vaultConfig?.clusterId && typeof vaultConfig.clusterId !== 'string') {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CLUSTER_ID, [vaultConfig?.vaultId]);
-    }
-    if (vaultConfig?.env && !isEnv(vaultConfig.env)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENV, [vaultConfig?.vaultId]);
-    }
-    if (vaultConfig?.credentials) {
-        validateCredentialsWithId(vaultConfig.credentials, VAULT, VAULT_ID, vaultConfig.vaultId);
+    if(vaultConfig) {
+        if (!Object.prototype.hasOwnProperty.call(vaultConfig, 'vaultId')) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_ID);
+        }
+        if (!vaultConfig?.vaultId || typeof vaultConfig?.vaultId !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_VAULT_ID);
+        }
+        if (vaultConfig?.clusterId && typeof vaultConfig.clusterId !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CLUSTER_ID, [vaultConfig?.vaultId]);
+        }
+        if (vaultConfig?.env && !isEnv(vaultConfig.env)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENV, [vaultConfig?.vaultId]);
+        }
+        if (vaultConfig?.credentials) {
+            validateCredentialsWithId(vaultConfig.credentials, VAULT, VAULT_ID, vaultConfig.vaultId);
+        }
+    } else {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_CONFIG);
     }
 };
 
@@ -215,54 +227,62 @@ export const validateSkyflowCredentials = (credentials: Credentials) => {
 };
 
 export const validateConnectionConfig = (connectionConfig: ConnectionConfig) => {
-    if (!Object.prototype.hasOwnProperty.call(connectionConfig, 'connectionId')) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_ID);
-    }
+    if (connectionConfig) {
+        if (!Object.prototype.hasOwnProperty.call(connectionConfig, 'connectionId')) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_ID);
+        }
 
-    if (typeof connectionConfig?.connectionId !== 'string' || connectionConfig?.connectionId.trim().length === 0) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_ID);
-    }
+        if (typeof connectionConfig?.connectionId !== 'string' || connectionConfig?.connectionId.trim().length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_ID);
+        }
 
-    if (!Object.prototype.hasOwnProperty.call(connectionConfig, 'connectionUrl')) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_URL);
-    }
+        if (!Object.prototype.hasOwnProperty.call(connectionConfig, 'connectionUrl')) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_URL);
+        }
 
-    if (typeof connectionConfig?.connectionUrl !== 'string' || connectionConfig?.connectionUrl.trim().length === 0) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
-    }
+        if (typeof connectionConfig?.connectionUrl !== 'string' || connectionConfig?.connectionUrl.trim().length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
+        }
 
-    if (connectionConfig.connectionUrl && !isValidURL(connectionConfig.connectionUrl)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
-    }
+        if (connectionConfig.connectionUrl && !isValidURL(connectionConfig.connectionUrl)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
+        }
 
-    if (connectionConfig?.credentials) {
-        validateCredentialsWithId(connectionConfig.credentials, CONNECTION, CONNECTION_ID, connectionConfig.connectionId);
+        if (connectionConfig?.credentials) {
+            validateCredentialsWithId(connectionConfig.credentials, CONNECTION, CONNECTION_ID, connectionConfig.connectionId);
+        }
+    } else {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_CONFIG)
     }
 };
 
 export const validateUpdateConnectionConfig = (connectionConfig: ConnectionConfig) => {
-    if (!Object.prototype.hasOwnProperty.call(connectionConfig, 'connectionId')) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_ID);
-    }
+    if (connectionConfig) {
+        if (!Object.prototype.hasOwnProperty.call(connectionConfig, 'connectionId')) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_ID);
+        }
 
-    if (typeof connectionConfig?.connectionId !== 'string' || connectionConfig?.connectionId.trim().length === 0) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_ID);
-    }
+        if (typeof connectionConfig?.connectionId !== 'string' || connectionConfig?.connectionId.trim().length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_ID);
+        }
 
-    if (connectionConfig?.connectionUrl && (typeof connectionConfig?.connectionUrl !== 'string' || connectionConfig?.connectionUrl.trim().length === 0)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
-    }
+        if (connectionConfig?.connectionUrl && (typeof connectionConfig?.connectionUrl !== 'string' || connectionConfig?.connectionUrl.trim().length === 0)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
+        }
 
-    if (connectionConfig?.connectionUrl && !isValidURL(connectionConfig.connectionUrl)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
-    }
+        if (connectionConfig?.connectionUrl && !isValidURL(connectionConfig.connectionUrl)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
+        }
 
-    if (connectionConfig?.credentials) {
-        validateCredentialsWithId(connectionConfig.credentials, CONNECTION, CONNECTION_ID, connectionConfig.connectionId);
+        if (connectionConfig?.credentials) {
+            validateCredentialsWithId(connectionConfig.credentials, CONNECTION, CONNECTION_ID, connectionConfig.connectionId);
+        }
+    } else {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_CONFIG)
     }
 };
 
-function validateInsertInput(input: unknown): void {
+function validateInsertInput(input: unknown, index: number): void {
     try {
         const inputObject = input as { [key: string]: unknown };
 
@@ -270,22 +290,50 @@ function validateInsertInput(input: unknown): void {
         const entries = Object.entries(inputObject);
 
         if (entries.length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
         }
 
         // Iterate over the key-value pairs and check their types
         for (const [key, value] of entries) {
             if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
             }
             // update the data type accordingly
             if (value && typeof value !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
             }
         }
 
     } catch (error) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
+    }
+
+}
+
+function validateUpdateInput(input: unknown): void {
+    try {
+        const inputObject = input as { [key: string]: unknown };
+
+        // Check if the object is empty
+        const entries = Object.entries(inputObject);
+
+        if (entries.length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+        }
+
+        // Iterate over the key-value pairs and check their types
+        for (const [key, value] of entries) {
+            if (key && typeof key !== 'string') {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+            }
+            // update the data type accordingly
+            if (value && typeof value !== 'string') {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+            }
+        }
+
+    } catch (error) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
     }
 
 }
@@ -335,7 +383,7 @@ export const validateInsertOptions = (insertOptions?: InsertOptions) => {
 
 export const validateInsertRequest = (insertRequest: InsertRequest, insertOptions?: InsertOptions) => {
     if (insertRequest) {
-        if (!Object.prototype.hasOwnProperty.call(insertRequest, '_tableName')) {
+        if (!insertRequest?.tableName || !Object.prototype.hasOwnProperty.call(insertRequest, '_tableName')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
@@ -352,14 +400,14 @@ export const validateInsertRequest = (insertRequest: InsertRequest, insertOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DATA_IN_INSERT);
         }
 
-        records.forEach(record => {
+        records.forEach((record, index) => {
             if (!record) {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IN_INSERT);
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IN_INSERT, [index]);
             }
             if (typeof record !== 'object') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
             }
-            validateInsertInput(record);
+            validateInsertInput(record, index);
         });
         validateInsertOptions(insertOptions);
     } else {
@@ -382,7 +430,7 @@ export const validateUpdateOptions = (updateOptions?: UpdateOptions) => {
 
 export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOptions?: UpdateOptions) => {
     if (updateRequest) {
-        if (!Object.prototype.hasOwnProperty.call(updateRequest, '_tableName')) {
+        if (!updateRequest?.tableName || !Object.prototype.hasOwnProperty.call(updateRequest, '_tableName')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
@@ -390,7 +438,7 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
 
-        if (!Object.prototype.hasOwnProperty.call(updateRequest, '_skyflowId')) {
+        if (!updateRequest?.skyflowId || !Object.prototype.hasOwnProperty.call(updateRequest, '_skyflowId')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
         }
 
@@ -404,7 +452,7 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
         if (typeof updateRequest.updateData !== 'object') {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_UPDATE_DATA);
         }
-        validateInsertInput(updateRequest.updateData);
+        validateUpdateInput(updateRequest.updateData);
         validateUpdateOptions(updateOptions);
     } else {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPDATE_REQUEST);
@@ -417,7 +465,7 @@ export const validateGetOptions = (getOptions?: GetOptions) => {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RETURN_TOKEN, [typeof getOptions?.getReturnTokens()]);
         }
 
-        if (getOptions.getRedactionType() && typeof getOptions.getRedactionType() !== 'string') {
+        if (getOptions?.getRedactionType() && !isRedactionType(getOptions?.getRedactionType())) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
         }
 
@@ -475,12 +523,20 @@ export const validateGetOptions = (getOptions?: GetOptions) => {
 
 export const validateGetRequest = (getRequest: GetRequest, getOptions?: GetOptions) => {
     if (getRequest) {
-        if (!Object.prototype.hasOwnProperty.call(getRequest, '_tableName')) {
+        if (!getRequest?.tableName || !Object.prototype.hasOwnProperty.call(getRequest, '_tableName')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
         if (typeof getRequest.tableName !== 'string' || getRequest.tableName.trim().length === 0) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
+        }
+
+        if (!getRequest?.ids) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_IDS_IN_GET)
+        }
+
+        if (!Array.isArray(getRequest?.ids)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_IDS)
         }
 
         const ids = getRequest.ids;
@@ -503,7 +559,7 @@ export const validateGetRequest = (getRequest: GetRequest, getOptions?: GetOptio
 
 export const validateGetColumnRequest = (getRequest: GetColumnRequest, getOptions?: GetOptions) => {
     if (getRequest) {
-        if (!Object.prototype.hasOwnProperty.call(getRequest, '_tableName')) {
+        if (!getRequest?.tableName || !Object.prototype.hasOwnProperty.call(getRequest, '_tableName')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
@@ -511,7 +567,7 @@ export const validateGetColumnRequest = (getRequest: GetColumnRequest, getOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
 
-        if (!Object.prototype.hasOwnProperty.call(getRequest, '_columnName'))
+        if (!getRequest?.columnName || !Object.prototype.hasOwnProperty.call(getRequest, '_columnName'))
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_COLUMN_NAME);
 
         if (typeof getRequest.columnName !== 'string' || getRequest.columnName.trim().length === 0) {
@@ -556,12 +612,6 @@ export const validateDetokenizeOptions = (detokenizeOptions?: DetokenizeOptions)
 
 export const validateDetokenizeRequest = (detokenizeRequest: DetokenizeRequest, detokenizeOptions?: DetokenizeOptions) => {
     if (detokenizeRequest) {
-        if (!Object.prototype.hasOwnProperty.call(detokenizeRequest, '_redactionType'))
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_REDACTION_TYPE);
-
-        if (typeof detokenizeRequest.redactionType !== 'string' || detokenizeRequest.redactionType.trim().length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
-        }
 
         if (!Array.isArray(detokenizeRequest.tokens)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_TYPE_IN_DETOKENIZE)
@@ -581,6 +631,13 @@ export const validateDetokenizeRequest = (detokenizeRequest: DetokenizeRequest, 
             }
         });
 
+        if (!detokenizeRequest?.redactionType || !Object.prototype.hasOwnProperty.call(detokenizeRequest, '_redactionType'))
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_REDACTION_TYPE);
+
+        if (typeof detokenizeRequest.redactionType !== 'string' || detokenizeRequest.redactionType.trim().length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
+        }
+
         validateDetokenizeOptions(detokenizeOptions);
 
     } else {
@@ -590,7 +647,7 @@ export const validateDetokenizeRequest = (detokenizeRequest: DetokenizeRequest, 
 
 export const validateTokenizeRequest = (tokenizeRequest: TokenizeRequest) => {
     if (tokenizeRequest) {
-        if (!Object.prototype.hasOwnProperty.call(tokenizeRequest, '_values'))
+        if (!tokenizeRequest?.values || !Object.prototype.hasOwnProperty.call(tokenizeRequest, '_values'))
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_VALUES_IN_TOKENIZE);
 
         if (!Array.isArray(tokenizeRequest?.values)) {
@@ -606,17 +663,20 @@ export const validateTokenizeRequest = (tokenizeRequest: TokenizeRequest) => {
             if (!data) {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DATA_IN_TOKENIZE, [index]);
             }
-            if (!data.columnGroup) {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_COLUMN_GROUP_IN_TOKENIZE, [index]);
-            }
-            if (typeof data.columnGroup !== 'string' || data.columnGroup.trim().length === 0) {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_COLUMN_GROUP_IN_TOKENIZE, [index]);
+            if (typeof data !== 'object') {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DATA_IN_TOKENIZE, [index]);
             }
             if (!data.value) {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VALUE_IN_TOKENIZE, [index]);
             }
             if (typeof data.value !== 'string' || data.value.trim().length === 0) {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_VALUE_IN_TOKENIZE, [index]);
+            }
+            if (!data.columnGroup) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_COLUMN_GROUP_IN_TOKENIZE, [index]);
+            }
+            if (typeof data.columnGroup !== 'string' || data.columnGroup.trim().length === 0) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_COLUMN_GROUP_IN_TOKENIZE, [index]);
             }
         });
     } else {
@@ -626,7 +686,7 @@ export const validateTokenizeRequest = (tokenizeRequest: TokenizeRequest) => {
 
 export const validateDeleteRequest = (deleteRequest: DeleteRequest) => {
     if (deleteRequest) {
-        if (!Object.prototype.hasOwnProperty.call(deleteRequest, '_tableName')) {
+        if (!deleteRequest?.tableName || !Object.prototype.hasOwnProperty.call(deleteRequest, '_tableName')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
@@ -658,7 +718,7 @@ export const validateDeleteRequest = (deleteRequest: DeleteRequest) => {
 
 export const validateUploadFileRequest = (fileRequest: FileUploadRequest) => {
     if (fileRequest) {
-        if (!Object.prototype.hasOwnProperty.call(fileRequest, '_tableName')) {
+        if (!fileRequest?.tableName || !Object.prototype.hasOwnProperty.call(fileRequest, '_tableName')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_UPLOAD_FILE);
         }
 
@@ -666,16 +726,16 @@ export const validateUploadFileRequest = (fileRequest: FileUploadRequest) => {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPLOAD_FILE);
         }
 
-        if (!Object.prototype.hasOwnProperty.call(fileRequest, '_skyflowId')) {
+        if (!fileRequest?.skyflowId || !Object.prototype.hasOwnProperty.call(fileRequest, '_skyflowId')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPLOAD_FILE);
         }
 
-        if (typeof fileRequest.skyflowId !== 'string' || fileRequest.skyflowId.trim().length === 0) {
+        if (typeof fileRequest?.skyflowId !== 'string' || fileRequest.skyflowId.trim().length === 0) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPLOAD_FILE);
         }
 
 
-        if (!Object.prototype.hasOwnProperty.call(fileRequest, '_columnName')) {
+        if (!fileRequest?.columnName || !Object.prototype.hasOwnProperty.call(fileRequest, '_columnName')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_COLUMN_NAME_IN_UPLOAD_FILE);
         }
 
@@ -684,11 +744,11 @@ export const validateUploadFileRequest = (fileRequest: FileUploadRequest) => {
         }
 
 
-        if (!Object.prototype.hasOwnProperty.call(fileRequest, '_filePath')) {
+        if ( !fileRequest?.filePath  || !Object.prototype.hasOwnProperty.call(fileRequest, '_filePath')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FILE_PATH_IN_UPLOAD_FILE);
         }
 
-        if (typeof fileRequest.filePath !== 'string' || fileRequest.filePath.trim().length === 0) {
+        if (typeof fileRequest.filePath !== 'string' || fileRequest.filePath.trim().length === 0 || !isValidPath(fileRequest.filePath)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH_IN_UPLOAD_FILE);
         }
     } else {
@@ -698,7 +758,7 @@ export const validateUploadFileRequest = (fileRequest: FileUploadRequest) => {
 
 export const validateQueryRequest = (queryRequest: QueryRequest) => {
     if (queryRequest) {
-        if (!Object.prototype.hasOwnProperty.call(queryRequest, '_query')) {
+        if (!queryRequest?.query || !Object.prototype.hasOwnProperty.call(queryRequest, '_query')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_QUERY);
         }
 
@@ -728,38 +788,26 @@ function isStringKeyValueMap(obj: any): obj is StringKeyValueMapType {
 export const validateInvokeConnectionRequest = (invokeRequest: InvokeConnectionRequest) => {
     if (invokeRequest) {
 
-        if (!Object.prototype.hasOwnProperty.call(invokeRequest, 'method'))
+        if (!invokeRequest?.method || !Object.prototype.hasOwnProperty.call(invokeRequest, 'method'))
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_METHOD_NAME);
 
-        if (isMethod(invokeRequest.method)) {
+        if (!isMethod(invokeRequest.method)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_METHOD_NAME);
         }
 
-        if (!Object.prototype.hasOwnProperty.call(invokeRequest, 'queryParams'))
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_QUERY_PARAMS);
-
-        if (isStringKeyValueMap(invokeRequest?.queryParams)) {
+        if (invokeRequest?.queryParams && !isStringKeyValueMap(invokeRequest?.queryParams)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_QUERY_PARAMS);
         }
 
-        if (!Object.prototype.hasOwnProperty.call(invokeRequest, 'pathParams'))
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_PATH_PARAMS);
-
-        if (isStringKeyValueMap(invokeRequest?.pathParams)) {
+        if (invokeRequest?.pathParams && !isStringKeyValueMap(invokeRequest?.pathParams)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PATH_PARAMS);
         }
 
-        if (!Object.prototype.hasOwnProperty.call(invokeRequest, 'body'))
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_BODY);
-
-        if (isStringKeyValueMap(invokeRequest?.body)) {
+        if (invokeRequest?.body && !isStringKeyValueMap(invokeRequest?.body)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BODY);
         }
 
-        if (!Object.prototype.hasOwnProperty.call(invokeRequest, 'headers'))
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_HEADERS);
-
-        if (isStringKeyValueMap(invokeRequest?.headers)) {
+        if (invokeRequest?.headers && !isStringKeyValueMap(invokeRequest?.headers)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_HEADERS);
         }
 
