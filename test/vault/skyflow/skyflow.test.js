@@ -195,6 +195,7 @@ describe('Skyflow initialization', () => {
         const invalidEnvError = "Invalid env.";
         const missingVaultConfigError = "VAULT_ID is missing from the config.";
         const missingIdConfigError = "ID is missing from the config.";
+        const noConfigFound = "No vault config found.";
     
         const validVaultConfig = {
             vaultId: "VAULT_ID",
@@ -298,7 +299,7 @@ describe('Skyflow initialization', () => {
                 vaultConfigs: [validVaultConfig],
             });
             skyflow.removeVaultConfig("VAULT_ID");
-            expect(() => skyflow.vault("ID")).toThrowError(missingIdConfigError);
+            expect(() => skyflow.vault("ID")).toThrowError(noConfigFound);
         });
     });
 

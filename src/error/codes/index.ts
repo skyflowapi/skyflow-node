@@ -4,9 +4,11 @@ const SKYFLOW_ERROR_CODE = {
     CONFIG_MISSING: { http_code: 400, message: errorMessages.CONFIG_MISSING },
     INVALID_TYPE_FOR_CONFIG: { http_code: 400, message: errorMessages.INVALID_TYPE_FOR_CONFIG },
     EMPTY_VAULT_CONFIG: { http_code: 400, message: errorMessages.EMPTY_VAULT_CONFIG },
+    EMPTY_CONNECTION_CONFIG: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_CONFIG },
     INVALID_SKYFLOW_CONFIG: { http_code: 400, message: errorMessages.INVALID_SKYFLOW_CONFIG },
 
     EMPTY_VAULT_ID: { http_code: 400, message: errorMessages.EMPTY_VAULT_ID },
+    EMPTY_VAULT_ID_VALIDATION: { http_code: 400, message: errorMessages.EMPTY_VAULT_ID_VALIDATION },
     INVALID_VAULT_ID: { http_code: 400, message: errorMessages.INVALID_VAULT_ID },
     EMPTY_CLUSTER_ID: { http_code: 400, message: errorMessages.EMPTY_CLUSTER_ID },
     INVALID_CLUSTER_ID: { http_code: 400, message: errorMessages.INVALID_CLUSTER_ID },
@@ -30,6 +32,7 @@ const SKYFLOW_ERROR_CODE = {
 
     EMPTY_CONNECTION_ID: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_ID },
     INVALID_CONNECTION_ID: { http_code: 400, message: errorMessages.INVALID_CONNECTION_ID },
+    EMPTY_CONNECTION_ID_VALIDATION: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_ID_VALIDATION },
     EMPTY_CONNECTION_URL: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_URL },
     INVALID_CONNECTION_URL: { http_code: 400, message: errorMessages.INVALID_CONNECTION_URL },
 
@@ -88,11 +91,13 @@ const SKYFLOW_ERROR_CODE = {
     EMPTY_RECORD_IN_INSERT: { http_code: 400, message: errorMessages.EMPTY_RECORD_IN_INSERT },
     EMPTY_DATA_IN_INSERT: { http_code: 400, message: errorMessages.EMPTY_DATA_IN_INSERT },
     INVALID_TYPE_OF_DATA_IN_INSERT: { http_code: 400, message: errorMessages.INVALID_TYPE_OF_DATA_IN_INSERT },
+    INVALID_RECORD_IN_UPDATE: { http_code: 400, message: errorMessages.INVALID_RECORD_IN_UPDATE },
 
     MISSING_VALUES_IN_TOKENIZE: { http_code: 400, message: errorMessages.MISSING_VALUES_IN_TOKENIZE },
     INVALID_VALUES_TYPE_IN_TOKENIZE: { http_code: 400, message: errorMessages.INVALID_VALUES_TYPE_IN_TOKENIZE },
     EMPTY_VALUES_IN_TOKENIZE: { http_code: 400, message: errorMessages.EMPTY_VALUES_IN_TOKENIZE },
     EMPTY_DATA_IN_TOKENIZE: { http_code: 400, message: errorMessages.EMPTY_DATA_IN_TOKENIZE },
+    INVALID_DATA_IN_TOKENIZE: { http_code: 400, message: errorMessages.INVALID_DATA_IN_TOKENIZE },
     INVALID_TOKENIZE_REQUEST: { http_code: 400, message: errorMessages.INVALID_TOKENIZE_REQUEST },
     INVALID_VALUE_IN_TOKENIZE: { http_code: 400, message: errorMessages.INVALID_VALUE_IN_TOKENIZE },
     INVALID_COLUMN_GROUP_IN_TOKENIZE: { http_code: 400, message: errorMessages.INVALID_COLUMN_GROUP_IN_TOKENIZE },
@@ -170,6 +175,9 @@ const SKYFLOW_ERROR_CODE = {
 
     INVALID_ORDER_BY: { http_code: 400, message: errorMessages.INVALID_ORDER_BY },
     INVALID_FIELDS: { http_code: 400, message: errorMessages.INVALID_FIELDS },
+
+    EMPTY_VAULT_CLIENTS: { http_code: 400, message: errorMessages.EMPTY_VAULT_CLIENTS },
+    EMPTY_CONNECTION_CLIENTS: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_CLIENTS },
 };
 
 export default SKYFLOW_ERROR_CODE;
