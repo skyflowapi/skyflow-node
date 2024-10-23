@@ -88,7 +88,7 @@ class VaultController {
         };
 
         if (!records || !Array.isArray(records) || records.length === 0) {
-            return new InsertResponse({ errors: [] });
+            return new InsertResponse({ insertedFields:[], errors: [] });
         }
 
         records.forEach((record, index) => {
@@ -132,7 +132,7 @@ class VaultController {
                 this.client.initAPI(authInfo, requestType);
                 apiCall({ headers: { ...sdkHeaders } })
                     .then((response: any) => {
-                        const data = JSON.parse(JSON.stringify(response.data));
+                        const data = response.data;
                         printLog(logs.infoLogs[`${requestType}_REQUEST_RESOLVED`], MessageType.LOG, this.client.getLogLevel());
                         switch (requestType) {
                             case TYPES.INSERT:

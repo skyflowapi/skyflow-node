@@ -293,7 +293,7 @@ describe('VaultController insert method', () => {
         const response = await vaultController.insert(mockRequest, mockOptions);
 
         expect(mockVaultClient.vaultAPI.recordServiceBatchOperation).toHaveBeenCalled();
-        expect(response.insertedFields).toBe(undefined);
+        expect(response.insertedFields).toStrictEqual([]);
     });
 
     test('should reject insert records with batch insert', async () => {
@@ -316,7 +316,7 @@ describe('VaultController insert method', () => {
         const response = await vaultController.insert(mockRequest, mockOptions);
 
         expect(mockVaultClient.vaultAPI.recordServiceBatchOperation).toHaveBeenCalled();
-        expect(response.insertedFields).toBe(undefined);
+        expect(response.insertedFields).toStrictEqual([]);
     });
 
     test('should handle validation errors', async () => {
@@ -522,11 +522,14 @@ describe('VaultController detokenize method', () => {
             getDownloadURL: jest.fn().mockReturnValue(false)
         };
 
+        validateDetokenizeRequest.mockImplementation(() => {
+            // throw new Error('Validation error');
+        });
         const errorResponse = new Error("Invalid");
         mockVaultClient.tokensAPI.recordServiceDetokenize.mockRejectedValueOnce(errorResponse);
 
-        await expect(vaultController.detokenize(mockRequest, mockOptions)).rejects.toThrow('Validation error');
-        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).not.toHaveBeenCalled();
+        await expect(vaultController.detokenize(mockRequest, mockOptions)).rejects.toThrow('Invalid');
+        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).toHaveBeenCalled();
     });
 
     test('should log and resolve with empty arrays when no records are returned', async () => {
@@ -733,12 +736,15 @@ describe('VaultController tokenize method', () => {
         const mockRequest = {
             values: [{ value: 'sensitiveData', columnGroup: 'group1' }],
         };
-        const errorResponse = new Error('Validation error');
+        validateTokenizeRequest.mockImplementation(() => {
+            // throw new Error('Validation error');
+        });
+        const errorResponse = new Error('Invalid');
 
         mockVaultClient.tokensAPI.recordServiceTokenize.mockRejectedValueOnce(errorResponse.message);
 
         await expect(vaultController.tokenize(mockRequest)).rejects.toEqual(errorResponse);
-        expect(mockVaultClient.tokensAPI.recordServiceTokenize).not.toHaveBeenCalled();
+        expect(mockVaultClient.tokensAPI.recordServiceTokenize).toHaveBeenCalled();
     });
 
     test('should reject when API returns no tokens', async () => {
@@ -1307,19 +1313,20 @@ describe('VaultController get method', () => {
 
     test('should handle API errors during get', async () => {
         const mockRequest = createGetRequest(['id1']);
-        const errorResponse = new Error('Validation error');
-
+        const errorResponse = new Error('Invalid');
+        validateGetRequest.mockImplementation(() => { 
+        });
         mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.get(mockRequest)).rejects.toEqual(errorResponse);
-        
+
         // Validate that the API call was made
-        expect(mockVaultClient.vaultAPI.recordServiceBulkGetRecord).not.toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.recordServiceBulkGetRecord).toHaveBeenCalled();
     });
 
     test('should log and reject errors during get', async () => {
         const mockRequest = createGetRequest(['id1']);
-        const errorResponse = new Error('Validation error');
+        const errorResponse = new Error('Invalid');
 
         mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockRejectedValueOnce(errorResponse);
 
