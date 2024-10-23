@@ -126,17 +126,13 @@ class VaultClient {
     });
 
     private handleJsonError(err: any, data: any, requestId: string, reject: Function) {
-        try {
-            let description = JSON.parse(JSON.stringify(data));
-            const statusCode = description?.error?.http_status;
-            const grpcCode = description?.error?.grpc_code;
-            const details = description?.error?.details;
+        let description = data;
+        const statusCode = description?.error?.http_status;
+        const grpcCode = description?.error?.grpc_code;
+        const details = description?.error?.details;
 
-            description = description?.error?.message || description;
-            this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
-        } catch (err) {
-            this.logAndRejectError(errorMessages.INVAILD_JSON_RESPONSE, err, requestId, reject, 500, undefined, undefined);
-        }
+        description = description?.error?.message || description;
+        this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
     }
 
     private handleTextError(err: any, data: any, requestId: string, reject: Function) {
@@ -144,7 +140,7 @@ class VaultClient {
     }
 
     private handleGenericError(err: any, requestId: string, reject: Function) {
-        const description = errorMessages.ERROR_OCCURRED;
+        const description = err?.message || errorMessages.ERROR_OCCURRED;
         this.logAndRejectError(description, err, requestId, reject);
     }
 
