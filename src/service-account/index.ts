@@ -299,26 +299,29 @@ function failureResponse(err: any) {
             if (contentType && contentType.includes('application/json')) {
                 let description = data;
                 if (description?.error?.message) {
-                    description = requestId ? `${description?.error?.message} - requestId: ${requestId}` : description?.error?.message;
+                    description =description?.error?.message;
                 }
                 printLog(description, MessageType.ERROR);
                 reject(new SkyflowError({
                     http_code: err.response.status,
                     message: description,
+                    request_ID: requestId,
                 }));
             } else if (contentType && contentType.includes('text/plain')) {
-                let description = requestId ? `${data} - requestId: ${requestId}` : data
+                let description = data
                 printLog(description, MessageType.ERROR);
                 reject(new SkyflowError({
                     http_code: err.response.status,
                     message: description,
+                    request_ID: requestId
                 }));
             } else {
-                let description = requestId ? `${logs.errorLogs.ERROR_OCCURED} - requestId: ${requestId}` : logs.errorLogs.ERROR_OCCURED
+                let description = logs.errorLogs.ERROR_OCCURED;
                 printLog(description, MessageType.ERROR);
                 reject(new SkyflowError({
                     http_code: err.response.status,
                     message: description,
+                    request_ID: requestId
                 }));
             }
         } else {

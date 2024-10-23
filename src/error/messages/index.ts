@@ -4,11 +4,13 @@ const errorPrefix = `Skyflow Node SDK v${sdkDetails.version}`;
 
 const errorMessages = {
     CONFIG_MISSING: `${errorPrefix} Initialization failed. Skyflow config cannot be empty. Specify a valid skyflow config.`,
-    INVALID_SKYFLOW_CONFIG: `${errorPrefix} Initialization failed. Invalid skyflow config. Specify a valid skyflow config.`,
+    INVALID_SKYFLOW_CONFIG: `${errorPrefix} Initialization failed. Invalid skyflow config. Vaults configs key missing in skyflow config.`,
     INVALID_TYPE_FOR_CONFIG: `${errorPrefix} Initialization failed. Invalid %s1 config. Specify a valid %s1 config.`,
     EMPTY_VAULT_CONFIG: `${errorPrefix} Initialization failed. Vault config cannot be empty. Specify a valid vault config.`,
+    EMPTY_CONNECTION_CONFIG: `${errorPrefix} Initialization failed. Connection config cannot be empty. Specify a valid connection config.`,
 
     EMPTY_VAULT_ID: `${errorPrefix} Initialization failed. Invalid vault ID. Specify a valid vault Id.`,
+    EMPTY_VAULT_ID_VALIDATION: `${errorPrefix} Validation error. Invalid vault ID. Specify a valid vault Id.`,
     INVALID_VAULT_ID: `${errorPrefix} Initialization failed. Invalid vault ID. Specify a valid vault Id as a string.`,
     EMPTY_CLUSTER_ID: `${errorPrefix} Initialization failed. Invalid cluster ID. Specify a valid cluster Id for vault with vaultId %s1 .`,
     INVALID_CLUSTER_ID: `${errorPrefix} Initialization failed. Invalid cluster ID. Specify cluster Id as a string for vault with vaultId %s1.`,
@@ -29,10 +31,11 @@ const errorMessages = {
     INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid credentials string for %s1 with %s2 %s3.`,
     INVALID_BEARER_TOKEN_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid token for %s1 with %s2 %s3.`,
 
+    EMPTY_CONNECTION_ID_VALIDATION: `${errorPrefix} Validation error. Invalid connection ID. Specify a valid connection Id.`,
     EMPTY_CONNECTION_ID: `${errorPrefix} Initialization failed. Invalid connection ID. Specify a valid connection Id.`,
     INVALID_CONNECTION_ID: `${errorPrefix} Initialization failed. Invalid connection ID. Specify connection Id as a string.`,
     EMPTY_CONNECTION_URL: `${errorPrefix} Initialization failed. Invalid connection URL. Specify a valid connection Url.`,
-    INVALID_CONNECTION_URL: `${errorPrefix} Initialization failed. Invalid connection URL. Specify connection Url as a string.`,
+    INVALID_CONNECTION_URL: `${errorPrefix} Initialization failed. Invalid connection URL. Specify connection Url as a valid url.`,
 
     VAULT_ID_NOT_IN_CONFIG_LIST: `${errorPrefix} Validation error. %s1 is missing from the config. Specify the vaultId's from config.`,
     CONNECTION_ID_NOT_IN_CONFIG_LIST: `${errorPrefix} Validation error. %s1 is missing from the config. Specify the connectionIds from config.`,
@@ -74,7 +77,7 @@ const errorMessages = {
     INVALID_REDACTION_TYPE_IN_DETOKENIZE: `${errorPrefix} Validation error. Invalid redaction type in detokenize request. Specify a redaction type.`,
     INVALID_TOKENS_TYPE_IN_DETOKENIZE: `${errorPrefix} Validation error. Invalid tokens type in detokenize request. Specify tokens as a string array.`,
     EMPTY_TOKENS_IN_DETOKENIZE: `${errorPrefix} Validation error. Tokens array cannot be empty. Specify token's in detokenize request.`,
-    EMPTY_TOKEN_IN_DETOKENIZE: `${errorPrefix} Validation error. Token cannot be empty in detokenize request. Specify a valid token.`,
+    EMPTY_TOKEN_IN_DETOKENIZE: `${errorPrefix} Validation error. Token cannot be empty in detokenize request. Specify a valid token at index %s1.`,
     INVALID_TOKEN_IN_DETOKENIZE: `${errorPrefix} Validation error. Invalid type of token passed in detokenize request. token must be of type string at index %s1.`,
     INVALID_DETOKENIZE_REQUEST: `${errorPrefix} Validation error. Invalid detokenize request. Specify a valid detokenize request.`,
 
@@ -82,13 +85,15 @@ const errorMessages = {
     INVALID_VALUES_TYPE_IN_TOKENIZE: `${errorPrefix} Validation error. Invalid values type in tokenize request. Specify valid values of type array.`,
     EMPTY_VALUES_IN_TOKENIZE: `${errorPrefix} Validation error. Values array cannot be empty. Specify value's in tokenize request.`,
     EMPTY_DATA_IN_TOKENIZE: `${errorPrefix} Validation error. Data cannot be empty in tokenize request. Specify a valid data at index %s1.`,
+    INVALID_DATA_IN_TOKENIZE: `${errorPrefix} Validation error. Invalid Data. Specify a valid data at index %s1.`,
     INVALID_COLUMN_GROUP_IN_TOKENIZE: `${errorPrefix} Validation error. Invalid type of column group passed in tokenize request. Column group must be of type string at index %s1.`,
     INVALID_VALUE_IN_TOKENIZE: `${errorPrefix} Validation error. Invalid type of value passed in tokenize request. Value must be of type string at index %s1.`,
     INVALID_TOKENIZE_REQUEST: `${errorPrefix} Validation error. Invalid tokenize request. Specify a valid tokenize request.`,
-    EMPTY_COLUMN_GROUP_IN_TOKENIZE: `${errorPrefix} Validation error. Column group cannot be empty in tokenize request. Specify a valid column group.`,
-    EMPTY_VALUE_IN_TOKENIZE: `${errorPrefix} Validation error. Value cannot be empty in tokenize request. Specify a valid value.`,
+    EMPTY_COLUMN_GROUP_IN_TOKENIZE: `${errorPrefix} Validation error. Column group cannot be empty in tokenize request. Specify a valid column group at index %s1.`,
+    EMPTY_VALUE_IN_TOKENIZE: `${errorPrefix} Validation error. Value cannot be empty in tokenize request. Specify a valid value at index %s1.`,
 
     INVALID_RECORD_IN_INSERT: `${errorPrefix} Validation error. Invalid data in insert request. data must be of type object at index %s1.`,
+    INVALID_RECORD_IN_UPDATE: `${errorPrefix} Validation error. Invalid data in update request. data must be of type object.`,
     EMPTY_RECORD_IN_INSERT: `${errorPrefix} Validation error. Data cannot be empty in insert request. Specify valid data at index %s1.`,
     INVALID_INSERT_REQUEST: `${errorPrefix} Validation error. Invalid insert request. Specify a valid insert request.`,
     INVALID_TYPE_OF_DATA_IN_INSERT: `${errorPrefix} Validation error. Invalid type of data in insert request. Specify data as a object array.`,
@@ -99,30 +104,30 @@ const errorMessages = {
     INVALID_QUERY: `${errorPrefix} Validation error. Invalid query in query request. Specify a valid query.`,
 
     INVALID_FILE_UPLOAD_REQUEST: `${errorPrefix} Validation error. Invalid file upload request. Specify a valid file upload request.`,
-    MISSING_TABLE_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid table name. Specify table name as a string.`,
-    INVALID_TABLE_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid table name. Specify a valid table name.`,
-    MISSING_SKYFLOW_ID_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid skyflow Id. Specify a valid skyflow Id as string.`,
-    INVALID_SKYFLOW_ID_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid skyflow Id. Specify a valid skyflow Id.`,
-    MISSING_COLUMN_NAME_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid column name. Specify a valid column name as string.`,
-    INVALID_COLUMN_NAME_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid column name. Specify a valid column name.`,
-    MISSING_FILE_PATH_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid file path. Specify a valid file path as string.`,
-    INVALID_FILE_PATH_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid file path. Specify a valid file path.`,
+    MISSING_TABLE_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Table name cannot be empty in file upload request. Specify table name as a string.`,
+    INVALID_TABLE_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid table name in file upload request. Specify a valid table name.`,
+    MISSING_SKYFLOW_ID_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Skyflow id cannot be empty in file upload request. Specify a valid skyflow Id as string.`,
+    INVALID_SKYFLOW_ID_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid skyflow Id in file upload request. Specify a valid skyflow Id.`,
+    MISSING_COLUMN_NAME_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Column name cannot be empty in file upload request. Specify a valid column name as string.`,
+    INVALID_COLUMN_NAME_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid column name in file upload request. Specify a valid column name.`,
+    MISSING_FILE_PATH_IN_UPLOAD_FILE: `${errorPrefix} Validation error. File path cannot be empty in file upload request. Specify a valid file path as string.`,
+    INVALID_FILE_PATH_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid file path in file upload request. Specify a valid file path.`,
 
-    MISSING_SKYFLOW_ID_IN_UPDATE: `${errorPrefix} Validation error. Skyflow Id name cannot be empty. Specify a skyflow Id name as string.`,
-    INVALID_SKYFLOW_ID_IN_UPDATE: `${errorPrefix} Validation error. Invalid skyflow Id. Specify a valid skyflow Id.`,
-    INVALID_TYPE_OF_UPDATE_DATA: `${errorPrefix} Validation error. Invalid update data. Specify a valid update data as array of object.`,
-    EMPTY_UPDATE_DATA: `${errorPrefix} Validation error. Update data cannot be empty. Specify a valid update data.`,
+    MISSING_SKYFLOW_ID_IN_UPDATE: `${errorPrefix} Validation error. Skyflow id name cannot be empty in update request. Specify a skyflow Id name as string.`,
+    INVALID_SKYFLOW_ID_IN_UPDATE: `${errorPrefix} Validation error. Invalid skyflow Id in update request. Specify a valid skyflow Id.`,
+    INVALID_TYPE_OF_UPDATE_DATA: `${errorPrefix} Validation error. Invalid update data in update request. Specify a valid update data as array of object.`,
+    EMPTY_UPDATE_DATA: `${errorPrefix} Validation error. Update data cannot be empty in update request. Specify a valid update data.`,
     INVALID_UPDATE_REQUEST: `${errorPrefix} Validation error. Invalid update request. Specify a valid update request.`,
-    INVALID_DATA_IN_UPDATE: `${errorPrefix} Validation error. Invalid data. data must be of type object at index %s1.`,
-    EMPTY_DATA_IN_UPDATE: `${errorPrefix} Validation error. Data cannot be empty. Specify a valid data at index %s1.`,
+    INVALID_DATA_IN_UPDATE: `${errorPrefix} Validation error. Invalid data in update request. data must be of type object at index %s1.`,
+    EMPTY_DATA_IN_UPDATE: `${errorPrefix} Validation error. Data cannot be empty in update request. Specify a valid data at index %s1.`,
 
     EMPTY_TABLE_NAME: `${errorPrefix} Validation error. Table name cannot be empty. Specify a valid table name.`,
     INVALID_TABLE_NAME: `${errorPrefix} Validation error. Invalid table name. Specify a valid table name as string.`,
     EMPTY_REDACTION_TYPE: `${errorPrefix} Validation error. Redaction type cannot be empty. Specify a valid redaction type.`,
     INVALID_REDACTION_TYPE: `${errorPrefix} Validation error. Invalid redaction type. Specify a valid redaction type.`,
 
-    INVALID_TYPE_OF_IDS: `${errorPrefix} Validation error. Invalid ids passed. Specify valid ids as array of string.`,
-    EMPTY_IDS_IN_GET: `${errorPrefix} Validation error. Ids cannot be empty. Specify valid ids.`,
+    INVALID_TYPE_OF_IDS: `${errorPrefix} Validation error. Invalid ids passed in get request. Specify valid ids as array of string.`,
+    EMPTY_IDS_IN_GET: `${errorPrefix} Validation error. Ids cannot be empty in get request. Specify valid ids.`,
     EMPTY_ID_IN_GET: `${errorPrefix} Validation error. Id cannot be empty. Specify a valid Id at index %s1.`,
     INVALID_ID_IN_GET: `${errorPrefix} Validation error. Invalid Id. Specify a valid Id at index %s1 as string.`,
     INVALID_GET_REQUEST: `${errorPrefix} Validation error. Invalid get request. Specify a valid get request.`,
@@ -174,6 +179,9 @@ const errorMessages = {
     INVALID_FIELDS: `${errorPrefix} Validation error. The fields key has a value of type %s1. Specify fields as array of strings.`,
 
     INVAILD_JSON_RESPONSE: `${errorPrefix} Validation error. The invalid json response. Please reach out to skyflow using requestId - %s1.`,
+
+    EMPTY_VAULT_CLIENTS: `${errorPrefix} Validation error. No vault config found. Please add a vault config`,
+    EMPTY_CONNECTION_CLIENTS: `${errorPrefix} Validation error. No connection config found. Please add a connection config`
 };
 
 export default errorMessages;
