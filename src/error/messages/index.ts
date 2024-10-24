@@ -157,9 +157,9 @@ const errorMessages = {
     INVALID_INVOKE_CONNECTION_REQUEST: `${errorPrefix} Validation error. Invalid invoke connection request. Specify a valid get invoke connection request.`,
     ERROR_OCCURRED: `${errorPrefix} API error. Error occurred.`,
 
-    EMPTY_INSERT_TOKEN: `${errorPrefix} Validation error. Token cannot be empty. Specify a valid token at index %s1.`,
-    INVALID_INSERT_TOKEN: `${errorPrefix} Validation error. Invalid token. Specify a valid token at index %s1.`,
-    INVALID_INSERT_TOKENS: `${errorPrefix} Validation error. Invalid tokens. Specify valid tokens as string array.`,
+    EMPTY_INSERT_TOKEN: `${errorPrefix} Validation error. Tokens object cannot be empty. Specify a valid tokens object at index %s1.`,
+    INVALID_INSERT_TOKEN: `${errorPrefix} Validation error. Invalid tokens object. Specify a valid tokens object at index %s1.`,
+    INVALID_INSERT_TOKENS: `${errorPrefix} Validation error. Invalid tokens. Specify valid tokens as object array.`,
     INVALID_TOKEN_MODE: `${errorPrefix} Validation error. The token mode key has a value of type %s1. Specify token as BYOT.`,
     INVALID_HOMOGENEOUS: `${errorPrefix} Validation error. The homogeneous key has a value of type %s1. Specify homogeneous as boolean.`,
     INVALID_TOKEN_STRICT: `${errorPrefix} Validation error. The tokenStrict key has a value of type %s1. Specify tokenStrict as boolean.`,

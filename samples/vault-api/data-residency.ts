@@ -59,11 +59,12 @@ skyflow_client.vault("VALUT_ID1").get(getRequest)
     //
     const getResponse: GetResponse = response as GetResponse;
     console.log(getResponse.data);
-
+    const insertData = getResponse.data;
+    //parse insertData to remove skyflow_id
     //get data from prod vault and insert data to SANDBOX vault
     const insertRequest = new InsertRequest(
         "TABLE_NAME",
-        getResponse.data!,
+        insertData!,
     );
     skyflow_client.vault("VAULT_ID2").insert(
         insertRequest
