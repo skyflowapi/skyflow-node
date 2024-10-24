@@ -1,5 +1,5 @@
 import Skyflow from './vault/skyflow';
-import { LogLevel, Env, RedactionType, METHOD } from './utils';
+import { LogLevel, Env, RedactionType, METHOD, OrderByEnum, BYOT } from './utils';
 import InsertRequest from './vault/model/request/insert';
 import InsertOptions from './vault/model/options/insert';
 import GetRequest from './vault/model/request/get';
@@ -39,6 +39,8 @@ export {
     isExpired,
     Credentials,
     RedactionType,
+    OrderByEnum,
+    BYOT,
     InsertRequest,
     InsertOptions,
     InsertResponse,
