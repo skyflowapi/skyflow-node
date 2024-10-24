@@ -1,5 +1,5 @@
 import axios from "axios";
-import { fillUrlWithPathAndQueryParams, generateSDKMetrics, getBearerToken, LogLevel, MessageType, METHOD, parameterizedString, printLog, SDK_METRICS_HEADER_KEY, TYPES } from "../../../src/utils";
+import { fillUrlWithPathAndQueryParams, generateSDKMetrics, getBearerToken, LogLevel, MessageType, Method, parameterizedString, printLog, SDK_METRICS_HEADER_KEY, TYPES } from "../../../src/utils";
 import logs from "../../../src/utils/logs";
 import { validateInvokeConnectionRequest } from "../../../src/utils/validations";
 import VaultClient from "../../../src/vault/client";
@@ -24,7 +24,7 @@ describe("ConnectionController", () => {
             pathParams: { id: "123" },
             queryParams: { search: "test" },
             body: { data: "sample" },
-            method: METHOD.POST,
+            method: Method.POST,
             headers: { "Custom-Header": "value" },
         };
 
@@ -46,7 +46,7 @@ describe("ConnectionController", () => {
         expect(getBearerToken).toHaveBeenCalledWith(mockClient.getCredentials(), LogLevel.ERROR);
         expect(axios).toHaveBeenCalledWith({
             url: "https://api.example.com/resource",
-            method: METHOD.POST,
+            method: Method.POST,
             data: invokeRequest.body,
             headers: {
                 ...invokeRequest.headers,
@@ -62,7 +62,7 @@ describe("ConnectionController", () => {
             pathParams: { id: "123" },
             queryParams: { search: "test" },
             body: { data: "sample" },
-            method: METHOD.POST,
+            method: Method.POST,
             headers: { "Custom-Header": "value" },
         };
 
@@ -79,7 +79,7 @@ describe("ConnectionController", () => {
             pathParams: { id: "123" },
             queryParams: { search: "test" },
             body: { data: "sample" },
-            // method: METHOD.POST,
+            // method: Method.POST,
             headers: { "Custom-Header": "value" },
         };
 
@@ -114,7 +114,7 @@ describe("ConnectionController", () => {
             pathParams: { id: "123" },
             queryParams: { search: "test" },
             body: { data: "sample" },
-            method: METHOD.POST,
+            method: Method.POST,
             headers: { "Custom-Header": "value" },
         };
 

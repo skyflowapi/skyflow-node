@@ -1,6 +1,6 @@
 //imports
 import axios from "axios";
-import { fillUrlWithPathAndQueryParams, generateSDKMetrics, getBearerToken, LogLevel, MessageType, METHOD, parameterizedString, printLog, SDK_METRICS_HEADER_KEY, SKYFLOW_AUTH_HEADER_KEY, REQUEST_ID_KEY, TYPES } from "../../../utils";
+import { fillUrlWithPathAndQueryParams, generateSDKMetrics, getBearerToken, LogLevel, MessageType, Method, parameterizedString, printLog, SDK_METRICS_HEADER_KEY, SKYFLOW_AUTH_HEADER_KEY, REQUEST_ID_KEY, TYPES } from "../../../utils";
 import InvokeConnectionRequest from "../../model/request/inkove";
 import logs from "../../../utils/logs";
 import { validateInvokeConnectionRequest } from "../../../utils/validations";
@@ -32,7 +32,7 @@ class ConnectionController {
                     sdkHeaders[SDK_METRICS_HEADER_KEY] = JSON.stringify(generateSDKMetrics());
                     axios({
                         url: filledUrl,
-                        method: invokeRequest.method || METHOD.POST,
+                        method: invokeRequest.method || Method.POST,
                         data: invokeRequest.body,
                         headers: { ...invokeRequest.headers, ...sdkHeaders }
                     }).then((response: any) => {
