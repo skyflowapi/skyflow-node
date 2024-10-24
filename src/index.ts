@@ -1,5 +1,5 @@
 import Skyflow from './vault/skyflow';
-import { LogLevel, Env, RedactionType } from './utils';
+import { LogLevel, Env, RedactionType, METHOD } from './utils';
 import InsertRequest from './vault/model/request/insert';
 import InsertOptions from './vault/model/options/insert';
 import GetRequest from './vault/model/request/get';
@@ -17,10 +17,20 @@ import { generateBearerToken, generateBearerTokenFromCreds, generateSignedDataTo
 import { isExpired } from './utils/jwt-utils';
 import UpdateOptions from './vault/model/options/update';
 import InvokeConnectionRequest from './vault/model/request/inkove';
+import GetColumnRequest from './vault/model/request/get-column';
+import InsertResponse from './vault/model/response/insert';
+import GetResponse from './vault/model/response/get';
+import DetokenizeResponse from './vault/model/response/detokenize';
+import DeleteResponse from './vault/model/response/delete';
+import UpdateResponse from './vault/model/response/update';
+import FileUploadResponse from './vault/model/response/file-upload';
+import QueryResponse from './vault/model/response/query';
+import InvokeConnectionResponse from './vault/model/response/invoke/invoke';
 
 export {
     Env,
     LogLevel,
+    METHOD,
     Skyflow,
     generateBearerToken,
     generateBearerTokenFromCreds,
@@ -31,16 +41,25 @@ export {
     RedactionType,
     InsertRequest,
     InsertOptions,
+    InsertResponse,
     GetRequest,
+    GetColumnRequest,
     GetOptions,
+    GetResponse,
     DetokenizeRequest,
     DetokenizeOptions,
+    DetokenizeResponse,
     DeleteRequest,
+    DeleteResponse,
     UpdateRequest,
     UpdateOptions,
+    UpdateResponse,
     FileUploadRequest,
+    FileUploadResponse,
     QueryRequest,
+    QueryResponse,
     TokenizeRequest,
     TokenizeResponse,
-    InvokeConnectionRequest
+    InvokeConnectionRequest,
+    InvokeConnectionResponse
 };

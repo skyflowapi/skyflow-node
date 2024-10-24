@@ -266,7 +266,7 @@ class VaultController {
                     TYPES.UPDATE
                 ).then(data => {
                     const updatedRecord = {
-                        skyflowID: data.skyflow_id,
+                        skyflowId: data.skyflow_id,
                         ...data?.tokens
                     };
                     resolve(new UpdateResponse({ updatedField: updatedRecord, errors: [] }));
@@ -403,7 +403,7 @@ class VaultController {
                     ),
                     TYPES.FILE_UPLOAD
                 ).then(data => {
-                    resolve(new FileUploadResponse({ skyflowID: data.skyflow_id, errors: [] }));
+                    resolve(new FileUploadResponse({ skyflowId: data.skyflow_id, errors: [] }));
                 })
                     .catch(error => {
                         if (error instanceof Error)
