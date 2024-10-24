@@ -192,7 +192,7 @@ class VaultController {
 
     private parseBulkInsertResponse(records: any[]): InsertResponse {
         const insertedFields = records.map(record => ({
-            skyflow_id: record.skyflow_id,
+            skyflowId: record.skyflow_id,
             ...record.tokens
         }));
         return new InsertResponse({ insertedFields, errors: [] });
