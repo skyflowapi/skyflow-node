@@ -3,12 +3,12 @@
 class FileUploadResponse {
 
     //fields
-    skyflowID?: string;
+    skyflowId?: string;
 
     errors?: Object;
 
-    constructor({ skyflowID, errors }: { skyflowID?: string, errors?: object }) {
-        this.skyflowID = skyflowID;
+    constructor({ skyflowId, errors }: { skyflowId?: string, errors?: object }) {
+        this.skyflowId = skyflowId;
         this.errors = errors;
     }
 
