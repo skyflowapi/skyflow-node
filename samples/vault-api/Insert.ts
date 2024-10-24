@@ -34,8 +34,8 @@ const skyflow_client = new Skyflow({
 
 //sample data
 const insertData = [
-    { cardumber: '4111111111111111', cvv: '1234' },
-    { cardumber: '42424242424242424', cvv: '321' },
+    { card_number: '4111111111111111', cvv: '1234' },
+    { card_number: '42424242424242424', cvv: '321' },
 ]
 
 const insertReq = new InsertRequest(

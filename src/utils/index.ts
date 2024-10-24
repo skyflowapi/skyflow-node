@@ -54,7 +54,7 @@ export enum MessageType {
     ERROR = 'ERROR',
 }
 
-export enum METHOD {
+export enum Method {
     POST = 'POST',
     GET = 'GET',
     PUT = 'PUT',

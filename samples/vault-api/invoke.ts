@@ -1,4 +1,4 @@
-import { Env, Skyflow, InvokeConnectionRequest, METHOD, LogLevel } from "skyflow-node";
+import { Env, Skyflow, InvokeConnectionRequest, Method, LogLevel } from "skyflow-node";
 
 // To generate Bearer Token from credentials string.
 const cred = {
@@ -49,7 +49,7 @@ const headers = {
 };
 
 const invokeReq = new InvokeConnectionRequest(
-        METHOD.POST,
+        Method.POST,
         body,
         headers
 );

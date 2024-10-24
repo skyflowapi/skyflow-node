@@ -1,4 +1,4 @@
-import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, METHOD, OrderByEnum, RedactionType, VAULT, VAULT_ID } from "..";
+import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, Method, OrderByEnum, RedactionType, VAULT, VAULT_ID } from "..";
 import { V1BYOT } from "../../ _generated_/rest";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
@@ -40,7 +40,7 @@ export function isOrderBy(value?: string): boolean {
 }
 
 export function isMethod(value?: string): boolean {
-    return value !== undefined && Object.values(METHOD).includes(value as METHOD);
+    return value !== undefined && Object.values(Method).includes(value as Method);
 }
 
 export function isLogLevel(value?: string): boolean {
@@ -631,10 +631,7 @@ export const validateDetokenizeRequest = (detokenizeRequest: DetokenizeRequest, 
             }
         });
 
-        if (!detokenizeRequest?.redactionType || !Object.prototype.hasOwnProperty.call(detokenizeRequest, '_redactionType'))
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_REDACTION_TYPE);
-
-        if (typeof detokenizeRequest.redactionType !== 'string' || detokenizeRequest.redactionType.trim().length === 0) {
+        if (detokenizeRequest?.redactionType && typeof detokenizeRequest.redactionType !== 'string' &&  !isRedactionType(detokenizeRequest.redactionType)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
         }
 
