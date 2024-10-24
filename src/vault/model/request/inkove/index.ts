@@ -1,16 +1,16 @@
 //imports
-import { METHOD } from "../../../../utils";
+import { Method } from "../../../../utils";
 import { StringKeyValueMapType } from "../../../types";
 
 class InvokeConnectionRequest {
     //fields
-    method?: METHOD;
+    method: Method;
     queryParams?: StringKeyValueMapType;
     pathParams?: StringKeyValueMapType;
     body?: StringKeyValueMapType;
     headers?: StringKeyValueMapType;
 
-    constructor(method?: METHOD, body?: StringKeyValueMapType, headers?: StringKeyValueMapType, pathParams?: StringKeyValueMapType, queryParams?: StringKeyValueMapType) {
+    constructor(method: Method, body?: StringKeyValueMapType, headers?: StringKeyValueMapType, pathParams?: StringKeyValueMapType, queryParams?: StringKeyValueMapType) {
         this.method = method;
         this.pathParams = pathParams;
         this.queryParams = queryParams;

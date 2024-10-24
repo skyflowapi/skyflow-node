@@ -1,3 +1,4 @@
+//please use node version 18 & above to run file upload
 import { Env, FileUploadRequest, LogLevel, Skyflow } from "skyflow-node";
 
 // To generate Bearer Token from credentials string.

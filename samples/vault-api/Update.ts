@@ -47,7 +47,7 @@ const updateOptions = new UpdateOptions()
 
 updateOptions.setReturnTokens(true);
 
-skyflow_client.vault("e796617671d742c6aeb69f5cc62acf26").update(
+skyflow_client.vault("VAULT_ID").update(
     updateReq,
     updateOptions
 ).then(resp=>{
