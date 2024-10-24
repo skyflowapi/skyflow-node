@@ -943,7 +943,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflowID).toBe('id123');
+        expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toHaveLength(0);
     });
@@ -969,7 +969,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflowID).toBe('id123');
+        expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toHaveLength(0);
     });
@@ -997,7 +997,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflowID).toBe('id123');
+        expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toHaveLength(0);
     });
@@ -1127,7 +1127,7 @@ describe('VaultController uploadFile method', () => {
         expect(mockFs.createReadStream).toHaveBeenCalledWith(mockRequest.filePath);
 
         expect(response).toBeInstanceOf(FileUploadResponse);
-        expect(response.skyflowID).toBe('id123');
+        expect(response.skyflowId).toBe('id123');
         expect(response.errors).toHaveLength(0);
     });
 
