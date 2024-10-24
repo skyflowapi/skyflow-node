@@ -1,4 +1,4 @@
-import { DeleteRequest, Env, LogLevel, Skyflow } from "skyflow-node";
+import { Env, GetOptions, LogLevel, Skyflow, GetColumnRequest } from "skyflow-node";
 
 // To generate Bearer Token from credentials string.
 const cred = {
@@ -11,12 +11,12 @@ const cred = {
 
 // please pass one of apiKey, token, credentialsString & path
 const skyflowCredentials = {
-    credentialsString: JSON.stringify(cred)
+    credentialsString: JSON.stringify(cred),
 }
 
 // please pass one of apiKey, token, credentialsString & path
 const credentials = {
-    apiKey: "API_KEY", // Api Key 
+    path: "PATH_TO_CREDENTIALS_JSON", // bearer token 
 }
 
 const skyflow_client = new Skyflow({
@@ -32,22 +32,26 @@ const skyflow_client = new Skyflow({
     logLevel:LogLevel.ERROR   // set loglevel by deault it is set to PROD
 });
 
-const deleteIds = [
-    'SKYFLOW_ID1',
-    'SKYFLOW_ID2',
-    'SKYFLOW_ID3',
+const columnValues = [
+    'VALUE1',
+    'VALUE2',
 ]
 
-const deleteRequest = new DeleteRequest(
-    "TABLE_NAME",   // TABLE_NAME 
-    deleteIds
-);
+const getRequest = new GetColumnRequest(
+    "TABLE_NAME",
+    "COLUMN_NAME", //Name of the column. It must be configured as unique in the schema.
+    columnValues //Column values of the records to return
+)
 
-// will return first Vault ID
-skyflow_client.vault().delete(
-    deleteRequest
-).then(resp=>{
-    console.log(resp);
-}).catch(err=>{
-    console.log(JSON.stringify(err));
+const getOptions = new GetOptions()
+//use setters of setting options refer to skyflow docs for more options
+getOptions.setReturnTokens(true);
+
+skyflow_client.vault("VAULT_ID").get(
+    getRequest,
+    getOptions
+).then(response => {
+    console.log(response);
+}).catch(error => {
+    console.log(JSON.stringify(error));
 });

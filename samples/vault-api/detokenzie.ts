@@ -1,4 +1,4 @@
-import { DeleteRequest, Env, LogLevel, Skyflow } from "skyflow-node";
+import { DetokenizeOptions, DetokenizeRequest, Env, LogLevel, RedactionType, Skyflow } from "skyflow-node";
 
 // To generate Bearer Token from credentials string.
 const cred = {
@@ -16,7 +16,7 @@ const skyflowCredentials = {
 
 // please pass one of apiKey, token, credentialsString & path
 const credentials = {
-    apiKey: "API_KEY", // Api Key 
+    token: "TOKEN", // bearer token 
 }
 
 const skyflow_client = new Skyflow({
@@ -32,22 +32,28 @@ const skyflow_client = new Skyflow({
     logLevel:LogLevel.ERROR   // set loglevel by deault it is set to PROD
 });
 
-const deleteIds = [
-    'SKYFLOW_ID1',
-    'SKYFLOW_ID2',
-    'SKYFLOW_ID3',
+const detokenizeData = [
+    'TOKEN1',
+    'TOKEN2',
+    'TOKEN3'
 ]
 
-const deleteRequest = new DeleteRequest(
-    "TABLE_NAME",   // TABLE_NAME 
-    deleteIds
-);
+const detokenizeRequest = new DetokenizeRequest(
+    detokenizeData,
+    RedactionType.REDACTED 
+)
 
-// will return first Vault ID
-skyflow_client.vault().delete(
-    deleteRequest
-).then(resp=>{
-    console.log(resp);
-}).catch(err=>{
-    console.log(JSON.stringify(err));
-});
+const detokenizeOptions = new DetokenizeOptions()
+// options can be set using setters
+detokenizeOptions.setContinueOnError(true);
+
+detokenizeOptions.setDownloadURL(false);
+
+skyflow_client.vault("VAULT_ID").detokenize(
+    detokenizeRequest,
+    detokenizeOptions
+).then(response=>{
+    console.log(response);
+}).catch(error=>{
+    console.log(JSON.stringify(error));
+})
