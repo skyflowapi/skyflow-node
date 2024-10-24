@@ -373,7 +373,7 @@ export const validateInsertOptions = (insertOptions?: InsertOptions) => {
                 if (!token) {
                     throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_INSERT_TOKEN, [index]);
                 }
-                if (typeof token !== 'string' || token.trim().length === 0) {
+                if (typeof token !== 'object') {
                     throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_INSERT_TOKEN, [index]);
                 }
             });

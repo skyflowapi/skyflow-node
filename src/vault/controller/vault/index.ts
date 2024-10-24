@@ -163,13 +163,17 @@ class VaultController {
         });
     }
 
+    private getTokens(index:number, tokens?: Array<object>) : object | undefined {
+        if(tokens && tokens.length !== 0 && tokens.length > index ) return tokens[index];
+    }
+
     private buildBatchInsertBody(request: InsertRequest, options?: InsertOptions): RecordServiceBatchOperationBody {
-        const records = request.data.map(record => ({
+        const records = request.data.map((record, index) => ({
             fields: record,
             tableName: request.tableName,
             tokenization: options?.getReturnTokens() || false,
             method: BatchRecordMethod.Post,
-            tokens: options?.getTokens(),
+            tokens: this.getTokens(index, options?.getTokens()),
             upsert: options?.getUpsert(),
         }));
         return {
@@ -180,7 +184,10 @@ class VaultController {
     }
 
     private buildBulkInsertBody(request: InsertRequest, options?: InsertOptions): RecordServiceInsertRecordBody {
-        const records = request.data.map(record => ({ fields: record })) as Array<V1FieldRecords>;
+        const records = request.data.map((record, index) => ({ 
+            fields: record, 
+            tokens: this.getTokens(index, options?.getTokens()),
+        })) as Array<V1FieldRecords>;
         return {
             records,
             tokenization: options?.getReturnTokens(),

@@ -153,7 +153,8 @@ describe('VaultController insert method', () => {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getUpsert: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
-            getTokenMode: jest.fn().mockReturnValue('')
+            getTokenMode: jest.fn().mockReturnValue(''),
+            getTokens: jest.fn().mockReturnValue([{}])
         };
         const mockResponseData = { records: [{ skyflow_id: 'id123', tokens: {} }] };
 
@@ -181,7 +182,8 @@ describe('VaultController insert method', () => {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getUpsert: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
-            getTokenMode: jest.fn().mockReturnValue('')
+            getTokenMode: jest.fn().mockReturnValue(''),
+            getTokens: jest.fn().mockReturnValue([{}])
         };
         const mockResponseData = { records: [{ skyflow_id: 'id123', tokens: {} }] };
 
@@ -209,7 +211,8 @@ describe('VaultController insert method', () => {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getUpsert: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
-            getTokenMode: jest.fn().mockReturnValue('')
+            getTokenMode: jest.fn().mockReturnValue(''),
+            getTokens: jest.fn().mockReturnValue([{}])
         };
         const mockResponseData = { skyflow_id: 'id123', tokens: {} };
 
