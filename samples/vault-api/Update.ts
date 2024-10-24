@@ -1,55 +1,57 @@
-/*
-	Copyright (c) 2022 Skyflow, Inc. 
-*/
-import {Skyflow, generateBearerToken, isExpired, setLogLevel, LogLevel} from 'skyflow-node';
-var filePath = '<YOUR_CREDENTIAL_FILE>';
-setLogLevel(LogLevel.INFO)
-var bearerToken = ''
+import { Env, Skyflow, UpdateRequest, UpdateOptions, LogLevel } from "skyflow-node";
 
-const skyflow = Skyflow.init({
-  vaultID: '<VAULT_ID>',
-  vaultURL: '<VAULT_URL>',
-  getBearerToken: () => {
-    return new Promise((resolve, reject) => {
-      if(!isExpired(bearerToken)) {
-        resolve(bearerToken)
-      }
-      else {    
-        generateBearerToken(filePath)
-        .then((res) => {
-            bearerToken = res.accessToken
-            resolve(bearerToken);
-        })
-        .catch((err) => {
-            reject(err);
-        });
-      }
-    })
-  }
+// To generate Bearer Token from credentials string.
+const cred = {
+    clientID: '<YOUR_CLIENT_ID>',
+    clientName: '<YOUR_CLIENT_NAME>',
+    keyID: '<YOUR_KEY_ID>',
+    tokenURI: '<YOUR_TOKEN_URI>',
+    privateKey: '<YOUR_PEM_PRIVATE_KEY>',
+};
+
+// please pass one of apiKey, token, credentialsString & path
+const skyflowCredentials = {
+    credentialsString: JSON.stringify(cred),
+}
+
+// please pass one of apiKey, token, credentialsString & path
+const credentials = {
+    apiKey: "API_KEY", // bearer token 
+}
+
+const skyflow_client = new Skyflow({
+    vaultConfigs: [
+        {
+            vaultId: "VAULT_ID",      // primary vault
+            clusterId: "CLUSTER_ID",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
+            env: Env.PROD,  // Env by deault it is set to PROD
+            credentials: credentials   // indiviudal credentails
+        }
+    ],
+    skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual creds are passed
+    logLevel:LogLevel.ERROR   // set loglevel by deault it is set to PROD
 });
 
+// sample data
+const updateData =  { card_number: '12333333333333444444' };
 
-const result = skyflow.update(
-  {
-    records: [
-      {
-        id : '<SKYFLOW_ID>',
-        table: '<TABLE_NAME>',
-        'fields': {
-          '<FIELD_NAME>': '<FIELD_VALUE>'
-        }
-      }
-    ],
-  },
-  {
-    tokens: true,
-  }
-);
+const skyflowId = "SKYFLOW_ID";
 
-result.then((response)=>{
-  console.log('Update result:');
-  console.log(JSON.stringify(response));
-}).catch((error)=>{
-  console.log('Update error:');
-  console.log(JSON.stringify(error));
-})
+const updateReq = new UpdateRequest(
+    "TABLE_NAME",
+    skyflowId,
+    updateData
+)
+
+const updateOptions = new UpdateOptions()
+
+updateOptions.setReturnTokens(true);
+
+skyflow_client.vault("e796617671d742c6aeb69f5cc62acf26").update(
+    updateReq,
+    updateOptions
+).then(resp=>{
+    console.log(resp);
+}).catch(err=>{
+    console.log(JSON.stringify(err));
+});
