@@ -1,4 +1,4 @@
-import { DeleteRequest, Env, LogLevel, Skyflow } from "skyflow-node";
+import { Env, LogLevel, Skyflow, TokenizeRequest } from "skyflow-node";
 
 // To generate Bearer Token from credentials string.
 const cred = {
@@ -11,12 +11,12 @@ const cred = {
 
 // please pass one of apiKey, token, credentialsString & path
 const skyflowCredentials = {
-    credentialsString: JSON.stringify(cred)
+    credentialsString: JSON.stringify(cred),
 }
 
 // please pass one of apiKey, token, credentialsString & path
 const credentials = {
-    apiKey: "API_KEY", // Api Key 
+    apiKey: "API_KEY", // bearer token 
 }
 
 const skyflow_client = new Skyflow({
@@ -32,20 +32,19 @@ const skyflow_client = new Skyflow({
     logLevel:LogLevel.ERROR   // set loglevel by deault it is set to PROD
 });
 
-const deleteIds = [
-    'SKYFLOW_ID1',
-    'SKYFLOW_ID2',
-    'SKYFLOW_ID3',
-]
+// tokenize only supports value and columngroup
+// sample data
+const tokenizeValues = [
+    {value: '4111111111111111',columnGroup: 'card_number_cg'},
+    {value:'42424242424242424',columnGroup: 'card_number_cg'}
+];
 
-const deleteRequest = new DeleteRequest(
-    "TABLE_NAME",   // TABLE_NAME 
-    deleteIds
+const tokenReq = new TokenizeRequest(
+    tokenizeValues
 );
 
-// will return first Vault ID
-skyflow_client.vault().delete(
-    deleteRequest
+skyflow_client.vault("VAULT_ID").tokenize(
+    tokenReq,
 ).then(resp=>{
     console.log(resp);
 }).catch(err=>{

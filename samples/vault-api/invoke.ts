@@ -1,4 +1,4 @@
-import { DeleteRequest, Env, LogLevel, Skyflow } from "skyflow-node";
+import { Env, Skyflow, InvokeConnectionRequest, METHOD, LogLevel } from "skyflow-node";
 
 // To generate Bearer Token from credentials string.
 const cred = {
@@ -11,43 +11,54 @@ const cred = {
 
 // please pass one of apiKey, token, credentialsString & path
 const skyflowCredentials = {
-    credentialsString: JSON.stringify(cred)
+    credentialsString: JSON.stringify(cred),
 }
 
 // please pass one of apiKey, token, credentialsString & path
 const credentials = {
-    apiKey: "API_KEY", // Api Key 
+    apiKey: "API_KEY", // bearer token 
 }
 
 const skyflow_client = new Skyflow({
     vaultConfigs: [
         {
-            vaultId: "VAULT_ID",      // primary vault
+            vaultId: "VAULT_ID",      // primary vault ( NOTE : One vault is nessary)
             clusterId: "CLUSTER_ID",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
             env: Env.PROD,  // Env by deault it is set to PROD
             credentials: credentials   // indiviudal credentails
+        }
+    ],
+    connectionConfigs: [
+        {
+            connectionId: "CONNECTION_ID", // get connection ID from https://${clusterId}.gateway.skyflowapis.dev/v1/gateway/inboundRoutes/${connectionId}/${connection_name}
+            connectionUrl:"CONNECTION_URL", // the whole URL https://${clusterId}.gateway.skyflowapis.dev/v1/gateway/inboundRoutes/${connectionId}/${connection_name}
+            credentials: credentials
         }
     ],
     skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual creds are passed
     logLevel:LogLevel.ERROR   // set loglevel by deault it is set to PROD
 });
 
-const deleteIds = [
-    'SKYFLOW_ID1',
-    'SKYFLOW_ID2',
-    'SKYFLOW_ID3',
-]
+const body = {
+    "KEY1": "VALUE1",
+    "KEY2": "VALUE2",
+};
 
-const deleteRequest = new DeleteRequest(
-    "TABLE_NAME",   // TABLE_NAME 
-    deleteIds
+const headers = {
+    'Content-Type': 'application/json',
+};
+
+const invokeReq = new InvokeConnectionRequest(
+        METHOD.POST,
+        body,
+        headers
 );
 
-// will return first Vault ID
-skyflow_client.vault().delete(
-    deleteRequest
+//will return the first connection
+skyflow_client.connection().invoke(
+    invokeReq
 ).then(resp=>{
     console.log(resp);
 }).catch(err=>{
     console.log(JSON.stringify(err));
-});
+})
