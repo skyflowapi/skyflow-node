@@ -1,4 +1,4 @@
-import { DeleteRequest, Env, LogLevel, Skyflow } from "skyflow-node";
+import { Env, FileUploadRequest, LogLevel, Skyflow } from "skyflow-node";
 
 // To generate Bearer Token from credentials string.
 const cred = {
@@ -11,12 +11,12 @@ const cred = {
 
 // please pass one of apiKey, token, credentialsString & path
 const skyflowCredentials = {
-    credentialsString: JSON.stringify(cred)
+    credentialsString: JSON.stringify(cred),
 }
 
 // please pass one of apiKey, token, credentialsString & path
 const credentials = {
-    apiKey: "API_KEY", // Api Key 
+    path: "PATH_TO_CREDENTIALS_JSON", // bearer token 
 }
 
 const skyflow_client = new Skyflow({
@@ -32,22 +32,17 @@ const skyflow_client = new Skyflow({
     logLevel:LogLevel.ERROR   // set loglevel by deault it is set to PROD
 });
 
-const deleteIds = [
-    'SKYFLOW_ID1',
-    'SKYFLOW_ID2',
-    'SKYFLOW_ID3',
-]
-
-const deleteRequest = new DeleteRequest(
-    "TABLE_NAME",   // TABLE_NAME 
-    deleteIds
+const uploadReq = new FileUploadRequest(
+    "TABLE_NAME",
+    "SKYFLOW_ID",
+    "COLUMN_NAME",
+    "FILE_PATH"
 );
 
-// will return first Vault ID
-skyflow_client.vault().delete(
-    deleteRequest
-).then(resp=>{
-    console.log(resp);
-}).catch(err=>{
-    console.log(JSON.stringify(err));
+skyflow_client.vault("VAULT_ID").uploadFile(
+    uploadReq
+).then(response=>{
+    console.log(response);
+}).catch(error=>{
+    console.log(JSON.stringify(error));
 });
