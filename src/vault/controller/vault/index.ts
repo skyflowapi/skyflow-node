@@ -230,17 +230,18 @@ class VaultController {
                             : this.client.vaultAPI.recordServiceInsertRecord(this.client.vaultId, tableName, requestBody as RecordServiceInsertRecordBody, headers),
                     operationType
                 ).then((resp: any) => {
+                    printLog(logs.infoLogs.INSERT_DATA_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const parsedResponse = isContinueOnError
                         ? this.parseInsertBatchResponse(resp)
                         : this.parseBulkInsertResponse(resp);
                     resolve(parsedResponse);
                 })
                     .catch(error => {
-                        if (error instanceof Error)
-                            printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                         reject(error);
                     });
             } catch (error) {
+                if (error instanceof Error)
+                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -272,6 +273,7 @@ class VaultController {
                     ),
                     TYPES.UPDATE
                 ).then(data => {
+                    printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const updatedRecord = {
                         skyflowId: data.skyflow_id,
                         ...data?.tokens
@@ -279,12 +281,11 @@ class VaultController {
                     resolve(new UpdateResponse({ updatedField: updatedRecord, errors: [] }));
                 })
                     .catch(error => {
-                        if (error instanceof Error)
-                            printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
-                        // throw Skyflow Error
                         reject(error);
                     });
             } catch (error) {
+                if (error instanceof Error)
+                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -311,14 +312,15 @@ class VaultController {
                     ),
                     TYPES.DELETE
                 ).then(data => {
+                    printLog(logs.infoLogs.DELETE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     resolve(data);
                 })
                     .catch(error => {
-                        if (error instanceof Error)
-                            printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                         reject(error);
                     });
             } catch (error: any) {
+                if (error instanceof Error)
+                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -368,18 +370,18 @@ class VaultController {
                     ),
                     TYPES.GET
                 ).then(records => {
+                    printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const processedRecords = records.map(record => ({
                         ...record.fields,
                     }));
                     resolve(new GetResponse({ data: processedRecords, errors: [] }));
                 })
                     .catch(error => {
-                        if (error instanceof Error)
-                            printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
-                        // throw Skyflow Error
                         reject(error);
                     });
             } catch (error) {
+                if (error instanceof Error)
+                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -410,15 +412,15 @@ class VaultController {
                     ),
                     TYPES.FILE_UPLOAD
                 ).then(data => {
+                    printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     resolve(new FileUploadResponse({ skyflowId: data.skyflow_id, errors: [] }));
                 })
                     .catch(error => {
-                        if (error instanceof Error)
-                            printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
-                        // throw Skyflow Error
                         reject(error);
                     });
             } catch (error) {
+                if (error instanceof Error)
+                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -445,6 +447,7 @@ class VaultController {
                     ),
                     TYPES.QUERY
                 ).then(records => {
+                    printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const processedRecords = records.map(record => ({
                         ...record?.fields,
                         tokenizedData: {
@@ -454,12 +457,11 @@ class VaultController {
                     resolve(new QueryResponse({ fields: processedRecords, errors: [] }));
                 })
                     .catch(error => {
-                        if (error instanceof Error)
-                            printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
-                        // throw Skyflow Error
                         reject(error);
                     });
             } catch (error) {
+                if (error instanceof Error)
+                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -481,16 +483,16 @@ class VaultController {
                     (headers: RawAxiosRequestConfig | undefined) => this.client.tokensAPI.recordServiceDetokenize(this.client.vaultId, detokenizePayload, headers),
                     TYPES.DETOKENIZE
                 ).then(records => {
+                    printLog(logs.infoLogs.DETOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const parsedResponse: ParsedDetokenizeResponse = this.parseDetokenizeResponse(records);
                     resolve(new DetokenizeResponse({ detokenizedFields: parsedResponse.success, errors: parsedResponse.errors }));
                 })
                     .catch(error => {
-                        if (error instanceof Error)
-                            printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
-                        // throw Skyflow Error
                         reject(error);
                     });
             } catch (error) {
+                if (error instanceof Error)
+                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -511,14 +513,16 @@ class VaultController {
                 this.handleRequest(
                     () => this.client.tokensAPI.recordServiceTokenize(this.client.vaultId, tokenizePayload),
                     TYPES.TOKENIZE
-                ).then(records => resolve(new TokenizeResponse({ tokens: records, errors: [] })))
+                ).then(records => {
+                    printLog(logs.infoLogs.TOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
+                    resolve(new TokenizeResponse({ tokens: records, errors: [] }))
+                })
                     .catch(error => {
-                        if (error instanceof Error)
-                            printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
-                        // throw Skyflow Error
                         reject(error);
                     });
             } catch (error) {
+                if (error instanceof Error)
+                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });

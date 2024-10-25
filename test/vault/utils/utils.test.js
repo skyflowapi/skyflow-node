@@ -308,9 +308,6 @@ describe('generateSDKMetrics With errors', () => {
         Object.defineProperty(sdkDetails, 'name', {
             get: () => { throw new Error('mock error'); }
         });
-        Object.defineProperty(sdkDetails, 'version', {
-            get: () => { throw new Error('mock error'); }
-        });
 
         const metrics = generateSDKMetrics(logLevel);
 
@@ -332,52 +329,52 @@ describe('printLog', () => {
 
     test('should log DEBUG messages when level is DEBUG', () => {
         printLog('This is a debug message', MessageType.LOG, LogLevel.DEBUG);
-        expect(console.log).toHaveBeenCalledWith("DEBUG: [Skyflow] This is a debug message");
+        expect(console.log).toHaveBeenCalledWith(`DEBUG: [Skyflow Node SDK v${sdkDetails.version}] This is a debug message`);
     });
 
     test('should log INFO messages when level is DEBUG', () => {
         printLog('This is an info message', MessageType.LOG, LogLevel.DEBUG);
-        expect(console.log).toHaveBeenCalledWith("DEBUG: [Skyflow] This is an info message");
+        expect(console.log).toHaveBeenCalledWith(`DEBUG: [Skyflow Node SDK v${sdkDetails.version}] This is an info message`);
     });
 
     test('should log WARN messages when level is DEBUG', () => {
         printLog('This is a warning message', MessageType.WARN, LogLevel.DEBUG);
-        expect(console.warn).toHaveBeenCalledWith("WARN: [Skyflow] This is a warning message");
+        expect(console.warn).toHaveBeenCalledWith(`WARN: [Skyflow Node SDK v${sdkDetails.version}] This is a warning message`);
     });
 
     test('should log ERROR messages when level is DEBUG', () => {
         printLog('This is an error message', MessageType.ERROR, LogLevel.DEBUG);
-        expect(console.error).toHaveBeenCalledWith("ERROR: [Skyflow] This is an error message");
+        expect(console.error).toHaveBeenCalledWith(`ERROR: [Skyflow Node SDK v${sdkDetails.version}] This is an error message`);
     });
 
     test('should log INFO messages when level is INFO', () => {
         printLog('This is an info message', MessageType.LOG, LogLevel.INFO);
-        expect(console.log).toHaveBeenCalledWith("INFO: [Skyflow] This is an info message");
+        expect(console.log).toHaveBeenCalledWith(`INFO: [Skyflow Node SDK v${sdkDetails.version}] This is an info message`);
     });
 
     test('should log WARN messages when level is INFO', () => {
         printLog('This is a warning message', MessageType.WARN, LogLevel.INFO);
-        expect(console.warn).toHaveBeenCalledWith("WARN: [Skyflow] This is a warning message");
+        expect(console.warn).toHaveBeenCalledWith(`WARN: [Skyflow Node SDK v${sdkDetails.version}] This is a warning message`);
     });
 
     test('should log ERROR messages when level is INFO', () => {
         printLog('This is an error message', MessageType.ERROR, LogLevel.INFO);
-        expect(console.error).toHaveBeenCalledWith("ERROR: [Skyflow] This is an error message");
+        expect(console.error).toHaveBeenCalledWith(`ERROR: [Skyflow Node SDK v${sdkDetails.version}] This is an error message`);
     });
 
     test('should log WARN messages when level is WARN', () => {
         printLog('This is a warning message', MessageType.WARN, LogLevel.WARN);
-        expect(console.warn).toHaveBeenCalledWith("WARN: [Skyflow] This is a warning message");
+        expect(console.warn).toHaveBeenCalledWith(`WARN: [Skyflow Node SDK v${sdkDetails.version}] This is a warning message`);
     });
 
     test('should log ERROR messages when level is WARN', () => {
         printLog('This is an error message', MessageType.ERROR, LogLevel.WARN);
-        expect(console.error).toHaveBeenCalledWith("ERROR: [Skyflow] This is an error message");
+        expect(console.error).toHaveBeenCalledWith(`ERROR: [Skyflow Node SDK v${sdkDetails.version}] This is an error message`);
     });
 
     test('should log ERROR messages when level is ERROR', () => {
         printLog('This is an error message', MessageType.ERROR, LogLevel.ERROR);
-        expect(console.error).toHaveBeenCalledWith("ERROR: [Skyflow] This is an error message");
+        expect(console.error).toHaveBeenCalledWith(`ERROR: [Skyflow Node SDK v${sdkDetails.version}] This is an error message`);
     });
 
     test('should not log anything when level is OFF', () => {

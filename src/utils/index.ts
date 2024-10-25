@@ -177,6 +177,7 @@ export async function getBearerToken(credentials?: Credentials, logLevel?: LogLe
         }
         // If credentials are missing but environment variable exists, use it
         if (!credentials && process.env.SKYFLOW_CREDENTIALS) {
+            printLog(logs.infoLogs.USING_SKYFLOW_CREDENTIALS_ENV, MessageType.LOG, logLevel);
             credentials = {
                 credentialsString: process.env.SKYFLOW_CREDENTIALS
             }
@@ -184,11 +185,13 @@ export async function getBearerToken(credentials?: Credentials, logLevel?: LogLe
 
         // If token already exists, resolve immediately
         if (credentials?.apiKey && credentials.apiKey.trim().length > 0) {
+            printLog(logs.infoLogs.USING_API_KEY, MessageType.LOG, logLevel);
             return { type: AuthType.API_KEY, key: credentials.apiKey };
         }
 
         // If token already exists, resolve immediately
         if (credentials?.token) {
+            printLog(logs.infoLogs.USING_BEARER_TOKEN, MessageType.LOG, logLevel);
             return { type: AuthType.TOKEN, key: validateToken(credentials.token) };
         }
 
@@ -196,6 +199,8 @@ export async function getBearerToken(credentials?: Credentials, logLevel?: LogLe
 
         // Generate token based on provided credentials
         const token = await getToken(credentials, logLevel);
+
+        printLog(logs.infoLogs.BEARER_TOKEN_RESOLVED, MessageType.LOG, logLevel);
 
         return { type: AuthType.TOKEN, key: token.accessToken };
 
@@ -255,18 +260,19 @@ export const printLog = (message: string, messageType: MessageType, logLevel: Lo
     const {
         showDebugLogs, showInfoLogs, showWarnLogs, showErrorLogs,
     } = LogLevelOptions[logLevel];
+    const version = sdkDetails?.version ? `v${sdkDetails?.version}` : '';
     if (messageType === MessageType.LOG && showDebugLogs) {
         // eslint-disable-next-line no-console
-        console.log("DEBUG: [Skyflow] " + message);
+        console.log(`DEBUG: [Skyflow Node SDK ${version}] ` + message);
     } else if (messageType === MessageType.LOG && showInfoLogs) {
         // eslint-disable-next-line no-console
-        console.log("INFO: [Skyflow] " + message);
+        console.log(`INFO: [Skyflow Node SDK ${version}] ` + message);
     } else if (messageType === MessageType.WARN && showWarnLogs) {
         // eslint-disable-next-line no-console
-        console.warn("WARN: [Skyflow] " + message);
+        console.warn(`WARN: [Skyflow Node SDK ${version}] ` + message);
     } else if (messageType === MessageType.ERROR && showErrorLogs) {
         // eslint-disable-next-line no-console
-        console.error("ERROR: [Skyflow] " + message);
+        console.error(`ERROR: [Skyflow Node SDK ${version}] ` + message);
     }
 };
 
