@@ -273,6 +273,13 @@ describe('Skyflow initialization', () => {
             expect(() => skyflow.vault("ID")).toThrowError(noConfigFound);
         });
 
+        test('should throw error when getting vault config with empty vaultID', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig],
+            });
+            expect(() => skyflow.getVaultConfig()).toThrowError(invalidVaultIdError);
+        });
+
         test('should throw error when adding vault config', () => {
             const skyflow = new Skyflow({
                 vaultConfigs: [validVaultConfig],

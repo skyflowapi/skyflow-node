@@ -40,7 +40,7 @@ const insertData = [
 
 const insertReq = new InsertRequest(
     "TABLE_NAME",
-    insertData
+    insertData,
 )
 
 const insertOptions = new InsertOptions()
