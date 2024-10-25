@@ -1,5 +1,5 @@
 import VaultController from '../../../src/vault/controller/vault';
-import { printLog, MessageType } from '../../../src/utils';
+import { printLog, MessageType, removeSDKVersion } from '../../../src/utils';
 import logs from '../../../src/utils/logs';
 import { validateInsertRequest, validateDetokenizeRequest, validateDeleteRequest, validateTokenizeRequest, validateQueryRequest, validateUpdateRequest, validateUploadFileRequest, validateGetRequest, validateGetColumnRequest } from '../../../src/utils/validations';
 import InsertResponse from '../../../src/vault/model/response/insert';
@@ -31,6 +31,7 @@ global.FormData = class {
 jest.mock('../../../src/utils', () => ({
     printLog: jest.fn(),
     parameterizedString: jest.fn(),
+    removeSDKVersion: jest.fn(),
     MessageType: {
         LOG: 'LOG',
         ERROR: 'ERROR',

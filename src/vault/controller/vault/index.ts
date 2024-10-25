@@ -22,7 +22,7 @@ import FileUploadResponse from '../../model/response/file-upload';
 import TokenizeResponse from '../../model/response/tokenize';
 import TokenizeRequest from '../../model/request/tokenize';
 import { ParsedDetokenizeResponse, ParsedInsertBatchResponse, tokenizeRequestType } from '../../types';
-import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK_METRICS_HEADER_KEY } from '../../../utils';
+import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK_METRICS_HEADER_KEY, removeSDKVersion } from '../../../utils';
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
 import VaultClient from '../../client';
@@ -154,8 +154,6 @@ class VaultController {
                                 break;
                         }
                     }).catch((error: any) => {
-                        // console.log(error.cause)
-                        // handle JSON Parse issue
                         printLog(logs.errorLogs[`${requestType}_REQUEST_REJECTED`], MessageType.ERROR, this.client.getLogLevel());
                         this.client.failureResponse(error).catch((err) => reject(err))
                     });
@@ -241,7 +239,7 @@ class VaultController {
                     });
             } catch (error) {
                 if (error instanceof Error)
-                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -285,7 +283,7 @@ class VaultController {
                     });
             } catch (error) {
                 if (error instanceof Error)
-                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -320,7 +318,7 @@ class VaultController {
                     });
             } catch (error: any) {
                 if (error instanceof Error)
-                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -381,7 +379,7 @@ class VaultController {
                     });
             } catch (error) {
                 if (error instanceof Error)
-                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -420,7 +418,7 @@ class VaultController {
                     });
             } catch (error) {
                 if (error instanceof Error)
-                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -461,7 +459,7 @@ class VaultController {
                     });
             } catch (error) {
                 if (error instanceof Error)
-                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -492,7 +490,7 @@ class VaultController {
                     });
             } catch (error) {
                 if (error instanceof Error)
-                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
@@ -522,7 +520,7 @@ class VaultController {
                     });
             } catch (error) {
                 if (error instanceof Error)
-                    printLog(error.message, MessageType.ERROR, this.client.getLogLevel());
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
                 reject(error);
             }
         });
