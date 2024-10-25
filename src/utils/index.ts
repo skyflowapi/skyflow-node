@@ -148,6 +148,12 @@ export function validateToken(token: string) {
     return token;
 }
 
+export function removeSDKVersion(message: string): string {
+    const sdkVersionPattern = /Skyflow Node SDK v[\d\.a-zA-Z\-]+/;
+    const cleanedMessage = message.replace(sdkVersionPattern, '').trim();
+    return cleanedMessage;
+}
+
 // Helper function to generate token based on credentials
 export async function getToken(credentials?: Credentials, logLevel?: LogLevel) {
     if (credentials?.credentialsString) {
