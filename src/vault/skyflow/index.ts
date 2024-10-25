@@ -1,4 +1,4 @@
-import { CONNECTION_ID, CREDENTIALS, Env, getVaultURL, ISkyflowError, LOGLEVEL, LogLevel, MessageType, printLog, VAULT_ID } from "../../utils";
+import { CONNECTION_ID, CREDENTIALS, Env, getVaultURL, ISkyflowError, LOGLEVEL, LogLevel, MessageType, parameterizedString, printLog, VAULT_ID } from "../../utils";
 import ConnectionConfig from "../config/connection";
 import VaultConfig from "../config/vault";
 import { SkyflowConfig, ClientObj } from "../types";
@@ -23,19 +23,22 @@ class Skyflow {
 
     constructor(config: SkyflowConfig) {
         validateSkyflowConfig(config);
+        printLog(logs.infoLogs.INITIALIZE_CLIENT, MessageType.LOG, this.logLevel);
         if (config?.logLevel  && !isLogLevel(config?.logLevel))
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_LOG_LEVEL);
 
         this.logLevel = config.logLevel || LogLevel.ERROR;
-        printLog(logs.infoLogs.INITIALIZE_CLIENT, MessageType.LOG, this.logLevel);
+        printLog(parameterizedString(logs.infoLogs.CURRENT_LOG_LEVEL,[this.logLevel]), MessageType.LOG, this.logLevel);
 
         if (config?.skyflowCredentials)
             validateSkyflowCredentials(config.skyflowCredentials)
 
         this.commonCredentials = config?.skyflowCredentials;
+        printLog(logs.infoLogs.VALIDATING_VAULT_CONFIG, MessageType.LOG, this.logLevel);
         config.vaultConfigs.map(vaultConfig => {
             this.addVaultConfig(vaultConfig);
         });
+        printLog(logs.infoLogs.VALIDATING_CONNECTION_CONFIG, MessageType.LOG, this.logLevel);
         config.connectionConfigs?.map(connectionConfig => {
             this.addConnectionConfig(connectionConfig);
         });
@@ -47,12 +50,14 @@ class Skyflow {
         const vaultUrl = getVaultURL(config.clusterId, env);
         const client = new VaultClient(vaultUrl, config.vaultId, config?.credentials, this.commonCredentials, this.logLevel);
         const controller = new VaultController(client);
+        printLog(parameterizedString(logs.infoLogs.VAULT_CONTROLLER_INITIALIZED, [config.vaultId]), MessageType.LOG, this.logLevel);
         clients[config.vaultId] = { config, client, controller };
     }
 
     private addConnectionClient(config: ConnectionConfig, clients: ClientObj) {
         const client = new VaultClient(config.connectionUrl, '', config?.credentials, this.commonCredentials, this.logLevel);
         const controller = new ConnectionController(client);
+        printLog(parameterizedString(logs.infoLogs.CONNECTION_CONTROLLER_INITIALIZED, [config.connectionId]), MessageType.LOG, this.logLevel);
         clients[config.connectionId] = { config, client, controller };
     }
 
@@ -130,6 +135,7 @@ class Skyflow {
             [CONNECTION_ID]: SKYFLOW_ERROR_CODE.CONNECTION_ID_EXITS_IN_CONFIG_LIST,
         };
         if(Object.keys(clients).includes(id)){
+            printLog(parameterizedString(logs.infoLogs[`${idKey}_CONFIG_EXISTS`], [id]), MessageType.ERROR, this.logLevel);
             this.throwSkyflowError(idKey, errorMapping, [id]);
         }
     }
@@ -139,6 +145,7 @@ class Skyflow {
             [VAULT_ID]: SKYFLOW_ERROR_CODE.VAULT_ID_NOT_IN_CONFIG_LIST,
             [CONNECTION_ID]: SKYFLOW_ERROR_CODE.CONNECTION_ID_NOT_IN_CONFIG_LIST,
         };
+        printLog(parameterizedString(logs.infoLogs[`${idKey}_CONFIG_DOES_NOT_EXIST`], [id]), MessageType.ERROR, this.logLevel);
         this.throwSkyflowError(idKey, errorMapping, [id]);
     }
     

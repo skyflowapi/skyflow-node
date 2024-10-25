@@ -4,6 +4,7 @@ import SkyflowError from "../../error";
 import errorMessages from "../../error/messages";
 import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES } from "../../utils/index";
 import { isExpired } from "../../utils/jwt-utils";
+import logs from "../../utils/logs";
 import Credentials from "../config/credentials";
 
 class VaultClient {
@@ -84,8 +85,10 @@ class VaultClient {
         if (this.authInfo?.key && !this.updateTriggered) {
             switch (this.authInfo.type) {
                 case AuthType.API_KEY:
+                    printLog(logs.infoLogs.REUSE_API_KEY, MessageType.LOG, this.logLevel);
                     return { apiKey: this.authInfo.key } as Credentials;
                 case AuthType.TOKEN:
+                    printLog(logs.infoLogs.REUSE_BEARER_TOKEN, MessageType.LOG, this.logLevel);
                     if (!isExpired(this.authInfo.key)) {
                         return { token: this.authInfo.key } as Credentials;
                     }
@@ -154,6 +157,7 @@ class VaultClient {
         grpcCode?: number,
         details?: any
     ) {
+        printLog(description, MessageType.ERROR, this.getLogLevel());
         reject(new SkyflowError({
             http_code: err?.response?.status || 400,
             message: description,
