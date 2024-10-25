@@ -32,12 +32,12 @@ const skyflow_client = new Skyflow({
     logLevel:LogLevel.ERROR   // set loglevel by deault it is set to PROD
 });
 
-//add vault config from Sandbox env
+//add vault config from prod env
 skyflow_client.addVaultConfig(
     {
         vaultId: "VAULT_ID2",      // secondary vault
         clusterId: "CLUSTER_ID2",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-        env: Env.SANDBOX,  // Env by deault it is set to PROD
+        env: Env.PROD,  // Env by deault it is set to PROD
         // if you dont specify individual creds, skyflow creds will be used
     }
 );
@@ -61,7 +61,7 @@ skyflow_client.vault("VALUT_ID1").get(getRequest)
     console.log(getResponse.data);
     const insertData = getResponse.data;
     //parse insertData to remove skyflow_id
-    //get data from prod vault and insert data to SANDBOX vault
+    //get data from one vault and insert data to another vault
     const insertRequest = new InsertRequest(
         "TABLE_NAME",
         insertData!,
