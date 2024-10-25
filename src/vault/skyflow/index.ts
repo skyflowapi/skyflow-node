@@ -135,7 +135,7 @@ class Skyflow {
             [CONNECTION_ID]: SKYFLOW_ERROR_CODE.CONNECTION_ID_EXITS_IN_CONFIG_LIST,
         };
         if(Object.keys(clients).includes(id)){
-            printLog(parameterizedString(logs.infoLogs[`${idKey}_CONFIG_EXISTS`], [id]), MessageType.LOG, this.logLevel);
+            printLog(parameterizedString(logs.infoLogs[`${idKey}_CONFIG_EXISTS`], [id]), MessageType.ERROR, this.logLevel);
             this.throwSkyflowError(idKey, errorMapping, [id]);
         }
     }
@@ -145,7 +145,7 @@ class Skyflow {
             [VAULT_ID]: SKYFLOW_ERROR_CODE.VAULT_ID_NOT_IN_CONFIG_LIST,
             [CONNECTION_ID]: SKYFLOW_ERROR_CODE.CONNECTION_ID_NOT_IN_CONFIG_LIST,
         };
-        printLog(parameterizedString(logs.infoLogs[`${idKey}_CONFIG_DOES_NOT_EXIST`], [id]), MessageType.LOG, this.logLevel);
+        printLog(parameterizedString(logs.infoLogs[`${idKey}_CONFIG_DOES_NOT_EXIST`], [id]), MessageType.ERROR, this.logLevel);
         this.throwSkyflowError(idKey, errorMapping, [id]);
     }
     
