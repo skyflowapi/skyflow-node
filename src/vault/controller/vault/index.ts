@@ -174,7 +174,7 @@ class VaultController {
             tokenization: options?.getReturnTokens() || false,
             method: BatchRecordMethod.Post,
             tokens: this.getTokens(index, options?.getTokens()),
-            upsert: options?.getUpsert(),
+            upsert: options?.getUpsertColumn(),
         }));
         return {
             records,
@@ -191,7 +191,7 @@ class VaultController {
         return {
             records,
             tokenization: options?.getReturnTokens(),
-            upsert: options?.getUpsert(),
+            upsert: options?.getUpsertColumn(),
             homogeneous: options?.getHomogeneous(),
             byot: options?.getTokenMode()
         };

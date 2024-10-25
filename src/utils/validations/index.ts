@@ -344,16 +344,12 @@ export const validateInsertOptions = (insertOptions?: InsertOptions) => {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RETURN_TOKEN, [typeof insertOptions?.getReturnTokens()]);
         }
 
-        if (insertOptions?.getUpsert() && typeof insertOptions.getUpsert() !== 'string') {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPSERT, [typeof insertOptions?.getUpsert()]);
+        if (insertOptions?.getUpsertColumn() && typeof insertOptions.getUpsertColumn() !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPSERT, [typeof insertOptions?.getUpsertColumn()]);
         }
 
         if (insertOptions?.getContinueOnError() && typeof insertOptions.getContinueOnError() !== 'boolean') {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTINUE_ON_ERROR, [typeof insertOptions?.getContinueOnError()]);
-        }
-
-        if (insertOptions?.getTokenStrict() && typeof insertOptions.getTokenStrict() !== 'boolean') {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_STRICT, [typeof insertOptions?.getTokenStrict()]);
         }
 
         if (insertOptions?.getHomogeneous() && typeof insertOptions.getHomogeneous() !== 'boolean') {

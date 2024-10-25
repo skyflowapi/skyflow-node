@@ -43,7 +43,7 @@ class VaultClient {
     }
 
     updateClientConfig(clusterID: string, vaultId: string, individualCredentials?: Credentials, skyflowCredentials?: Credentials, logLevel?: LogLevel) {
-        this.updateTriggered = true
+        this.updateTriggered = true;
         this.initializeClient(clusterID, vaultId, individualCredentials, skyflowCredentials, logLevel);
     }
 
@@ -104,6 +104,7 @@ class VaultClient {
     }
 
     updateSkyflowCredentials(credentials?: Credentials) {
+        this.updateTriggered = true;
         this.skyflowCredentials = credentials;
     }
 
@@ -153,7 +154,6 @@ class VaultClient {
         grpcCode?: number,
         details?: any
     ) {
-        printLog(description, MessageType.ERROR, this.getLogLevel());
         reject(new SkyflowError({
             http_code: err?.response?.status || 400,
             message: description,
