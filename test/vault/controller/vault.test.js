@@ -151,7 +151,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
             getReturnTokens: jest.fn().mockReturnValue(true),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([{}])
@@ -180,7 +180,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
             getReturnTokens: jest.fn().mockReturnValue(true),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([{}])
@@ -209,7 +209,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
             getReturnTokens: jest.fn().mockReturnValue(true),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([{}])
@@ -238,7 +238,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
             getReturnTokens: jest.fn().mockReturnValue(false),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([])
@@ -261,7 +261,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
             getReturnTokens: jest.fn().mockReturnValue(false),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([])
@@ -284,7 +284,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
             getReturnTokens: jest.fn().mockReturnValue(false),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([])
@@ -307,7 +307,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
             getReturnTokens: jest.fn().mockReturnValue(false),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([])
@@ -330,7 +330,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
             getReturnTokens: jest.fn().mockReturnValue(true),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue('')
         };
@@ -352,7 +352,7 @@ describe('VaultController insert method', () => {
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
             getReturnTokens: jest.fn().mockReturnValue(true),
-            getUpsert: jest.fn().mockReturnValue(''),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue('')
         };

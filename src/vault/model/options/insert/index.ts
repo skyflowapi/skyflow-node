@@ -8,7 +8,6 @@ class InsertOptions {
     private tokens?: Array<object>;
     private homogeneous?: boolean;
     private tokenMode?: BYOT;
-    private tokenStrict?: boolean;
     private continueOnError?: boolean;
 
     // Constructor
@@ -19,7 +18,7 @@ class InsertOptions {
         this.returnTokens = returnTokens;
     }
 
-    setUpsert(upsert: string) {
+    setUpsertColumn(upsert: string) {
         this.upsert = upsert;
     }
 
@@ -35,10 +34,6 @@ class InsertOptions {
         this.tokenMode = tokenMode;
     }
 
-    setTokenStrict(tokenStrict: boolean) {
-        this.tokenStrict = tokenStrict;
-    }
-
     setContinueOnError(continueOnError: boolean) {
         this.continueOnError = continueOnError;
     }
@@ -48,7 +43,7 @@ class InsertOptions {
         return this.returnTokens;
     }
 
-    getUpsert(): string | undefined {
+    getUpsertColumn(): string | undefined {
         return this.upsert;
     }
 
@@ -62,10 +57,6 @@ class InsertOptions {
 
     getTokenMode(): BYOT | undefined {
         return this.tokenMode;
-    }
-
-    getTokenStrict(): boolean | undefined {
-        return this.tokenStrict;
     }
 
     getContinueOnError(): boolean | undefined {

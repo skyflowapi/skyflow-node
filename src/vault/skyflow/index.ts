@@ -58,11 +58,13 @@ class Skyflow {
 
     addVaultConfig(config: VaultConfig) {
         validateVaultConfig(config);
+        this.throwErrorIfIdExits(config?.vaultId, this.vaultClients, VAULT_ID);
         this.addVaultClient(config, this.vaultClients);
     }
 
     addConnectionConfig(config: ConnectionConfig) {
         validateConnectionConfig(config);
+        this.throwErrorIfIdExits(config?.connectionId, this.connectionClients, CONNECTION_ID);
         this.addConnectionClient(config, this.connectionClients);
     }
 
@@ -119,6 +121,16 @@ class Skyflow {
         const errorCode = errorMapping[idKey];
         if (errorCode) {
             throw new SkyflowError(errorCode, params);
+        }
+    }
+
+    private throwErrorIfIdExits(id: string, clients: ClientObj, idKey: string) {
+        const errorMapping = {
+            [VAULT_ID]: SKYFLOW_ERROR_CODE.VAULT_ID_EXITS_IN_CONFIG_LIST,
+            [CONNECTION_ID]: SKYFLOW_ERROR_CODE.CONNECTION_ID_EXITS_IN_CONFIG_LIST,
+        };
+        if(Object.keys(clients).includes(id)){
+            this.throwSkyflowError(idKey, errorMapping, [id]);
         }
     }
 
