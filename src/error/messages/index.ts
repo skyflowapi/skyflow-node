@@ -37,6 +37,8 @@ const errorMessages = {
     EMPTY_CONNECTION_URL: `${errorPrefix} Initialization failed. Invalid connection URL. Specify a valid connection Url.`,
     INVALID_CONNECTION_URL: `${errorPrefix} Initialization failed. Invalid connection URL. Specify connection Url as a valid url.`,
 
+    VAULT_ID_EXITS_IN_CONFIG_LIST: `${errorPrefix} Validation error. %s1 already exists in the config list. Specify a new vaultId.`,
+    CONNECTION_ID_EXITS_IN_CONFIG_LIST: `${errorPrefix} Validation error. %s1 already exists in the config list. Specify a new vaultId.`,
     VAULT_ID_NOT_IN_CONFIG_LIST: `${errorPrefix} Validation error. %s1 is missing from the config. Specify the vaultId's from config.`,
     CONNECTION_ID_NOT_IN_CONFIG_LIST: `${errorPrefix} Validation error. %s1 is missing from the config. Specify the connectionIds from config.`,
 

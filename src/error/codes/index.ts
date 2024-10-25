@@ -35,8 +35,9 @@ const SKYFLOW_ERROR_CODE = {
     EMPTY_CONNECTION_ID_VALIDATION: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_ID_VALIDATION },
     EMPTY_CONNECTION_URL: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_URL },
     INVALID_CONNECTION_URL: { http_code: 400, message: errorMessages.INVALID_CONNECTION_URL },
-
-
+    
+    VAULT_ID_EXITS_IN_CONFIG_LIST: { http_code: 400, message: errorMessages.VAULT_ID_EXITS_IN_CONFIG_LIST },
+    CONNECTION_ID_EXITS_IN_CONFIG_LIST: { http_code: 400, message: errorMessages.CONNECTION_ID_EXITS_IN_CONFIG_LIST },
     VAULT_ID_NOT_IN_CONFIG_LIST: { http_code: 400, message: errorMessages.VAULT_ID_NOT_IN_CONFIG_LIST },
     CONNECTION_ID_NOT_IN_CONFIG_LIST: { http_code: 400, message: errorMessages.CONNECTION_ID_NOT_IN_CONFIG_LIST },
 
