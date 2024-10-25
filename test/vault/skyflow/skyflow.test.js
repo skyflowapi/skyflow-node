@@ -196,6 +196,7 @@ describe('Skyflow initialization', () => {
         const missingVaultConfigError = "VAULT_ID is missing from the config.";
         const missingIdConfigError = "ID is missing from the config.";
         const noConfigFound = "No vault config found.";
+        const idExits = "already exists in the config list.";
     
         const validVaultConfig = {
             vaultId: "VAULT_ID",
@@ -255,6 +256,28 @@ describe('Skyflow initialization', () => {
                 vaultConfigs: [validVaultConfig],
             });
             expect(() => skyflow.removeVaultConfig("ID")).toThrowError(missingIdConfigError);
+        });
+
+        test('should throw error when calling a non-existing vault config', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig],
+            });
+            expect(() => skyflow.vault("ID")).toThrowError(missingIdConfigError);
+        });
+
+        test('should throw error when no vault configs exits', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig],
+            });
+            skyflow.removeVaultConfig("VAULT_ID");
+            expect(() => skyflow.vault("ID")).toThrowError(noConfigFound);
+        });
+
+        test('should throw error when adding vault config', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig],
+            });
+            expect(() => skyflow.addVaultConfig(validVaultConfig)).toThrowError(idExits);
         });
 
         test('should throw error when updating a non-existing vault config', () => {
