@@ -2,11 +2,6 @@ import jwt_decode, { JwtPayload } from 'jwt-decode';
 import { MessageType, printLog } from '..';
 import logs from '../logs';
 
-function isValid(token: string) {
-    printLog(logs.warnLogs.ISVALID_DEPRECATED, MessageType.WARN)
-    return !isExpired(token)
-};
-
 function isExpired(token: string) {
     if (token === "") {
         printLog(logs.infoLogs.EMPTY_BEARER_TOKEN, MessageType.LOG);
@@ -35,4 +30,4 @@ function isTokenValid(token: string) {
     return !isJwtExpired;
 };
 
-export { isValid, isExpired, isTokenValid };
+export { isExpired, isTokenValid };

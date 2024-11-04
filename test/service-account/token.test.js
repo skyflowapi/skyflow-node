@@ -28,7 +28,7 @@ describe("File Validity Tests", () => {
         { description: "get token with non-string credentials", method: getToken, credentials: { credentials: "non-string" } }
     ];
 
-    testCases.forEach(({ description, method = generateToken, filePath, credentials }) => {
+    testCases.forEach(({ description, method = generateBearerToken, filePath, credentials }) => {
         test(description, async () => {
             await expect(method(filePath || credentials)).rejects.toBeDefined();
         });
