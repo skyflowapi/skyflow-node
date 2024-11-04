@@ -1,4 +1,4 @@
-import { Env, GetOptions, GetRequest, LogLevel, Skyflow } from "skyflow-node";
+import { BYOT, Env, InsertOptions, InsertRequest, LogLevel, Skyflow } from "skyflow-node";
 
 try {
     // To generate Bearer Token from credentials string.
@@ -17,7 +17,7 @@ try {
 
     // please pass one of apiKey, token, credentialsString & path as credentials
     const credentials = {
-        path: "PATH_TO_CREDENTIALS_JSON", // path to credentials file
+        token: "BEARER", // token 
     }
 
     const skyflowClient = new Skyflow({
@@ -30,30 +30,37 @@ try {
             }
         ],
         skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
-        logLevel: LogLevel.ERROR   // set log level by default it is set to PROD
+        logLevel: LogLevel.INFO   // set log level by default it is set to PROD
     });
 
-    const getIds = [
-        'SKYFLOW_ID1',
-        'SKYFLOW_ID2',
+    //sample data
+    const insertData = [
+        { card_number: 'CARD_NUMBER1', card_cvv: 'CVV1' },
+        { card_number: 'CARD_NUMBER2', card_cvv: 'CVV2' },
     ]
 
-    const getRequest = new GetRequest(
+    const insertReq = new InsertRequest(
         "TABLE_NAME",
-        getIds
+        insertData,
     )
 
-    const getOptions = new GetOptions()
-    //use setters of setting options refer to skyflow docs for more options
-    getOptions.setReturnTokens(true);
+    const insertOptions = new InsertOptions()
+    //use setters for setting options
+    insertOptions.setReturnTokens(true);
+    insertOptions.setTokenMode(BYOT.ENABLE);
+    insertOptions.setTokens([
+        { card_number: 'TOKEN1', card_cvv: 'TOKEN2' },
+        { card_number: 'TOKEN3', card_cvv: 'TOKEN4' }
+    ]);
+    // insertOptions.setContinueOnError(true); // if continue on error is set true we will return requestIndex for errors 
 
-    skyflowClient.vault("VAULT_ID").get(
-        getRequest,
-        getOptions
-    ).then(response => {
-        console.log(response);
-    }).catch(error => {
-        console.log(JSON.stringify(error));
+    skyflowClient.vault("VAULT_ID").insert(
+        insertReq,
+        insertOptions
+    ).then(resp => {
+        console.log(resp);
+    }).catch(err => {
+        console.log(JSON.stringify(err));
     });
 } catch (err) {
     console.log(JSON.stringify(err));

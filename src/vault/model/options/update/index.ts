@@ -6,6 +6,7 @@ class UpdateOptions {
     //fields
     private returnTokens?: boolean;
     private tokenMode?: BYOT;
+    private tokens?: object;
 
     // Constructor
     constructor() {
@@ -15,12 +16,20 @@ class UpdateOptions {
         this.returnTokens = returnTokens;
     }
 
+    setTokens(tokens: object) {
+        this.tokens = tokens;
+    }
+
     setTokenMode(tokenMode: BYOT) {
         this.tokenMode = tokenMode;
     }
 
     getTokenMode(): BYOT | undefined {
         return this.tokenMode;
+    }
+
+    getTokens(): object | undefined {
+        return this.tokens;
     }
 
     getReturnTokens(): boolean | undefined {

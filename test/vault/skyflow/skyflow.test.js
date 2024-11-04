@@ -2,7 +2,7 @@ import { LogLevel, Skyflow, Env } from '../../../src';
 
 describe('Skyflow initialization', () => {
     const credentials = {
-        apiKey: "key"
+        apiKey: "sky-key"
     };
     const validSkyflowConfig = {
         vaultConfigs: [{
@@ -144,7 +144,7 @@ describe('Skyflow initialization', () => {
                 logLevel: LogLevel.OFF,
                 skyflowCredentials: {
                     token: "TOKEN",
-                    apiKey: "KEY"
+                    apiKey: "sky-KEY"
                 }
             })).toThrowError(multipleCredentialsError);
         });
@@ -154,10 +154,10 @@ describe('Skyflow initialization', () => {
                 vaultConfigs: validVaultConfig,
                 logLevel: LogLevel.OFF,
                 skyflowCredentials: {
-                    apiKey: "KEY"
+                    apiKey: "sky-KEY"
                 }
             });
-            const newCredentials = { token: "VALID_TOKEN" };
+            const newCredentials = { apiKey: "sky-VALID_KEY" };
             skyflow.updateSkyflowCredentials(newCredentials);
             expect(skyflow.getSkyflowCredentials()).toBe(newCredentials);
         });
@@ -167,7 +167,7 @@ describe('Skyflow initialization', () => {
                 vaultConfigs: validVaultConfig,
                 logLevel: LogLevel.OFF,
                 skyflowCredentials: {
-                    apiKey: "KEY"
+                    apiKey: "sky-KEY"
                 }
             });
             expect(() => skyflow.updateSkyflowCredentials())
@@ -179,12 +179,12 @@ describe('Skyflow initialization', () => {
                 vaultConfigs: validVaultConfig,
                 logLevel: LogLevel.OFF,
                 skyflowCredentials: {
-                    apiKey: "KEY"
+                    apiKey: "sky-KEY"
                 }
             });
             expect(() => skyflow.updateSkyflowCredentials({
                 token: "TOKEN",
-                apiKey: "KEY"
+                apiKey: "sky-KEY"
             })).toThrowError(multipleCredentialsError);
         });
     });    
