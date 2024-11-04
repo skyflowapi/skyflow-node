@@ -88,8 +88,8 @@ class VaultClient {
                     printLog(logs.infoLogs.REUSE_API_KEY, MessageType.LOG, this.logLevel);
                     return { apiKey: this.authInfo.key } as Credentials;
                 case AuthType.TOKEN:
-                    printLog(logs.infoLogs.REUSE_BEARER_TOKEN, MessageType.LOG, this.logLevel);
                     if (!isExpired(this.authInfo.key)) {
+                        printLog(logs.infoLogs.REUSE_BEARER_TOKEN, MessageType.LOG, this.logLevel);
                         return { token: this.authInfo.key } as Credentials;
                     }
             }

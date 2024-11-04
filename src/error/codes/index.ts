@@ -126,6 +126,8 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_UPDATE_REQUEST: { http_code: 400, message: errorMessages.INVALID_UPDATE_REQUEST },
     EMPTY_DATA_IN_UPDATE: { http_code: 400, message: errorMessages.EMPTY_DATA_IN_UPDATE },
     INVALID_DATA_IN_UPDATE: { http_code: 400, message: errorMessages.INVALID_DATA_IN_UPDATE },
+    INVALID_UPDATE_TOKENS: { http_code: 400, message: errorMessages.INVALID_UPDATE_TOKENS },
+    INVALID_TOKEN_IN_UPDATE: { http_code: 400, message: errorMessages.INVALID_TOKEN_IN_UPDATE },
 
     INVALID_GET_REQUEST: { http_code: 400, message: errorMessages.INVALID_GET_REQUEST },
     EMPTY_IDS_IN_GET: { http_code: 400, message: errorMessages.EMPTY_IDS_IN_GET },

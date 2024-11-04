@@ -10,7 +10,7 @@ try {
         privateKey: '<YOUR_PEM_PRIVATE_KEY>',
     };
 
-    // please pass one of apiKey, token, credentialsString & path
+    // please pass one of apiKey, token, credentialsString & path as credentials
     const skyflowCredentials = {
         credentialsString: JSON.stringify(cred)
     }
@@ -18,26 +18,26 @@ try {
     const credentials = {
         token: "BEARER_TOKEN", // bearer token 
         // apiKey: "API_KEY", //API_KEY
-        // path: "PATH", //PATH to credentials json
+        // path: "PATH", //path to credentials file
         // credentialsString: "CREDENTIAL_STRING", // credentials as string
     }
 
-    const skyflow_client = new Skyflow({
+    const skyflowClient = new Skyflow({
         vaultConfigs: [
             {
                 vaultId: "VAULT_ID1",      // primary vault
                 clusterId: "CLUSTER_ID1",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-                env: Env.PROD,  // Env by deault it is set to PROD
+                env: Env.PROD,  // Env by default it is set to PROD
             },
             {
                 vaultId: "VAULT_ID2",      // primary vault
                 clusterId: "CLUSTER_ID2",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-                env: Env.PROD,  // Env by deault it is set to PROD
+                env: Env.PROD,  // Env by default it is set to PROD
                 credentials: credentials,
             }
         ],
-        skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual creds are passed
-        logLevel: LogLevel.ERROR   // set loglevel by deault it is set to PROD
+        skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
+        logLevel: LogLevel.ERROR   // set log level by default it is set to PROD
     });
 
     const primaryDeleteIds = [
@@ -52,7 +52,7 @@ try {
     );
 
     // VAULT_ID1 will use skyflowCredentials if you don't specify individual credentials at config level
-    skyflow_client.vault("VAULT_ID1").delete(
+    skyflowClient.vault("VAULT_ID1").delete(
         primaryDeleteRequest
     ).then(resp => {
         console.log(resp);
@@ -72,7 +72,7 @@ try {
     );
 
     // VAULT_ID1 will use individual credentials at config level
-    skyflow_client.vault("VAULT_ID2").delete(
+    skyflowClient.vault("VAULT_ID2").delete(
         secondaryDeleteRequest
     ).then(resp => {
         console.log(resp);

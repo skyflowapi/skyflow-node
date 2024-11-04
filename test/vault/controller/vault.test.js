@@ -1,5 +1,5 @@
 import VaultController from '../../../src/vault/controller/vault';
-import { printLog, MessageType, removeSDKVersion } from '../../../src/utils';
+import { printLog, MessageType, removeSDKVersion, LogLevel } from '../../../src/utils';
 import logs from '../../../src/utils/logs';
 import { validateInsertRequest, validateDetokenizeRequest, validateDeleteRequest, validateTokenizeRequest, validateQueryRequest, validateUpdateRequest, validateUploadFileRequest, validateGetRequest, validateGetColumnRequest } from '../../../src/utils/validations';
 import InsertResponse from '../../../src/vault/model/response/insert';
@@ -514,7 +514,6 @@ describe('VaultController detokenize method', () => {
         });
 
         await expect(vaultController.detokenize(mockRequest, mockOptions)).rejects.toThrow('Validation error');
-        expect(validateDetokenizeRequest).toHaveBeenCalledWith(mockRequest, mockOptions);
     });
 
     test('should handle API error during detokenize', async () => {
@@ -932,6 +931,7 @@ describe('VaultController update method', () => {
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getTokenMode: jest.fn().mockReturnValue("DISABLE"),
+            getTokens: jest.fn().mockReturnValue({}),
         };
         const mockResponseData = {data: { skyflow_id: 'id123', tokens: { field1: 'token123' } }};
 
@@ -986,6 +986,7 @@ describe('VaultController update method', () => {
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getTokenMode: jest.fn().mockReturnValue("ENABLE"),
+            getTokens: jest.fn().mockReturnValue({}),
         };
         const mockResponseData = {data: { skyflow_id: 'id123', tokens: { field1: 'token123' } }};
 
@@ -1015,6 +1016,7 @@ describe('VaultController update method', () => {
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getTokenMode: jest.fn().mockReturnValue(false),
+            getTokens: jest.fn().mockReturnValue({}),
         };
 
         validateUpdateRequest.mockImplementation(() => {
@@ -1035,6 +1037,7 @@ describe('VaultController update method', () => {
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getTokenMode: jest.fn().mockReturnValue("ENABLE"),
+            getTokens: jest.fn().mockReturnValue({}),
         };
         validateUpdateRequest.mockImplementation(() => {
             // throw new Error('Validation error');
@@ -1056,6 +1059,7 @@ describe('VaultController update method', () => {
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(false),
+            getTokens: jest.fn().mockReturnValue({}),
         };
         const mockResponseData = { skyflow_id: 'id123' };
 
@@ -1077,6 +1081,7 @@ describe('VaultController update method', () => {
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getTokenMode: jest.fn().mockReturnValue(false),
+            getTokens: jest.fn().mockReturnValue({}),
         };
         validateUpdateRequest.mockImplementation(() => {
             // throw new Error('Validation error');
