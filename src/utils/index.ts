@@ -7,7 +7,8 @@ import logs from "./logs";
 import os from 'os';
 import process from "process";
 import SKYFLOW_ERROR_CODE from "../error/codes";
-import { isExpired, isValid } from "./jwt-utils";
+import { isExpired } from "./jwt-utils";
+import { isValidAPIKey } from "./validations";
 
 dotenv.config();
 
@@ -139,9 +140,6 @@ export function getConnectionBaseURL(clusterID: string, env: Env) {
 }
 
 export function validateToken(token: string) {
-    if (!isValid(token)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN);
-    }
     if (isExpired(token)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.TOKEN_EXPIRED);
     }
@@ -191,8 +189,11 @@ export async function getBearerToken(credentials?: Credentials, logLevel?: LogLe
 
         // If token already exists, resolve immediately
         if (credentials?.apiKey && credentials.apiKey.trim().length > 0) {
-            printLog(logs.infoLogs.USING_API_KEY, MessageType.LOG, logLevel);
-            return { type: AuthType.API_KEY, key: credentials.apiKey };
+            if(isValidAPIKey(credentials?.apiKey)){
+                printLog(logs.infoLogs.USING_API_KEY, MessageType.LOG, logLevel);
+                return { type: AuthType.API_KEY, key: credentials.apiKey };
+            }
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY);
         }
 
         // If token already exists, resolve immediately
