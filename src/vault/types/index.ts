@@ -35,7 +35,7 @@ export interface queryResponseType {
 }
 
 export interface StringKeyValueMapType {
-    [key: string]: string;
+    [key: string]: object | string;
 }
 
 export interface tokenizeRequestType {

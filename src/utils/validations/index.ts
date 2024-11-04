@@ -883,7 +883,7 @@ function isStringKeyValueMap(obj: any): obj is StringKeyValueMapType {
     }
 
     for (const key in obj) {
-        if (typeof key !== 'string' || typeof obj[key] !== 'string') {
+        if (typeof key !== 'string' || (typeof obj[key] !== 'object' && typeof obj[key] !== 'string')) {
             return false;
         }
     }
