@@ -209,7 +209,7 @@ class VaultController {
                 printLog(logs.infoLogs.INSERT_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_INSERT_INPUT, MessageType.LOG, this.client.getLogLevel());
                 // validations checks
-                validateInsertRequest(request, options);
+                validateInsertRequest(request, options, this.client.getLogLevel());
 
                 const isContinueOnError = options?.getContinueOnError();
 
@@ -251,9 +251,9 @@ class VaultController {
                 printLog(logs.infoLogs.UPDATE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_UPDATE_INPUT, MessageType.LOG, this.client.getLogLevel());
                 // Validation checks
-                validateUpdateRequest(request, options);
+                validateUpdateRequest(request, options, this.client.getLogLevel());
 
-                const record = { fields: request.updateData };
+                const record = { fields: request.updateData, tokens: options?.getTokens() };
                 const strictMode = options?.getTokenMode() ? V1BYOT.Enable : V1BYOT.Disable;
                 const updateData: RecordServiceUpdateRecordBody = {
                     record: record,
@@ -295,7 +295,7 @@ class VaultController {
                 printLog(logs.infoLogs.DELETE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_DELETE_INPUT, MessageType.LOG, this.client.getLogLevel());
                 // Validation checks
-                validateDeleteRequest(request);
+                validateDeleteRequest(request, this.client.getLogLevel());
 
                 const deleteRequest: RecordServiceBulkDeleteRecordBody = {
                     skyflow_ids: request.deleteIds,
@@ -332,10 +332,10 @@ class VaultController {
 
                 // Validation checks
                 if (request instanceof GetRequest) {
-                    validateGetRequest(request, options);
+                    validateGetRequest(request, options, this.client.getLogLevel());
                 }
                 if (request instanceof GetColumnRequest) {
-                    validateGetColumnRequest(request, options);
+                    validateGetColumnRequest(request, options, this.client.getLogLevel());
                 }
 
 
@@ -392,7 +392,7 @@ class VaultController {
                 printLog(logs.infoLogs.VALIDATE_FILE_UPLOAD_INPUT, MessageType.LOG, this.client.getLogLevel());
 
                 // Validation checks
-                validateUploadFileRequest(request);
+                validateUploadFileRequest(request, this.client.getLogLevel());
 
                 //handle file exits
                 const formData = new FormData();
@@ -431,7 +431,7 @@ class VaultController {
                 printLog(logs.infoLogs.VALIDATE_QUERY_INPUT, MessageType.LOG, this.client.getLogLevel());
 
                 // Validation checks
-                validateQueryRequest(request);
+                validateQueryRequest(request, this.client.getLogLevel());
 
                 const query: QueryServiceExecuteQueryBody = {
                     query: request.query,
@@ -472,7 +472,7 @@ class VaultController {
                 printLog(logs.infoLogs.VALIDATE_DETOKENIZE_INPUT, MessageType.LOG, this.client.getLogLevel());
                 
                 //validations checks
-                validateDetokenizeRequest(request, options);
+                validateDetokenizeRequest(request, options, this.client.getLogLevel());
 
                 const fields = request.tokens.map(record => ({ token: record, redaction: request?.redactionType })) as Array<V1DetokenizeRecordRequest>;
                 const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadURL() };
@@ -503,7 +503,7 @@ class VaultController {
                 printLog(logs.infoLogs.VALIDATE_TOKENIZE_INPUT, MessageType.LOG, this.client.getLogLevel());
                 
                 //validation checks
-                validateTokenizeRequest(request);
+                validateTokenizeRequest(request, this.client.getLogLevel());
 
                 const fields = request.values.map((record: tokenizeRequestType) => ({ value: record.value, columnGroup: record.columnGroup })) as Array<V1TokenizeRecordRequest>;
                 const tokenizePayload: V1TokenizePayload = { tokenizationParameters: fields };

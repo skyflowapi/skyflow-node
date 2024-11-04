@@ -74,7 +74,7 @@ describe('Validate Token Helper', () => {
 
     test('should throw an error for invalid token', () => {
         expect(() => validateToken("connectionId"))
-            .toThrowError(new Error(errorMessages.INVALID_TOKEN));
+            .toThrowError(new Error(errorMessages.TOKEN_EXPIRED));
     });
 
     test('should throw an error for invalid token', () => {
@@ -90,7 +90,7 @@ describe('Validate Token Helper', () => {
     });
 
     test('should return error for a empty token', () => {
-        expect(() => validateToken("")).toThrowError(new Error(errorMessages.INVALID_TOKEN));
+        expect(() => validateToken("")).toThrowError(new Error(errorMessages.TOKEN_EXPIRED));
     });
 });
 

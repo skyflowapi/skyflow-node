@@ -22,7 +22,7 @@ class Skyflow {
     private logLevel: LogLevel = LogLevel.ERROR;
 
     constructor(config: SkyflowConfig) {
-        validateSkyflowConfig(config);
+        validateSkyflowConfig(config, this.logLevel);
         printLog(logs.infoLogs.INITIALIZE_CLIENT, MessageType.LOG, this.logLevel);
         if (config?.logLevel  && !isLogLevel(config?.logLevel))
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_LOG_LEVEL);
@@ -62,13 +62,13 @@ class Skyflow {
     }
 
     addVaultConfig(config: VaultConfig) {
-        validateVaultConfig(config);
+        validateVaultConfig(config, this.logLevel);
         this.throwErrorIfIdExits(config?.vaultId, this.vaultClients, VAULT_ID);
         this.addVaultClient(config, this.vaultClients);
     }
 
     addConnectionConfig(config: ConnectionConfig) {
-        validateConnectionConfig(config);
+        validateConnectionConfig(config, this.logLevel);
         this.throwErrorIfIdExits(config?.connectionId, this.connectionClients, CONNECTION_ID);
         this.addConnectionClient(config, this.connectionClients);
     }
@@ -97,12 +97,12 @@ class Skyflow {
     }
 
     updateVaultConfig(config: VaultConfig) {
-        validateUpdateVaultConfig(config);
+        validateUpdateVaultConfig(config, this.logLevel);
         this.updateVaultClient(config, this.vaultClients, VAULT_ID);
     }
 
     updateConnectionConfig(config: ConnectionConfig) {
-        validateUpdateConnectionConfig(config);
+        validateUpdateConnectionConfig(config, this.logLevel);
         this.updateConnectionClient(config, this.connectionClients, CONNECTION_ID);
     }
 

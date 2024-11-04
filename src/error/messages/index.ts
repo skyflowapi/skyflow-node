@@ -15,7 +15,7 @@ const errorMessages = {
     EMPTY_CLUSTER_ID: `${errorPrefix} Initialization failed. Invalid cluster ID. Specify a valid cluster Id for vault with vaultId %s1 .`,
     INVALID_CLUSTER_ID: `${errorPrefix} Initialization failed. Invalid cluster ID. Specify cluster Id as a string for vault with vaultId %s1.`,
     INVALID_TOKEN: `${errorPrefix} Validation error. Invalid token. Specify a valid token.`,
-    TOKEN_EXPIRED: `${errorPrefix} Validation error. Token expired. Specify a valid token.`,
+    TOKEN_EXPIRED: `${errorPrefix} Validation error. Token provided is either invalid or has expired. Specify a valid token.`,
     INVALID_ENV: `${errorPrefix} Initialization failed. Invalid env. Specify a valid env for vault with vaultId %s1.`,
     INVALID_LOG_LEVEL: `${errorPrefix} Initialization failed. Invalid log level. Specify a valid log level.`,
     EMPTY_CREDENTIAL_FILE_PATH: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid file path.`,
@@ -122,6 +122,8 @@ const errorMessages = {
     INVALID_UPDATE_REQUEST: `${errorPrefix} Validation error. Invalid update request. Specify a valid update request.`,
     INVALID_DATA_IN_UPDATE: `${errorPrefix} Validation error. Invalid data in update request. data must be of type object at index %s1.`,
     EMPTY_DATA_IN_UPDATE: `${errorPrefix} Validation error. Data cannot be empty in update request. Specify a valid data at index %s1.`,
+    INVALID_UPDATE_TOKENS: `${errorPrefix} Validation error. Invalid tokens. Specify valid tokens as object.`,
+    INVALID_TOKEN_IN_UPDATE: `${errorPrefix} Validation error. Invalid tokens. Specify valid tokens as key value pairs.`,
 
     EMPTY_TABLE_NAME: `${errorPrefix} Validation error. Table name cannot be empty. Specify a valid table name.`,
     INVALID_TABLE_NAME: `${errorPrefix} Validation error. Invalid table name. Specify a valid table name as string.`,
