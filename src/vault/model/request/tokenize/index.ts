@@ -1,24 +1,24 @@
 //imports
 
-import { tokenizeRequestType } from "../../../types";
+import { TokenizeRequestType } from "../../../types";
 
 class TokenizeRequest {
 
     //fields
-    private _values: Array<tokenizeRequestType>;
+    private _values: Array<TokenizeRequestType>;
 
     // Constructor
-    constructor(values: Array<tokenizeRequestType>) {
+    constructor(values: Array<TokenizeRequestType>) {
         this._values = values;
     }
 
     // Getter for _values
-    public get values(): Array<tokenizeRequestType> {
+    public get values(): Array<TokenizeRequestType> {
         return this._values;
     }
 
     // Setter for _values
-    public set values(value: Array<tokenizeRequestType>) {
+    public set values(value: Array<TokenizeRequestType>) {
         this._values = value;
     }
 

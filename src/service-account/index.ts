@@ -94,7 +94,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
             }
             catch (e) {
                 printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT);
+                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
             }
             const expiryTime = Math.floor(Date.now() / 1000) + 3600;
             const claims = {
@@ -226,7 +226,7 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
             }
             catch (e) {
                 printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT);
+                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
             }
 
             let expiryTime;

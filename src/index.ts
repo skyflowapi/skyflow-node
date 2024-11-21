@@ -1,5 +1,5 @@
 import Skyflow from './vault/skyflow';
-import { LogLevel, Env, RedactionType, Method, OrderByEnum, BYOT } from './utils';
+import { LogLevel, Env, RedactionType, RequestMethod, OrderByEnum, BYOT } from './utils';
 import InsertRequest from './vault/model/request/insert';
 import InsertOptions from './vault/model/options/insert';
 import GetRequest from './vault/model/request/get';
@@ -26,12 +26,21 @@ import UpdateResponse from './vault/model/response/update';
 import FileUploadResponse from './vault/model/response/file-upload';
 import QueryResponse from './vault/model/response/query';
 import InvokeConnectionResponse from './vault/model/response/invoke/invoke';
+import { SkyflowConfig, TokenizeRequestType } from './vault/types';
+import VaultConfig from './vault/config/vault';
+import SkyflowError from './error';
+import ConnectionConfig from './vault/config/connection';
 
 export {
     Env,
     LogLevel,
-    Method,
+    RequestMethod,
     Skyflow,
+    SkyflowConfig,
+    ConnectionConfig,
+    VaultConfig,
+    SkyflowError,
+    TokenizeRequestType,
     BearerTokenOptions,
     SignedDataTokensOptions,
     GenerateTokenOptions,

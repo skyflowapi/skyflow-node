@@ -63,6 +63,8 @@ const logs = {
         UNABLE_TO_GENERATE_SDK_METRIC: 'Unable to generate %s1 metric.',
         USING_BEARER_TOKEN: 'Using token from credentials',
         USING_API_KEY: 'Using api key from credentials',
+        USING_CREDENTIALS_STRING: 'Using credentials string from credentials',
+        USING_PATH: 'Using path from credentials',
         USING_SKYFLOW_CREDENTIALS_ENV: 'Using SKYFLOW_CREDENTIALS from env'
     },
     errorLogs: {
