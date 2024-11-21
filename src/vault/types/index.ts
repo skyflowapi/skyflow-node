@@ -38,7 +38,7 @@ export interface StringKeyValueMapType {
     [key: string]: object | string;
 }
 
-export interface tokenizeRequestType {
+export interface TokenizeRequestType {
     columnGroup: string;
     value: string;
 }

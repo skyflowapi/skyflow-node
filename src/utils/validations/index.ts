@@ -1,4 +1,4 @@
-import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, MessageType, Method, OrderByEnum, parameterizedString, printLog, RedactionType, VAULT, VAULT_ID } from "..";
+import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW_ID, VAULT, VAULT_ID } from "..";
 import { V1BYOT } from "../../ _generated_/rest";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
@@ -41,7 +41,7 @@ export function isOrderBy(value?: string): boolean {
 }
 
 export function isMethod(value?: string): boolean {
-    return value !== undefined && Object.values(Method).includes(value as Method);
+    return value !== undefined && Object.values(RequestMethod).includes(value as RequestMethod);
 }
 
 export function isLogLevel(value?: string): boolean {
@@ -505,23 +505,24 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
 
-        if (!updateRequest?.skyflowId || !Object.prototype.hasOwnProperty.call(updateRequest, '_skyflowId')) {
+        if (!updateRequest.data) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_UPDATE_DATA);
+        }
+        if (typeof updateRequest.data !== 'object') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_UPDATE_DATA);
+        }
+
+        if (updateRequest?.data && !Object.prototype.hasOwnProperty.call(updateRequest.data, SKYFLOW_ID)) {
             printLog(logs.errorLogs.EMPTY_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
         }
 
-        if (typeof updateRequest.skyflowId !== 'string' || updateRequest.skyflowId.trim().length === 0) {
+        if (updateRequest?.data[SKYFLOW_ID]  && typeof updateRequest.data[SKYFLOW_ID] !== 'string' || updateRequest.data[SKYFLOW_ID].trim().length === 0) {
             printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
         }
 
-        if (!updateRequest.updateData) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_UPDATE_DATA);
-        }
-        if (typeof updateRequest.updateData !== 'object') {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_UPDATE_DATA);
-        }
-        validateUpdateInput(updateRequest.updateData);
+        validateUpdateInput(updateRequest.data);
         validateUpdateOptions(updateOptions);
     } else {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_UPDATE_REQUEST);
@@ -788,16 +789,16 @@ export const validateDeleteRequest = (deleteRequest: DeleteRequest, logLevel: Lo
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
 
-        if (!deleteRequest?.deleteIds) {
+        if (!deleteRequest?.ids) {
             printLog(logs.errorLogs.EMPTY_IDS_IN_DELETE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DELETE_IDS)
         }
 
-        if (!Array.isArray(deleteRequest?.deleteIds)) {
+        if (!Array.isArray(deleteRequest?.ids)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DELETE_IDS_INPUT)
         }
 
-        const deleteIds = deleteRequest?.deleteIds;
+        const deleteIds = deleteRequest?.ids;
         if (deleteIds.length === 0) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DELETE_IDS);
         }

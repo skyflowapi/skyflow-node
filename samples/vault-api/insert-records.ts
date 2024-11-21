@@ -1,60 +1,53 @@
-import { Env, InsertOptions, InsertRequest, LogLevel, Skyflow } from "skyflow-node";
+import { Credentials, Env, InsertOptions, InsertRequest, LogLevel, Skyflow, VaultConfig, SkyflowConfig, InsertResponse, SkyflowError } from 'skyflow-node';
 
 try {
-    // To generate Bearer Token from credentials string.
-    const cred = {
-        clientID: '<YOUR_CLIENT_ID>',
-        clientName: '<YOUR_CLIENT_NAME>',
-        keyID: '<YOUR_KEY_ID>',
-        tokenURI: '<YOUR_TOKEN_URI>',
-        privateKey: '<YOUR_PEM_PRIVATE_KEY>',
+    // please pass one of apiKey, token, credentialsString & path as credentials
+    const credentials: Credentials = {
+        apiKey: 'API_KEY', // API Key 
     };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const skyflowCredentials = {
-        credentialsString: JSON.stringify(cred),
-    }
+    const logLevel: LogLevel = LogLevel.INFO;
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const credentials = {
-        apiKey: "API_KEY", // API Key 
-    }
+    const primaryVaultConfig: VaultConfig = {
+        vaultId: 'VAULT_ID',      // primary vault
+        clusterId: 'CLUSTER_ID',  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
+        env: Env.PROD,  // Env by default it is set to PROD
+        credentials: credentials,   // individual credentials
+    };
 
-    const skyflowClient = new Skyflow({
+    const skyflowConfig: SkyflowConfig = {
         vaultConfigs: [
-            {
-                vaultId: "VAULT_ID",      // primary vault
-                clusterId: "CLUSTER_ID",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-                env: Env.PROD,  // Env by default it is set to PROD
-                credentials: credentials   // individual credentials
-            }
+            primaryVaultConfig,
         ],
-        skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
-        logLevel: LogLevel.ERROR   // set log level by default it is set to PROD
-    });
+        logLevel: logLevel,  // set log level by default it is set to PROD
+    };
+
+    const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
     //sample data
-    const insertData = [
-        { card_number: '4111111111111111', cvv: '1234' },
-        { card_number: '42424242424242424', cvv: '321' },
-    ]
+    const insertData: Array<Object> = [
+        { card_number: '4111111111111111', card_cvv: '1234' },
+        { card_number: '42424242424242424', card_cvv: '321' },
+    ];
 
-    const insertReq = new InsertRequest(
-        "TABLE_NAME",
+    const tableName: string = 'TABLE_NAME';
+
+    const insertReq: InsertRequest = new InsertRequest(
+        tableName,
         insertData,
-    )
+    );
 
-    const insertOptions = new InsertOptions()
+    const insertOptions: InsertOptions = new InsertOptions();
     //use setters for setting options
     insertOptions.setReturnTokens(true);
     // insertOptions.setContinueOnError(true); // if continue on error is set true we will return requestIndex for errors 
 
-    skyflowClient.vault("VAULT_ID").insert(
+    skyflowClient.vault('VAULT_ID').insert(
         insertReq,
         insertOptions
-    ).then(resp => {
+    ).then((resp: InsertResponse) => {
         console.log(resp);
-    }).catch(err => {
+    }).catch((err: SkyflowError) => {
         console.log(JSON.stringify(err));
     });
 } catch (err) {
