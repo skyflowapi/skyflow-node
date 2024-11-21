@@ -3,12 +3,12 @@
 class DeleteRequest {
     //fields
     private _tableName: string;
-    private _deleteIds: Array<string>;
+    private _ids: Array<string>;
 
     // Constructor
     constructor(tableName: string, deleteIds: Array<string>) {
         this._tableName = tableName;
-        this._deleteIds = deleteIds;
+        this._ids = deleteIds;
     }
 
     // Getter for tableName
@@ -22,13 +22,13 @@ class DeleteRequest {
     }
 
     // Getter for deleteData
-    public get deleteIds(): Array<string> {
-        return this._deleteIds;
+    public get ids(): Array<string> {
+        return this._ids;
     }
 
     // Setter for deleteData
-    public set deleteIds(value: Array<string>) {
-        this._deleteIds = value;
+    public set ids(value: Array<string>) {
+        this._ids = value;
     }
 
 }

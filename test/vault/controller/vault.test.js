@@ -36,6 +36,13 @@ jest.mock('../../../src/utils', () => ({
         LOG: 'LOG',
         ERROR: 'ERROR',
     },
+    RedactionType: {
+        DEFAULT: 'DEFAULT',
+        PLAIN_TEXT: 'PLAIN_TEXT',
+        MASKED: 'MASKED',
+        REDACTED: 'REDACTED',
+    },
+    SKYFLOW_ID: 'skyflowId',
     TYPES: {
         INSERT: 'INSERT',
         INSERT_BATCH: 'INSERT_BATCH',
@@ -923,10 +930,10 @@ describe('VaultController update method', () => {
     });
 
     test('should successfully update record', async () => {
+        const skyflowId = 'id123';
         const mockRequest = {
-            updateData: { field1: 'value1' },
+            data: { field1: 'value1', skyflowId },
             tableName: 'testTable',
-            skyflowId: 'id123',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -942,7 +949,7 @@ describe('VaultController update method', () => {
         expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
             mockRequest.tableName,
-            mockRequest.skyflowId,
+            skyflowId,
             expect.any(Object), // Update data
             expect.any(Object)  // Headers
         );
@@ -953,10 +960,10 @@ describe('VaultController update method', () => {
     });
 
     test('should successfully update record', async () => {
+        const skyflowId = 'id123';
         const mockRequest = {
-            updateData: { field1: 'value1' },
+            data: { field1: 'value1', skyflowId },
             tableName: 'testTable',
-            skyflowId: 'id123',
         };
         const mockOptions = null;
         const mockResponseData = {data: { skyflow_id: 'id123', tokens: { field1: 'token123' } }};
@@ -968,7 +975,7 @@ describe('VaultController update method', () => {
         expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
             mockRequest.tableName,
-            mockRequest.skyflowId,
+            skyflowId,
             expect.any(Object), // Update data
             expect.any(Object)  // Headers
         );
@@ -978,10 +985,10 @@ describe('VaultController update method', () => {
         expect(response.errors).toHaveLength(0);
     });
     test('should successfully update record using enable tokens', async () => {
+        const skyflowId = 'id123';
         const mockRequest = {
-            updateData: { field1: 'value1' },
+            data: { field1: 'value1', skyflowId },
             tableName: 'testTable',
-            skyflowId: 'id123',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -997,7 +1004,7 @@ describe('VaultController update method', () => {
         expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
             mockRequest.tableName,
-            mockRequest.skyflowId,
+            skyflowId,
             expect.any(Object), // Update data
             expect.any(Object)  // Headers
         );
@@ -1009,9 +1016,8 @@ describe('VaultController update method', () => {
 
     test('should handle validation errors', async () => {
         const mockRequest = {
-            updateData: { field1: 'value1' },
+            data: { field1: 'value1', skyflowId: 'id123' },
             tableName: 'testTable',
-            skyflowId: 'id123',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -1030,9 +1036,8 @@ describe('VaultController update method', () => {
 
     test('should handle API errors during record update', async () => {
         const mockRequest = {
-            updateData: { field1: 'value1' },
+            data: { field1: 'value1', skyflowId: 'id123' },
             tableName: 'testTable',
-            skyflowId: 'id123',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -1052,9 +1057,8 @@ describe('VaultController update method', () => {
 
     test('should return updated record without tokens when token mode is disabled', async () => {
         const mockRequest = {
-            updateData: { field1: 'value1' },
+            data: { field1: 'value1', skyflowId: 'id123' },
             tableName: 'testTable',
-            skyflowId: 'id123',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(false),
@@ -1074,9 +1078,8 @@ describe('VaultController update method', () => {
 
     test('should reject and log when API returns error during update', async () => {
         const mockRequest = {
-            updateData: { field1: 'value1' },
+            data: { field1: 'value1', skyflowId: 'id123' },
             tableName: 'testTable',
-            skyflowId: 'id123',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
