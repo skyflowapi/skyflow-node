@@ -14,6 +14,10 @@ dotenv.config();
 
 export const SDK_METRICS_HEADER_KEY = "sky-metadata";
 
+export const SKYFLOW_ID = "skyflowId";
+
+export const BAD_REQUEST = "Bad Request";
+
 export const SKYFLOW_AUTH_HEADER_KEY = "x-skyflow-authorization";
 
 export const REQUEST_ID_KEY = "x-request-id";
@@ -55,7 +59,7 @@ export enum MessageType {
     ERROR = 'ERROR',
 }
 
-export enum Method {
+export enum RequestMethod {
     POST = 'POST',
     GET = 'GET',
     PUT = 'PUT',
@@ -155,6 +159,7 @@ export function removeSDKVersion(message: string): string {
 // Helper function to generate token based on credentials
 export async function getToken(credentials?: Credentials, logLevel?: LogLevel) {
     if (credentials?.credentialsString) {
+        printLog(logs.infoLogs.USING_CREDENTIALS_STRING, MessageType.LOG, logLevel);
         return generateBearerTokenFromCreds(credentials.credentialsString, {
             roleIDs: credentials.roles,
             ctx: credentials.context,
@@ -163,6 +168,7 @@ export async function getToken(credentials?: Credentials, logLevel?: LogLevel) {
     }
 
     if (credentials?.path) {
+        printLog(logs.infoLogs.USING_PATH, MessageType.LOG, logLevel);
         return generateBearerToken(credentials.path, {
             roleIDs: credentials.roles,
             ctx: credentials.context,

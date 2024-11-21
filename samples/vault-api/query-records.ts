@@ -1,7 +1,7 @@
-import { Env, LogLevel, QueryRequest, Skyflow } from "skyflow-node";
+import { Credentials, Env, LogLevel, QueryRequest, QueryResponse, Skyflow, SkyflowConfig, SkyflowError, VaultConfig } from 'skyflow-node';
 try {
     // To generate Bearer Token from credentials string.
-    const cred = {
+    const cred: Object = {
         clientID: '<YOUR_CLIENT_ID>',
         clientName: '<YOUR_CLIENT_NAME>',
         keyID: '<YOUR_KEY_ID>',
@@ -10,39 +10,43 @@ try {
     };
 
     // please pass one of apiKey, token, credentialsString & path as credentials
-    const skyflowCredentials = {
+    const skyflowCredentials: Credentials = {
         credentialsString: JSON.stringify(cred),
-    }
+    };
 
     // please pass one of apiKey, token, credentialsString & path as credentials
-    const credentials = {
-        apiKey: "API_KEY", // API key 
-    }
+    const credentials: Credentials = {
+        apiKey: 'API_KEY', // API key 
+    };
 
-    const skyflowClient = new Skyflow({
+    const primaryVaultConfig: VaultConfig = {
+        vaultId: 'VAULT_ID',      // primary vault
+        clusterId: 'CLUSTER_ID',  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
+        env: Env.PROD,  // Env by default it is set to PROD
+        credentials: credentials,   // individual credentials
+    };
+
+    const skyflowConfig: SkyflowConfig = {
         vaultConfigs: [
-            {
-                vaultId: "VAULT_ID",      // primary vault
-                clusterId: "CLUSTER_ID",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-                env: Env.PROD,  // Env by default it is set to PROD
-                credentials: credentials   // individual credentials
-            }
+            primaryVaultConfig,
         ],
         skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
-        logLevel: LogLevel.ERROR   // set log level by default it is set to PROD
-    });
-    //sample query
-    const query = "select * from TABLE_NAME limit 1";
+        logLevel: LogLevel.ERROR,   // set log level by default it is set to PROD
+    };
 
-    const queryReq = new QueryRequest(
-        query
+    const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
+    //sample query
+    const query: string = 'select * from TABLE_NAME limit 1';
+
+    const queryReq: QueryRequest = new QueryRequest(
+        query,
     );
 
-    skyflowClient.vault("VAULT_ID").query(
+    skyflowClient.vault('VAULT_ID').query(
         queryReq,
-    ).then(resp => {
+    ).then((resp: QueryResponse) => {
         console.log(resp);
-    }).catch(err => {
+    }).catch((err: SkyflowError) => {
         console.log(JSON.stringify(err));
     });
 } catch (err) {

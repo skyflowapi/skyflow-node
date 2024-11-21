@@ -1,4 +1,4 @@
-import { ISkyflowError, parameterizedString } from "../utils";
+import { BAD_REQUEST, ISkyflowError, parameterizedString } from "../utils";
 
 class SkyflowError extends Error {
 
@@ -6,7 +6,7 @@ class SkyflowError extends Error {
 
     constructor(errorCode: ISkyflowError, args: any[] = []) {
         const formattedError = {
-            http_status: errorCode?.http_status || null,
+            http_status: errorCode?.http_status || BAD_REQUEST,
             details: errorCode?.details || null,
             request_ID: errorCode?.request_ID || null,
             grpc_code: errorCode?.grpc_code || null,
