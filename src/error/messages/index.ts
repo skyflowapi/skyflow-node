@@ -164,7 +164,7 @@ const errorMessages = {
     EMPTY_INSERT_TOKEN: `${errorPrefix} Validation error. Tokens object cannot be empty. Specify a valid tokens object at index %s1.`,
     INVALID_INSERT_TOKEN: `${errorPrefix} Validation error. Invalid tokens object. Specify a valid tokens object at index %s1.`,
     INVALID_INSERT_TOKENS: `${errorPrefix} Validation error. Invalid tokens. Specify valid tokens as object array.`,
-    INVALID_TOKEN_MODE: `${errorPrefix} Validation error. The token mode key has a value of type %s1. Specify token as BYOT.`,
+    INVALID_TOKEN_MODE: `${errorPrefix} Validation error. The token mode key has a value of type %s1. Specify token as type of TokenMode.`,
     INVALID_HOMOGENEOUS: `${errorPrefix} Validation error. The homogeneous key has a value of type %s1. Specify homogeneous as boolean.`,
     INVALID_TOKEN_STRICT: `${errorPrefix} Validation error. The tokenStrict key has a value of type %s1. Specify tokenStrict as boolean.`,
     INVALID_CONTINUE_ON_ERROR: `${errorPrefix} Validation error. The continueOnError key has a value of type %s1. Specify continueOnError as boolean.`,
