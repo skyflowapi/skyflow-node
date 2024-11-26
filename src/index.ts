@@ -1,5 +1,5 @@
 import Skyflow from './vault/skyflow';
-import { LogLevel, Env, RedactionType, RequestMethod, OrderByEnum, BYOT } from './utils';
+import { LogLevel, Env, RedactionType, RequestMethod, OrderByEnum, TokenMode } from './utils';
 import InsertRequest from './vault/model/request/insert';
 import InsertOptions from './vault/model/options/insert';
 import GetRequest from './vault/model/request/get';
@@ -52,7 +52,7 @@ export {
     Credentials,
     RedactionType,
     OrderByEnum,
-    BYOT,
+    TokenMode,
     InsertRequest,
     InsertOptions,
     InsertResponse,

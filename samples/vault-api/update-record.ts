@@ -1,66 +1,87 @@
-import { Env, Skyflow, UpdateRequest, UpdateOptions, LogLevel, Credentials, VaultConfig, SkyflowConfig, UpdateResponse, SkyflowError } from 'skyflow-node';
+import { 
+    Credentials, 
+    Env, 
+    LogLevel, 
+    Skyflow, 
+    VaultConfig, 
+    SkyflowConfig, 
+    UpdateRequest, 
+    UpdateOptions, 
+    UpdateResponse, 
+    SkyflowError 
+} from 'skyflow-node';
 
-try {
-    // To generate Bearer Token from credentials string.
-    const cred: Object = {
-        clientID: '<YOUR_CLIENT_ID>',
-        clientName: '<YOUR_CLIENT_NAME>',
-        keyID: '<YOUR_KEY_ID>',
-        tokenURI: '<YOUR_TOKEN_URI>',
-        privateKey: '<YOUR_PEM_PRIVATE_KEY>',
-    };
+/**
+ * Skyflow Secure Data Update Example
+ * 
+ * This example demonstrates how to:
+ * 1. Configure Skyflow client credentials
+ * 2. Set up vault configuration
+ * 3. Create an update request
+ * 4. Handle response and errors
+ */
+async function performSecureDataUpdate() {
+    try {
+        // Step 1: Configure Credentials
+        const credentials: Credentials = {
+            // Using API Key authentication
+            apiKey: 'your-skyflow-api-key',
+        };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const skyflowCredentials: Credentials = {
-        credentialsString: JSON.stringify(cred),
-    };
+        // Step 2: Configure Vault 
+        const primaryVaultConfig: VaultConfig = {
+            vaultId: 'your-vault-id',          // Unique vault identifier
+            clusterId: 'your-cluster-id',      // From vault URL
+            env: Env.PROD,                     // Deployment environment
+            credentials: credentials           // Authentication method
+        };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const credentials: Credentials = {
-        apiKey: 'API_KEY', // API key 
-    };
+        // Step 3: Configure Skyflow Client
+        const skyflowConfig: SkyflowConfig = {
+            vaultConfigs: [primaryVaultConfig],
+            logLevel: LogLevel.INFO            // Logging verbosity
+        };
 
-    const primaryVaultConfig: VaultConfig = {
-        vaultId: 'VAULT_ID',      // primary vault
-        clusterId: 'CLUSTER_ID',  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-        env: Env.PROD,  // Env by default it is set to PROD
-        credentials: credentials,   // individual credentials
-    };
+        // Initialize Skyflow Client
+        const skyflowClient = new Skyflow(skyflowConfig);
 
-    const skyflowConfig: SkyflowConfig = {
-        vaultConfigs: [
-            primaryVaultConfig,
-        ],
-        skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
-        logLevel: LogLevel.ERROR,   // set log level by default it is set to PROD
-    };
+        // Step 4: Prepare Update Data
+        const updateData = {
+            skyflowId: 'your-skyflow-id',          // Skyflow ID of the record to update
+            card_number: '1234567890123456'        // Updated sensitive data
+        };
 
-    const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
+        // Step 5: Create Update Request
+        const updateReq = new UpdateRequest(
+            'sensitive_data_table',               // Replace with your actual table name
+            updateData
+        );
 
-    const skyflowId: string = 'SKYFLOW_ID';
+        // Step 6: Configure Update Options
+        const updateOptions = new UpdateOptions();
+        updateOptions.setReturnTokens(true);      // Optional: Get tokens for updated data
 
-    // sample data
-    const updateData: Object = { skyflowId, card_number: '12333333333333444444' };
+        // Step 7: Perform Secure Update
+        const response: UpdateResponse = await skyflowClient
+            .vault(primaryVaultConfig.vaultId)
+            .update(updateReq, updateOptions);
 
-    const tableName: string = 'TABLE_NAME';
+        // Handle Successful Response
+        console.log('Update successful:', response);
 
-    const updateReq: UpdateRequest = new UpdateRequest(
-        tableName,
-        updateData,
-    );
-
-    const updateOptions: UpdateOptions = new UpdateOptions();
-
-    updateOptions.setReturnTokens(true);
-
-    skyflowClient.vault('VAULT_ID').update(
-        updateReq,
-        updateOptions,
-    ).then((resp: UpdateResponse) => {
-        console.log(resp);
-    }).catch((err: SkyflowError) => {
-        console.log(JSON.stringify(err));
-    });
-} catch (err) {
-    console.log(JSON.stringify(err));
+    } catch (error) {
+        // Comprehensive Error Handling
+        if (error instanceof SkyflowError) {
+            console.error('Skyflow Specific Error:', {
+                code: error.error?.http_code,
+                message: error.message,
+                details: error.error?.details
+            });
+        } else {
+            console.error('Unexpected Error:', error);
+        }
+    }
 }
+
+// Invoke the secure data update function
+performSecureDataUpdate();
