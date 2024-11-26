@@ -1041,7 +1041,7 @@ describe('VaultController update method', () => {
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
-            getTokenMode: jest.fn().mockReturnValue("ENABLE"),
+            getTokenMode: jest.fn().mockReturnValue(""),
             getTokens: jest.fn().mockReturnValue({}),
         };
         validateUpdateRequest.mockImplementation(() => {

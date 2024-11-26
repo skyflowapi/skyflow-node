@@ -256,7 +256,7 @@ class VaultController {
                 const skyflowId = request.data[SKYFLOW_ID];
                 delete request.data[SKYFLOW_ID];
                 const record = { fields: request.data, tokens: options?.getTokens() };
-                const strictMode = options?.getTokenMode() ? V1BYOT.Enable : V1BYOT.Disable;
+                const strictMode = options?.getTokenMode() ? options?.getTokenMode() : V1BYOT.Disable;
                 const updateData: RecordServiceUpdateRecordBody = {
                     record: record,
                     tokenization: options?.getReturnTokens(),

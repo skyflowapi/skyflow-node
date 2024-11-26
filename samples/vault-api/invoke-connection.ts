@@ -1,76 +1,98 @@
-import { Env, Skyflow, InvokeConnectionRequest, RequestMethod, LogLevel, Credentials, SkyflowConfig, VaultConfig, ConnectionConfig, InvokeConnectionResponse, SkyflowError } from 'skyflow-node';
+import { 
+    Credentials, 
+    Env, 
+    InvokeConnectionRequest, 
+    RequestMethod, 
+    LogLevel, 
+    Skyflow, 
+    VaultConfig, 
+    SkyflowConfig, 
+    ConnectionConfig, 
+    SkyflowError 
+} from 'skyflow-node';
 
-try {
-    // To generate Bearer Token from credentials string.
-    const cred: Object = {
-        clientID: '<YOUR_CLIENT_ID>',
-        clientName: '<YOUR_CLIENT_NAME>',
-        keyID: '<YOUR_KEY_ID>',
-        tokenURI: '<YOUR_TOKEN_URI>',
-        privateKey: '<YOUR_PEM_PRIVATE_KEY>',
-    };
+/**
+ * Skyflow Connection Invocation Example
+ * 
+ * This example demonstrates how to:
+ * 1. Configure Skyflow client credentials
+ * 2. Set up vault and connection configurations
+ * 3. Invoke a connection
+ * 4. Handle response and errors
+ */
+async function invokeSkyflowConnection() {
+    try {
+        // Step 1: Configure Credentials
+        const credentials: Credentials = {
+            // Using API Key authentication
+            apiKey: 'your-skyflow-api-key',
+        };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const skyflowCredentials: Credentials = {
-        credentialsString: JSON.stringify(cred),
-    };
+        // Step 2: Configure Vault
+        const primaryVaultConfig: VaultConfig = {
+            vaultId: 'your-vault-id',          // Unique vault identifier
+            clusterId: 'your-cluster-id',      // From vault URL
+            env: Env.PROD,                     // Deployment environment
+            credentials: credentials           // Authentication method
+        };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const credentials: Credentials  = {
-        apiKey: 'API_KEY', // API Key 
-    };
+        // Step 3: Configure Connection
+        const primaryConnectionConfig: ConnectionConfig = {
+            connectionId: 'your-connection-id', // Unique connection identifier
+            connectionUrl: 'your-connection-url', // connection url
+            credentials: credentials            // Connection-specific credentials
+        };
 
-    const primaryVaultConfig: VaultConfig = {
-        vaultId: 'VAULT_ID',      // primary vault ( NOTE : One vault is necessary)
-        clusterId: 'CLUSTER_ID',  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-        env: Env.PROD,  // Env by default it is set to PROD
-        credentials: credentials,   // individual credentials
-    };
+        // Step 4: Configure Skyflow Client
+        const skyflowConfig: SkyflowConfig = {
+            vaultConfigs: [primaryVaultConfig],
+            connectionConfigs: [primaryConnectionConfig],
+            logLevel: LogLevel.INFO            // Logging verbosity
+        };
 
-    const primaryConnectionConfig: ConnectionConfig = {
-        connectionId: 'CONNECTION_ID', // get connection ID from https://${clusterId}.gateway.skyflowapis.dev/v1/gateway/inboundRoutes/${connectionId}/${connection_name}
-        connectionUrl: 'CONNECTION_URL', // the whole URL https://${clusterId}.gateway.skyflowapis.dev/v1/gateway/inboundRoutes/${connectionId}/${connection_name}
-        credentials: credentials
-    };
+        // Initialize Skyflow Client
+        const skyflowClient = new Skyflow(skyflowConfig);
 
-    const skyflowConfig: SkyflowConfig = {
-        vaultConfigs: [
-            primaryVaultConfig,
-        ],
-        connectionConfigs: [
-            primaryConnectionConfig,
-        ],
-        skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
-        logLevel: LogLevel.ERROR   // set log level by default it is set to PROD
-    };
+        // Step 5: Prepare Connection Request
+        const requestBody = {
+            key1: 'value1',  // Replace with actual key-value pairs
+            key2: 'value2'
+        };
 
-    const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
+        const requestHeaders = {
+            'content-type': 'application/json'
+        };
 
-    const body = {
-        'KEY1': 'VALUE1',
-        'KEY2': 'VALUE2',
-    };
+        const requestMethod: RequestMethod = RequestMethod.POST;
 
-    const headers = {
-        'Content-Type': 'application/json',
-    };
+        // Step 6: Create Invoke Connection Request
+        const invokeReq = new InvokeConnectionRequest(
+            requestMethod,
+            requestBody,
+            requestHeaders
+        );
 
-    const method: RequestMethod = RequestMethod.POST;
+        // Step 7: Invoke Connection
+        const response = await skyflowClient
+            .connection()
+            .invoke(invokeReq);
 
-    const invokeReq: InvokeConnectionRequest = new InvokeConnectionRequest(
-        method,
-        body,
-        headers,
-    );
+        // Handle Successful Response
+        console.log('Connection invocation successful:', response);
 
-    //will return the first connection
-    skyflowClient.connection().invoke(
-        invokeReq,
-    ).then((resp: InvokeConnectionResponse) => {
-        console.log(resp);
-    }).catch((err: SkyflowError) => {
-        console.log(JSON.stringify(err));
-    });
-} catch (err) {
-    console.log(JSON.stringify(err));
+    } catch (error) {
+        // Comprehensive Error Handling
+        if (error instanceof SkyflowError) {
+            console.error('Skyflow Specific Error:', {
+                code: error.error?.http_code,
+                message: error.message,
+                details: error.error?.details
+            });
+        } else {
+            console.error('Unexpected Error:', error);
+        }
+    }
 }
+
+// Invoke the connection function
+invokeSkyflowConnection();
