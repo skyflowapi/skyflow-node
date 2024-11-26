@@ -34,7 +34,7 @@ export const VAULT = "vault";
 
 export const CONNECTION = "connection";
 
-export enum BYOT {
+export enum TokenMode {
     DISABLE = 'DISABLE',
     ENABLE = 'ENABLE',
     ENABLE_STRICT = 'ENABLE_STRICT'

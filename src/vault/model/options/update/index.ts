@@ -1,11 +1,11 @@
 //imports
-import { BYOT } from "../../../../utils";
+import { TokenMode } from "../../../../utils";
 
 class UpdateOptions {
 
     //fields
     private returnTokens?: boolean;
-    private tokenMode?: BYOT;
+    private tokenMode?: TokenMode;
     private tokens?: object;
 
     // Constructor
@@ -20,11 +20,11 @@ class UpdateOptions {
         this.tokens = tokens;
     }
 
-    setTokenMode(tokenMode: BYOT) {
+    setTokenMode(tokenMode: TokenMode) {
         this.tokenMode = tokenMode;
     }
 
-    getTokenMode(): BYOT | undefined {
+    getTokenMode(): TokenMode | undefined {
         return this.tokenMode;
     }
 

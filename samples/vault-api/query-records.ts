@@ -1,54 +1,87 @@
-import { Credentials, Env, LogLevel, QueryRequest, QueryResponse, Skyflow, SkyflowConfig, SkyflowError, VaultConfig } from 'skyflow-node';
-try {
-    // To generate Bearer Token from credentials string.
-    const cred: Object = {
-        clientID: '<YOUR_CLIENT_ID>',
-        clientName: '<YOUR_CLIENT_NAME>',
-        keyID: '<YOUR_KEY_ID>',
-        tokenURI: '<YOUR_TOKEN_URI>',
-        privateKey: '<YOUR_PEM_PRIVATE_KEY>',
-    };
+import { 
+    Credentials, 
+    Env, 
+    LogLevel, 
+    QueryRequest, 
+    QueryResponse, 
+    Skyflow, 
+    SkyflowConfig, 
+    SkyflowError, 
+    VaultConfig 
+} from 'skyflow-node';
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const skyflowCredentials: Credentials = {
-        credentialsString: JSON.stringify(cred),
-    };
+/**
+ * Skyflow Query Example
+ * 
+ * This example demonstrates how to:
+ * 1. Configure Skyflow client credentials
+ * 2. Set up vault configuration
+ * 3. Execute a query on the vault
+ * 4. Handle response and errors
+ */
+async function executeQuery() {
+    try {
+        // Step 1: Configure Credentials
+        const cred: object = {
+            clientID: '<your-client-id>',       // Client identifier
+            clientName: '<your-client-name>',   // Client name
+            keyID: '<your-key-id>',             // Key identifier
+            tokenURI: '<your-token-uri>',       // Token URI
+            privateKey: '<your-pem-private-key>' // Private key for authentication
+        };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const credentials: Credentials = {
-        apiKey: 'API_KEY', // API key 
-    };
+        const skyflowCredentials: Credentials = {
+            credentialsString: JSON.stringify(cred), // Token credentials
+        };
 
-    const primaryVaultConfig: VaultConfig = {
-        vaultId: 'VAULT_ID',      // primary vault
-        clusterId: 'CLUSTER_ID',  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-        env: Env.PROD,  // Env by default it is set to PROD
-        credentials: credentials,   // individual credentials
-    };
+        const credentials: Credentials = {
+            // Using API Key authentication
+            apiKey: 'your-skyflow-api-key',
+        };
 
-    const skyflowConfig: SkyflowConfig = {
-        vaultConfigs: [
-            primaryVaultConfig,
-        ],
-        skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
-        logLevel: LogLevel.ERROR,   // set log level by default it is set to PROD
-    };
+        // Step 2: Configure Vault
+        const primaryVaultConfig: VaultConfig = {
+            vaultId: 'your-vault-id',          // Unique vault identifier
+            clusterId: 'your-cluster-id',      // From vault URL
+            env: Env.PROD,                     // Deployment environment
+            credentials: credentials           // Authentication method
+        };
 
-    const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
-    //sample query
-    const query: string = 'select * from TABLE_NAME limit 1';
+        // Step 3: Configure Skyflow Client
+        const skyflowConfig: SkyflowConfig = {
+            vaultConfigs: [primaryVaultConfig],
+            skyflowCredentials: skyflowCredentials, // Used if no individual credentials are passed
+            logLevel: LogLevel.ERROR,               // Logging verbosity
+        };
 
-    const queryReq: QueryRequest = new QueryRequest(
-        query,
-    );
+        // Initialize Skyflow Client
+        const skyflowClient = new Skyflow(skyflowConfig);
 
-    skyflowClient.vault('VAULT_ID').query(
-        queryReq,
-    ).then((resp: QueryResponse) => {
-        console.log(resp);
-    }).catch((err: SkyflowError) => {
-        console.log(JSON.stringify(err));
-    });
-} catch (err) {
-    console.log(JSON.stringify(err));
+        // Step 4: Prepare Query
+        const query = 'select * from table_name limit 1'; // Example query
+        const queryRequest = new QueryRequest(query);
+
+        // Step 5: Execute Query
+        const response: QueryResponse = await skyflowClient
+            .vault(primaryVaultConfig.vaultId)
+            .query(queryRequest);
+
+        // Handle Successful Response
+        console.log('Query Result:', response);
+
+    } catch (error) {
+        // Comprehensive Error Handling
+        if (error instanceof SkyflowError) {
+            console.error('Skyflow Specific Error:', {
+                code: error.error?.http_code,
+                message: error.message,
+                details: error.error?.details,
+            });
+        } else {
+            console.error('Unexpected Error:', error);
+        }
+    }
 }
+
+// Invoke the query function
+executeQuery();

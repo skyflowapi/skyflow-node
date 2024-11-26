@@ -1,4 +1,4 @@
-import { BYOT } from "../../../../utils";
+import { TokenMode } from "../../../../utils";
 
 //imports
 class InsertOptions {
@@ -7,7 +7,7 @@ class InsertOptions {
     private upsert?: string;
     private tokens?: Array<object>;
     private homogeneous?: boolean;
-    private tokenMode?: BYOT;
+    private tokenMode?: TokenMode;
     private continueOnError?: boolean;
 
     // Constructor
@@ -30,7 +30,7 @@ class InsertOptions {
         this.homogeneous = homogeneous;
     }
 
-    setTokenMode(tokenMode: BYOT) {
+    setTokenMode(tokenMode: TokenMode) {
         this.tokenMode = tokenMode;
     }
 
@@ -55,7 +55,7 @@ class InsertOptions {
         return this.homogeneous;
     }
 
-    getTokenMode(): BYOT | undefined {
+    getTokenMode(): TokenMode | undefined {
         return this.tokenMode;
     }
 
