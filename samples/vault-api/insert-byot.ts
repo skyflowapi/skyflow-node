@@ -1,67 +1,103 @@
-import { BYOT, Env, InsertOptions, InsertRequest, LogLevel, Skyflow } from "skyflow-node";
+import { 
+    TokenMode, 
+    Credentials, 
+    Env, 
+    InsertOptions, 
+    InsertRequest, 
+    LogLevel, 
+    Skyflow, 
+    VaultConfig, 
+    SkyflowConfig, 
+    InsertResponse, 
+    SkyflowError 
+} from 'skyflow-node';
 
-try {
-    // To generate Bearer Token from credentials string.
-    const cred = {
-        clientID: '<YOUR_CLIENT_ID>',
-        clientName: '<YOUR_CLIENT_NAME>',
-        keyID: '<YOUR_KEY_ID>',
-        tokenURI: '<YOUR_TOKEN_URI>',
-        privateKey: '<YOUR_PEM_PRIVATE_KEY>',
-    };
+/**
+ * Skyflow Insert with BYOT Example
+ * 
+ * This example demonstrates:
+ * 1. Configuring Skyflow client credentials
+ * 2. Setting up vault configuration
+ * 3. Utilizing Bring Your Own Token (BYOT) during insertion
+ * 4. Handling responses and errors
+ */
+async function performSecureDataInsertionWithBYOT() {
+    try {
+        // Step 1: Configure Credentials
+        const cred: object = {
+            clientID: '<your-client-id>',       // Client identifier
+            clientName: '<your-client-name>',   // Client name
+            keyID: '<your-key-id>',             // Key identifier
+            tokenURI: '<your-token-uri>',       // Token URI
+            privateKey: '<your-pem-private-key>' // Private key for authentication
+        };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const skyflowCredentials = {
-        credentialsString: JSON.stringify(cred),
+        const skyflowCredentials: Credentials = {
+            credentialsString: JSON.stringify(cred), // Token-based credentials
+        };
+
+        const credentials: Credentials = {
+            token: 'bearer', // Bearer token authentication
+        };
+
+        // Step 2: Configure Vault
+        const primaryVaultConfig: VaultConfig = {
+            vaultId: 'your-vault-id',               // Unique vault identifier
+            clusterId: 'your-cluster-id',           // Cluster ID from vault URL
+            env: Env.PROD,                          // Deployment environment
+            credentials: credentials                // Authentication method
+        };
+
+        // Step 3: Configure Skyflow Client
+        const skyflowConfig: SkyflowConfig = {
+            vaultConfigs: [primaryVaultConfig],
+            skyflowCredentials: skyflowCredentials, // Used if no individual credentials are passed
+            logLevel: LogLevel.INFO                 // Logging verbosity
+        };
+
+        // Initialize Skyflow Client
+        const skyflowClient = new Skyflow(skyflowConfig);
+
+        // Step 4: Prepare Insertion Data
+        const insertData: Array<object> = [
+            { card_number: 'skyflow_id1', card_cvv: 'skyflow_id2' },
+        ];
+
+        const tableName: string = 'your-table-name';
+        const insertReq: InsertRequest = new InsertRequest(tableName, insertData);
+
+        // Step 5: BYOT Configuration
+        const tokens: Array<object> = [
+            { card_number: 'token1', card_cvv: 'token2' },
+        ];
+
+        const insertOptions: InsertOptions = new InsertOptions();
+        insertOptions.setReturnTokens(true);        // Optionally get tokens for inserted data
+        insertOptions.setTokenMode(TokenMode.ENABLE);    // Enable Bring Your Own Token (BYOT)
+        insertOptions.setTokens(tokens);           // Specify tokens to use for BYOT
+        // insertOptions.setContinueOnError(true); // Optionally continue on partial errors
+
+        // Step 6: Perform Secure Insertion
+        const response: InsertResponse = await skyflowClient
+            .vault(primaryVaultConfig.vaultId)
+            .insert(insertReq, insertOptions);
+
+        // Handle Successful Response
+        console.log('Insertion Successful:', response);
+
+    } catch (error) {
+        // Step 7: Comprehensive Error Handling
+        if (error instanceof SkyflowError) {
+            console.error('Skyflow Specific Error:', {
+                code: error.error?.http_code,
+                message: error.message,
+                details: error.error?.details
+            });
+        } else {
+            console.error('Unexpected Error:', error);
+        }
     }
-
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const credentials = {
-        token: "BEARER", // token 
-    }
-
-    const skyflowClient = new Skyflow({
-        vaultConfigs: [
-            {
-                vaultId: "VAULT_ID",      // primary vault
-                clusterId: "CLUSTER_ID",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-                env: Env.PROD,  // Env by default it is set to PROD
-                credentials: credentials   // individual credentials
-            }
-        ],
-        skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
-        logLevel: LogLevel.INFO   // set log level by default it is set to PROD
-    });
-
-    //sample data
-    const insertData = [
-        { card_number: 'CARD_NUMBER1', card_cvv: 'CVV1' },
-        { card_number: 'CARD_NUMBER2', card_cvv: 'CVV2' },
-    ]
-
-    const insertReq = new InsertRequest(
-        "TABLE_NAME",
-        insertData,
-    )
-
-    const insertOptions = new InsertOptions()
-    //use setters for setting options
-    insertOptions.setReturnTokens(true);
-    insertOptions.setTokenMode(BYOT.ENABLE);
-    insertOptions.setTokens([
-        { card_number: 'TOKEN1', card_cvv: 'TOKEN2' },
-        { card_number: 'TOKEN3', card_cvv: 'TOKEN4' }
-    ]);
-    // insertOptions.setContinueOnError(true); // if continue on error is set true we will return requestIndex for errors 
-
-    skyflowClient.vault("VAULT_ID").insert(
-        insertReq,
-        insertOptions
-    ).then(resp => {
-        console.log(resp);
-    }).catch(err => {
-        console.log(JSON.stringify(err));
-    });
-} catch (err) {
-    console.log(JSON.stringify(err));
 }
+
+// Invoke the secure data insertion function
+performSecureDataInsertionWithBYOT();

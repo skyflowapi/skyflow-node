@@ -21,8 +21,8 @@ import QueryResponse from '../../model/response/query';
 import FileUploadResponse from '../../model/response/file-upload';
 import TokenizeResponse from '../../model/response/tokenize';
 import TokenizeRequest from '../../model/request/tokenize';
-import { ParsedDetokenizeResponse, ParsedInsertBatchResponse, tokenizeRequestType } from '../../types';
-import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK_METRICS_HEADER_KEY, removeSDKVersion } from '../../../utils';
+import { ParsedDetokenizeResponse, ParsedInsertBatchResponse, TokenizeRequestType } from '../../types';
+import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK_METRICS_HEADER_KEY, removeSDKVersion, RedactionType, SKYFLOW_ID } from '../../../utils';
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
 import VaultClient from '../../client';
@@ -253,8 +253,10 @@ class VaultController {
                 // Validation checks
                 validateUpdateRequest(request, options, this.client.getLogLevel());
 
-                const record = { fields: request.updateData, tokens: options?.getTokens() };
-                const strictMode = options?.getTokenMode() ? V1BYOT.Enable : V1BYOT.Disable;
+                const skyflowId = request.data[SKYFLOW_ID];
+                delete request.data[SKYFLOW_ID];
+                const record = { fields: request.data, tokens: options?.getTokens() };
+                const strictMode = options?.getTokenMode() ? options?.getTokenMode() : V1BYOT.Disable;
                 const updateData: RecordServiceUpdateRecordBody = {
                     record: record,
                     tokenization: options?.getReturnTokens(),
@@ -265,7 +267,7 @@ class VaultController {
                     (headers: RawAxiosRequestConfig | undefined) => this.client.vaultAPI.recordServiceUpdateRecord(
                         this.client.vaultId,
                         request.tableName,
-                        request.skyflowId,
+                        skyflowId,
                         updateData,
                         headers
                     ),
@@ -298,7 +300,7 @@ class VaultController {
                 validateDeleteRequest(request, this.client.getLogLevel());
 
                 const deleteRequest: RecordServiceBulkDeleteRecordBody = {
-                    skyflow_ids: request.deleteIds,
+                    skyflow_ids: request.ids,
                 };
 
                 this.handleRequest(
@@ -474,7 +476,7 @@ class VaultController {
                 //validations checks
                 validateDetokenizeRequest(request, options, this.client.getLogLevel());
 
-                const fields = request.tokens.map(record => ({ token: record, redaction: request?.redactionType })) as Array<V1DetokenizeRecordRequest>;
+                const fields = request.tokens.map(record => ({ token: record, redaction: request?.redactionType || RedactionType.PLAIN_TEXT })) as Array<V1DetokenizeRecordRequest>;
                 const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadURL() };
 
                 this.handleRequest(
@@ -505,7 +507,7 @@ class VaultController {
                 //validation checks
                 validateTokenizeRequest(request, this.client.getLogLevel());
 
-                const fields = request.values.map((record: tokenizeRequestType) => ({ value: record.value, columnGroup: record.columnGroup })) as Array<V1TokenizeRecordRequest>;
+                const fields = request.values.map((record: TokenizeRequestType) => ({ value: record.value, columnGroup: record.columnGroup })) as Array<V1TokenizeRecordRequest>;
                 const tokenizePayload: V1TokenizePayload = { tokenizationParameters: fields };
 
                 this.handleRequest(

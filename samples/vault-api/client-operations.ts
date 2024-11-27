@@ -1,73 +1,105 @@
-import { DeleteRequest, Env, LogLevel, Skyflow } from "skyflow-node";
+import { 
+    Credentials, 
+    DeleteRequest, 
+    Env, 
+    LogLevel, 
+    Skyflow, 
+    VaultConfig, 
+    SkyflowConfig, 
+    SkyflowError 
+} from 'skyflow-node';
 
-try {
-    // To generate Bearer Token from credentials string.
-    const cred = {
-        clientID: '<YOUR_CLIENT_ID>',
-        clientName: '<YOUR_CLIENT_NAME>',
-        keyID: '<YOUR_KEY_ID>',
-        tokenURI: '<YOUR_TOKEN_URI>',
-        privateKey: '<YOUR_PEM_PRIVATE_KEY>',
-    };
+/**
+ * Skyflow Secure Data Deletion Example
+ * 
+ * This example demonstrates how to:
+ * 1. Configure Skyflow client credentials
+ * 2. Set up vault configuration
+ * 3. Create a delete request
+ * 4. Handle response and errors
+ */
+async function performSecureDataDeletion() {
+    try {
+        // Step 1: Configure Bearer Token Credentials
+        const credentials: Credentials = {
+            token: '<your_bearer_token>', // Bearer token
+        };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const skyflowCredentials = {
-        credentialsString: JSON.stringify(cred),
-    }
+        // Step 2: Configure Vault 
+        const primaryVaultConfig: VaultConfig = {
+            vaultId: '<your_vault_id1>',      // Primary vault
+            clusterId: '<your_cluster_id1>',  // Cluster ID from your vault URL
+            env: Env.PROD,                    // Deployment environment (PROD by default)
+            credentials: credentials,         // Authentication method
+        };
 
-    // please pass one of apiKey, token, credentialsString & path as credentials
-    const credentials = {
-        token: "BEARER_TOKEN", // bearer token 
-    }
+        // Step 3: Configure Skyflow Client
+        const skyflowConfig: SkyflowConfig = {
+            vaultConfigs: [primaryVaultConfig],
+            logLevel: LogLevel.ERROR           // Logging verbosity
+        };
 
-    const skyflowClient = new Skyflow({
-        vaultConfigs: [
-            {
-                vaultId: "VAULT_ID1",      // primary vault
-                clusterId: "CLUSTER_ID1",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-                env: Env.PROD,  // Env by default it is set to PROD
-                credentials: credentials   // individual credentials
-            }
-        ],
-        skyflowCredentials: skyflowCredentials, // skyflow credentials will be used if no individual credentials are passed
-        logLevel: LogLevel.ERROR   // set log level by default it is set to PROD
-    });
+        // Initialize Skyflow Client
+        const skyflowClient = new Skyflow(skyflowConfig);
 
-    //add vault config on the fly
-    skyflowClient.addVaultConfig(
-        {
-            vaultId: "VAULT_ID2",      // secondary vault
-            clusterId: "CLUSTER_ID2",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-            env: Env.PROD,  // Env by default it is set to PROD
-            // if you don't specify individual credentials, skyflow credentials will be used
+        // Step 4: Add Secondary Vault Configuration
+        const secondaryVaultConfig: VaultConfig = {
+            vaultId: '<your_vault_id2>',      // Secondary vault
+            clusterId: '<your_cluster_id2>',  // Cluster ID from your vault URL
+            env: Env.PROD,                    // Deployment environment
+            // If credentials aren't specified, Skyflow credentials will be used
+        };
+
+        // Add secondary vault config on the fly
+        skyflowClient.addVaultConfig(secondaryVaultConfig);
+
+        // Step 5: Update Vault Configuration
+        const updatedVaultConfig: VaultConfig = {
+            vaultId: '<your_vault_id2>',      // Vault ID and cluster ID are unique
+            clusterId: '<your_cluster_id2>',  // Cluster ID from your vault URL
+            credentials: credentials,         // Update credentials
+        };
+
+        // Update vault config on the fly
+        skyflowClient.updateVaultConfig(updatedVaultConfig);
+
+        // Step 6: Prepare Delete Request
+        const deleteIds: Array<string> = [
+            'skyflow_id1',
+            'skyflow_id2',
+        ];
+
+        const tableName: string = '<your_table_name>';  // Replace with actual table name
+
+        const deleteRequest: DeleteRequest = new DeleteRequest(
+            tableName,
+            deleteIds,
+        );
+
+        // Step 7: Perform Secure Deletion on Secondary Vault
+        const response = await skyflowClient
+            .vault('<your_vault_id2>') // Specify vault ID
+            .delete(deleteRequest);
+
+        // Handle Successful Response
+        console.log('Deletion successful:', response);
+
+        // Step 8: Remove Secondary Vault Configuration
+        skyflowClient.removeVaultConfig('<your_vault_id1>');  // Remove vault configuration
+
+    } catch (error) {
+        // Comprehensive Error Handling
+        if (error instanceof SkyflowError) {
+            console.error('Skyflow Specific Error:', {
+                code: error.error?.http_code,
+                message: error.message,
+                details: error.error?.details
+            });
+        } else {
+            console.error('Unexpected Error:', error);
         }
-    );
-
-    //update vault config on the fly
-    skyflowClient.updateVaultConfig(
-        {
-            vaultId: "VAULT_ID2",      // vault Id and cluster Id is unique
-            clusterId: "CLUSTER_ID2",  // ID from your vault URL Eg https://{clusterId}.vault.skyflowapis.com
-            credentials: credentials, //update credentials 
-        }
-    );
-
-    //perform operations 
-    const deleteIds = [
-        "SKYLFOW_ID1",
-        "SKYLFOW_ID2"
-    ]
-
-    const deleteRequest = new DeleteRequest(
-        "TABLE_NAME",
-        deleteIds
-    );
-
-    //perform delete call if you don't specify vault() it will return the first valid vault
-    skyflowClient.vault("VAULT_ID2").delete(deleteRequest);
-
-    //remove vault on the fly
-    skyflowClient.removeVaultConfig("VAULT_ID");
-} catch (err) {
-    console.log(JSON.stringify(err));
+    }
 }
+
+// Invoke the secure data deletion function
+performSecureDataDeletion();
