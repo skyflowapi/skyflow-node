@@ -43,22 +43,22 @@ async function performSecureDataUpdate() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Update Data
-        const updateData = {
+        const updateData: object = {
             skyflowId: 'your-skyflow-id',          // Skyflow ID of the record to update
             card_number: '1234567890123456'        // Updated sensitive data
         };
 
         // Step 5: Create Update Request
-        const updateReq = new UpdateRequest(
+        const updateReq: UpdateRequest = new UpdateRequest(
             'sensitive_data_table',               // Replace with your actual table name
             updateData
         );
 
         // Step 6: Configure Update Options
-        const updateOptions = new UpdateOptions();
+        const updateOptions: UpdateOptions = new UpdateOptions();
         updateOptions.setReturnTokens(true);      // Optional: Get tokens for updated data
 
         // Step 7: Perform Secure Update

@@ -51,7 +51,7 @@ async function invokeSkyflowConnection() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 5: Prepare Connection Request
         const requestBody = {
@@ -66,7 +66,7 @@ async function invokeSkyflowConnection() {
         const requestMethod: RequestMethod = RequestMethod.POST;
 
         // Step 6: Create Invoke Connection Request
-        const invokeReq = new InvokeConnectionRequest(
+        const invokeReq: InvokeConnectionRequest = new InvokeConnectionRequest(
             requestMethod,
             requestBody,
             requestHeaders

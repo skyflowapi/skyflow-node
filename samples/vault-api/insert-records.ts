@@ -7,7 +7,8 @@ import {
     Skyflow, 
     VaultConfig, 
     SkyflowConfig,
-    SkyflowError 
+    SkyflowError, 
+    InsertResponse
 } from 'skyflow-node';
 
 /**
@@ -42,26 +43,26 @@ async function performSecureDataInsertion() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Insertion Data
-        const insertData = [
+        const insertData: Array<object> = [
             { card_number: '4111111111111112' }  // Example sensitive data
         ];
 
         // Step 5: Create Insert Request
-        const insertReq = new InsertRequest(
+        const insertReq: InsertRequest = new InsertRequest(
             'sensitive_data_table',  // Replace with your actual table name
             insertData
         );
 
         // Step 6: Configure Insertion Options
-        const insertOptions = new InsertOptions();
+        const insertOptions: InsertOptions = new InsertOptions();
         insertOptions.setReturnTokens(true);  // Optional: Get tokens for inserted data
         // insertOptions.setContinueOnError(true);  // Optional: Continue on partial errors
 
         // Step 7: Perform Secure Insertion
-        const response = await skyflowClient
+        const response: InsertResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)
             .insert(insertReq, insertOptions);
         
