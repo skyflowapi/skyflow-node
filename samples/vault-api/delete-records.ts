@@ -54,14 +54,14 @@ async function performDeletion() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Delete Data
-        const deleteIds = ['skyflow_id1', 'skyflow_id2', 'skyflow_id3']; // Record IDs to delete
-        const tableName = 'sensitive_data_table'; // Table name in the vault schema
+        const deleteIds: Array<string> = ['skyflow_id1', 'skyflow_id2', 'skyflow_id3']; // Record IDs to delete
+        const tableName: string = 'sensitive_data_table'; // Table name in the vault schema
 
         // Create Delete Request
-        const deleteRequest = new DeleteRequest(
+        const deleteRequest: DeleteRequest = new DeleteRequest(
             tableName,
             deleteIds
         );
