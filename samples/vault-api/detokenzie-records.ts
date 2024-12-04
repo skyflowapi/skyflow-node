@@ -56,25 +56,25 @@ async function performDetokenization() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Detokenization Data
-        const detokenizeData = ['token1', 'token2', 'token3']; // Tokens to be detokenized
-        const redactionType = RedactionType.REDACTED;          // Redaction type
+        const detokenizeData: Array<string> = ['token1', 'token2', 'token3']; // Tokens to be detokenized
+        const redactionType: RedactionType = RedactionType.REDACTED;          // Redaction type
 
         // Create Detokenize Request
-        const detokenizeRequest = new DetokenizeRequest(
+        const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(
             detokenizeData,
             redactionType
         );
 
         // Configure Detokenize Options
-        const detokenizeOptions = new DetokenizeOptions();
+        const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
         detokenizeOptions.setContinueOnError(true); // Continue processing on errors
         detokenizeOptions.setDownloadURL(false);   // Disable download URL generation
 
         // Step 5: Perform Detokenization
-        const response = await skyflowClient
+        const response: DetokenizeResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)
             .detokenize(detokenizeRequest, detokenizeOptions);
 

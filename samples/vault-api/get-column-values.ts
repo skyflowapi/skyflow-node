@@ -7,7 +7,8 @@ import {
     Credentials, 
     SkyflowConfig, 
     VaultConfig, 
-    SkyflowError 
+    SkyflowError, 
+    GetResponse
 } from 'skyflow-node';
 
 /**
@@ -54,29 +55,29 @@ async function performSecureColumnRetrieval() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Column-Based Retrieval Data
-        const columnValues: string[] = [
+        const columnValues: Array<string> = [
             'value1', // Example Unique Column value 1
             'value2', // Example Unique Column value 2
         ];
-        const tableName = 'table-name';          // Replace with your actual table name
-        const columnName = 'column-name';       // Column name configured as unique in the schema
+        const tableName: string = 'table-name';          // Replace with your actual table name
+        const columnName: string = 'column-name';       // Column name configured as unique in the schema
 
         // Step 5: Create Get Column Request
-        const getRequest = new GetColumnRequest(
+        const getRequest: GetColumnRequest = new GetColumnRequest(
             tableName,
             columnName,
             columnValues // Column values of the records to return
         );
 
         // Step 6: Configure Get Options
-        const getOptions = new GetOptions();
+        const getOptions: GetOptions = new GetOptions();
         getOptions.setReturnTokens(true); // Optional: Get tokens for retrieved data
 
         // Step 7: Perform Secure Retrieval
-        const response = await skyflowClient
+        const response: GetResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)
             .get(getRequest, getOptions);
 
