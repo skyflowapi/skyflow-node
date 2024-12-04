@@ -7,7 +7,8 @@ import {
     Skyflow, 
     VaultConfig, 
     SkyflowConfig, 
-    SkyflowError 
+    SkyflowError, 
+    GetResponse
 } from 'skyflow-node';
 
 /**
@@ -54,26 +55,26 @@ async function performSecureDataRetrieval() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Retrieval Data
-        const getIds: string[] = [
+        const getIds: Array<string> = [
             'skyflow-id1',
             'skyflow-id2',
         ];
 
         // Step 5: Create Get Request
-        const getRequest = new GetRequest(
+        const getRequest: GetRequest = new GetRequest(
             'sensitive_data_table',  // Replace with your actual table name
             getIds
         );
 
         // Step 6: Configure Get Options
-        const getOptions = new GetOptions();
+        const getOptions: GetOptions = new GetOptions();
         getOptions.setReturnTokens(true); // Optional: Get tokens for retrieved data
 
         // Step 7: Perform Secure Retrieval
-        const response = await skyflowClient
+        const response: GetResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)
             .get(getRequest, getOptions);
 
