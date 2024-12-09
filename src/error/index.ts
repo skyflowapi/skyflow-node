@@ -7,7 +7,7 @@ class SkyflowError extends Error {
     constructor(errorCode: ISkyflowError, args: any[] = []) {
         const formattedError = {
             http_status: errorCode?.http_status || BAD_REQUEST,
-            details: errorCode?.details || null,
+            details: errorCode?.details || [],
             request_ID: errorCode?.request_ID || null,
             grpc_code: errorCode?.grpc_code || null,
             http_code: errorCode.http_code,
