@@ -144,7 +144,7 @@ class VaultClient {
     }
 
     private handleGenericError(err: any, requestId: string, reject: Function) {
-        const description = err?.message || errorMessages.ERROR_OCCURRED;
+        const description =  err?.response?.data || err?.message || errorMessages.ERROR_OCCURRED;
         this.logAndRejectError(description, err, requestId, reject);
     }
 
