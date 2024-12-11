@@ -80,7 +80,7 @@ class Skyflow {
   }
 
   /**
-  * Initializes the Skyflow client.
+  * Initializes Skyflow client.
   * @public
   * @param config Configuration for the Skyflow client.
   * @returns Returns an instance of the Skyflow client.
