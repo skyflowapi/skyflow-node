@@ -15,7 +15,7 @@ import {
  * Skyflow Connection Invocation Example
  * 
  * This example demonstrates how to:
- * 1. Configure Skyflow client credentials
+ * 1. Configure credentials
  * 2. Set up vault and connection configurations
  * 3. Invoke a connection
  * 4. Handle response and errors
