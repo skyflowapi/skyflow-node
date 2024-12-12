@@ -13,7 +13,7 @@ import {
  * Skyflow Secure Data Deletion Example
  * 
  * This example demonstrates how to:
- * 1. Configure Skyflow client credentials
+ * 1. Configure Bearer Token credentials
  * 2. Set up vault configuration
  * 3. Create a delete request
  * 4. Handle response and errors
