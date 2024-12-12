@@ -20,7 +20,19 @@ import {
  */
 async function performSecureDataDeletion() {
     try {
-        // Step 1: Configure Bearer Token Credentials
+        // Step 1: Configure Skyflow client Credentials
+        const cred: object = {
+            clientID: '<your-client-id>',       // Client identifier
+            clientName: '<your-client-name>',   // Client name
+            keyID: '<your-key-id>',             // Key identifier
+            tokenURI: '<your-token-uri>',       // Token URI
+            privateKey: '<your-pem-private-key>' // Private key for authentication
+        };
+
+        const skyflowCredentials: Credentials = {
+            credentialsString: JSON.stringify(cred), // Token credentials
+        };
+
         const credentials: Credentials = {
             token: '<your_bearer_token>', // Bearer token
             // apiKey: '<your_api_key>', // Uncomment to use API key
@@ -45,6 +57,7 @@ async function performSecureDataDeletion() {
         // Step 3: Configure Skyflow Client
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig, secondaryVaultConfig], // Vault configurations
+            skyflowCredentials: skyflowCredentials, // Used if no individual credentials are passed
             logLevel: LogLevel.ERROR,   // Set log level (ERROR in this case)
         };
 

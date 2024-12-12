@@ -16,7 +16,7 @@ import {
  * Skyflow Vault Data Transfer Example
  * 
  * This example demonstrates how to:
- * 1. Configure Skyflow client credentials
+ * 1. Configure credentials
  * 2. Set up primary and secondary vault configurations
  * 3. Retrieve data from one vault
  * 4. Insert data into another vault
@@ -24,19 +24,7 @@ import {
  */
 async function transferDataBetweenVaults() {
     try {
-        // Step 1: Configure Skyflow Credentials
-        const cred: Object = {
-            clientID: '<your-client-id>',       // Client identifier
-            clientName: '<your-client-name>',   // Client name
-            keyID: '<your-key-id>',             // Key identifier
-            tokenURI: '<your-token-uri>',       // Token URI
-            privateKey: '<your-pem-private-key>' // Private key for authentication
-        };
-
-        const skyflowCredentials: Credentials = {
-            credentialsString: JSON.stringify(cred), // Token credentials
-        };
-
+        // Step 1: Configure Credentials
         const credentials: Credentials = {
             token: 'BEARER_TOKEN',  // Bearer token for authentication
         };
@@ -51,8 +39,7 @@ async function transferDataBetweenVaults() {
 
         // Step 3: Configure Skyflow Client
         const skyflowConfig: SkyflowConfig = {
-            vaultConfigs: [primaryVaultConfig], 
-            skyflowCredentials: skyflowCredentials,  // Skyflow credentials for fallback
+            vaultConfigs: [primaryVaultConfig],
             logLevel: LogLevel.ERROR,  // Set log level to ERROR
         };
 
