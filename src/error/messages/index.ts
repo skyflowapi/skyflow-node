@@ -171,6 +171,9 @@ const errorMessages = {
     INVALID_UPSERT: `${errorPrefix} Validation error. The upsert key has a value of type %s1. Specify upsert as string.`,
     INVALID_RETURN_TOKEN: `${errorPrefix} Validation error. The returnToken key has a value of type %s1. Specify returnToken as boolean.`,
 
+    NO_TOKENS_WITH_TOKEN_MODE: `${errorPrefix} Validation error. Tokens weren't specified for records while 'tokenMode' was ENABLE or ENABLE_STRICT` ,
+    INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT: `${errorPrefix} Validation error. 'tokenMode' is set to 'ENABLE_STRICT', but some fields are missing tokens. Specify tokens for all fields.`,
+
     INVALID_DOWNLOAD_URL: `${errorPrefix} Validation error. The downloadURL key has a value of type %s1. Specify downloadURL as string.`,
 
     EMPTY_FIELD: `${errorPrefix} Validation error. Filed value cannot be empty. Specify a valid filed value at index %s1.`,
