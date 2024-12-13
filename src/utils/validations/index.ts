@@ -1,4 +1,4 @@
-import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW_ID, VAULT, VAULT_ID } from "..";
+import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW_ID, VAULT, VAULT_ID, TokenMode } from "..";
 import { V1BYOT } from "../../ _generated_/rest";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
@@ -433,7 +433,46 @@ export const validateInsertOptions = (insertOptions?: InsertOptions) => {
     }
 };
 
-export const validateInsertRequest = (insertRequest: InsertRequest, insertOptions?: InsertOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+const validateTokensMapWithTokenStrict = (
+  data: object,
+  tokens: object
+) => {
+  const dataKeys = Object.keys(data);
+
+  for (const key of dataKeys) {
+    if (!tokens.hasOwnProperty(key)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+    }
+  }
+};
+
+export const validateTokensForInsertRequest = (
+  insertRequest?: InsertRequest,
+  insertOptions?: InsertOptions
+) => {
+  if (insertRequest && insertOptions && insertOptions.getTokenMode()) {
+    if (
+      (insertOptions.getTokenMode() == TokenMode.ENABLE ||
+      insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && !insertOptions.getTokens()
+    ) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.NO_TOKENS_WITH_TOKEN_MODE);
+    }
+
+    if((insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && insertOptions.getTokens()) {
+        if(insertRequest.data.length!=insertOptions.getTokens()?.length) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+        }
+
+        if(insertOptions.getTokens()) {
+        for(let i=0;i<insertRequest.data.length;i++) {
+            validateTokensMapWithTokenStrict(insertRequest.data[i], insertOptions.getTokens()![i])
+        }
+    }
+    }
+  }
+};
+
+export const validateInsertRequest = (insertRequest: InsertRequest, insertOptions?: InsertOptions, logLevel: LogLevel = LogLevel.ERROR) => { //
     if (insertRequest) {
         if (!insertRequest?.tableName || !Object.prototype.hasOwnProperty.call(insertRequest, '_tableName')) {
             printLog(logs.errorLogs.EMPTY_TABLE_IN_INSERT, MessageType.ERROR, logLevel);
@@ -468,6 +507,7 @@ export const validateInsertRequest = (insertRequest: InsertRequest, insertOption
             validateInsertInput(record, index);
         });
         validateInsertOptions(insertOptions);
+        validateTokensForInsertRequest(insertRequest, insertOptions)
     } else {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_INSERT_REQUEST);
     }
