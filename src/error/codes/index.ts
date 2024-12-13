@@ -168,6 +168,9 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_UPSERT: { http_code: 400, message: errorMessages.INVALID_UPSERT },
     INVALID_RETURN_TOKEN: { http_code: 400, message: errorMessages.INVALID_RETURN_TOKEN },
 
+    NO_TOKENS_WITH_TOKEN_MODE: { http_code: 400, message: errorMessages.NO_TOKENS_WITH_TOKEN_MODE },
+    INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT: { http_code: 400, message: errorMessages.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT },
+
     INVALID_DOWNLOAD_URL: { http_code: 400, message: errorMessages.INVALID_DOWNLOAD_URL },
 
     INVALID_FIELD: { http_code: 400, message: errorMessages.INVALID_FIELD },
