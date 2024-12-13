@@ -14,7 +14,7 @@ import {
  * Skyflow File Upload Example
  * 
  * This example demonstrates how to:
- * 1. Configure Skyflow client credentials
+ * 1. Configure credentials
  * 2. Set up vault configuration
  * 3. Create a file upload request
  * 4. Handle response and errors
@@ -22,18 +22,6 @@ import {
 async function performFileUpload() {
     try {
         // Step 1: Configure Credentials
-        const cred: object = {
-            clientID: '<your-client-id>',       // Client identifier
-            clientName: '<your-client-name>',   // Client name
-            keyID: '<your-key-id>',             // Key identifier
-            tokenURI: '<your-token-uri>',       // Token URI
-            privateKey: '<your-pem-private-key>' // Private key for authentication
-        };
-
-        const skyflowCredentials: Credentials = {
-            credentialsString: JSON.stringify(cred), // Token credentials
-        };
-
         const credentials: Credentials = {
             path: 'path-to-credentials-json', // Path to credentials file
         };
@@ -49,7 +37,6 @@ async function performFileUpload() {
         // Step 3: Configure Skyflow Client
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig],
-            skyflowCredentials: skyflowCredentials, // Used if no individual credentials are passed
             logLevel: LogLevel.ERROR,               // Logging verbosity
         };
 

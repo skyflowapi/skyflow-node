@@ -16,7 +16,7 @@ import {
  * Skyflow Insert with BYOT Example
  * 
  * This example demonstrates:
- * 1. Configuring Skyflow client credentials
+ * 1. Configuring credentials
  * 2. Setting up vault configuration
  * 3. Utilizing Bring Your Own Token (BYOT) during insertion
  * 4. Handling responses and errors
@@ -24,18 +24,6 @@ import {
 async function performSecureDataInsertionWithBYOT() {
     try {
         // Step 1: Configure Credentials
-        const cred: object = {
-            clientID: '<your-client-id>',       // Client identifier
-            clientName: '<your-client-name>',   // Client name
-            keyID: '<your-key-id>',             // Key identifier
-            tokenURI: '<your-token-uri>',       // Token URI
-            privateKey: '<your-pem-private-key>' // Private key for authentication
-        };
-
-        const skyflowCredentials: Credentials = {
-            credentialsString: JSON.stringify(cred), // Token-based credentials
-        };
-
         const credentials: Credentials = {
             token: 'bearer', // Bearer token authentication
         };
@@ -51,7 +39,6 @@ async function performSecureDataInsertionWithBYOT() {
         // Step 3: Configure Skyflow Client
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig],
-            skyflowCredentials: skyflowCredentials, // Used if no individual credentials are passed
             logLevel: LogLevel.INFO                 // Logging verbosity
         };
 

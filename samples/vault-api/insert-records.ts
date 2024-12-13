@@ -15,7 +15,7 @@ import {
  * Skyflow Secure Data Insertion Example
  * 
  * This example demonstrates how to:
- * 1. Configure Skyflow client credentials
+ * 1. Configure credentials
  * 2. Set up vault configuration
  * 3. Create an insert request
  * 4. Handle response and errors
