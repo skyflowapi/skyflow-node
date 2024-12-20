@@ -1,3 +1,16 @@
 node_modules
 src
 test
+coverage
+samples
+scripts
+.github
+babel.config.js
+.babelrc
+CHANGELOG.md
+codecov.yml
+jest.config.js
+LICENSE
+README.md
+SECURITY.md
+typedoc.json
