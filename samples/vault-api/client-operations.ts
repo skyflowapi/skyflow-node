@@ -6,7 +6,8 @@ import {
     Skyflow, 
     VaultConfig, 
     SkyflowConfig, 
-    SkyflowError 
+    SkyflowError, 
+    DeleteResponse
 } from 'skyflow-node';
 
 /**
@@ -40,7 +41,7 @@ async function performSecureDataDeletion() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient : Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Add Secondary Vault Configuration
         const secondaryVaultConfig: VaultConfig = {
@@ -77,7 +78,7 @@ async function performSecureDataDeletion() {
         );
 
         // Step 7: Perform Secure Deletion on Secondary Vault
-        const response = await skyflowClient
+        const response: DeleteResponse = await skyflowClient
             .vault('<your_vault_id2>') // Specify vault ID
             .delete(deleteRequest);
 
