@@ -3,7 +3,7 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "target": "es6",
-    "lib": ["es2015", "es2017", "dom", "ES2020.Promise","es2018"],
+    "lib": ["es2015", "es2017", "dom"],
     "esModuleInterop": true,
     "module": "commonjs",
     "removeComments": true,
@@ -19,6 +19,6 @@
     "outDir": "lib",
     "types": ["node"]
   },
-  "include": ["src","typings.d.ts"],
-  "exclude": ["node_modules", "dist", "tests/*.test.*"],
+  "include": ["src/**/*.ts","typings.d.ts"],
+  "exclude": ["node_modules", "dist", "tests/**/*.test.*"],
 }
