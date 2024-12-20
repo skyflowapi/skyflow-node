@@ -1,4 +1,4 @@
-name: Public Release
+name: Public Beta Release
 
 on:
   push:
