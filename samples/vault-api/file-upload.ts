@@ -7,7 +7,8 @@ import {
     Skyflow, 
     SkyflowConfig, 
     VaultConfig, 
-    SkyflowError 
+    SkyflowError, 
+    FileUploadResponse
 } from 'skyflow-node';
 
 /**
@@ -41,7 +42,7 @@ async function performFileUpload() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare File Upload Data
         const tableName = 'table-name';      // Table name
@@ -50,7 +51,7 @@ async function performFileUpload() {
         const filePath = 'file-path';        // Path to the file for upload
 
         // Step 5: Create File Upload Request
-        const uploadReq = new FileUploadRequest(
+        const uploadReq: FileUploadRequest = new FileUploadRequest(
             tableName,
             skyflowId,
             columnName,
@@ -58,7 +59,7 @@ async function performFileUpload() {
         );
 
         // Step 6: Perform File Upload
-        const response = await skyflowClient
+        const response: FileUploadResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)
             .uploadFile(uploadReq);
 
