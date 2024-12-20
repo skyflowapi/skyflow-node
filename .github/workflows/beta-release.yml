@@ -1,0 +1,31 @@
+name: Public Beta Release
+
+on:
+  push:
+    tags: '*.*.*-beta.*'
+    paths-ignore:
+      - "package.json"
+      - "package-lock.json"
+      - "*.md"
+
+
+jobs:
+  build-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.17.6
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: publish to npm
+        run: npm publish --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
