@@ -1,0 +1,9 @@
+//imports
+
+class SkyflowError {
+
+    constructor() {
+
+    }
+
+}
