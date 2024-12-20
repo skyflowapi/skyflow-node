@@ -8,7 +8,8 @@ import {
     VaultConfig, 
     SkyflowConfig, 
     ConnectionConfig, 
-    SkyflowError 
+    SkyflowError, 
+    InvokeConnectionResponse
 } from 'skyflow-node';
 
 /**
@@ -73,7 +74,7 @@ async function invokeSkyflowConnection() {
         );
 
         // Step 7: Invoke Connection
-        const response = await skyflowClient
+        const response: InvokeConnectionResponse = await skyflowClient
             .connection()
             .invoke(invokeReq);
 

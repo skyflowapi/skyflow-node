@@ -67,7 +67,7 @@ async function transferDataBetweenVaults() {
         const getRequest: GetRequest = new GetRequest(tableName, getIds);
 
         // Perform Get request on Primary Vault
-        const getResponse = await skyflowClient
+        const getResponse: GetResponse = await skyflowClient
             .vault('vault-id-1')  // Specify the vault ID or it defaults to the first valid vault
             .get(getRequest);
 
@@ -89,7 +89,7 @@ async function transferDataBetweenVaults() {
         );
 
         // Perform Insert request on Secondary Vault
-        const insertResponse = await skyflowClient
+        const insertResponse: InsertResponse = await skyflowClient
             .vault('vault-id-2')  // Specify the secondary vault ID
             .insert(insertRequest);
 

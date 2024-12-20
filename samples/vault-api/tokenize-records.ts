@@ -42,7 +42,7 @@ async function executeTokenization() {
         };
 
         // Initialize Skyflow Client
-        const skyflowClient = new Skyflow(skyflowConfig);
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Tokenization Data
         const tokenizeValues: Array<TokenizeRequestType> = [
