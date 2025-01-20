@@ -16,16 +16,16 @@ jobs:
         with:
           node-version: 14.17.6
 
-      - name: install packages
+      - name: Install Packages
         run: npm install
 
-      - name: run tests
+      - name: Run Tests
         env:
           SA_WITHOUT_CONTEXT: ${{ secrets.SA_WITHOUT_CONTEXT }}
           SIGNED_TOKEN_SA: ${{ secrets.SIGNED_TOKEN_SA }}
         run: npm run test
 
-      - name: upload code coverage to codecov
+      - name: Upload Code Coverage To Codecov
         if: ${{ inputs.upload-to-code-cov == 'true' }}
         uses: codecov/codecov-action@v2.1.0
         with:
