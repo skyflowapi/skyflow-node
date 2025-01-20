@@ -2,7 +2,8 @@ name: Common CI Workflow
 
 on:
   workflow_call:
-    node-version:
+    inputs:
+      node-version:
         required: true
         type: string
 
@@ -16,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 14.17.6
+          node-version: ${{ inputs.node-version }}
 
       - name: Install Modules
         run: npm install
