@@ -8,10 +8,10 @@ on:
 
 jobs:
   check-commit-message:
-    name: Check Commit Message
+    name: check commit message
     runs-on: ubuntu-latest
     steps:
-      - name: Check JIRA ID
+      - name: check jira id
         uses: gsactions/commit-message-checker@v1
         with:
           pattern: '(\[?[A-Z]{1,5}-[1-9][0-9]*)|(\[AUTOMATED\])|(Merge)|(Release).+$'
@@ -24,7 +24,6 @@ jobs:
   ci-checks:
     uses: ./.github/workflows/common-ci.yml
     with:
-      node-version: 14.17.6
       upload-to-code-cov: false
     secrets: inherit
 

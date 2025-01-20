@@ -3,9 +3,6 @@ name: Release SDK
 on:
   workflow_call:
     inputs:
-      node-version:
-        required: true
-        type: string
       registry-url:
         required: true
         type: string
@@ -24,22 +21,22 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v1
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: 14.17.6
           registry-url: ${{ inputs.registry-url }}
 
-      - name: Install Packages
+      - name: install packages
         run: npm install
 
-      - name: Build
+      - name: build
         run: npm run build
 
-      - name: Get Previous Tag
+      - name: get previous tag
         id: previoustag
         uses: WyriHaximus/github-action-get-previous-tag@v1
         with:
           fallback: 1.0.0
       
-      - name: Resolve Branch Name
+      - name: resolve branch name
         id: resolve-branch
         if: ${{ inputs.tag == 'beta' || inputs.tag == 'public' }} 
         run: |
@@ -55,7 +52,7 @@ jobs:
           echo "Resolved Branch Name: $BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
 
-      - name: Bump Version
+      - name: bump version
         run: |
           chmod +x ./scripts/bump_version.sh
           if ${{ inputs.tag == 'internal' }}; then
@@ -64,7 +61,7 @@ jobs:
             ./scripts/bump_version.sh "${{ steps.previoustag.outputs.tag }}"
           fi
 
-      - name: Commit Changes
+      - name: commit changes
         run: |
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
@@ -80,7 +77,7 @@ jobs:
             git push origin ${{ github.ref_name }} -f
           fi
 
-      - name: Publish
+      - name: publish
         run: |
           if [[ "${{ inputs.tag }}" == "beta" ]]; then
             npm publish --tag beta

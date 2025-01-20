@@ -15,7 +15,6 @@ jobs:
   call-common-workflow:
     uses: ./.github/workflows/release-sdk.yml
     with:
-      node-version: 14.17.6
       registry-url: 'https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/'
       tag: internal
     secrets: inherit

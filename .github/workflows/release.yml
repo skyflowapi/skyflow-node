@@ -12,7 +12,6 @@ jobs:
   call-common-workflow:
     uses: ./.github/workflows/release-sdk.yml
     with:
-      node-version: 14.17.6
       registry-url: 'https://registry.npmjs.org'
       tag: public
     secrets: inherit

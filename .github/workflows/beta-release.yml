@@ -12,7 +12,6 @@ jobs:
   build-and-deploy:
     uses: ./.github/workflows/shared-build-and-deploy.yml
     with:
-      node-version: 14.17.6
       registry-url: 'https://registry.npmjs.org'
       tag: beta
     secrets: inherit

@@ -3,9 +3,6 @@ name: Common CI Workflow
 on:
   workflow_call:
     inputs:
-      node-version:
-        required: true
-        type: string
       upload-to-code-cov:
         required: true
         type: boolean
@@ -17,18 +14,18 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: 14.17.6
 
-      - name: Install Packages
+      - name: install packages
         run: npm install
 
-      - name: Run Tests
+      - name: run tests
         env:
           SA_WITHOUT_CONTEXT: ${{ secrets.SA_WITHOUT_CONTEXT }}
           SIGNED_TOKEN_SA: ${{ secrets.SIGNED_TOKEN_SA }}
         run: npm run test
 
-      - name: Upload Code Coverage to Codecov
+      - name: upload code coverage to codecov
         if: ${{ inputs.upload-to-code-cov == 'true' }}
         uses: codecov/codecov-action@v2.1.0
         with:
