@@ -1,0 +1,99 @@
+name: Release SDK
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: true
+        type: string
+      registry-url:
+        required: true
+        type: string
+      tag:
+        required: false
+        type: string
+
+jobs:
+  build-sdk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PAT_ACTIONS }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ inputs.node-version }}
+          registry-url: ${{ inputs.registry-url }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build SDK
+        run: npm run build
+
+      - name: Get Previous Tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+        with:
+          fallback: 1.0.0
+      
+      - name: Resolve Branch for the Tagged Commit
+        id: resolve-branch
+        if: ${{ inputs.tag == 'beta' || inputs.tag == 'public' }} 
+        run: |
+          TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref_name }})
+
+          BRANCH_NAME=$(git branch -r --contains $TAG_COMMIT | grep -o 'origin/.*' | sed 's|origin/||' | head -n 1)
+
+          if [ -z "$BRANCH_NAME" ]; then
+            echo "Error: Could not resolve branch for the tag."
+            exit 1
+          fi
+
+          echo "Resolved Branch Name: $BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Bump Version
+        run: |
+          chmod +x ./scripts/bump_version.sh
+          if ${{ inputs.tag == 'internal' }}; then
+            ./scripts/bump_version.sh "${{ steps.previoustag.outputs.tag }}" "$(git rev-parse --short "$GITHUB_SHA")"
+          else
+            ./scripts/bump_version.sh "${{ steps.previoustag.outputs.tag }}"
+          fi
+
+      - name: Commit Changes
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+          if [[ "${{ inputs.tag }}" == "beta" || "${{ inputs.tag }}" == "public" ]]; then
+            git checkout ${{ env.branch_name }}
+          fi
+          git add package.json
+          if [[ "${{ inputs.tag }}" == "beta" || "${{ inputs.tag }}" == "public" ]]; then
+            git commit -m "[AUTOMATED] Release - ${{ steps.previoustag.outputs.tag }}"
+            git push origin ${{ env.branch_name }}
+          elif [[ "${{ inputs.tag }}" == "internal" ]]; then
+            git commit -m "[AUTOMATED] Private Release ${{ steps.previoustag.outputs.tag }}-dev.$(git rev-parse --short $GITHUB_SHA)"
+            git push origin ${{ github.ref_name }} -f
+          fi
+
+      - name: Publish to npm
+        run: |
+          if [[ "${{ inputs.tag }}" == "beta" ]]; then
+            npm publish --tag beta
+          if [[ "${{ inputs.tag }}" == "public" ]]; then
+            npm publish
+          elif [[ "${{ inputs.tag }}" == "internal" ]]; then
+            curl -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_PASSWORD }} https://prekarilabs.jfrog.io/prekarilabs/api/npm/auth/ > ~/.npmrc
+            npm config set registry https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/
+            npm config set unsafe-perm true
+            npm publish
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

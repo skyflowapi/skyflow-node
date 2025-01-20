@@ -8,48 +8,11 @@ on:
       - "package-lock.json"
       - "*.md"
 
-      
 jobs:
-  build-sdk:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: main
-          fetch-depth: 0
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 14.17.6
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm install
-
-
-      - name: install modules
-        run: npm install
-      
-      - name: Build
-        run: npm run build
-
-      - name: Get Previous tag
-        id: previoustag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
-        with:
-          fallback: 1.0.0
-
-      - name: Bump Version
-        run: |
-           chmod +x ./scripts/bump_version.sh
-           ./scripts/bump_version.sh "${{ steps.previoustag.outputs.tag }}"
-
-      - name: Commit changes
-        run: |
-           git config user.name ${{ github.actor }}
-           git config user.email ${{ github.actor }}@users.noreply.github.com
-           git add package.json
-           git commit -m "[AUTOMATED] Public Release - ${{ steps.previoustag.outputs.tag }}"
-           git push 
-          
-      - name: publish to npm
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  call-common-workflow:
+    uses: ./.github/workflows/release-sdk.yml
+    with:
+      node-version: 14.17.6
+      registry-url: 'https://registry.npmjs.org'
+      tag: public
+    secrets: inherit
