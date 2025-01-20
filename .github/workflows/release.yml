@@ -10,7 +10,7 @@ on:
 
 jobs:
   call-common-workflow:
-    uses: ./.github/workflows/release-sdk.yml
+    uses: ./.github/workflows/common-release.yml
     with:
       registry-url: 'https://registry.npmjs.org'
       tag: public

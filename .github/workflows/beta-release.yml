@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-deploy:
-    uses: ./.github/workflows/shared-build-and-deploy.yml
+    uses: ./.github/workflows/common-release.yml
     with:
       registry-url: 'https://registry.npmjs.org'
       tag: beta

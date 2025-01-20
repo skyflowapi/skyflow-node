@@ -13,7 +13,7 @@ on:
 
 jobs:
   call-common-workflow:
-    uses: ./.github/workflows/release-sdk.yml
+    uses: ./.github/workflows/common-release.yml
     with:
       registry-url: 'https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/'
       tag: internal
