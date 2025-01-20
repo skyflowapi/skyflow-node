@@ -1,6 +1,5 @@
 name: CI
 
-
 on:
   push:
     branches:
@@ -8,25 +7,7 @@ on:
 
 jobs:
   ci-checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 14.17.6
-      - name: install modules
-        run: npm install
-
-      - name: Run tests
-        env:
-          SA_WITHOUT_CONTEXT: ${{ secrets.SA_WITHOUT_CONTEXT }}
-          SIGNED_TOKEN_SA: ${{ secrets.SIGNED_TOKEN_SA }}
-        run: npm run test
-      
-      - name: Codecov
-        uses: codecov/codecov-action@v2.1.0
-        with:
-          token: ${{ secrets.CODECOV_REPO_UPLOAD_TOKEN }}
-          files: coverage/lcov.info
-          name: codecov-skyflow-node
-          verbose: true
+    uses: ./.github/workflows/common-ci.yml
+    with:
+      upload-to-code-cov: true
+    secrets: inherit

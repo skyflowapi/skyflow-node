@@ -1,0 +1,35 @@
+name: Common CI Workflow
+
+on:
+  workflow_call:
+    inputs:
+      upload-to-code-cov:
+        required: true
+        type: boolean
+
+jobs:
+  ci-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.17.6
+
+      - name: Install Packages
+        run: npm install
+
+      - name: Run Tests
+        env:
+          SA_WITHOUT_CONTEXT: ${{ secrets.SA_WITHOUT_CONTEXT }}
+          SIGNED_TOKEN_SA: ${{ secrets.SIGNED_TOKEN_SA }}
+        run: npm run test
+
+      - name: Upload Code Coverage To Codecov
+        if: ${{ inputs.upload-to-code-cov == 'true' }}
+        uses: codecov/codecov-action@v2.1.0
+        with:
+          token: ${{ secrets.CODECOV_REPO_UPLOAD_TOKEN }}
+          files: coverage/lcov.info
+          name: codecov-skyflow-node
+          verbose: true
