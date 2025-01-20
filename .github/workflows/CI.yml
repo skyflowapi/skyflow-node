@@ -25,5 +25,6 @@ jobs:
     uses: ./.github/workflows/common-ci.yml
     with:
       node-version: 14.17.6
+      upload-to-code-cov: false
     secrets: inherit
 

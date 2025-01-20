@@ -23,17 +23,15 @@ jobs:
         with:
           token: ${{ secrets.PAT_ACTIONS }}
           fetch-depth: 0
-
-      - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
           node-version: ${{ inputs.node-version }}
           registry-url: ${{ inputs.registry-url }}
 
-      - name: Install dependencies
+      - name: Install Packages
         run: npm install
 
-      - name: Build SDK
+      - name: Build
         run: npm run build
 
       - name: Get Previous Tag
@@ -42,7 +40,7 @@ jobs:
         with:
           fallback: 1.0.0
       
-      - name: Resolve Branch for the Tagged Commit
+      - name: Resolve Branch Name
         id: resolve-branch
         if: ${{ inputs.tag == 'beta' || inputs.tag == 'public' }} 
         run: |
@@ -83,7 +81,7 @@ jobs:
             git push origin ${{ github.ref_name }} -f
           fi
 
-      - name: Publish to npm
+      - name: Publish
         run: |
           if [[ "${{ inputs.tag }}" == "beta" ]]; then
             npm publish --tag beta

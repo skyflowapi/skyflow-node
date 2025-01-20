@@ -6,20 +6,20 @@ on:
       node-version:
         required: true
         type: string
+      upload-to-code-cov:
+        required: true
+        type: boolean
 
 jobs:
   ci-checks:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
         uses: actions/checkout@v2
-
-      - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
           node-version: ${{ inputs.node-version }}
 
-      - name: Install Modules
+      - name: Install Packages
         run: npm install
 
       - name: Run Tests
@@ -29,12 +29,10 @@ jobs:
         run: npm run test
 
       - name: Upload Code Coverage to Codecov
+        if: ${{ inputs.upload-to-code-cov == 'true' }}
         uses: codecov/codecov-action@v2.1.0
         with:
           token: ${{ secrets.CODECOV_REPO_UPLOAD_TOKEN }}
           files: coverage/lcov.info
           name: codecov-skyflow-node
           verbose: true
-
-      - name: Build Project
-        run: npm run build
