@@ -17,6 +17,7 @@ SDK for the Skyflow Data Privacy Vault.
       - [Import / Require](#import--require)
         - [Require](#require)
         - [All imports](#all-imports)
+  - [Migration from v1 to v2](#migrate-from-v1-to-v2)
   - [Vault APIs](#vault-apis)
     - [Insert: vault().insert()](#insert-vaultinsert)
       - [Example: Insert Records](#example-insert-records)
@@ -77,6 +78,245 @@ import {
 } from 'skyflow-node'
 ```
 
+## Migrate from V1 to V2
+
+This guide outlines the steps required to migrate the Node SDK from version 1 (V1) to version 2 (V2).
+
+---
+
+### 1. Authentication Options
+
+In V2, multiple authentication options have been introduced. You can now provide credentials in the following ways:
+
+- **API Key (Recommended)**
+- **Environment Variable** (`SKYFLOW_CREDENTIALS`) (Recommended)
+- **Path to Credentials JSON File**
+- **Stringified JSON of Credentials**
+- **Bearer Token**
+
+These options allow you to choose the authentication method that best suits your use case.
+
+### V1 (Old): Passing the auth function below as a parameter to the getBearerToken key.
+
+
+```javascript
+// sample function to retrieve a bearer token from an environment variable
+// customize this according to your environment and security posture
+const auth = function () {
+  return new Promise((resolve, reject) => {
+    resolve(process.env.VAULT_BEARER_TOKEN);
+  });
+};
+```
+
+### V2 (New): Passing one of the following: 
+
+```javascript
+// Option 1: API Key (Recommended)
+const credentials = { apiKey: "your-api-key" };
+
+// Option 2: Environment Variables (Recommended)
+// Set SKYFLOW_CREDENTIALS in your environment
+
+// Option 3: Credentials File
+const credentials = { path: "/path/to/credentials.json" };
+
+// Option 4: Stringified JSON
+const credentials = { credentialsString: JSON.stringify(process.env.SKYFLOW_CREDENTIALS) };
+
+// Option 5: Bearer Token
+const credentials = { token: "your-bearer-token" };
+```
+
+### Notes:
+- Use only ONLY authentication method.
+- Environment variables take precedence over programmatic configuration.
+- API Key or Environment Variables are recommended for production use.
+- Secure storage of credentials is essential.
+- For overriding behavior and priority order, refer to README.
+
+---
+
+### 2. Client Initialization
+
+V2 introduces TypeScript support and multi-vault support, allowing you to configure multiple vaults during initialization.
+
+### V1 (Old)
+```javascript
+// Initialize the Skyflow Vault client
+
+const vault = Skyflow.init({
+  // Id of the vault that the client should connect to.
+  vaultID: 'string',
+  // URL of the vault that the client should connect to.
+
+  vaultURL: 'string',
+  // Helper function generates a Skyflow bearer token.
+  getBearerToken: auth,
+});
+```
+
+### V2 (New)
+```javascript
+// Step 1: Configure Bearer Token Credentials
+const credentials: Credentials = { apiKey: '<your_api_key>' };
+
+// Step 2: Configure Vault
+const primaryVaultConfig: VaultConfig = {
+   vaultId: '<your_vault_id1>',     // Primary vault
+   clusterId: '<your_cluster_id1>', // Cluster ID from your vault URL
+   env: Env.PROD,                   // Deployment environment (PROD by default)
+   credentials: credentials,        // Authentication method
+};
+
+// Step 3: Configure Skyflow Client
+const skyflowConfig: SkyflowConfig = {
+    vaultConfigs: [primaryVaultConfig],
+    logLevel: LogLevel.ERROR,      // Logging verbosity
+};
+
+// Initialize Skyflow Client
+const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
+```
+
+### Key Changes:
+- `vaultURL` replaced with `clusterId`.
+- Added environment specification (`env`).
+- Instance-specific log levels.
+- TypeScript support with type definitions
+
+---
+
+### 3. Request & Response Structure
+
+In V2, with the introduction of TypeScript support, you can now pass an **InsertRequest** of type **InsertRequest**. This request need 
+- **`tableName`**: The name of the table.
+- **`insertData`**: An array of objects containing the data to be inserte
+The response will be of type InsertResponse, which contains insertedFileds and errors.
+
+### V1 (Old) - Request Building
+```javascript
+const result = skyflow.insert({
+   records: [
+     {
+       fields: {
+         card_number: '411111111111111',
+         expiry_date: '11/22',
+         fullname: 'firstNameTest',
+       },
+       table: 'cards',
+     },
+   ],
+ });
+```
+
+### V2 (New) - Request Building
+```javascript
+// Prepare Insertion Data
+const insertData: Array<object> = [
+  { card_number: '4111111111111112' } // Example sensitive data
+];
+
+// Create Insert Request
+const insertReq: InsertRequest = new InsertRequest(
+     'sensitive_data_table', // Replace with your actual table name
+      insertData
+);
+
+// Perform Secure Insertion
+const response: InsertResponse = await skyflowClient
+    .vault("VAULT_ID")
+    .insert(insertReq);
+```
+
+### V1 (Old) - Response Structure
+```json
+{
+  "records": [
+    {
+      "table": "cards",
+      "fields": {
+        "card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
+        "expiry_date": "1989cb56-63a-4482-adf-1f74cd1a5"
+      }
+    }
+  ]
+}
+```
+
+### V2 (New) - Response Structure
+```javascript
+InsertResponse(
+   insertedFields : [
+       {
+           skyflowId : "ID1",
+           "<FIELD_NAME1>": "<TOKEN1>", // removed tokens key
+           "<FIELD_NAME2>": "<TOKEN2>"
+       },
+       {
+           skyflowId : "ID2",
+           "<FIELD_NAME3>": "<TOKEN3>",
+           "<FIELD_NAME4>": "<TOKEN4>"
+       }
+   ],
+   errors: null // optional
+);
+```
+
+---
+
+### 4. Request Options
+
+In V2, we have introduced inbuilt **InsertOption** classes. These allow you to use setters to configure options instead of passing a plain object with key-value pairs.
+
+
+### V1 (Old)
+```javascript
+const options = {
+    tokens: true,
+    // other options  
+};
+```
+
+### V2 (New)
+```javascript
+const insertOptions: InsertOptions = new InsertOptions();
+insertOptions.setReturnTokens(true); // Optional: Get tokens for inserted data
+insertOptions.setContinueOnError(true); // Optional: Continue on partial errors
+```
+
+---
+
+### 5. Request Options
+In V2, we have enriched the error details to provide better debugging capabilities. 
+The error response now includes: 
+- **`http_status`**: The HTTP status code. .
+- **`grpc_code`**: The gRPC code associated with the error. 
+- **`details & message`**: A detailed description of the error. 
+- **`request_ID`**: A unique request identifier for easier debugging.
+
+
+### V1 (Old) - Error Structure
+```javascript
+{
+  code: string | number,
+  description: string
+}
+```
+
+### V2 (New) - Error Structure
+```javascript
+{
+    http_status?: string | number | null,
+    grpc_code?: string | number | null,
+    http_code: string | number | null,
+    message: string,
+    request_ID?: string | null,
+    details?: Array<string> | null,
+}
+```
+
+---
 
 ## Vault APIs
 The [Vault](https://github.com/skyflowapi/skyflow-node/tree/main/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
