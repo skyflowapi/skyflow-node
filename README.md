@@ -163,8 +163,8 @@ const credentials: Credentials = { apiKey: '<YOUR_API_KEY>' };
 
 // Step 2: Configure Vault
 const primaryVaultConfig: VaultConfig = {
-   vaultId: '<YOUR_VAULT_ID1>',     // Primary vault
-   clusterId: '<YOUR_CLUSTER_ID1>', // Cluster ID from your vault URL
+   vaultId: '<YOUR_VAULT>',     // Primary vault
+   clusterId: '<YOUR_CLUSTER>', // Cluster ID from your vault URL
    env: Env.PROD,                   // Deployment environment (PROD by default)
    credentials: credentials,        // Authentication method
 };
