@@ -18,19 +18,17 @@ SDK for the Skyflow Data Privacy Vault.
         - [Require](#require)
         - [All imports](#all-imports)
   - [Vault APIs](#vault-apis)
-    - [Insert: vault.insert()](#insert-vaultinsert)
+    - [Insert: vault().insert()](#insert-vaultinsert)
       - [Example: Insert Records](#example-insert-records)
       - [Example: Upsert Records (update or insert)](#example-upsert-records-update-or-insert)
       - [Example: Insert with partial success support](#example-insert-with-partial-success-support)
     - [Detokenize: vault.detokenize()](#detokenize-vaultdetokenize)
       - [Detokenize example](#detokenize-example)
-    - [Get By IDs: vault.getById()](#get-by-ids-vaultgetbyid)
-      - [Example: Get Records by IDs](#example-get-records-by-ids)
     - [Get records by unique values: vault.get()](#get-records-by-unique-values-vaultget)
-      - [Example: Get records by ID(s)](#example-get-records-by-ids-1)
-      - [Example: Get records by unique field values](#example-get-records-by-unique-field-values)
-    - [Update records by IDs](#update-records-by-ids)
-      - [Example: Update records by IDs](#example-update-records-by-ids)
+      - [Example: Get records by ID(s)](#example-get-records-by-ids)
+      - [Example: Get records by unique column values](#example-get-records-by-unique-column-values)
+    - [Update records by ID](#update-records-by-id)
+      - [Example: Update records by ID](#example-update-records-by-id)
     - [Delete](#delete)
     - [Invoke Connection](#invoke-connection)
       - [Example: Invoke Connection](#example-invoke-connection)
@@ -59,22 +57,23 @@ Depending on your project setup, you may use either the `require` method (common
 
 ##### Require
 
-```javascript
+```typescript
 const { Skyflow } = require('skyflow-node');
 ```
 
 **ES modules**
 
-```javascript
+```typescript
 import { Skyflow }  from 'skyflow-node';
 ```
 
 ##### All imports
 
-```javascript
-import { Skyflow,                         // Vault client
-          generateBearerToken, isExpired, // JWT auth helpers
-          LogLevel, setLogLevel           // logging options
+```typescript
+import {
+  Skyflow,     // Vault client
+  isExpired,   // JWT auth helpers
+  LogLevel,    // logging options
 } from 'skyflow-node'
 ```
 
@@ -84,139 +83,140 @@ The [Vault](https://github.com/skyflowapi/skyflow-node/tree/main/src/vault-api) 
 
 To use this module, the Skyflow client must first be initialized as follows: 
 
-```javascript
+```typescript
 import { Skyflow } from 'skyflow-node';
 
 // Initialize the Skyflow Vault client
-const vault = Skyflow.init({
-  // Id of the vault that the client should connect to.
-  vaultID: 'string',
-  // URL of the vault that the client should connect to.
-  vaultURL: 'string',
-  // Helper function generates a Skyflow bearer token.
-  getBearerToken: auth,
+const client : Skyflow = Skyflow({
+  vaultConfigs: [
+    {
+      // Id of the vault that the client should connect to.
+      vaultId: 'string',
+      // Id of the cluster that the client should connect to.
+      clusterId: 'string',
+      // environment to which the vault ID belongs
+      env: Env.PROD,
+      // vault level credentials
+      credentials: {
+        roles: ['string', 'string'], // optional, IDs for roles
+        context: 'string', // optional, Id of the context 
+        credentialsString: 'string', // credentials JSON as a stringified version
+      },
+    }
+  ],
+   connectionConfigs: [
+     {
+       // Id of the connection that the client should connect to.
+       connectionId: 'string',
+       // URL of the connection that the client should connect to.
+       connectionUrl: 'string',
+       // connection level credentials
+       credentials: {
+        apiKey: 'string',  // API key
+       },
+     },
+   ],
+   // environment to which the vault ID belongs
+   skyflowCredentials: {
+        path: 'string', // optional, path to credentials json file
+   },
+   // optional, if not specified default is ERROR
+   logLevel: LogLevel.ERROR, 
 });
-
-// sample function to retrieve a bearer token from an environment variable
-// customize this according to your environment and security posture
-const auth = function () {
-  return new Promise((resolve, reject) => {
-    resolve(process.env.VAULT_BEARER_TOKEN);
-  });
-},
 ```
 
-For the `getBearerToken` parameter, pass in a helper function that retrieves a Skyflow bearer token from your backend. This function will be invoked when the SDK needs to insert or retrieve data from the vault. 
+Pass the `SKYFLOW_CREDENTIALS` parameter as an environment variable. This variable will be used when the SDK needs to insert or retrieve data from the vault. 
 
 All Vault APIs must be invoked using a vault client instance.
 
-### Insert: vault.insert()
+### Insert: vault().insert()
 
-To insert data into your vault, use the `insert(data, options?)` method. 
+To insert data into your vault, use the `insert(request, options?)` method. 
 
 ```js
-vault.insert(data, options?);
+vault('VAULT_ID').insert(request, options?);
 ```
 
-- **Records:** The first parameter records is a JSONObject that must have a records key and takes an array of records to be inserted into the vault as a value. 
-- **Options:** The second parameter options is an optional object that provides further options for your insert call, more details below.
+- **Request:** The first parameter request is an object of insert request that must have a table name key and takes an array of rows to be inserted into the vault as a value. 
+- **Options:** The second parameter options is an optional class object that provides further options for your insert call, more details below.
 
 #### Example: Insert Records
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Insert.ts) of a simple insert call is given below:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/insert-records.ts) of a simple insert call is given below:
 
-```javascript
-const result = await vault.insert(
-  {
-    // records to be inserted
-    records: [
-      {
-        fields: { 
-          // fields by name
-          expiry_date: '12/2026',
-          card_number: '411111111111111',
-        },
-        // table name
-        table: 'cards',
-      },
-    ],
-  },
-  // options
-  {
-    // return tokens instead of real values
-    tokens: true,
-  }
+```typescript
+const insertData: Array<object> = [
+    { card_number: '4111111111111112', card_cvv: '123' }  // Example sensitive data
+];
+
+// Create Insert Request
+const insertReq: InsertRequest = new InsertRequest(
+    'sensitive_data_table',  // Replace with your actual table name
+    insertData
 );
 
+// Configure Insertion Options
+const insertOptions: InsertOptions = new InsertOptions();
+insertOptions.setReturnTokens(true);  // Optional: Get tokens for inserted data
+// insertOptions.setContinueOnError(true);  // Optional: Continue on partial errors
+
+// Perform Secure Insertion
+const response: InsertResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .insert(insertReq, insertOptions);
 ```
 
 **Sample response:**
 
 ```json
 {
-  "records": [
+  "insertedFields": [
     {
-      "table": "cards",
-      "fields": {
-        "card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
-        "expiry_date": "1989cb56-63a-4482-adf-1f74cd1a5",
-      },
+      "card_number": "f37186-e7e2-466f-91e5-48e2bcbc1",
+      "card_cvv": "1989cb56-63a-4482-adf-1f74cd1a5",
     },
   ],
+  "errors": [],
 }
 ```
 
 #### Example: Upsert Records (update or insert)
 
-Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/UpsertSupport.ts) with upsert support:
+Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/upsert.ts) with upsert support:
 
-```javascript
-const response = vault.insert({
-  // records to be inserted
-  records: [{
-    fields: {
-      expiry_date: '12/2026',
-      card_number: '411111111111111',
-    },
-    table: 'cards',
-  }],
-}, {
-  // optional options
-  tokens: true,
-  // To conditionally insert OR update based on a field
-  upsert: [
-    {
-      table: 'cards',         // Name of the table in the vault.
-      column: 'card_number',  // Name of the column in the vault. Must be defined as `unique`.
-    }
-  ]
-});
+```typescript
+const insertData: Array<object> = [
+    { card_number: '4111111111111112' }  // Example sensitive data
+];
 
-response.then(
-    (res) => {
-        console.log(JSON.stringify(res));
-    },
-    (err) => {
-        console.log(JSON.stringify(err));
-    }
-).catch((err) => {
-    console.log(JSON.stringify(err));
-});
+// Create Insert Request
+const insertReq: InsertRequest = new InsertRequest(
+    'sensitive_data_table',  // Replace with your actual table name
+    insertData
+);
+
+// Configure Insertion Options
+const insertOptions: InsertOptions = new InsertOptions();
+insertOptions.setReturnTokens(true);  // Optional: Get tokens for inserted data
+insertOptions.setUpsertColumn('card_number');  // Optional: Set Unique column name
+
+// Perform Secure Insertion
+const response: InsertResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .insert(insertReq, insertOptions);
+
 ```
 
 Samples Response:
 ```json
 {
-  "records": [
+  "insertedFields": [
     {
-      "table": "cards",
-      "fields": {
-        "skyflow_id": "16419435-aa63-4823-aae7-19c6a2d6a19f",
-        "card_number": "f3907186-e7e2-466f-91e5-48e12c2bcbc1",
-        "cvv": "1989cb56-63da-4482-a2df-1f74cd0dd1a5",
-      },
-    }
-  ]
+      "skyflowId": "16419435-aa63-4823-aae7-19c6a2d6a19f",
+      "card_number": "f3907186-e7e2-466f-91e5-48e12c2bcbc1",
+    },
+  ],
+  "errors" : [],
 }
 ```
 
@@ -224,514 +224,413 @@ Samples Response:
 
 Insert with partial success support
 
-Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/InsertWithContinueOnError.ts) with contiueOnError support:
+Insert call [example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/insert-continue-on-error.ts) with contiueOnError support:
 
-```javascript
-const response = vault.insert({
-  records: [
-    {
-      fields: {
-        expiry_date: '12/2026',
-        card_number: '411111111111111',
-        namee: 'john doe',
-      },
-      table: 'cards',
-    },
-    {
-      fields: {
-        expiry_date: '12/2027',
-        card_number: '411111111111111',
-        name: 'jane doe',
-      },
-      table: 'cards',
-    }
-  ],
-},
-{
-  // return tokens instead of real values
-  tokens: true,
-  // Ignore failures and keep going. Response will include errors with index value.
-  continueOnError: true,
-});
+```typescript
+const insertData: Array<object> = [
+    { card_number: '4111111111111112', card_cvv: '123' },  // Example sensitive data
+    { card_umber: '4111111111111112' } 
+];
 
-response.then(
-  (res) => {
-    console.log(JSON.stringify(res));
-  },
-  (err) => {
-    console.log(JSON.stringify(err));
-  }
-).catch((err) => {
-  console.log(JSON.stringify(err));
-});
+// Create Insert Request
+const insertReq: InsertRequest = new InsertRequest(
+    'sensitive_data_table',  // Replace with your actual table name
+    insertData
+);
+
+// Configure Insertion Options
+const insertOptions: InsertOptions = new InsertOptions();
+insertOptions.setReturnTokens(true);  // Optional: Get tokens for inserted data
+insertOptions.setContinueOnError(true);  // Optional: Continue on partial errors
+
+//  Perform Secure Insertion
+const response: InsertResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .insert(insertReq, insertOptions);
+
 ```
 
 **Sample Response:**
 
 ```json
 {
-  "records": [
+  "insertedFields": [
     {
-      "table": "cards",
-      "fields": {
-        "skyflow_id": "16419435-aa63-4823-aae7-19c6a2d6a19f",
-        "card_number": "f3907186-e7e2-466f-91e5-48e12c2bcbc1",
-        "expiry_date": "1989cb56-63da-4482-a2df-1f74cd0dd1a5",
-        "name": "245d3a0f-a2d3-443b-8a20-8c17de86e186",
-      },
-      "request_index": 1,
+      "skyflowId": "16419435-aa63-4823-aae7-19c6a2d6a19f",
+      "card_number": "f3907186-e7e2-466f-91e5-48e12c2bcbc1",
+      "card_cvv": "1989cb56-63da-4482-a2df-1f74cd0dd1a5",
+      "request_index": 0,
     }
   ],
   "errors": [
     {
-      "error": {
-        "code":400,
-        "description":"Invalid field present in JSON namee - requestId: 87fb2e32-6287-4e61-8304-9268df12bfe8",
-        "request_index": 0,
-      }
+      "code":400,
+      "description":"Invalid field present in JSON card_umber.",
+      "request_index": 1,
     }
   ]
 }
 ```
 
-### Detokenize: vault.detokenize()
+### Detokenize: vault().detokenize()
 
 Returns values for provided tokens.
 
-In order to retrieve data from your vault using tokens that you have previously generated for that data, you can use the `detokenize(data)` method. The first parameter must have a records key that takes an array of tokens to be fetched from the vault, as shown below.
+In order to retrieve data from your vault using tokens that you have previously generated for that data, you can use the `detokenize(request)` method. The first parameter must have a request key that takes an array of tokens to be fetched from the vault and the redaction type, as shown below.
 
-```javascript
-data = {
-  records: [{
-    token: 'string',                 // Required, token for the record to be fetched.
-    redaction: Skyflow.RedactionType // Optional, redaction type to be applied ex: Skyflow.RedactionType.PLAIN_TEXT
-  }]
-}
+```typescript
+/// Prepare Detokenization Data
+const detokenizeData: Array<string> = ['token1', 'token2', 'token3']; // Tokens to be detokenized
+const redactionType: RedactionType = RedactionType.REDACTED;          // Redaction type
+
+// Create Detokenize Request
+const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(
+    detokenizeData,
+    redactionType
+);
+
+// Configure Detokenize Options
+const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
+detokenizeOptions.setContinueOnError(true); // Continue processing on errors
+detokenizeOptions.setDownloadURL(false);   // Disable download URL generation
 ```
-
-`Skyflow.RedactionType` accepts one of four values:
+`RedactionType` accepts one of four values:
 * `PLAIN_TEXT`
 * `MASKED`
 * `REDACTED`
 * `DEFAULT`
 
 Note:
-- `redaction` defaults to Skyflow.RedactionType.PLAIN_TEXT.
+- `redaction` defaults to RedactionType.PLAIN_TEXT.
 
 #### Detokenize example
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Detokenize.ts) of a detokenize call:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/detokenize-records.ts) of a detokenize call:
 
-```javascript
-const result = await vault.detokenize({
-  records: [
-    {
-      token: '4017-f72b-4f5c-9b-8e719',
-      redaction: Skyflow.RedactionType.PLAIN_TEXT
-    },
-  ],
-});
+```typescript
+// Prepare Detokenization Data
+const detokenizeData: Array<string> = ['token1']; // Tokens to be detokenized
+const redactionType: RedactionType = RedactionType.REDACTED;          // Redaction type
+
+// Create Detokenize Request
+const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(
+    detokenizeData,
+    redactionType
+);
+
+// Configure Detokenize Options
+const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
+detokenizeOptions.setContinueOnError(true); // Continue processing on errors
+detokenizeOptions.setDownloadURL(false);   // Disable download URL generation
+
+// Perform Detokenization
+const response: DetokenizeResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .detokenize(detokenizeRequest, detokenizeOptions);
 ```
 
 Sample response:
 
 ```json
 {
-  "records": [
+  "detokenizedFields": [
     {
       "token": "110dc-6f76-19-bd3-9051051",
       "value": "1990-01-01",
     },
   ],
+  "errors": [],
 }
 ```
 
-### Get By IDs: vault.getById()
+### Tokenize: vault().tokenize()
 
-In order to retrieve data from your vault using SkyflowIDs, use the `getById(records)` method. The records parameter takes a JSON Object that should contain an array of SkyflowIDs to be fetched, as shown below:
+In order to tokenize data, you can use the `tokenize(request)` method. The first parameter is a request object that takes an array of `TokenizeRequestType`, as shown below.
 
-```javascript
-data = {
-    records: [{
-        // List of skyflow_ids for the records to be fetched
-        ids: ['id1', 'id2'],
-        // Name of table holding the above skyflow_ids
-        table: 'NAME_OF_SKYFLOW_TABLE',
-        // Redaction to be applied to retrieved data
-        redaction: Skyflow.RedactionType.PLAIN_TEXT,
-    }]
-};
-```
-
-`Skyflow.RedactionType` accepts one of four values:
-* `PLAIN_TEXT`
-* `MASKED`
-* `REDACTED`
-* `DEFAULT`
-
-You must apply a redaction type to retrieve data.
-
-#### Example: Get Records by IDs
-
-An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/GetById.ts) of `getById` call:
-
-```javascript
-let skyflowIds = [
-    'f8622-b557-4c6b-a12c-c0b0bfd9',
-    'da26de53-95d5-4db-99db-8d35ff9'
+```js
+// Prepare Tokenization Data
+const tokenizeValues: Array<TokenizeRequestType> = [
+    { value: '4111111111111111', columnGroup: 'card_number_cg' },
+    { value: '4242424242424242', columnGroup: 'card_number_cg' }
 ];
 
-let record = {
-    ids: skyflowIds,
-    table: 'cards',
-    redaction: RedactionType.PLAIN_TEXT
-};
+const tokenReq: TokenizeRequest = new TokenizeRequest(tokenizeValues);
+```
 
-let invalidIds = ['invalid Skyflow ID'];
-let badRecord = {
-    ids: invalidIds,
-    table: 'cards',
-    'redaction': RedactionType.PLAIN_TEXT
-};
+Sample usage
 
-let records = {
-    records: [record, badRecord]
-};
+An [example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault_api/tokenize-records.ts) of a tokenize call:
 
-const result = client.getById(records);
-result.then(
-    (res) => {
-        console.log(JSON.stringify(res));
-    }).catch((err) => {
-    console.log(JSON.stringify(err));
-});
+```typescript
+// Prepare Tokenization Data
+const tokenizeValues: Array<TokenizeRequestType> = [
+    { value: '4111111111111111', columnGroup: 'card_number_cg' },
+    { value: '4242424242424242', columnGroup: 'card_number_cg' }
+];
+
+const tokenReq: TokenizeRequest = new TokenizeRequest(tokenizeValues);
+
+// Execute Tokenization
+const response: TokenizeResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .tokenize(tokenReq);
+
 ```
 
 Sample response:
 
-```json
+```typescript
 {
-  "records": [
-    {
-      "fields": {
-        "card_number": "4111111111111111",
-        "expiry_date": "11/35",
-        "fullname": "myname",
-        "skyflow_id": "f8d2-b557-4c6b-a12c-c5ebfd9"
-      },
-      "table": "cards"
-    },
-    {
-      "fields": {
-        "card_number": "4111111111111111",
-        "expiry_date": "10/23",
-        "fullname": "sam",
-        "skyflow_id": "da53-95d5-4bdb-99db-8d8c5ff9"
-      },
-      "table": "cards"
-    }
+  tokens: [
+    '5479-4229-4622-1393',
+    '8989-7867-7887-0987',
   ],
-  "errors": [
-    {
-      "error": {
-        "code": "404",
-        "description": "No Records Found"
-      },
-      "skyflow_ids": [
-        "invalid Skyflow ID"
-      ]
-    }
-  ]
+  errors: [],
 }
 ```
 
-### Get records by unique values: vault.get()
 
-To retrieve data from your vault using SkyflowIDs or unique column values, use the `get(records)` method. The `records` parameter takes a JSONObject that should contain either an array of SkyflowIDs or a unique column name and values to fetch the records, as shown below:
+### Get records by unique values: vault().get()
 
-```javascript
-data = {
-  records: [
-    {
-      // List of skyflow_ids for the records to fetch.
-      ids: ['SKYFLOW_ID_1', 'SKYFLOW_ID_2'], // Optional
-      // Name of table holding the records in the vault.
-      table: 'NAME_OF_SKYFLOW_TABLE',
-      // Redaction type to apply to retrieved data.
-      redaction: Skyflow.RedactionType,
-      // Unique column name in the vault.
-      columnName: 'UNIQUE_COLUMN_NAME', // Optional
-      // List of given unique column values.
-      columnValues: ['<COLUMN_VALUE_1>', '<COLUMN_VALUE_2>', '<COLUMN_VALUE_3>'], // Required if column name is provided
-    },
-  ],
-};
+To retrieve data from your vault using SkyflowIDs or unique column values, use the `get(request)` method. The `request` parameter takes a column value or get request object that should contain either an array of a unique column name and column values or skyflowIds to fetch the records, as shown below:
+
+#### Example: Get records by ID(s)
+[Example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/get-records.ts) to get records using skyflowIds:
+```typescript
+// Prepare Retrieval Data
+const getIds: Array<string> = [
+    'skyflow-id1',
+    'skyflow-id2',
+];
+
+// Create Get Request
+const getRequest: GetRequest = new GetRequest(
+    'sensitive_data_table',  // Replace with your actual table name
+    getIds
+);
+
+// Configure Get Options
+const getOptions: GetOptions = new GetOptions();
+getOptions.setReturnTokens(true); // Optional: Get tokens for retrieved data
+
+// Perform Secure Retrieval
+const response: GetResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .get(getRequest, getOptions);
+```
+
+Response:
+
+```json
+{
+    "data":[
+        {
+            "card_number":"4111111111111111",
+            "expiry_date":"11/35",
+            "fullname":"myname",
+            "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
+        },
+        {
+            "card_number":"4111111111111111",
+            "expiry_date":"10/23",
+            "fullname":"sam",
+            "id":"da53-95d5-4bdb-99db-8d8c5ff9"
+        }
+    ],
+    "errors": [],
+}
 ```
 
 Note: You cannot pass an array of skyflow_ids and unique column details together. Using column name and column value with `skyflow_ids` will return an error message.
 
-#### Example: Get records by ID(s)
+#### Example: Get records by unique column values
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Get.ts) to get records using skyflowIds:
-```javascript
-let skyflowIds = [
-    'f8622-b557-4c6b-a12c-c0b0bfd9',
-    'da26de53-95d5-4db-99db-8d35ff9',
+[Example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/get-column-values.ts) to get records using unique column values:
+```typescript
+// Prepare Column-Based Retrieval Data
+const columnValues: Array<string> = [
+    'value1', // Example Unique Column value 1
+    'value2', // Example Unique Column value 2
 ];
+const tableName: string = 'table-name';          // Replace with your actual table name
+const columnName: string = 'column-name';       // Column name configured as unique in the schema
 
-let record = {
-    ids: skyflowIds,
-    table: 'cards',
-    redaction: RedactionType.PLAIN_TEXT,
-};
+// Create Get Column Request
+const getRequest: GetColumnRequest = new GetColumnRequest(
+    tableName,
+    columnName,
+    columnValues // Column values of the records to return
+);
 
-let records = {
-    records: [record],
-};
+// Configure Get Options
+const getOptions: GetOptions = new GetOptions();
+getOptions.setReturnTokens(true); // Optional: Get tokens for retrieved data
 
-const result = vault.get(records);
-result
-    .then((res) => {
-        console.log(JSON.stringify(res));
-    })
-    .catch((err) => {
-        console.log(JSON.stringify(err));
-    });
+// Perform Secure Retrieval
+const response: GetResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .get(getRequest, getOptions);
 ```
 
 Response:
 
 ```json
 {
-    "records":[
+    "data":[
         {
-            "fields":{
-                "card_number":"4111111111111111",
-                "expiry_date":"11/35",
-                "fullname":"myname",
-                "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
-            },
-            "table":"cards"
+            "card_number":"4111111111111111",
+            "expiry_date":"11/35",
+            "fullname":"myname",
+            "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
         },
         {
-            "fields":{
-                "card_number":"4111111111111111",
-                "expiry_date":"10/23",
-                "fullname":"sam",
-                "id":"da53-95d5-4bdb-99db-8d8c5ff9"
-            },
-            "table":"cards"
+            "card_number":"4111111111111111",
+            "expiry_date":"10/23",
+            "fullname":"sam",
+            "id":"da53-95d5-4bdb-99db-8d8c5ff9"
         }
-    ]
+    ],
+    "errors": [],
 }
 ```
 
-#### Example: Get records by unique field values
+### Update records by ID
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Get.ts) to get records using unique column names and values:
-
-```javascript
-let record = {
-    table: 'cards',
-    redaction: RedactionType.PLAIN_TEXT,
-    columnName: 'card_id',
-    columnValues: ['123', '456'],
-};
-
-let records = {
-    records: [record],
-};
-
-const result = vault.get(records);
-result
-    .then((res) => {
-        console.log(JSON.stringify(res));
-    })
-    .catch((err) => {
-        console.log(JSON.stringify(err));
-    });
-```
-
-Response:
-```json
-{
-    "records":[
-        {
-            "fields":{
-                "card_id":"123",
-                "expiry_date":"11/35",
-                "fullname":"myname",
-                "id":"f8d2-b557-4c6b-a12c-c5ebfd9"
-            },
-            "table":"cards"
-        },
-        {
-            "fields":{
-                "card_id":"456",
-                "expiry_date":"10/23",
-                "fullname":"sam",
-                "id":"da53-95d5-4bdb-99db-8d8c5ff9"
-            },
-            "table":"cards"
-        }
-    ]
-}
-```
-
-### Update records by IDs
-
-To update records in your vault by skyflow_id, use the `update(records, options)` method. The first parameter, `records`, is a JSONObject that must have a records key and takes an array of records to update as a value in the vault. The options parameter takes an object of optional parameters for the update and includes an option to return tokenized data for the updated fields. 
+To update records in your vault by skyflow_id, use the `update(request, options)` method. The first parameter, `request`, is a update request that must have the table name and takes an object which contains `skyflowId` key to update as a value in the vault. The options parameter takes an object of optional parameters for the update and includes an update options object to return tokenized data for the updated fields. 
 
 Call schema:
 ```js
-const updateInput = {
-  records: [ // Array of records to update.
-    {
-      id: '<SKYFLOW_ID>', // Skyflow_id of record to update.
-      table: '<TABLE_NAME>', // Table name of given Skyflow_id. 
-      fields: {  // Fields to update.
-        '<FIELD_NAME_1>': '<FIELD_VALUE_1>', 
-        '<FIELD_NAME_2>': '<FIELD_VALUE_2>',
-      },
-    },
-  ]
+// Prepare Update Data
+const updateData: object = {
+    skyflowId: 'your-skyflow-id',          // Skyflow ID of the record to update
+    card_number: '1234567890123456'        // Updated sensitive data
 };
 
-const options = { // Optional
-  // Option to return updated field tokens in response.
-  // Defaults to 'true'.
-  tokens: true,
-}
+// Create Update Request
+const updateReq: UpdateRequest = new UpdateRequest(
+    'sensitive_data_table',               // Replace with your actual table name
+    updateData
+);
+
+// Configure Update Options
+const updateOptions: UpdateOptions = new UpdateOptions();
+updateOptions.setReturnTokens(true);      // Optional: Get tokens for updated data
 ```
 
-#### Example: Update records by IDs
+#### Example: Update records by ID
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Update.ts) to update by ID using `skyflow_ids`:
+[Example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/Update.ts) to update by ID using `skyflowId`:
 
 ```js
-const updateInput = {
-  records: [
-    {
-      id: '29ebda8d-5272-4063-af58-15cc674e332b', // Valid record id.
-      table: 'cards',
-      fields: {
-        card_number: '5105105105105100',
-        cardholder_name: 'Thomas',
-        expiration_date: '07/2032',
-        ssn: '123-45-6722',          
-      },   
-    },    
-  ],
+// Prepare Update Data
+const updateData: object = {
+    skyflowId: 'your-skyflow-id',          // Skyflow ID of the record to update
+    card_number: '1234567890123456'        // Updated sensitive data
 };
 
-const options = { tokens: true };
+// Create Update Request
+const updateReq: UpdateRequest = new UpdateRequest(
+    'sensitive_data_table',               // Replace with your actual table name
+    updateData
+);
 
-const response = vault.update(updateInput, options);
-console.log(response);
+// Configure Update Options
+const updateOptions: UpdateOptions = new UpdateOptions();
+updateOptions.setReturnTokens(true);      // Optional: Get tokens for updated data
+
+// Perform Secure Update
+const response: UpdateResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .update(updateReq, updateOptions);
+
 ```
 
 Response:
 
 ```json
 {
-  "records":[
-    {
-      "id": "29ebda8d-5272-4063-af58-15cc674e332b",
-      "fields":{
-        "card_number": "93f28226-51b0-4f24-8151-78b5a61f028b",
-        "cardholder_name": "0838fd08-9b51-4db2-893c-48542f3b121e",
-        "expiration_date": "91d7ee77-262f-4d5d-8286-062b694c81fd",
-        "ssn": "e28bf55d-f3d8-49a6-aad9-71a13db54b82",
-      },
-      "table": "cards",
-    }
-  ]
+    "skyflowId": "29ebda8d-5272-4063-af58-15cc674e332b",
+    "card_number": "93f28226-51b0-4f24-8151-78b5a61f028b",
 }
 ```
 ### Delete
 
-To delete data from the vault, use the `delete(records, options?)` method of the Skyflow client. The `records` parameter takes an array of records with `id` and `table` to delete in the following format. The `options` parameter is optional and takes an object of deletion parameters. Currently, there are no supported deletion parameters.
+To delete data from the vault, use the `delete(request)` method of the Skyflow client. The `request` parameter takes an delete request object with list of `skyflowIds` and `table` to delete in the following format.
 
 Call schema:
 
-```js
-const deleteInput = {
-  records: [
-    {
-      id: "<SKYFLOW_ID_1>", // skyflow id of the record to delete
-      table: "<TABLE_NAME>" // Table from which the record is to be deleted
-    },
-    {
-      // ...additional records here
-    },
-  ]
-};
+```typescript
+// Prepare Delete Data
+const deleteIds: Array<string> = ['skyflow_id1', 'skyflow_id2', 'skyflow_id3']; // Record IDs to delete
+const tableName: string = 'sensitive_data_table'; // Table name in the vault schema
 
-const options = {
-  // Optional
-}
+// Create Delete Request
+const deleteRequest: DeleteRequest = new DeleteRequest(
+    tableName,
+    deleteIds
+);
 ```
 
-[Example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/Delete.ts) to delete by ID using `skyflow_ids`
+[Example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/Delete.ts) to delete by ID using `skyflowIds`
 
-```js
-const deleteInput = {
-  records: [
-    {
-      id: "29ebda8d-5272-4063-af58-15cc674e332b",
-      table: "cards",
-    },
-    {
-      id: "d5f4b926-7b1a-41df-8fac-7950d2cbd923",
-      table: "cards",
-    }
-  ],
-};
+```typescript
+// Prepare Delete Data
+const deleteIds: Array<string> = ['skyflow_id1', 'skyflow_id2']; // Record IDs to delete
+const tableName: string = 'sensitive_data_table'; // Table name in the vault schema
 
-const options = {};
+// Create Delete Request
+const deleteRequest: DeleteRequest = new DeleteRequest(
+    tableName,
+    deleteIds
+);
 
-const response = skyflowClient.delete(deleteInput, options);
-console.log(response);
+// Perform Deletion
+const response: DeleteResponse = await skyflowClient
+    .vault(primaryVaultConfig.vaultId)
+    .delete(deleteRequest);
 ```
 
 Response:
 
 ```json
 {
-  "records": [
-    {
-     "skyflow_id": "29ebda8d-5272-4063-af58-15cc674e332b",
-     "deleted": true,
-    },
-    {
-     "skyflow_id": "29ebda8d-5272-4063-af58-15cc674e332b",
-     "deleted": true,
-    }
-  ]
+  "deletedIds": [
+    "29ebda8d-5272-4063-af58-15cc674e332b",
+    "d5f4b926-7b1a-41df-8fac-7950d2cbd923",
+  ],
+  "errors": [],
 }
 ```
 
 ### Invoke Connection
 
-Using Connection, you can integrate your server-side application with third party APIs and services without directly handling sensitive data. Prior to using a connection, you have to create a connection and have a connectionURL already generated. Once you have the connectionURL, you can invoke a connection by using the `invokeConnection(config)` method. The config object must include a connectionURL and methodName. The other fields are optional.
+Using Connection, you can integrate your server-side application with third party APIs and services without directly handling sensitive data. Prior to using a connection, you have to create a connection and have a connectionURL already generated. Once you have the connectionURL, you can invoke a connection by using the `invoke(request)` method. The config object must include a methodName. The other fields are optional.
 
-```javascript
-data = {
-  connectionURL: '<YOUR_CONNECTION_URL>',
-  methodName: Skyflow.RequestMethod.POST,
-  requestHeader: {
-    Authorization: '<YOUR_CONNECTION_BASIC_AUTH>',
-  },
-  pathParams: {
-    card_number: '<YOUR_CARD_NUMBER>',
-  },
-  requestBody: {
-    expirationDate: {
-      mm: '01',
-      yy: '46',
-    },
-  },
+```typescript
+// Prepare Connection Request
+const requestBody: StringKeyValueMapType = {
+    key1: 'value1',  // Replace with actual key-value pairs
+    key2: 'value2'
 };
+
+const requestHeaders: StringKeyValueMapType = {
+    'content-type': 'application/json'
+};
+
+const requestMethod: RequestMethod = RequestMethod.POST;
+
+// Create Invoke Connection Request
+const invokeReq: InvokeConnectionRequest = new InvokeConnectionRequest(
+    requestMethod,
+    requestBody,
+    requestHeaders
+);
+
+// Invoke Connection
+const response: InvokeConnectionResponse = await skyflowClient
+    .connection()
+    .invoke(invokeReq);
+
 ```
 
 Supported content-types for the response:
@@ -740,45 +639,30 @@ Supported content-types for the response:
 
 Supported method names:
 
-* GET:     `Skyflow.RequestMethod.GET`
-* POST:    `Skyflow.RequestMethod.POST`
-* PUT:     `Skyflow.RequestMethod.PUT`
-* PATCH:   `Skyflow.RequestMethod.PATCH`
-* DELETE:  `Skyflow.RequestMethod.DELETE`
+* GET:     `RequestMethod.GET`
+* POST:    `RequestMethod.POST`
+* PUT:     `RequestMethod.PUT`
+* PATCH:   `RequestMethod.PATCH`
+* DELETE:  `RequestMethod.DELETE`
 
-**pathParams, queryParams, requestHeader, requestBody** are the JSON objects that will be sent through the gateway integration URL.
+**pathParams, queryParams, headers, body** are the JSON objects that will be sent through the gateway integration URL.
 
 #### Example: Invoke Connection
 
-An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/InvokeConnection.ts) of `invokeConnection`:
+An [example](https://github.com/skyflowapi/skyflow-node/blob/release/24.10.1/samples/vault-api/InvokeConnection.ts) of `invokeConnection`:
 
-```javascript
-const result = client.invokeConnection({
-  connectionURL: '<YOUR_CONNECTION_URL>',
-  methodName: Skyflow.RequestMethod.POST,
-  requestHeader: {
-    'Content-Type': 'application/json',
-    Authorization: '<YOUR_CONNECTION_BASIC_AUTH>',
-  },
-  pathParams: {
-    card_number: '<YOUR_CARD_NUMBER>',
-  },
-  requestBody: {
-    expirationDate: {
-      mm: '01',
-      yy: '46',
-    },
-  },
-});
+```typescript
+// Create Invoke Connection Request
+const invokeReq: InvokeConnectionRequest = new InvokeConnectionRequest(
+    requestMethod,
+    requestBody,
+    requestHeaders
+);
 
-result
-  .then(response => {
-    console.log(JSON.stringify(response));
-  })
-  .catch(error => {
-    // Note: only text/plain and application/json errors are supported
-    console.log(JSON.stringify(error));
-  });
+// Invoke Connection
+const response: InvokeConnectionResponse = await skyflowClient
+    .connection()
+    .invoke(invokeReq);
 ```
 
 Sample response:
@@ -803,7 +687,7 @@ The `generateBearerToken(filepath)` function takes the service account credentia
 
 Example using a service account credentials file path:
 
-```javascript
+```typescript
 import {generateBearerToken, isExpired} from 'skyflow-node';
 
 const filepath = 'CREDENTIALS_FILE_PATH';
@@ -1190,15 +1074,37 @@ tokens();
 
 
 ### Logging
-The Skyflow Node.js SDK provides useful logging. By default the logging level of the SDK is set to `LogLevel.ERROR`. This can be changed by using `setLogLevel(logLevel)` as shown below:
+The Skyflow Node.js SDK provides useful logging. By default the logging level of the SDK is set to `LogLevel.ERROR`. This can be changed by setting logLevel as shown below:
 
-```javascript
-import { setLogLevel, LogLevel } from 'skyflow-node';
+```typescript
+import { LogLevel } from 'skyflow-node';
 ```
 
-```javascript
-// Sets the Skyflow SDK log level to INFO
-setLogLevel(LogLevel.INFO);
+```typescript
+const client : Skyflow = Skyflow({
+  vaultConfigs: [
+    {
+      // Id of the vault that the client should connect to.
+      vaultId: 'string',
+      // Id of the cluster that the client should connect to.
+      clusterId: 'string',
+      // environment to which the vault ID belongs
+      env: Env.PROD,
+      // vault level credentials
+      credentials: {
+        roles: ['string', 'string'], // optional, IDs for roles
+        context: 'string', // optional, Id of the context 
+        credentialsString: 'string', // credentials JSON as a stringified version
+      },
+    }
+  ],
+  // environment to which the vault ID belongs
+  skyflowCredentials: {
+       path: 'string', // optional, path to credentials json file
+  },
+  // Sets the Skyflow SDK log level to INFO
+  logLevel: LogLevel.INFO, 
+});
 ```
 
 Current the following 5 log levels are supported:
