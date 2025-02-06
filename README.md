@@ -211,7 +211,7 @@ const result = skyflow.insert({
 ```
 
 ### V2 (New) - Request Building
-```javascript
+```typescript
 // Prepare Insertion Data
 const insertData: Array<object> = [
   { card_number: '4111111111111112' } // Example sensitive data
