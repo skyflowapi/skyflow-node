@@ -113,7 +113,7 @@ const auth = function () {
 
 ```javascript
 // Option 1: API Key (Recommended)
-const credentials = { apiKey: "your-api-key" };
+const credentials = { apiKey: "<YOUR_API_KEY>" };
 
 // Option 2: Environment Variables (Recommended)
 // Set SKYFLOW_CREDENTIALS in your environment
@@ -125,7 +125,7 @@ const credentials = { path: "/path/to/credentials.json" };
 const credentials = { credentialsString: JSON.stringify(process.env.SKYFLOW_CREDENTIALS) };
 
 // Option 5: Bearer Token
-const credentials = { token: "your-bearer-token" };
+const credentials = { token: "y<YOUR_BEARER_TOKEN>" };
 ```
 
 ### Notes:
@@ -159,12 +159,12 @@ const vault = Skyflow.init({
 ### V2 (New)
 ```javascript
 // Step 1: Configure Bearer Token Credentials
-const credentials: Credentials = { apiKey: '<your_api_key>' };
+const credentials: Credentials = { apiKey: '<YOUR_API_KEY>' };
 
 // Step 2: Configure Vault
 const primaryVaultConfig: VaultConfig = {
-   vaultId: '<your_vault_id1>',     // Primary vault
-   clusterId: '<your_cluster_id1>', // Cluster ID from your vault URL
+   vaultId: '<YOUR_VAULT_ID1>',     // Primary vault
+   clusterId: '<YOUR_CLUSTER_ID1>', // Cluster ID from your vault URL
    env: Env.PROD,                   // Deployment environment (PROD by default)
    credentials: credentials,        // Authentication method
 };
@@ -219,13 +219,13 @@ const insertData: Array<object> = [
 
 // Create Insert Request
 const insertReq: InsertRequest = new InsertRequest(
-     'sensitive_data_table', // Replace with your actual table name
+     '<SENSITIVE_DATA_TABLE>', // Replace with your actual table name
       insertData
 );
 
 // Perform Secure Insertion
 const response: InsertResponse = await skyflowClient
-    .vault("VAULT_ID")
+    .vault("<VAULT_ID>")
     .insert(insertReq);
 ```
 
