@@ -89,7 +89,7 @@ This guide outlines the steps required to migrate the Node SDK from version 1 (V
 In V2, multiple authentication options have been introduced. You can now provide credentials in the following ways:
 
 - **API Key (Recommended)**
-- **Environment Variable** (`SKYFLOW_CREDENTIALS`) (Recommended)
+- **Environment Variable** (`SKYFLOW_CREDENTIALS`) (**Recommended**)
 - **Path to Credentials JSON File**
 - **Stringified JSON of Credentials**
 - **Bearer Token**
