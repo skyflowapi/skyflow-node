@@ -17,7 +17,7 @@ SDK for the Skyflow Data Privacy Vault.
       - [Import / Require](#import--require)
         - [Require](#require)
         - [All imports](#all-imports)
-  - [Migration from v1 to v2](#migrate-from-v1-to-v2)
+  - [Migrate from v1 to v2](#migrate-from-v1-to-v2)
   - [Vault APIs](#vault-apis)
     - [Insert: vault().insert()](#insert-vaultinsert)
       - [Example: Insert Records](#example-insert-records)
@@ -316,6 +316,7 @@ The error response now includes:
 ```
 
 ---
+
 
 ## Vault APIs
 The [Vault](https://github.com/skyflowapi/skyflow-node/tree/main/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
