@@ -130,7 +130,6 @@ const credentials = { token: "y<YOUR_BEARER_TOKEN>" };
 
 ### Notes:
 - Use only ONLY authentication method.
-- Environment variables take precedence over programmatic configuration.
 - API Key or Environment Variables are recommended for production use.
 - Secure storage of credentials is essential.
 - For overriding behavior and priority order, refer to README.
