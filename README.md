@@ -119,26 +119,36 @@ const credentials = { apiKey: "<YOUR_API_KEY>" };
 // Set SKYFLOW_CREDENTIALS in your environment
 
 // Option 3: Credentials File
-const credentials = { path: "/path/to/credentials.json" };
+const credentials = { path: "<YOUR_CREDENTIALS_FILE_PATH>" };  // Replace with the path to credentials file
+
 
 // Option 4: Stringified JSON
 const credentials = { credentialsString: JSON.stringify(process.env.SKYFLOW_CREDENTIALS) };
 
 // Option 5: Bearer Token
-const credentials = { token: "y<YOUR_BEARER_TOKEN>" };
+const credentials = { token: "<YOUR_BEARER_TOKEN>" };
 ```
 
 ### Notes:
 - Use only ONLY authentication method.
 - API Key or Environment Variables are recommended for production use.
 - Secure storage of credentials is essential.
-- For overriding behavior and priority order, refer to README.
+- For overriding behavior and priority order of credentials, please refer to [Initialize the client](#initialize-the-client) section in [Quickstart](#quickstart).
 
 ---
 
 ### 2. Client Initialization
 
-V2 introduces TypeScript support and multi-vault support, allowing you to configure multiple vaults during initialization.
+V2 introduces TypeScript support and multi-vault support, allowing you to configure multiple vaults during client initialization.
+
+In V2, the log level is tied to each individual client instance. 
+
+During client initialization, you can pass the following parameters: 
+
+- **`vaultId`** and **`clusterId`**: These values are derived from the vault ID & vault URL.
+- **`env`**: Specify the environment (e.g., SANDBOX or PROD).
+- **`credentials`**: The necessary authentication credentials.
+
 
 ### V1 (Old)
 ```javascript
@@ -163,14 +173,15 @@ const credentials: Credentials = { apiKey: '<YOUR_API_KEY>' };
 // Step 2: Configure Vault
 const primaryVaultConfig: VaultConfig = {
    vaultId: '<YOUR_VAULT>',     // Primary vault
-   clusterId: '<YOUR_CLUSTER>', // Cluster ID from your vault URL
-   env: Env.PROD,                   // Deployment environment (PROD by default)
-   credentials: credentials,        // Authentication method
+   clusterId: '<YOUR_CLUSTER>', // ID from your vault URL e.g., https://{clusterId}.vault.skyflowapis.com
+   env: Env.PROD,               // Deployment environment (PROD by default)
+   credentials: credentials,    // Authentication method
 };
 
 // Step 3: Configure Skyflow Client
 const skyflowConfig: SkyflowConfig = {
     vaultConfigs: [primaryVaultConfig],
+    skyflowCredentials: credentials, // Skyflow credentials will be used if no individual credentials are passed
     logLevel: LogLevel.ERROR,      // Logging verbosity
 };
 
@@ -286,7 +297,7 @@ insertOptions.setContinueOnError(true); // Optional: Continue on partial errors
 
 ---
 
-### 5. Request Options
+### 5. Error Structure
 In V2, we have enriched the error details to provide better debugging capabilities. 
 The error response now includes: 
 - **`http_status`**: The HTTP status code. .
@@ -315,10 +326,221 @@ The error response now includes:
 }
 ```
 
+## Quickstart
+Get started quickly with the essential steps: authenticate, initialize the client, and perform a basic vault operation. This section provides a minimal setup to help you integrate the SDK efficiently.
+
+### Authenticate
+You can use an API key to authenticate and authorize requests to an API. For authenticating via bearer tokens and different supported bearer token types, refer to the [Authenticate with bearer tokens](#authenticate-with-bearer-tokens) section. 
+
+```javascript
+// create a new credentials object
+const credentials = { apiKey: "<YOUR_API_KEY>" };  //add your API key in credentials
+```
+
+### Initialize the client
+
+To get started, you must first initialize the skyflow client. While initializing the skyflow client, you can specify different types of credentials.  
+**1. API keys**  
+- A unique identifier used to authenticate and authorize requests to an API.  
+
+**2. Bearer tokens**  
+- A temporary access token used to authenticate API requests, typically included in the
+Authorization header.  
+
+**3. Service account credentials file path**  
+- The file path pointing to a JSON file containing credentials for a service account, used
+for secure API access.  
+
+**4. Service account credentials string**  
+- A JSON-formatted string containing service account credentials, often used as an alternative to a file for programmatic authentication.  
+
+Note: Only one type of credential can be used at a time.
+
+```javascript
+import { 
+    Credentials, 
+    Env,
+    LogLevel, 
+    Skyflow, 
+    VaultConfig, 
+    SkyflowConfig,
+} from 'skyflow-node';
+
+/*
+Example program to initialize the Skyflow client with various configurations.
+The Skyflow client facilitates secure interactions with the Skyflow vault, 
+such as securely managing sensitive data.
+*/
+
+// Step 1: Define the primary credentials for authentication.
+// Note: Only one type of credential can be used at a time. You can choose between:
+// - API key
+// - Bearer token
+// - A credentials string (JSON-formatted)
+// - A file path to a credentials file.
+
+// Initialize primary credentials using a Bearer token for authentication.
+const primaryCredentials: Credentials = {
+    token: '<BEARER_TOKEN>',  // Replace <BEARER_TOKEN> with your actual authentication token.
+};
+
+// Step 2: Configure the primary vault details.
+// VaultConfig stores all necessary details to connect to a specific Skyflow vault.
+
+const primaryVaultConfig: VaultConfig = {
+    vaultId: '<PRIMARY_VAULT_ID>',    // Replace with your primary vaulID
+    clusterId: '<CLUSTER_ID>',    // Replace with the cluster ID (partthe vault URL, e.g., https://{clusterId}.vault.skyflowapis.com).
+    env: Env.PROD,    // Set the environment (PRSANDBOX, STAGE, DEV).
+    credentials: primaryCredentials   // Attach the primcredentials to this vault configuration.
+};
+
+// Step 3: Create credentials as a JSON object (if a Bearer Token is not provided).
+// Demonstrates an alternate approach to authenticate with Skyflow using a credentials object.
+const skyflowCredentials: object = {
+    clientID: '<YOUR_CLIENT_ID>',       // Replace with your Client ID.
+    clientName: '<YOUR_CLIENT_NAME>',   // Replace with your Client Name.
+    tokenURI: '<YOUR_TOKEN_URI>',       // Replace with the Token URI.
+    keyID: '<YOUR_KEY_ID>',             // Replace with your Key ID.
+    privateKey: '<YOUR_PRIVATE_KEY>'    // Replace with your Private Key.
+}
+
+// Step 4: Convert the JSON object to a string and use it as credentials.
+// This approach allows the use of dynamically generated or pre-configured credentials.
+const credentialsString: JSON.stringify(skyflowCredentials), // Converts JSON object to string for use as credentials.
+
+// Step 5: Define secondary credentials (API key-based authentication as an example).
+// Demonstrates a different type of authentication mechanism for Skyflow vaults.
+const secondaryCredentials: Credentials = {
+    apiKey: '<API_KEY>',  // Replace with your API Key for authentication.
+}
+
+// Step 6: Configure the secondary vault details.
+// A secondary vault configuration can be used for operations involving multiple vaults.
+const secondaryVaultConfig: VaultConfig = {
+    vaultId: '<SECONDARY_VAULT_ID>',   // Replace with your secondary vault's ID.
+    clusterId: '<CLUSTER_ID>',    // Replace with the corresponding cluster ID.
+    env: Env.PROD,    // Set the environment for this vault.
+    credentials: secondaryCredentials   // Attach the secondary credentials to this configuration.
+}
+
+// Step 7: Define tertiary credentials using a path to a credentials JSON file.
+// This method demonstrates an alternative authentication method.
+const tertiaryCredentials: Credentials = {
+    path: '<YOUR_CREDENTIALS_FILE_PATH>' // Replace with the path to your credentials file.
+}
+
+// Step 8: Configure the tertiary vault details.
+const tertiaryVaultConfig: VaultConfig = {
+    vaultId: '<TERTIARY_VAULT_ID>',   // Replace with the tertiary vault ID.
+    clusterId: '<CLUSTER_ID>',    // Replace with the corresponding cluster ID.
+    env: Env.PROD,    // Set the environment for this vault.
+    credentials: tertiaryCredentials    // Attach the tertiary credentials.
+}
+
+// Step 9: Build and initialize the Skyflow client.
+// Skyflow client is configured with multiple vaults and credentials.
+
+const skyflowConfig: SkyflowConfig = {
+    vaultConfigs: [primaryVaultConfig, secondaryVaultConfig, tertiaryVaultConfig],  // Add the primary, secondary and tertiary vault configurations.
+    skyflowCredentials: skyflowCredentials, // Add JSON-formatted credentials if applicable.
+    logLevel: LogLevel.INFO // Set log level for debugging or monitoring purposes.
+};
+
+const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
+
+// The Skyflow client is now fully initialized.
+// Use the `skyflowClient` object to perform secure operations such as:
+// - Inserting data
+// - Retrieving data
+// - Deleting data
+// within the configured Skyflow vaults.
+
+```
+
+Notes
+- If both Skyflow common credentials and individual credentials at the configuration level are specified, the individual credentials at the configuration level will take precedence.
+- If neither Skyflow common credentials nor individual configuration-level credentials are provided, the SDK attempts to retrieve credentials from the SKYFLOW_CREDENTIALS environment variable.
+- All Vault operations require a client instance.
+
+### Insert data into the vault
+To insert data into your vault, use the `insert` method.  The `InsertRequest` class creates an insert request, which includes the values to be inserted as a list of records. Below is a simple example to get started. For advanced options, check out [Insert data into the vault](#insert-data-into-the-vault-1) section.
+
+```javascript
+import {
+    InsertOptions, 
+    InsertRequest,
+    SkyflowError, 
+    InsertResponse
+} from 'skyflow-node';
+
+/*
+* This example demonstrates how to insert sensitive data (e.g., cardinformation) into a Skyflow vault using the Skyflow client.
+*
+* 1. Initializes the Skyflow client.
+* 2. Prepares a record with sensitive data (e.g., card number and cardholdername).
+* 3. Creates an insert request for inserting the data into the Skyflow vault.
+* 4. Prints the response of the insert operation.
+*/
+
+try{
+  // Step 1: Initialize data to be inserted into the Skyflow vault
+  const insertData: Array<object> = [
+      { 
+        card_number: '4111111111111112',  // Replace with actual card number (sensitive data)
+        cardholder_name: 'John Doe',  // Replace with actual cardholder name (sensitive data)
+      }
+  ];
+
+  // Step 2: Create Insert Request
+  const insertReq: InsertRequest = new InsertRequest(
+      'table1',  // Specify the table in the vault where the data will inserted
+      insertData,  // Attach the data (records) to be inserted
+      
+  );
+
+  // Step 3: Configure Insertion Options
+  const insertOptions: InsertOptions = new InsertOptions();
+  insertOptions.setReturnTokens(true);  // Optional: Specify if tokens should be returned upon successful insertion
+  insertOptions.setContinueOnError(true); // Optional: Continue on partial errors
+
+  // Step 4: Perform the insert operation using the Skyflow client
+  const insertResponse: InsertResponse = await skyflowClient
+          .vault(primaryVaultConfig.vaultId)
+          .insert(insertReq, insertOptions);
+  
+  // Step 5: Print the response from the insert operation
+  console.log('Insert response: ', insertResponse);
+
+} catch(error) {
+  // Step 6: Comprehensive Error Handling
+  if (error instanceof SkyflowError) {
+      console.error('Skyflow Specific Error:', {
+          code: error.error?.http_code,
+          message: error.message,
+          details: error.error?.details
+      });
+  } else {
+      console.error('Unexpected Error:', error);
+  }
+}
+```
+Skyflow returns tokens for the record that was just inserted.
+
+```javascript
+Insert response: {
+  insertedFields: {
+    skyflowId: 'a8f3ed5d-55eb-4f32-bf7e-2dbf4b9d9097',
+    card_number: '5484-7829-1702-9110',
+    cardholder_name: 'b2308e2a-c1f5-469b-97b7-1f193159399b'
+  }, 
+  errors: []
+}
+```
+
 ---
 
-## Vault APIs
-The [Vault](https://github.com/skyflowapi/skyflow-node/tree/main/src/vault-api) Node.js module is used to perform operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
+## Vault
+The [Vault](https://github.com/skyflowapi/skyflow-node/tree/v2/src/vault) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
 
 To use this module, the Skyflow client must first be initialized as follows: 
 
