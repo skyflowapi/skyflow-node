@@ -738,34 +738,33 @@ export const validateDetokenizeOptions = (detokenizeOptions?: DetokenizeOptions)
 
 export const validateDetokenizeRequest = (detokenizeRequest: DetokenizeRequest, detokenizeOptions?: DetokenizeOptions, logLevel: LogLevel = LogLevel.ERROR) => {
     if (detokenizeRequest) {
-        if (!detokenizeRequest?.tokens) {
+        if (!detokenizeRequest?.data) {
             printLog(logs.errorLogs.EMPTY_TOKENS_IN_DETOKENIZE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TOKENS_IN_DETOKENIZE)
         }
 
-        if (!Array.isArray(detokenizeRequest.tokens)) {
+        if (!Array.isArray(detokenizeRequest.data)) {
             printLog(logs.errorLogs.INVALID_TOKENS_IN_DETOKENIZE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_TYPE_IN_DETOKENIZE)
         }
 
-        const tokens = detokenizeRequest?.tokens;
+        const records = detokenizeRequest?.data;
 
-        if (tokens.length === 0)
+        if (records.length === 0)
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TOKENS_IN_DETOKENIZE);
 
-        tokens.forEach((token, index) => {
-            if (!token) {
+        records.forEach((record, index) => {
+            if (!record) {
                 printLog(parameterizedString(logs.errorLogs.INVALID_TOKEN_IN_DETOKENIZE, [index]), MessageType.ERROR, logLevel);
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TOKEN_IN_DETOKENIZE, [index]);
             }
-            if (typeof token !== 'string' || token.trim().length === 0) {
+            if (typeof record.token !== 'string' || record.token.trim().length === 0) {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_DETOKENIZE, [index]);
             }
+            if (record?.redactionType && (typeof record.redactionType !== 'string' || !isRedactionType(record.redactionType))) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
+            }
         });
-
-        if (detokenizeRequest?.redactionType && (typeof detokenizeRequest.redactionType !== 'string' || !isRedactionType(detokenizeRequest.redactionType))) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
-        }
 
         validateDetokenizeOptions(detokenizeOptions);
 
