@@ -476,7 +476,7 @@ class VaultController {
                 //validations checks
                 validateDetokenizeRequest(request, options, this.client.getLogLevel());
 
-                const fields = request.tokens.map(record => ({ token: record, redaction: request?.redactionType || RedactionType.PLAIN_TEXT })) as Array<V1DetokenizeRecordRequest>;
+                const fields = request.data.map(record => ({ token: record.token, redaction: record?.redactionType || RedactionType.PLAIN_TEXT })) as Array<V1DetokenizeRecordRequest>;
                 const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadURL() };
 
                 this.handleRequest(

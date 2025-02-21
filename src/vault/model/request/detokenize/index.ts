@@ -1,37 +1,24 @@
 //imports
-
-import { RedactionType } from "../../../../utils";
+import { DetokenizeData } from "../../../types";
 
 class DetokenizeRequest {
 
     //fields
-    private _tokens: Array<string>;
-    private _redactionType?: RedactionType;
+    private _data: DetokenizeData[];
 
     // Constructor
-    constructor(tokens: Array<string>, redactionType?: RedactionType) {
-        this._tokens = tokens;
-        this._redactionType = redactionType;
-    }
-
-    // Getter for redactionType
-    public get redactionType(): RedactionType | undefined {
-        return this._redactionType;
-    }
-
-    // Setter for redactionType
-    public set redactionType(value: RedactionType) {
-        this._redactionType = value;
+    constructor(data: DetokenizeData[]) {
+        this._data = data;
     }
 
     // Getter for tokens
-    public get tokens(): Array<string> {
-        return this._tokens;
+    public get data(): DetokenizeData[] {
+        return this._data;
     }
 
     // Setter for tokens
-    public set tokens(value: Array<string>) {
-        this._tokens = value;
+    public set data(value: DetokenizeData[]) {
+        this._data = value;
     }
 
 }

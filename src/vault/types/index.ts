@@ -1,4 +1,4 @@
-import { LogLevel } from "../../utils";
+import { LogLevel, RedactionType } from "../../utils";
 import ConnectionConfig from "../config/connection";
 import VaultConfig from "../config/vault"
 import Credentials from "../config/credentials";
@@ -66,4 +66,9 @@ export interface ErrorInsertBatchResponse {
 export interface ParsedInsertBatchResponse {
     success: insertResponseType[];
     errors: ErrorInsertBatchResponse[];
+}
+
+export interface DetokenizeData {
+    token: string;
+    redactionType: RedactionType;
 }

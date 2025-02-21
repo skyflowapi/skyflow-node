@@ -392,8 +392,16 @@ describe('VaultController detokenize method', () => {
 
     test('should successfully detokenize records', async () => {
         const mockRequest = {
-            tokens: ['token1', 'token2'],
-            redactionType: 'PLAIN_TEXT',
+            data: [
+                {
+                    'token': 'token1',
+                    'redactionType': 'PLAIN_TEXT'
+                },
+                {
+                    'token': 'token2',
+                    'redactionType': 'PLAIN_TEXT'
+                }
+            ],
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
@@ -423,7 +431,16 @@ describe('VaultController detokenize method', () => {
 
     test('should successfully detokenize records with different request', async () => {
         const mockRequest = {
-            tokens: ['token1', 'token2'],
+            data: [
+                {
+                    'token': 'token1',
+                    'redactionType': 'PLAIN_TEXT'
+                },
+                {
+                    'token': 'token2',
+                    'redactionType': 'PLAIN_TEXT'
+                }
+            ],
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
@@ -453,7 +470,16 @@ describe('VaultController detokenize method', () => {
 
     test('should successfully detokenize records with empty options', async () => {
         const mockRequest = {
-            tokens: ['token1', 'token2'],
+            data: [
+                {
+                    'token': 'token1',
+                    'redactionType': 'PLAIN_TEXT'
+                },
+                {
+                    'token': 'token2',
+                    'redactionType': 'PLAIN_TEXT'
+                }
+            ],
         };
 
         const mockDetokenizeResponse = {
@@ -480,8 +506,16 @@ describe('VaultController detokenize method', () => {
 
     test('should return unknown detokenize records', async () => {
         const mockRequest = {
-            tokens: ['token1', 'token2'],
-            redactionType: 'PLAIN_TEXT',
+            data: [
+                {
+                    'token': 'token1',
+                    'redactionType': 'PLAIN_TEXT'
+                },
+                {
+                    'token': 'token2',
+                    'redactionType': 'PLAIN_TEXT'
+                }
+            ]
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
@@ -525,7 +559,16 @@ describe('VaultController detokenize method', () => {
 
     test('should handle API error during detokenize', async () => {
         const mockRequest = {
-            tokens: ['token1', 'token2']
+            data: [
+                {
+                    'token': 'token1',
+                    'redactionType': 'PLAIN_TEXT'
+                },
+                {
+                    'token': 'token2',
+                    'redactionType': 'PLAIN_TEXT'
+                }
+            ]
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
