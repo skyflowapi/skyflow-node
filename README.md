@@ -217,8 +217,8 @@ const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
 In V2, with the introduction of TypeScript support, you can now pass an **InsertRequest** of type **InsertRequest**. This request need 
 - **`tableName`**: The name of the table.
-- **`insertData`**: An array of objects containing the data to be inserte
-The response will be of type InsertResponse, which contains insertedFileds and errors.
+- **`insertData`**: An array of objects containing the data to be inserted
+The response will be of type InsertResponse, which contains insertedFields and errors.
 
 #### V1 (Old) - Request Building
 ```javascript
@@ -293,7 +293,7 @@ InsertResponse(
 
 ### Request Options
 
-In V2, we have introduced inbuilt **InsertOption** classes. These allow you to use setters to configure options instead of passing a plain object with key-value pairs.
+In V2, we have introduced inbuilt **InsertOptions** classes. These allow you to use setters to configure options instead of passing a plain object with key-value pairs.
 
 
 #### V1 (Old)
@@ -545,7 +545,7 @@ try{
 Skyflow returns tokens for the record that was just inserted.
 
 ```javascript
-{
+InsertResponse {
   insertedFields: {
     skyflowId: 'a8f3ed5d-55eb-4f32-bf7e-2dbf4b9d9097',
     card_number: '5484-7829-1702-9110',
@@ -691,7 +691,7 @@ try {
 
 Sample Response
 ```typescript
-{
+InsertResponse {
   insertedFields: {
   [
     {
@@ -702,12 +702,12 @@ Sample Response
     }
   ],
   errors: [
-    {
+      {
         request_index: 1,
         error: 'Insert failed. Column card_numbe is invaliSpecify a valid column.'
-    }
-  ]
-}
+      }
+    ]
+  }
 }
 ```
 
@@ -777,7 +777,7 @@ try {
 Skyflow returns tokens, with `upsert` support, for the record you just inserted.
 
 ```typescript
-{
+InsertResponse {
   insertedFields: [
     {
       skyflowId: "9fac9201-7b8a-4446-93f8-5244e1213bd1",
@@ -910,7 +910,7 @@ try {
 Sample response:
 
 ```typescript
-{
+DetokenizeResponse {
   detokenizedFields: [
     {token: '9738-1683-0486-1480', value: '4111111111111115', type: 'STRING'},
     {token: '6184-6357-8409-6668', value: '4111111111111119', type: 'STRING'},
@@ -980,7 +980,7 @@ try {
 Sample response:
 
 ```typescript
-{
+DetokenizeResponse {
   detokenizedFields: [
     {token: '9738-1683-0486-1480', value: '4111111111111115', type: 'STRING'},
     {token: '6184-6357-8409-6668', value: '4111111111111119', type: 'STRING'}
@@ -1095,10 +1095,11 @@ try {
 Sample response:
 
 ```typescript
-{
-  tokenizedFields: [{
-    token: '5479-4229-4622-1393'
-  }
+TokenizeResponse {
+  tokenizedFields: [
+    {
+      token: '5479-4229-4622-1393'
+    }
   ]
 }
 ```
@@ -1259,7 +1260,7 @@ try {
 Sample response:
 
 ```typescript
-{
+GetResponse {
   data: [
     {
       card_number: '4555555555555553',
@@ -1339,7 +1340,7 @@ try {
 Sample response:
 
 ```typescript
-{
+GetResponse {
   data: [
     {
       card_number: '3998-2139-0328-0697',
@@ -1425,7 +1426,7 @@ try {
 Sample response:
 
 ```typescript
-{
+GetResponse {
   data: [
     {
       card_number: '4555555555555553',
@@ -1595,7 +1596,7 @@ Sample response:
 
 - When `returnTokens` is set to `True`
 ```typescript
-{
+UpdateResponse {
   updatedField: {
     skyflowId: '5b699e2c-4301-4f9f-bcff-0a8fd3057413',
     name: '72b8ffe3-c8d3-4b4f-8052-38b2a7405b5a',
@@ -1607,7 +1608,7 @@ Sample response:
 
 - When `returnTokens` is set to `False`
 ```typescript
-{
+UpdateResponse {
   updatedField: {
     skyflowId: '5b699e2c-4301-4f9f-bcff-0a8fd3057413',
   },
@@ -1720,7 +1721,7 @@ try {
 Sample response:
 
 ```typescript
-{
+DeleteResponse {
   deletedIds: [
     '9cbf66df-6357-48f3-b77b-0f1acbb69280',
     'ea74bef4-f27e-46fe-b6a0-a28e91b4477b',
@@ -1829,7 +1830,7 @@ try {
 Sample Response:
 
 ```typescript
-{
+QueryResponse {
   fields: [
     {
       card_number: 'XXXXXXXXXXXX1112',
@@ -2029,7 +2030,7 @@ try {
 Sample response:
 
 ```typescript
-{
+InvokeConnectionResponse {
   data: {
     card_number: '4337-1696-5866-0865',
     ssn: '524-41-4248',
