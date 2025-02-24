@@ -2429,7 +2429,7 @@ tokens();
 ```
 
 Notes:
-- The `time_to_live` (TTL) value should be specified in seconds.
+- The `timeToLive` (TTL) value should be specified in seconds.
 - By default, the TTL value is set to 60 seconds.
 
 ## Logging
@@ -2445,7 +2445,7 @@ When `LogLevel.INFO` is passed, INFO logs for every event that occurs during SDK
 When `LogLevel.WARN` is passed, only WARN and ERROR logs will be printed.  
 - `ERROR`:  
 When `LogLevel.ERROR` is passed, only ERROR logs will be printed.
-- `OFF`:
+- `OFF`:   
 `LogLevel.OFF` can be used to turn off all logging from the Skyflow Python SDK.  
 
 **Note:** The ranking of logging levels is as follows: `DEBUG` < `INFO` < `WARN` < `ERROR` < `OFF`.
