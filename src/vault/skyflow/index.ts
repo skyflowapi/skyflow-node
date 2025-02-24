@@ -176,7 +176,7 @@ class Skyflow {
         return clients[id].config;
     }
 
-    updateLogLevel(logLevel: LogLevel) {
+    setLogLevel(logLevel: LogLevel) {
         if (logLevel && !isLogLevel(logLevel)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_LOG_LEVEL);
         }
@@ -225,7 +225,7 @@ class Skyflow {
     private updateClient(updateType: string, list: ClientObj) {
         Object.values(list).forEach(clientConfig => {
             if (updateType === LOGLEVEL) {
-                clientConfig.client.updateLogLevel(this.logLevel);
+                clientConfig.client.setLogLevel(this.logLevel);
             } else if (updateType === CREDENTIALS) {
                 clientConfig.client.updateSkyflowCredentials(this.commonCredentials);
             }

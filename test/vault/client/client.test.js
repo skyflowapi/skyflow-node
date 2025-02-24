@@ -165,13 +165,13 @@ describe('VaultClient', () => {
         });
     });
 
-    describe('getLogLevel and updateLogLevel', () => {
+    describe('getLogLevel and setLogLevel', () => {
         test('should return current log level', () => {
             expect(vaultClient.getLogLevel()).toBe(LogLevel.INFO);
         });
 
         test('should update the log level', () => {
-            vaultClient.updateLogLevel(LogLevel.DEBUG);
+            vaultClient.setLogLevel(LogLevel.DEBUG);
             expect(vaultClient.getLogLevel()).toBe(LogLevel.DEBUG);
         });
     });

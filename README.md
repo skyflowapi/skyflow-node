@@ -12,17 +12,19 @@ SDK for the Skyflow Data Privacy Vault.
 
 - [Skyflow Node.js SDK](#skyflow-nodejs-sdk)
   - [Table of contents](#table-of-contents)
-  - [Installation](#installation)
+  - [Overview](#overview)
+  - [Install](#installation)
       - [Requirements](#requirements)
       - [Import / Require](#import--require)
         - [Require](#require)
+        - [ES modules](#es-modules)
         - [All imports](#all-imports)
   - [Migrate from v1 to v2](#migrate-from-v1-to-v2)
-      - [Authentication options](#1-authentication-options)
-      - [Initializing the client](#2-initializing-the-client)
-      - [Request & response structure](#3-request--response-structure)
-      - [Request options](#4-request-options)
-      - [Error structure](#5-error-structure)
+      - [Authentication options](#authentication-options)
+      - [Initializing the client](#initializing-the-client)
+      - [Request & response structure](#request--response-structure)
+      - [Request options](#request-options)
+      - [Error structure](#error-structure)
   - [Quickstart](#quickstart)
       - [Authenticate](#authenticate)
       - [Initialize the client](#initialize-the-client)
@@ -49,8 +51,14 @@ SDK for the Skyflow Data Privacy Vault.
     - [Generate signed data tokens](#generate-signed-data-tokens)
   - [Logging](#logging)
   - [Reporting a vulnerability](#reporting-a-vulnerability)
+
+# Overview
+
+- Authenticate using a Skyflow service account and generate bearer tokens for secure access.
+- Perform Vault API operations such as inserting, retrieving, and tokenizing sensitive data with ease.
+- Invoke connections to third-party APIs without directly handling sensitive data, ensuring compliance and data protection.
   
-## Installation
+# Install
 
 #### Requirements
 
@@ -70,7 +78,7 @@ Depending on your project setup, you may use either the `require` method (common
 const { Skyflow } = require('skyflow-node');
 ```
 
-**ES modules**
+##### ES modules
 
 ```typescript
 import { Skyflow }  from 'skyflow-node';
@@ -92,11 +100,11 @@ This guide outlines the steps required to migrate the Node SDK from version 1 (V
 
 ---
 
-### 1. Authentication Options
+### Authentication Options
 
 In V2, multiple authentication options have been introduced. You can now provide credentials in the following ways:
 
-- **API Key (Recommended)**
+- **API Key**
 - **Environment Variable** (`SKYFLOW_CREDENTIALS`) (**Recommended**)
 - **Path to Credentials JSON File**
 - **Stringified JSON of Credentials**
@@ -104,7 +112,7 @@ In V2, multiple authentication options have been introduced. You can now provide
 
 These options allow you to choose the authentication method that best suits your use case.
 
-### V1 (Old): Passing the auth function below as a parameter to the getBearerToken key.
+#### V1 (Old): Passing the auth function below as a parameter to the getBearerToken key.
 
 
 ```javascript
@@ -117,7 +125,7 @@ const auth = function () {
 };
 ```
 
-### V2 (New): Passing one of the following: 
+#### V2 (New): Passing one of the following: 
 
 ```javascript
 // Option 1: API Key (Recommended)
@@ -145,7 +153,7 @@ const credentials = { token: "<YOUR_BEARER_TOKEN>" };
 
 ---
 
-### 2. Initializing the client
+### Initializing the client
 
 V2 introduces TypeScript support and multi-vault support, allowing you to configure multiple vaults during client initialization.
 
@@ -158,7 +166,7 @@ During client initialization, you can pass the following parameters:
 - **`credentials`**: The necessary authentication credentials.
 
 
-### V1 (Old)
+#### V1 (Old)
 ```javascript
 // Initialize the Skyflow Vault client
 
@@ -173,7 +181,7 @@ const vault = Skyflow.init({
 });
 ```
 
-### V2 (New)
+#### V2 (New)
 ```javascript
 // Step 1: Configure Bearer Token Credentials
 const credentials: Credentials = { apiKey: '<YOUR_API_KEY>' };
@@ -205,14 +213,14 @@ const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
 ---
 
-### 3. Request & Response Structure
+### Request & Response Structure
 
 In V2, with the introduction of TypeScript support, you can now pass an **InsertRequest** of type **InsertRequest**. This request need 
 - **`tableName`**: The name of the table.
 - **`insertData`**: An array of objects containing the data to be inserte
 The response will be of type InsertResponse, which contains insertedFileds and errors.
 
-### V1 (Old) - Request Building
+#### V1 (Old) - Request Building
 ```javascript
 const result = skyflow.insert({
    records: [
@@ -228,7 +236,7 @@ const result = skyflow.insert({
  });
 ```
 
-### V2 (New) - Request Building
+#### V2 (New) - Request Building
 ```typescript
 // Prepare Insertion Data
 const insertData: Array<object> = [
@@ -247,7 +255,7 @@ const response: InsertResponse = await skyflowClient
     .insert(insertReq);
 ```
 
-### V1 (Old) - Response Structure
+#### V1 (Old) - Response Structure
 ```json
 {
   "records": [
@@ -262,7 +270,7 @@ const response: InsertResponse = await skyflowClient
 }
 ```
 
-### V2 (New) - Response Structure
+#### V2 (New) - Response Structure
 ```javascript
 InsertResponse(
    insertedFields : [
@@ -283,12 +291,12 @@ InsertResponse(
 
 ---
 
-### 4. Request Options
+### Request Options
 
 In V2, we have introduced inbuilt **InsertOption** classes. These allow you to use setters to configure options instead of passing a plain object with key-value pairs.
 
 
-### V1 (Old)
+#### V1 (Old)
 ```javascript
 const options = {
     tokens: true,
@@ -296,7 +304,7 @@ const options = {
 };
 ```
 
-### V2 (New)
+#### V2 (New)
 ```javascript
 const insertOptions: InsertOptions = new InsertOptions();
 insertOptions.setReturnTokens(true); // Optional: Get tokens for inserted data
@@ -305,7 +313,7 @@ insertOptions.setContinueOnError(true); // Optional: Continue on partial errors
 
 ---
 
-### 5. Error Structure
+### Error Structure
 In V2, we have enriched the error details to provide better debugging capabilities. 
 The error response now includes: 
 - **`http_status`**: The HTTP status code. .
@@ -314,7 +322,7 @@ The error response now includes:
 - **`request_ID`**: A unique request identifier for easier debugging.
 
 
-### V1 (Old) - Error Structure
+#### V1 (Old) - Error Structure
 ```javascript
 {
   code: string | number,
@@ -322,7 +330,7 @@ The error response now includes:
 }
 ```
 
-### V2 (New) - Error Structure
+#### V2 (New) - Error Structure
 ```javascript
 {
     http_status?: string | number | null,
@@ -348,21 +356,22 @@ const credentials = { apiKey: "<YOUR_API_KEY>" };  //add your API key in credent
 ### Initialize the client
 
 To get started, you must first initialize the skyflow client. While initializing the skyflow client, you can specify different types of credentials.  
-**1. API keys**  
-- A unique identifier used to authenticate and authorize requests to an API.  
+1. **API keys**  
+A unique identifier used to authenticate and authorize requests to an API.  
 
-**2. Bearer tokens**  
-- A temporary access token used to authenticate API requests, typically included in the
+2. **Bearer tokens**  
+A temporary access token used to authenticate API requests, typically included in the
 Authorization header.  
 
-**3. Service account credentials file path**  
-- The file path pointing to a JSON file containing credentials for a service account, used
+3. **Service account credentials file path**  
+The file path pointing to a JSON file containing credentials for a service account, used
 for secure API access.  
 
-**4. Service account credentials string**  
-- A JSON-formatted string containing service account credentials, often used as an alternative to a file for programmatic authentication.  
+4. **Service account credentials string**  
+JSON-formatted string containing service account credentials, often used as an alternative to a file for programmatic authentication.  
 
-Note: Only one type of credential can be used at a time.
+Note: Only one type of credential can be used at a time. If multiple credentials are provided, the last one added will take precedence.
+
 
 ```javascript
 import { 
@@ -388,7 +397,7 @@ such as securely managing sensitive data.
 // - A file path to a credentials file.
 
 // Initialize primary credentials using a Bearer token for authentication.
-const primaryCredentials: Credentials = {
+const primaryCredentials: Credentials = { /////////////////
     token: '<BEARER_TOKEN>',  // Replace <BEARER_TOKEN> with your actual authentication token.
 };
 
@@ -445,7 +454,7 @@ const tertiaryVaultConfig: VaultConfig = {
     credentials: tertiaryCredentials    // Attach the tertiary credentials.
 }
 
-// Step 9: Build and initialize the Skyflow client.
+// Step 9: Build and initialize the Skyflow client after creating Skyflow Config
 // Skyflow client is configured with multiple vaults and credentials.
 
 const skyflowConfig: SkyflowConfig = {
@@ -454,6 +463,7 @@ const skyflowConfig: SkyflowConfig = {
     logLevel: LogLevel.INFO // Set log level for debugging or monitoring purposes.
 };
 
+// Step 10: Initialize Skyflow Client
 const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
 // The Skyflow client is now fully initialized.
@@ -467,7 +477,7 @@ const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
 Notes
 - If both Skyflow common credentials and individual credentials at the configuration level are specified, the individual credentials at the configuration level will take precedence.
-- If neither Skyflow common credentials nor individual configuration-level credentials are provided, the SDK attempts to retrieve credentials from the SKYFLOW_CREDENTIALS environment variable.
+- If neither Skyflow common credentials nor individual configuration-level credentials are provided, the SDK attempts to retrieve credentials from the ```SKYFLOW_CREDENTIALS``` environment variable.
 - All Vault operations require a client instance.
 
 ### Insert data into the vault
@@ -582,26 +592,21 @@ try {
   ]
 
   // Step 2: Build an InsertRequest object with the table name and the data to insert
-  // Step 2: Create Insert Request
   const insertReq: InsertRequest = new InsertRequest(
       'table1',  // Specify the table in the vault where the data will be inserted
       insertData,  // Attach the data (records) to be inserted
   );
-
-  // Step 3: Use the Skyflow client to perform the insert operation
-    insert_response = skyflow_client.vault('<VAULT_ID>').insert(insert_request)
-    # Replace <VAULT_ID> with your actual vault ID
   
-  // Step 4: Perform the insert operation using the Skyflow client
+  // Step 3: Perform the insert operation using the Skyflow client
   const insertResponse: InsertResponse = await skyflowClient
           .vault('<VAULT_ID>')  
           .insert(insertReq, insertOptions);
   // Replace <VAULT_ID> with your actual vault ID
 
-  // Step 5: Print the response from the insert operation
+  // Step 4: Print the response from the insert operation
   console.log('Insert response: ', insertResponse);
 } catch(error) {
-  // Step 6: Comprehensive Error Handling
+  // Step 5: Comprehensive Error Handling
   if (error instanceof SkyflowError) {
       console.error('Skyflow Specific Error:', {
           code: error.error?.http_code,
@@ -1829,17 +1834,15 @@ Sample Response:
     {
       card_number: 'XXXXXXXXXXXX1112',
       name: 'S***ar',
-      ,
-      errors: [skyflowId: '3ea3861-x107-40w8-la98-106sp08ea83f',
-      ,
-      errors: [tokenized_data: {}
+      skyflowId: '3ea3861-x107-40w8-la98-106sp08ea83f',
+      tokenizedData: {}
     }
   ],
   errors: [],
 }
 ```
 
-### Connections
+## Connections
 
 Skyflow Connections is a gateway service that uses tokenization to securely send and receive data between your systems and first- or third-party services. The [connections](https://github.com/skyflowapi/skyflow-node/tree/v2/src/vault/controller/connections) module invokes both inbound and/or outbound connections.
 - **Inbound connections**: Act as intermediaries between your client and server, tokenizing sensitive data before it reaches your backend, ensuring downstream services handle only tokenized data.
@@ -1925,7 +1928,7 @@ try {
 }
 ```
 
-`requestMethod` supports the following methods:
+`method` supports the following methods:
 
 - GET
 - POST
@@ -2038,7 +2041,7 @@ Sample response:
 }
 ```
 
-### Authenticate with bearer tokens
+## Authenticate with bearer tokens
 This section covers methods for generating and managing tokens to authenticate API calls:
 
 - **Generate a bearer token:**  
@@ -2428,6 +2431,93 @@ Notes:
 - The `time_to_live` (TTL) value should be specified in seconds.
 - By default, the TTL value is set to 60 seconds.
 
+## Logging
+
+The  SDK provides useful logging. By default the logging level of the SDK is set to `LogLevel.ERROR`. This can be changed by setting the `logLevel` in Skyflow Config while creating the Skyflow Client as shown below:
+
+Currently, the following five log levels are supported:
+- `DEBUG`:  
+When `LogLevel.DEBUG` is passed, logs at all levels will be printed (DEBUG, INFO, WARN, ERROR).
+- `INFO`:  
+When `LogLevel.INFO` is passed, INFO logs for every event that occurs during SDK flow execution will be printed, along with WARN and ERROR logs.
+- `WARN`:  
+When `LogLevel.WARN` is passed, only WARN and ERROR logs will be printed.  
+- `ERROR`:  
+When `LogLevel.ERROR` is passed, only ERROR logs will be printed.
+- `OFF`:
+`LogLevel.OFF` can be used to turn off all logging from the Skyflow Python SDK.  
+
+**Note:** The ranking of logging levels is as follows: `DEBUG` < `INFO` < `WARN` < `ERROR` < `OFF`.
+
+```typescript
+import {
+  Skyflow,
+  LogLevel,
+  SkyflowError
+} from 'skyflow-node';
+
+/*
+This example demonstrates how to configure the Skyflow client with custom log levels and authentication credentials (either token, credentials string, or other methods). It also shows how to configure a vault connection using specific parameters.
+1. Set up credentials with a Bearer token or credentials string.
+2. Define the Vault configuration.
+3. Build the Skyflow client with the chosen configuration and set log level.
+4. Example of changing the log level from ERROR (default) to INFO.
+*/
+
+try {
+  // Step 1: Set up credentials - either pass token or use credentials string
+  // In this case, we are using a Bearer token for authentication
+  const credentials: Credentials = {
+    token: '<BEARER_TOKEN>',  // Replace with actual Bearer token
+  };
+
+  // Step 2: Define the Vault configuration
+  // Configure the vault with necessary details like vault ID, cluster ID, and environment
+  const vaultConfig: VaultConfig = {
+      vaultId: '<VAULT_ID>',          // Replace with actual Vault ID (primary vault)
+      clusterId: '<CLUSTER_ID>',      // Replace with actual Cluster ID (from vault URL)
+      env: Env.PROD,                  // Set the environment (default is PROD)
+      credentials: credentials        // Set credentials for the vault (either token or credentials)
+  };
+
+  // Step 3: Define additional Skyflow credentials (optional, if needed for credentials string)
+  const skyflowCredentials = {
+    clientID: '<YOUR_CLIENT_ID>',
+    clientName: '<YOUR_CLIENT_NAME>',
+    keyID: '<YOUR_KEY_ID>',
+    tokenURI: '<YOUR_TOKEN_URI>',
+    privateKey: '<YOUR_PEM_PRIVATE_KEY>',
+  };
+
+  // Convert the credentials object to a json string format to be used for generating a Bearer Token
+  const credentialsString = JSON.stringify(skyflowCredentials);
+
+  // Step 9: Build and initialize the Skyflow client after creating Skyflow Config
+  // Skyflow client is configured with multiple vaults and credentials.
+  const skyflowConfig: SkyflowConfig = {
+      vaultConfigs: [vaultConfig],  // Add the Vault configuration
+      skyflowCredentials: skyflowCredentials, // Use Skyflow credentials if no token is passed
+      logLevel: LogLevel.INFO // Set log level to INFO (default is ERROR)
+  };
+  
+  // Step 10: Initialize Skyflow Client
+  const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
+
+  // Now, the Skyflow client is ready to use with the specified log level and credentials
+  console.log('Skyflow client has been successfully configured with log level: INFO.')
+} catch(error) {
+  // Step 11: Handle any exceptions that occur
+  if (error instanceof SkyflowError) {
+      console.error('Skyflow Specific Error:', {
+          code: error.error?.http_code,
+          message: error.message,
+          details: error.error?.details
+      });
+  } else {
+      console.error('Unexpected Error:', error);
+  }
+}
+```
 
 ## Reporting a Vulnerability
 
