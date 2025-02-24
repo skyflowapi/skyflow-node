@@ -102,7 +102,7 @@ class VaultClient {
         return this.logLevel;
     }
 
-    updateLogLevel(logLevel: LogLevel) {
+    setLogLevel(logLevel: LogLevel) {
         this.logLevel = logLevel;
     }
 

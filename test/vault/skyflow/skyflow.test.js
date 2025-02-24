@@ -106,7 +106,7 @@ describe('Skyflow initialization', () => {
                 vaultConfigs: validVaultConfig,
                 logLevel: LogLevel.ERROR
             });
-            skyflow.updateLogLevel(LogLevel.OFF);
+            skyflow.setLogLevel(LogLevel.OFF);
             expect(skyflow.getLogLevel()).toBe(LogLevel.OFF);
         });
     
@@ -116,7 +116,7 @@ describe('Skyflow initialization', () => {
                 logLevel: LogLevel.ERROR
             });
     
-            expect(() => skyflow.updateLogLevel("DUMMY"))
+            expect(() => skyflow.setLogLevel("DUMMY"))
                 .toThrowError(invalidLogLevelError);
         });
     });    
