@@ -56,7 +56,7 @@ class VaultController {
         return [];
     }
 
-    private parseDetokenizeResponse(records: any[]): ParsedDetokenizeResponse {
+    private parseDetokenizeResponse(records: any[], requestId: any): ParsedDetokenizeResponse {
         const response: ParsedDetokenizeResponse = {
             success: [],
             errors: []
@@ -67,6 +67,7 @@ class VaultController {
         records.forEach(record => {
             if (record.error) {
                 response.errors.push({
+                    requestId: requestId,
                     token: record.token,
                     error: record.error
                 });
@@ -81,7 +82,7 @@ class VaultController {
         return response;
     }
 
-    private parseInsertBatchResponse(records: any[]): InsertResponse {
+    private parseInsertBatchResponse(records: any[], requestId: any): InsertResponse {
         const response: ParsedInsertBatchResponse = {
             success: [],
             errors: []
@@ -95,7 +96,7 @@ class VaultController {
             if (this.isSuccess(record)) {
                 this.processSuccess(record, index, response);
             } else {
-                this.processError(record, index, response);
+                this.processError(record, index, requestId, response);
             }
         });
 
@@ -116,8 +117,9 @@ class VaultController {
         });
     }
 
-    private processError(record: any, index: number, response: ParsedInsertBatchResponse): void {
+    private processError(record: any, index: number, requestId: any, response: ParsedInsertBatchResponse): void {
         response.errors.push({
+            requestId: requestId,
             requestIndex: index,
             error: record?.Body?.error
         });
@@ -133,6 +135,7 @@ class VaultController {
                 apiCall({ headers: { ...sdkHeaders } })
                     .then((response: any) => {
                         const data = response.data;
+                        const requestId = response.headers['x-request-id']
                         printLog(logs.infoLogs[`${requestType}_REQUEST_RESOLVED`], MessageType.LOG, this.client.getLogLevel());
                         switch (requestType) {
                             case TYPES.INSERT:
@@ -140,10 +143,10 @@ class VaultController {
                             case TYPES.QUERY:
                             case TYPES.DETOKENIZE:
                             case TYPES.TOKENIZE:
-                                resolve(this.handleRecordsResponse(data))
+                                resolve({ records: this.handleRecordsResponse(data), requestId })
                                 break;
                             case TYPES.INSERT_BATCH:
-                                resolve(this.handleInsertBatchResponse(data))
+                                resolve({records: this.handleInsertBatchResponse(data), requestId})
                                 break;
                             case TYPES.UPDATE:
                             case TYPES.FILE_UPLOAD:
@@ -227,11 +230,11 @@ class VaultController {
                             ? this.client.vaultAPI.recordServiceBatchOperation(this.client.vaultId, requestBody, headers)
                             : this.client.vaultAPI.recordServiceInsertRecord(this.client.vaultId, tableName, requestBody as RecordServiceInsertRecordBody, headers),
                     operationType
-                ).then((resp: any) => {
+                ).then((response: any) => {
                     printLog(logs.infoLogs.INSERT_DATA_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const parsedResponse = isContinueOnError
-                        ? this.parseInsertBatchResponse(resp)
-                        : this.parseBulkInsertResponse(resp);
+                        ? this.parseInsertBatchResponse(response.records, response.requestId)
+                        : this.parseBulkInsertResponse(response.records);
                     resolve(parsedResponse);
                 })
                     .catch(error => {
@@ -369,9 +372,9 @@ class VaultController {
                         headers
                     ),
                     TYPES.GET
-                ).then(records => {
+                ).then(response => {
                     printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = records.map(record => ({
+                    const processedRecords = response.records.map(record => ({
                         ...record.fields,
                     }));
                     resolve(new GetResponse({ data: processedRecords, errors: [] }));
@@ -446,9 +449,9 @@ class VaultController {
                         headers
                     ),
                     TYPES.QUERY
-                ).then(records => {
+                ).then(response => {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = records.map(record => ({
+                    const processedRecords = response.records.map(record => ({
                         ...record?.fields,
                         tokenizedData: {
                             ...record?.tokens,
@@ -482,9 +485,9 @@ class VaultController {
                 this.handleRequest(
                     (headers: RawAxiosRequestConfig | undefined) => this.client.tokensAPI.recordServiceDetokenize(this.client.vaultId, detokenizePayload, headers),
                     TYPES.DETOKENIZE
-                ).then(records => {
+                ).then(response => {
                     printLog(logs.infoLogs.DETOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const parsedResponse: ParsedDetokenizeResponse = this.parseDetokenizeResponse(records);
+                    const parsedResponse: ParsedDetokenizeResponse = this.parseDetokenizeResponse(response.records, response.requestId);
                     resolve(new DetokenizeResponse({ detokenizedFields: parsedResponse.success, errors: parsedResponse.errors }));
                 })
                     .catch(error => {
@@ -513,9 +516,9 @@ class VaultController {
                 this.handleRequest(
                     () => this.client.tokensAPI.recordServiceTokenize(this.client.vaultId, tokenizePayload),
                     TYPES.TOKENIZE
-                ).then(records => {
+                ).then(response => {
                     printLog(logs.infoLogs.TOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    resolve(new TokenizeResponse({ tokens: records, errors: [] }))
+                    resolve(new TokenizeResponse({ tokens: response.records, errors: [] }))
                 })
                     .catch(error => {
                         reject(error);
