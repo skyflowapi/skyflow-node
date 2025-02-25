@@ -49,6 +49,7 @@ export interface SuccessDetokenizeResponse {
 }
 
 export interface ErrorDetokenizeResponse {
+    requestId: string;
     token: string;
     error: string;
 }
@@ -59,6 +60,7 @@ export interface ParsedDetokenizeResponse {
 }
 
 export interface ErrorInsertBatchResponse {
+    requestId: string;
     requestIndex: number;
     error: string;
 }
