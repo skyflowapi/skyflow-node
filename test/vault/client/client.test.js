@@ -301,6 +301,70 @@ describe('VaultClient', () => {
                 expect(err).toBeInstanceOf(SkyflowError);
             });
         });
+
+        test('should handle JSON error responses correctly with error-from-client header', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'application/json', 'x-request-id': '12345', 'error-from-client': 'true' },
+                    data: { error: { message: 'JSON error occurred', http_status: 400, } },
+                    status: 400,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle JSON error responses correctly with error-from-client header and details list', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'application/json', 'x-request-id': '12345', 'error-from-client': 'true' },
+                    data: { error: { message: 'JSON error occurred', http_status: 400, details: [] } },
+                    status: 400,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle JSON error responses correctly with error-from-client header and details being null ', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'application/json', 'x-request-id': '12345', 'error-from-client': 'true' },
+                    data: { error: { message: 'JSON error occurred', http_status: 400, details: null } },
+                    status: 400,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle text error responses correctly with error-from-client header', () => {
+            const errorResponse = {
+                response: {
+                    headers: { 'content-type': 'text/plain', 'x-request-id': '12345', 'error-from-client': 'false' },
+                    data: 'Text error occurred',
+                    status: 500,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            })
+        });
+
+        test('should handle generic errors without content-type and with error-from-client header', () => {
+            const errorResponse = {
+                response: {
+                    headers: {'error-from-client': 'true'},
+                    status: 500,
+                },
+            };
+            vaultClient.failureResponse(errorResponse).catch(err => {
+                expect(err).toBeInstanceOf(SkyflowError);
+            });
+        });
     });
 
     describe('updateClientConfig', () => {
