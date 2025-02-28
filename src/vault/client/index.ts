@@ -116,36 +116,56 @@ class VaultClient {
         const data = err.response?.data;
         const requestId = err.response?.headers['x-request-id'];
 
+        const errorFromClientHeader = err.response?.headers?.['error-from-client'];
+        const errorFromClient = errorFromClientHeader ? String(errorFromClientHeader).toLowerCase() === 'true' : undefined;
+
         if (contentType) {
             if (contentType.includes('application/json')) {
-                this.handleJsonError(err, data, requestId, reject);
+                this.handleJsonError(err, data, requestId, reject, errorFromClient);
             } else if (contentType.includes('text/plain')) {
-                this.handleTextError(err, data, requestId, reject);
+                this.handleTextError(err, data, requestId, reject, errorFromClient);
             } else {
-                this.handleGenericError(err, requestId, reject);
+                this.handleGenericError(err, requestId, reject, errorFromClient);
             }
         } else {
-            this.handleGenericError(err, requestId, reject);
+            this.handleGenericError(err, requestId, reject, errorFromClient);
         }
     });
 
-    private handleJsonError(err: any, data: any, requestId: string, reject: Function) {
+    private handleJsonError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
         let description = data;
         const statusCode = description?.error?.http_status;
         const grpcCode = description?.error?.grpc_code;
-        const details = description?.error?.details;
-
+        let details = description?.error?.details;
+        
+        if (errorFromClient !== undefined) {
+            details = Array.isArray(details)
+                        ? [...details, { errorFromClient: errorFromClient }]
+                        : [{ errorFromClient: errorFromClient }];
+        }
+ 
         description = description?.error?.message || description;
         this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
     }
 
-    private handleTextError(err: any, data: any, requestId: string, reject: Function) {
-        this.logAndRejectError(data, err, requestId, reject);
+    private handleTextError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
+        let details: any = [];
+
+        if (errorFromClient !== undefined) {
+            details.push({ errorFromClient });
+        }
+        
+        this.logAndRejectError(data, err, requestId, reject, undefined, undefined, details);
     }
 
-    private handleGenericError(err: any, requestId: string, reject: Function) {
+    private handleGenericError(err: any, requestId: string, reject: Function, errorFromClient?: boolean) {
         const description =  err?.response?.data || err?.message || errorMessages.ERROR_OCCURRED;
-        this.logAndRejectError(description, err, requestId, reject);
+        let details: any = [];
+
+        if (errorFromClient !== undefined) {
+            details.push({ errorFromClient });
+        }
+        this.logAndRejectError(description, err, requestId, reject, undefined, undefined, details);
     }
 
     private logAndRejectError(
