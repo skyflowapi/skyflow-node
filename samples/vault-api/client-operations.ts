@@ -70,7 +70,7 @@ async function performSecureDataDeletion() {
             'skyflow_id2',
         ];
 
-        const tableName: string = '<your_table_name>';  // Replace with actual table name
+        const tableName: string = '<your_table_name>'; // Replace with actual table name
 
         const deleteRequest: DeleteRequest = new DeleteRequest(
             tableName,
