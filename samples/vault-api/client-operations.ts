@@ -23,7 +23,7 @@ async function performSecureDataDeletion() {
     try {
         // Step 1: Configure Bearer Token Credentials
         const credentials: Credentials = {
-            token: '<your_bearer_token>', // Bearer token
+            token: '<your_bearer_token>', //  Bearer token
         };
 
         // Step 2: Configure Vault 
