@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import jwt from "jsonwebtoken";
-import { V1GetAuthTokenRequest } from '../ _generated_/rest';
+import { V1GetAuthTokenRequest } from '../ _generated_/rest/api';
 import { getBaseUrl, LogLevel, MessageType, parameterizedString, printLog } from '../utils';
 import Client from './client';
 import logs from '../utils/logs';

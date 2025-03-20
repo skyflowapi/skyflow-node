@@ -1,7 +1,7 @@
 //imports
 import * as fs from 'fs';
 import InsertRequest from "../../model/request/insert";
-import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, V1BYOT, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest } from "../../../ _generated_/rest";
+import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, V1Byot, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest } from '../../../ _generated_/rest/api';
 import InsertOptions from "../../model/options/insert";
 import GetRequest from "../../model/request/get";
 import GetOptions from "../../model/options/get";
@@ -26,7 +26,7 @@ import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, p
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
 import VaultClient from '../../client';
-import { RawAxiosRequestConfig } from 'axios';
+import { Records } from '../../../ _generated_/rest/api/resources/records/client/Client';
 import { validateDeleteRequest, validateDetokenizeRequest, validateGetColumnRequest, validateGetRequest, validateInsertRequest, validateQueryRequest, validateTokenizeRequest, validateUpdateRequest, validateUploadFileRequest } from '../../../utils/validations';
 
 class VaultController {
@@ -132,7 +132,7 @@ class VaultController {
                 this.client.initAPI(authInfo, requestType);
                 apiCall({ headers: { ...sdkHeaders } })
                     .then((response: any) => {
-                        const data = response.data;
+                        const data = response;
                         printLog(logs.infoLogs[`${requestType}_REQUEST_RESOLVED`], MessageType.LOG, this.client.getLogLevel());
                         switch (requestType) {
                             case TYPES.INSERT:
@@ -167,11 +167,11 @@ class VaultController {
 
     private buildBatchInsertBody(request: InsertRequest, options?: InsertOptions): RecordServiceBatchOperationBody {
         const records = request.data.map((record, index) => ({
-            fields: record,
+            fields: record as Record<string, unknown> || {},
             tableName: request.tableName,
             tokenization: options?.getReturnTokens() || false,
             method: BatchRecordMethod.Post,
-            tokens: this.getTokens(index, options?.getTokens()),
+            tokens: this.getTokens(index, options?.getTokens()) as Record<string, unknown>,
             upsert: options?.getUpsertColumn(),
         }));
         return {
@@ -220,9 +220,8 @@ class VaultController {
 
                 const operationType = isContinueOnError ? TYPES.INSERT_BATCH : TYPES.INSERT;
                 const tableName = request.tableName;
-
                 this.handleRequest(
-                    (headers: RawAxiosRequestConfig | undefined) =>
+                    (headers: Records.RequestOptions | undefined) =>
                         isContinueOnError
                             ? this.client.vaultAPI.recordServiceBatchOperation(this.client.vaultId, requestBody, headers)
                             : this.client.vaultAPI.recordServiceInsertRecord(this.client.vaultId, tableName, requestBody as RecordServiceInsertRecordBody, headers),
@@ -256,7 +255,7 @@ class VaultController {
                 const skyflowId = request.data[SKYFLOW_ID];
                 delete request.data[SKYFLOW_ID];
                 const record = { fields: request.data, tokens: options?.getTokens() };
-                const strictMode = options?.getTokenMode() ? options?.getTokenMode() : V1BYOT.Disable;
+                const strictMode = options?.getTokenMode() ? options?.getTokenMode() : V1Byot.Disable;
                 const updateData: RecordServiceUpdateRecordBody = {
                     record: record,
                     tokenization: options?.getReturnTokens(),
@@ -264,10 +263,10 @@ class VaultController {
                 };
 
                 this.handleRequest(
-                    (headers: RawAxiosRequestConfig | undefined) => this.client.vaultAPI.recordServiceUpdateRecord(
+                    (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceUpdateRecord(
                         this.client.vaultId,
                         request.tableName,
-                        skyflowId,
+                        skyflowId as string,
                         updateData,
                         headers
                     ),
@@ -304,7 +303,7 @@ class VaultController {
                 };
 
                 this.handleRequest(
-                    (headers: RawAxiosRequestConfig | undefined) => this.client.vaultAPI.recordServiceBulkDeleteRecord(
+                    (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceBulkDeleteRecord(
                         this.client.vaultId,
                         request.tableName,
                         deleteRequest,
@@ -351,21 +350,24 @@ class VaultController {
                     columnName = request.columnName as string;
                     columnValues = request.columnValues as Array<string>;
                 }
+                const fernRequest = {
+                    skyflow_ids: records,
+                    redaction: options?.getRedactionType(),
+                    tokenization: options?.getReturnTokens(),
+                    fields: options?.getFields(),
+                    offset: options?.getOffset(),
+                    limit: options?.getLimit(),
+                    downloadURL: options?.getDownloadURL(),
+                    column_name: columnName,
+                    column_values: columnValues,
+                    order_by: options?.getOrderBy(),
+                };
 
                 this.handleRequest(
-                    (headers: RawAxiosRequestConfig | undefined) => this.client.vaultAPI.recordServiceBulkGetRecord(
+                    (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceBulkGetRecord(
                         this.client.vaultId,
                         request.tableName,
-                        records,
-                        options?.getRedactionType(),
-                        options?.getReturnTokens(),
-                        options?.getFields(),
-                        options?.getOffset(),
-                        options?.getLimit(),
-                        options?.getDownloadURL(),
-                        columnName,
-                        columnValues,
-                        options?.getOrderBy(),
+                        fernRequest,
                         headers
                     ),
                     TYPES.GET
@@ -397,17 +399,14 @@ class VaultController {
                 validateUploadFileRequest(request, this.client.getLogLevel());
 
                 //handle file exits
-                const formData = new FormData();
                 const fileStream = fs.createReadStream(request.filePath) as unknown as Blob;
-                formData.append('file', fileStream);
-                formData.append('columnName', request.columnName);
 
                 this.handleRequest(
-                    (headers: RawAxiosRequestConfig | undefined) => this.client.vaultAPI.fileServiceUploadFile(
+                    (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.fileServiceUploadFile(
+                        fileStream,
                         this.client.vaultId,
                         request.tableName,
                         request.skyflowId,
-                        formData,
                         headers
                     ),
                     TYPES.FILE_UPLOAD
@@ -440,7 +439,7 @@ class VaultController {
                 };
 
                 this.handleRequest(
-                    (headers: RawAxiosRequestConfig | undefined) => this.client.queryAPI.queryServiceExecuteQuery(
+                    (headers: Records.RequestOptions | undefined) => this.client.queryAPI.queryServiceExecuteQuery(
                         this.client.vaultId,
                         query,
                         headers
@@ -480,7 +479,7 @@ class VaultController {
                 const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadURL() };
 
                 this.handleRequest(
-                    (headers: RawAxiosRequestConfig | undefined) => this.client.tokensAPI.recordServiceDetokenize(this.client.vaultId, detokenizePayload, headers),
+                    (headers: Records.RequestOptions | undefined) => this.client.tokensAPI.recordServiceDetokenize(this.client.vaultId, detokenizePayload, headers),
                     TYPES.DETOKENIZE
                 ).then(records => {
                     printLog(logs.infoLogs.DETOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
@@ -511,7 +510,7 @@ class VaultController {
                 const tokenizePayload: V1TokenizePayload = { tokenizationParameters: fields };
 
                 this.handleRequest(
-                    () => this.client.tokensAPI.recordServiceTokenize(this.client.vaultId, tokenizePayload),
+                    (headers: Records.RequestOptions | undefined) => this.client.tokensAPI.recordServiceTokenize(this.client.vaultId, tokenizePayload,headers),
                     TYPES.TOKENIZE
                 ).then(records => {
                     printLog(logs.infoLogs.TOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
