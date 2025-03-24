@@ -1,5 +1,7 @@
 // imports 
-import { Configuration, QueryApi, RecordsApi, TokensApi } from "../../ _generated_/rest";
+import { Query } from "../../ _generated_/rest/api/resources/query/client/Client";
+import { Records } from "../../ _generated_/rest/api/resources/records/client/Client";
+import { Tokens } from "../../ _generated_/rest/api/resources/tokens/client/Client";
 import SkyflowError from "../../error";
 import errorMessages from "../../error/messages";
 import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES } from "../../utils/index";
@@ -13,13 +15,13 @@ class VaultClient {
 
     url!: string;
 
-    configuration!: Configuration;
+    configuration!: Records.Options;
 
-    vaultAPI!: RecordsApi;
+    vaultAPI!: Records;
 
-    tokensAPI!: TokensApi;
+    tokensAPI!: Tokens;
 
-    queryAPI!: QueryApi;
+    queryAPI!: Query;
 
     individualCredentials?: Credentials;
 
@@ -50,10 +52,10 @@ class VaultClient {
 
     private initConfig(authInfo: AuthInfo) {
         this.authInfo = authInfo;
-        this.configuration = new Configuration({
-            basePath: this.url,
-            accessToken: authInfo.key,
-        });
+        this.configuration = {
+            baseUrl: this.url,
+            token: authInfo.key,
+        };
 
     }
 
@@ -66,14 +68,14 @@ class VaultClient {
             case TYPES.INSERT:
             case TYPES.INSERT_BATCH:
             case TYPES.UPDATE:
-                this.vaultAPI = new RecordsApi(this.configuration);
+                this.vaultAPI = new Records(this.configuration);
                 break;
             case TYPES.DETOKENIZE:
             case TYPES.TOKENIZE:
-                this.tokensAPI = new TokensApi(this.configuration);
+                this.tokensAPI = new Tokens(this.configuration);
                 break;
             case TYPES.QUERY:
-                this.queryAPI = new QueryApi(this.configuration);
+                this.queryAPI = new Query(this.configuration);
                 break;
             default:
                 break;

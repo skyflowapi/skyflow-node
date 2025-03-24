@@ -1,10 +1,15 @@
 import VaultClient from '../../../src/vault/client'; // Adjust the import path
-import { Configuration, QueryApi, RecordsApi, TokensApi } from '../../../src/ _generated_/rest';
+import { Query } from '../../../src/ _generated_/rest/api/resources/query/client/Client';
+import { Records } from '../../../src/ _generated_/rest/api/resources/records/client/Client';
+import { Tokens } from '../../../src/ _generated_/rest/api/resources/tokens/client/Client';
 import { AuthType, LogLevel, TYPES } from '../../../src/utils';
 import { isExpired } from '../../../src/utils/jwt-utils';
 import SkyflowError  from '../../../src/error';
 
 jest.mock('../../../src/ _generated_/rest');
+jest.mock('../../../src/ _generated_/rest/api/resources/records/client/Client');
+jest.mock('../../../src/ _generated_/rest/api/resources/query/client/Client');
+jest.mock('../../../src/ _generated_/rest/api/resources/tokens/client/Client');
 jest.mock('../../../src/utils/jwt-utils');
 jest.mock('../../../src/error');
 
@@ -43,54 +48,54 @@ describe('VaultClient', () => {
 
         test('should initialize RecordsApi for DELETE', () => {
             vaultClient.initAPI(authInfo, TYPES.DELETE);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for FILE_UPLOAD', () => {
             vaultClient.initAPI(authInfo, TYPES.FILE_UPLOAD);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for GET', () => {
             vaultClient.initAPI(authInfo, TYPES.GET);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for INSERT', () => {
             vaultClient.initAPI(authInfo, TYPES.INSERT);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for INSERT_BATCH', () => {
             vaultClient.initAPI(authInfo, TYPES.INSERT_BATCH);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for UPDATE', () => {
             vaultClient.initAPI(authInfo, TYPES.UPDATE);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize TokensApi for DETOKENIZE', () => {
             vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
-            expect(TokensApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Tokens).toHaveBeenCalled();
         });
 
         test('should initialize TokensApi for TOKENIZE', () => {
             vaultClient.initAPI(authInfo, TYPES.TOKENIZE);
-            expect(TokensApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Tokens).toHaveBeenCalled();
         });
 
         test('should initialize QueryApi for QUERY', () => {
             vaultClient.initAPI(authInfo, TYPES.QUERY);
-            expect(QueryApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Query).toHaveBeenCalled();
         });
 
         test('should not initialize API for unsupported type', () => {
             vaultClient.initAPI(authInfo, 'UNSUPPORTED_TYPE');
-            expect(RecordsApi).not.toHaveBeenCalled();
-            expect(TokensApi).not.toHaveBeenCalled();
-            expect(QueryApi).not.toHaveBeenCalled();
+            expect(Records).not.toHaveBeenCalled();
+            expect(Tokens).not.toHaveBeenCalled();
+            expect(Query).not.toHaveBeenCalled();
         });
     });
 
@@ -116,24 +121,24 @@ describe('VaultClient', () => {
 
         test('should initialize RecordsApi for INSERT', () => {
             vaultClient.initAPI(authInfo, TYPES.INSERT);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize TokensApi for TOKENIZE', () => {
             vaultClient.initAPI(authInfo, TYPES.TOKENIZE);
-            expect(TokensApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Tokens).toHaveBeenCalled();
         });
 
         test('should initialize QueryApi for QUERY', () => {
             vaultClient.initAPI(authInfo, TYPES.QUERY);
-            expect(QueryApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Query).toHaveBeenCalled();
         });
 
         test('should not initialize API for unsupported type', () => {
             vaultClient.initAPI(authInfo, 'UNSUPPORTED');
-            expect(RecordsApi).not.toHaveBeenCalled();
-            expect(TokensApi).not.toHaveBeenCalled();
-            expect(QueryApi).not.toHaveBeenCalled();
+            expect(Records).not.toHaveBeenCalled();
+            expect(Tokens).not.toHaveBeenCalled();
+            expect(Query).not.toHaveBeenCalled();
         });
     });
 

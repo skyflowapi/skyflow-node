@@ -12,7 +12,6 @@ import {
 import SkyflowError from '../../src/error';
 import errorMessages from '../../src/error/messages';
 import jwt from 'jsonwebtoken';
-import axios from 'axios';
 import { LogLevel } from "../../src";
 
 describe("File Validity Tests", () => {
@@ -317,10 +316,11 @@ describe('Signed Data Token Generation Test', () => {
 });
 
 describe('getToken Tests', () => {
+    let mockClient;
     const credentials = {
         clientID: "test-client-id",
         keyID: "test-key-id",
-        tokenURI: "https://manage.skyflow.dev", /// remove this URL
+        tokenURI: "https://test-token-uri.com", //
         privateKey: "KEY",
         data: "DATA",
     };
@@ -342,15 +342,17 @@ describe('getToken Tests', () => {
     };
 
     const mockTokenResponse = {
-        data: {
-            access_token: 'mocked_access_token',
-            token_type: 'Bearer',
-        }
+        accessToken: 'mocked_access_token',
+        tokenType: 'Bearer',
     };
 
-    // Mocking axios and jwt globally for all tests
     beforeEach(() => {
-        jest.spyOn(axios, 'post').mockResolvedValue(mockTokenResponse);
+        mockClient = {
+            authApi: {
+                authenticationServiceGetAuthToken: jest.fn(),
+            },
+        };
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
         jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
     });
 
@@ -362,35 +364,18 @@ describe('getToken Tests', () => {
     const runTokenTest = async (creds, logLevel = LogLevel.OFF) => {
         const result = await getToken(JSON.stringify(creds), { logLevel });
         expect(result).toBeDefined();
-        expect(result.access_token).toBe('mocked_access_token');
-        expect(result.token_type).toBe('Bearer');
-        expect(axios.post).toHaveBeenCalledWith(
-            creds.tokenURI,
-            expect.anything(),
-            expect.anything()
-        );
+        expect(result.accessToken).toBe('mocked_access_token');
+        expect(result.tokenType).toBe('Bearer');
     };
 
     test("should get token with valid credentials", async () => {
-        jest.mock('axios');
-        axios.post.mockResolvedValue({
-            data: {
-                access_token: 'mocked_access_token',
-                token_type: 'Bearer',
-            },
-        });
+        mockClient.authApi.authenticationServiceGetAuthToken.mockResolvedValueOnce(mockTokenResponse);
         await getToken(JSON.stringify(credentials), { logLevel: LogLevel.OFF });
     });
 
     test("should get Bearer Token with valid credentials", async () => {
         const filePath = 'test/demo-credentials/valid.json';
-        jest.mock('axios');
-        axios.post.mockResolvedValue({
-            data: {
-                access_token: 'mocked_access_token',
-                token_type: 'Bearer',
-            },
-        });
+        mockClient.authApi.authenticationServiceGetAuthToken.mockResolvedValueOnce(mockTokenResponse);
         await generateBearerToken(filePath, { logLevel: LogLevel.OFF });
     });
 

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import jwt from "jsonwebtoken";
-import { V1GetAuthTokenRequest } from '../ _generated_/rest';
+import { V1GetAuthTokenRequest } from '../ _generated_/rest/api';
 import { getBaseUrl, LogLevel, MessageType, parameterizedString, printLog } from '../utils';
 import Client from './client';
 import logs from '../utils/logs';
@@ -331,8 +331,8 @@ function successResponse(res: any, logLevel?: LogLevel): Promise<TokenResponse> 
     printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_SUCCESS, MessageType.LOG, logLevel);
     return new Promise((resolve, _) => {
         resolve({
-            accessToken: res.data.accessToken,
-            tokenType: res.data.tokenType,
+            accessToken: res.accessToken,
+            tokenType: res.tokenType,
         });
     })
 }
