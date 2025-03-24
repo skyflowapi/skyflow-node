@@ -350,7 +350,7 @@ class VaultController {
                     columnName = request.columnName as string;
                     columnValues = request.columnValues as Array<string>;
                 }
-                const fernRequest = {
+                const payload = {
                     skyflow_ids: records,
                     redaction: options?.getRedactionType(),
                     tokenization: options?.getReturnTokens(),
@@ -367,7 +367,7 @@ class VaultController {
                     (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceBulkGetRecord(
                         this.client.vaultId,
                         request.tableName,
-                        fernRequest,
+                        payload,
                         headers
                     ),
                     TYPES.GET
