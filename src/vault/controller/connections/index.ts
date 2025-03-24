@@ -38,7 +38,7 @@ class ConnectionController {
                         .then((jsonResponse) => jsonResponse.json())
                         .then((response) => {
                             printLog(logs.infoLogs.INVOKE_CONNECTION_REQUEST_RESOLVED, MessageType.LOG, this.logLevel);
-                            let requestId = response.headers[REQUEST_ID_KEY]
+                            const requestId = response?.headers?.[REQUEST_ID_KEY] || '';
                             const invokeConnectionResponse = new InvokeConnectionResponse({
                                 data: response.data,
                                 metadata: { requestId }
