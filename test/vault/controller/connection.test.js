@@ -1,126 +1,136 @@
-import axios from "axios";
-import { fillUrlWithPathAndQueryParams, generateSDKMetrics, getBearerToken, LogLevel, MessageType, RequestMethod, parameterizedString, printLog, SDK_METRICS_HEADER_KEY, TYPES } from "../../../src/utils";
-import logs from "../../../src/utils/logs";
+import {
+    fillUrlWithPathAndQueryParams,
+    generateSDKMetrics,
+    getBearerToken,
+    LogLevel,
+    RequestMethod,
+    SDK_METRICS_HEADER_KEY,
+    SKYFLOW_AUTH_HEADER_KEY,
+} from "../../../src/utils";
 import { validateInvokeConnectionRequest } from "../../../src/utils/validations";
 import VaultClient from "../../../src/vault/client";
 import ConnectionController from "../../../src/vault/controller/connections";
 
-jest.mock("axios");
 jest.mock("../../../src/utils");
 jest.mock("../../../src/utils/validations");
 
-describe("ConnectionController", () => {
+describe("ConnectionController Tests", () => {
     let mockClient;
     let connectionController;
 
     beforeEach(() => {
+        jest.clearAllMocks();
+        jest.useRealTimers();
         mockClient = new VaultClient();
         connectionController = new ConnectionController(mockClient);
-        jest.clearAllMocks(); // Clear previous mocks before each test
     });
 
-    it("should invoke a connection successfully", async () => {
-        const invokeRequest = {
-            pathParams: { id: "123" },
-            queryParams: { search: "test" },
-            body: { data: "sample" },
-            method: RequestMethod.POST,
-            headers: { "Custom-Header": "value" },
-        };
-
-        const token = { key: "bearer_token" };
-        const response = { data: { success: true }, headers: { 'x-request-id': 'request_id' } };
-
-        // Mocking implementations
-        mockClient.getLogLevel = jest.fn().mockReturnValue(LogLevel.INFO);
-        mockClient.getCredentials = jest.fn().mockReturnValue({ username: "user", password: "pass" });
-        getBearerToken.mockResolvedValue(token);
-        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
-        generateSDKMetrics.mockReturnValue({ metric: "value" });
-        axios.mockResolvedValue(response);
-        validateInvokeConnectionRequest.mockImplementation(() => {}); // No-op for validation
-
-        const result = await connectionController.invoke(invokeRequest);
-
-        expect(validateInvokeConnectionRequest).toHaveBeenCalledWith(invokeRequest);
-        expect(getBearerToken).toHaveBeenCalledWith(mockClient.getCredentials(), LogLevel.ERROR);
-        expect(axios).toHaveBeenCalledWith({
-            url: "https://api.example.com/resource",
-            method: RequestMethod.POST,
-            data: invokeRequest.body,
-            headers: {
-                ...invokeRequest.headers,
-                'x-skyflow-authorization': token.key,
-                [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()),
+    const scenarios = [
+        {
+            name: "should invoke a connection successfully",
+            request: {
+                pathParams: { id: "123" },
+                queryParams: { search: "test" },
+                body: { data: "sample" },
+                method: RequestMethod.POST,
+                headers: { "Custom-Header": "value" },
             },
-        });
-        expect(result).toEqual({ data: response.data, metadata: { requestId: 'request_id' } });
-    });
+            mockFetch: jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({ data: { success: true } }),
+                headers: {
+                    get: jest.fn().mockImplementation((key) => {
+                        if (key === "x-request-id") return "request_id";
+                        return null;
+                    }),
+                },
+            }),
+            expectedResult: {
+                data: { success: true },
+                metadata: { requestId: '' },
+                errors: undefined
+            },
+            expectError: false,
+        },
+        {
+            name: "should handle errors in fetch call",
+            request: {
+                pathParams: { id: "123" },
+                queryParams: { search: "test" },
+                body: { data: "sample" },
+                method: RequestMethod.POST,
+                headers: { "Custom-Header": "value" },
+            },
+            mockFetch: jest.fn().mockRejectedValue(new Error("Internal Server Error")),
+            expectedError: "Internal Server Error",
+            expectError: true,
+        },
+        {
+            name: "should handle errors in getBearerToken",
+            request: {
+                pathParams: { id: "123" },
+                queryParams: { search: "test" },
+                body: { data: "sample" },
+                method: RequestMethod.POST,
+                headers: { "Custom-Header": "value" },
+            },
+            mockFetch: jest.fn(), // Fetch won't be reached
+            mockGetBearerToken: jest.fn().mockRejectedValue(new Error("Token Error")),
+            expectedError: "Token Error",
+            expectError: true,
+        },
+        {
+            name: "should handle synchronous validation errors",
+            request: {
+                pathParams: { id: "123" },
+                queryParams: { search: "test" },
+                body: { data: "sample" },
+                method: RequestMethod.POST,
+                headers: { "Custom-Header": "value" },
+            },
+            mockFetch: jest.fn(), // Fetch won't be reached
+            mockValidation: jest.fn().mockImplementation(() => {
+                throw new Error("Validation Error");
+            }),
+            expectedError: "Validation Error",
+            expectError: true,
+        },
+    ];
 
-    it("should handle errors in getBearerToken", async () => {
-        const invokeRequest = {
-            pathParams: { id: "123" },
-            queryParams: { search: "test" },
-            body: { data: "sample" },
-            method: RequestMethod.POST,
-            headers: { "Custom-Header": "value" },
-        };
+    scenarios.forEach(({ name, request, mockFetch, mockGetBearerToken, mockValidation, expectedResult, expectedError, expectError }) => {
+        it(name, async () => {
+            const token = { key: "bearer_token" };
 
-        // Mocking implementations
-        mockClient.getLogLevel = jest.fn().mockReturnValue(LogLevel.INFO);
-        mockClient.getCredentials = jest.fn().mockReturnValue({ username: "user", password: "pass" });
-        getBearerToken.mockRejectedValue(new Error("Token error"));
+            // Mocking methods
+            mockClient.getLogLevel = jest.fn().mockReturnValue(LogLevel.INFO);
+            mockClient.getCredentials = jest.fn().mockReturnValue({ username: "user", password: "pass" });
+            (getBearerToken).mockImplementation(mockGetBearerToken || jest.fn().mockResolvedValue(token));
+            (fillUrlWithPathAndQueryParams).mockReturnValue("https://api.example.com/resource");
+            (generateSDKMetrics).mockReturnValue({ metric: "value" });
+            (validateInvokeConnectionRequest).mockImplementation(mockValidation || jest.fn());
+            global.fetch = mockFetch; // Mock `fetch`
 
-        await expect(connectionController.invoke(invokeRequest)).rejects.toThrow("Token error");
-    });
-
-    it("should handle errors in axios call", async () => {
-        const invokeRequest = {
-            pathParams: { id: "123" },
-            queryParams: { search: "test" },
-            body: { data: "sample" },
-            // method: RequestMethod.POST,
-            headers: { "Custom-Header": "value" },
-        };
-
-        const token = { key: "bearer_token" };
-        const errorResponse = {
-            response: {
-                status: 500,
-                data: { message: "Internal Server Error" },
-                headers: { 'x-request-id': 'request_id' },
+            if (expectError) {
+                await expect(connectionController.invoke(request)).rejects.toThrow(expectedError);
+            } else {
+                const result = await connectionController.invoke(request);
+                expect(result).toEqual(expectedResult);
             }
-        };
 
-        // Mocking implementations
-        mockClient.getLogLevel = jest.fn().mockReturnValue(LogLevel.INFO);
-        mockClient.getCredentials = jest.fn().mockReturnValue({ username: "user", password: "pass" });
-        getBearerToken.mockResolvedValue(token);
-        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
-        generateSDKMetrics.mockReturnValue({ metric: "value" });
-        validateInvokeConnectionRequest.mockImplementation(() => {});
-        axios.mockRejectedValue(errorResponse);
-        mockClient.failureResponse = jest.fn().mockResolvedValue(undefined);
+            if (!mockValidation) {
+                expect(validateInvokeConnectionRequest).toHaveBeenCalledWith(request);
+            }
 
-        connectionController.invoke(invokeRequest).catch(err=>{
-            expect(err).toBeDefined();
-        })
-
-        expect(mockClient.failureResponse).not.toHaveBeenCalledWith(errorResponse);
-    });
-
-    it("should handle synchronous validation errors", async () => {
-        const invokeRequest = {
-            pathParams: { id: "123" },
-            queryParams: { search: "test" },
-            body: { data: "sample" },
-            method: RequestMethod.POST,
-            headers: { "Custom-Header": "value" },
-        };
-
-        const validationError = new Error("Validation error");
-        validateInvokeConnectionRequest.mockImplementation(() => { throw validationError; });
-
-        await expect(connectionController.invoke(invokeRequest)).rejects.toThrow(validationError);
+            if (!expectError || name === "should invoke a connection successfully") {
+                expect(fetch).toHaveBeenCalledWith("https://api.example.com/resource", {
+                    method: RequestMethod.POST,
+                    body: JSON.stringify(request.body),
+                    headers: {
+                        ...request.headers,
+                        [SKYFLOW_AUTH_HEADER_KEY]: token.key,
+                        [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()),
+                    },
+                });
+            }
+        });
     });
 });

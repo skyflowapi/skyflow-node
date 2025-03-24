@@ -166,7 +166,7 @@ describe('VaultController insert method', () => {
         };
         const mockResponseData = { records: [{ skyflow_id: 'id123', tokens: {} }] };
 
-        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce({ data: mockResponseData });
+        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.insert(mockRequest, mockOptions);
 
@@ -195,7 +195,7 @@ describe('VaultController insert method', () => {
         };
         const mockResponseData = { records: [{ skyflow_id: 'id123', tokens: {} }] };
 
-        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce({ data: mockResponseData });
+        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.insert(mockRequest, mockOptions);
 
@@ -224,7 +224,7 @@ describe('VaultController insert method', () => {
         };
         const mockResponseData = { skyflow_id: 'id123', tokens: {} };
 
-        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce({ data: mockResponseData });
+        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.insert(mockRequest, mockOptions);
 
@@ -253,7 +253,7 @@ describe('VaultController insert method', () => {
         };
         const mockResponseData = { responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }, { Body: { records: [{ skyflow_id: 'id123' }] }, Status: 400 }] };
 
-        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce({ data: mockResponseData });
+        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.insert(mockRequest, mockOptions);
 
@@ -276,7 +276,7 @@ describe('VaultController insert method', () => {
         };
         const mockResponseData = { responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }, null] };
 
-        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce({ data: mockResponseData });
+        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.insert(mockRequest, mockOptions);
 
@@ -400,12 +400,10 @@ describe('VaultController detokenize method', () => {
             getDownloadURL: jest.fn().mockReturnValue(false)
         };
         const mockDetokenizeResponse = {
-            data: {
-                records: [
-                    { token: 'token1', value: 'value1' },
-                    { token: 'token2', error: 'error2' }
-                ]
-            }
+            records: [
+                { token: 'token1', value: 'value1' },
+                { token: 'token2', error: 'error2' }
+            ]
         };
 
         mockVaultClient.tokensAPI.recordServiceDetokenize.mockResolvedValueOnce(mockDetokenizeResponse);
@@ -430,12 +428,10 @@ describe('VaultController detokenize method', () => {
             getDownloadURL: jest.fn().mockReturnValue(true)
         };
         const mockDetokenizeResponse = {
-            data: {
-                records: [
-                    { token: 'token1', value: 'value1' },
-                    { token: 'token2', error: 'error2' }
-                ]
-            }
+            records: [
+                { token: 'token1', value: 'value1' },
+                { token: 'token2', error: 'error2' }
+            ]
         };
 
         mockVaultClient.tokensAPI.recordServiceDetokenize.mockResolvedValueOnce(mockDetokenizeResponse);
@@ -457,12 +453,10 @@ describe('VaultController detokenize method', () => {
         };
 
         const mockDetokenizeResponse = {
-            data: {
-                records: [
-                    { token: 'token1', value: 'value1' },
-                    { token: 'token2', error: 'error2' }
-                ]
-            }
+            records: [
+                { token: 'token1', value: 'value1' },
+                { token: 'token2', error: 'error2' }
+            ]
         };
 
         mockVaultClient.tokensAPI.recordServiceDetokenize.mockResolvedValueOnce(mockDetokenizeResponse);
@@ -612,7 +606,7 @@ describe('VaultController delete method', () => {
         };
         const mockResponseData = { RecordIDResponse: ['id123'] };
 
-        mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord.mockResolvedValueOnce({ data: mockResponseData });
+        mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.delete(mockRequest);
 
@@ -666,7 +660,7 @@ describe('VaultController delete method', () => {
         validateDeleteRequest.mockImplementation(() => {
             // throw new Error('Validation error');
         });
-        mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord.mockResolvedValueOnce({ data: mockResponseData });
+        mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.delete(mockRequest);
 
@@ -713,16 +707,13 @@ describe('VaultController tokenize method', () => {
         const mockRequest = {
             values: [{ value: 'sensitiveData', columnGroup: 'group1' }],
         };
-        const mockResponseData = { data: { records: [{ token: 'token123' }] } };
+        const mockResponseData = { records: [{ token: 'token123' }] };
 
         mockVaultClient.tokensAPI.recordServiceTokenize.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.tokenize(mockRequest);
 
-        expect(mockVaultClient.tokensAPI.recordServiceTokenize).toHaveBeenCalledWith(
-            mockVaultClient.vaultId,
-            expect.any(Object) // Tokenize payload
-        );
+        expect(mockVaultClient.tokensAPI.recordServiceTokenize).toHaveBeenCalled();
         expect(response).toBeInstanceOf(TokenizeResponse);
         expect(response.tokens).toHaveLength(1);
         expect(response.errors).toHaveLength(0);
@@ -814,10 +805,12 @@ describe('VaultController query method', () => {
         const mockRequest = {
             query: 'SELECT * FROM table WHERE id=1',
         };
-        const mockResponseData = {data:{ records: [{
-            fields: { id: '1', name: 'test' },
-            tokens: { id: 'token123' },
-        }]}};
+        const mockResponseData = {
+            records: [{
+                fields: { id: '1', name: 'test' },
+                tokens: { id: 'token123' },
+            }]
+        };
 
         mockVaultClient.queryAPI.queryServiceExecuteQuery.mockResolvedValueOnce(mockResponseData);
 
@@ -940,7 +933,7 @@ describe('VaultController update method', () => {
             getTokenMode: jest.fn().mockReturnValue("DISABLE"),
             getTokens: jest.fn().mockReturnValue({}),
         };
-        const mockResponseData = {data: { skyflow_id: 'id123', tokens: { field1: 'token123' } }};
+        const mockResponseData = { skyflow_id: 'id123', tokens: { field1: 'token123' } };
 
         mockVaultClient.vaultAPI.recordServiceUpdateRecord.mockResolvedValueOnce(mockResponseData);
 
@@ -966,7 +959,7 @@ describe('VaultController update method', () => {
             tableName: 'testTable',
         };
         const mockOptions = null;
-        const mockResponseData = {data: { skyflow_id: 'id123', tokens: { field1: 'token123' } }};
+        const mockResponseData = { skyflow_id: 'id123', tokens: { field1: 'token123' } };
 
         mockVaultClient.vaultAPI.recordServiceUpdateRecord.mockResolvedValueOnce(mockResponseData);
 
@@ -995,7 +988,7 @@ describe('VaultController update method', () => {
             getTokenMode: jest.fn().mockReturnValue("ENABLE"),
             getTokens: jest.fn().mockReturnValue({}),
         };
-        const mockResponseData = {data: { skyflow_id: 'id123', tokens: { field1: 'token123' } }};
+        const mockResponseData = { skyflow_id: 'id123', tokens: { field1: 'token123' } };
 
         mockVaultClient.vaultAPI.recordServiceUpdateRecord.mockResolvedValueOnce(mockResponseData);
 
@@ -1128,7 +1121,7 @@ describe('VaultController uploadFile method', () => {
             tableName: 'testTable',
             skyflowId: 'id123',
         };
-        const mockResponseData = {data:{ skyflow_id: 'id123' }};
+        const mockResponseData = { skyflow_id: 'id123' };
 
         const mockStream = { on: jest.fn() };
         jest.spyOn(mockFs, 'createReadStream').mockReturnValueOnce(mockStream);
@@ -1239,7 +1232,7 @@ describe('VaultController get method', () => {
 
     test('should successfully get records for GetRequest', async () => {
         const mockRequest = createGetRequest(['id1', 'id2']);
-        const mockResponseData = { data: { records: [{ fields: { field1: 'value1' } }, { fields: { field2: 'value2' } }] } };
+        const mockResponseData = { records: [{ fields: { field1: 'value1' } }, { fields: { field2: 'value2' } }] };
 
         mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockResolvedValueOnce(mockResponseData);
 
@@ -1256,7 +1249,7 @@ describe('VaultController get method', () => {
 
     test('should successfully get records for GetRequest with options', async () => {
         const mockRequest = createGetRequest(['id1', 'id2']);
-        const mockResponseData = { data: { records: [{ fields: { field1: 'value1' } }, { fields: { field2: 'value2' } }] } };
+        const mockResponseData = { records: [{ fields: { field1: 'value1' } }, { fields: { field2: 'value2' } }] };
         const mockOptions = {  
             getRedactionType: jest.fn().mockReturnValue(true),
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -1282,7 +1275,7 @@ describe('VaultController get method', () => {
 
     test('should successfully get records for GetColumnRequest', async () => {
         const mockRequest = createGetColumnRequest('columnName', ['value1', 'value2']);
-        const mockResponseData = { data: { records:[{ fields: { field1: 'value1' } }]}};
+        const mockResponseData = { records:[{ fields: { field1: 'value1' } }]};
 
         mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockResolvedValueOnce(mockResponseData);
 

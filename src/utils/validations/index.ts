@@ -1,5 +1,5 @@
 import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW_ID, VAULT, VAULT_ID, TokenMode } from "..";
-import { V1BYOT } from "../../ _generated_/rest";
+import { V1Byot } from "../../ _generated_/rest/api";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
 import ConnectionConfig from "../../vault/config/connection";
@@ -33,7 +33,7 @@ export function isRedactionType(value?: string): boolean {
 }
 
 export function isByot(value?: string): boolean {
-    return value !== undefined && Object.values(V1BYOT).includes(value as V1BYOT);
+    return value !== undefined && Object.values(V1Byot).includes(value as V1Byot);
 }
 
 export function isOrderBy(value?: string): boolean {
@@ -557,7 +557,7 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
         }
 
-        if (updateRequest?.data[SKYFLOW_ID]  && typeof updateRequest.data[SKYFLOW_ID] !== 'string' || updateRequest.data[SKYFLOW_ID].trim().length === 0) {
+        if (updateRequest?.data[SKYFLOW_ID]  && typeof updateRequest.data[SKYFLOW_ID] !== 'string' || (updateRequest.data[SKYFLOW_ID] as string).trim().length === 0) {
             printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
         }
