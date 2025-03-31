@@ -199,7 +199,7 @@ export const RecordsApiAxiosParamCreator = function (configuration?: Configurati
 
 
             if (fileColumnName !== undefined && fileColumnName.has('columnName')) { 
-                localVarFormParams.append(`${fileColumnName.get('columnName')}`, new Blob([JSON.stringify(fileColumnName)], { type: "application/json", }));
+                localVarFormParams.append(`${fileColumnName.get('columnName')}`, fileColumnName.get('file') as File);
             }
     
     

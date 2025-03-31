@@ -112,6 +112,8 @@ const errorMessages = {
     INVALID_SKYFLOW_ID_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid skyflow Id in file upload request. Specify a valid skyflow Id.`,
     MISSING_COLUMN_NAME_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Column name cannot be empty in file upload request. Specify a valid column name as string.`,
     INVALID_COLUMN_NAME_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid column name in file upload request. Specify a valid column name.`,
+    INVALID_FILE_INPUT_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Provide exactly one of filePath, base64, or fileObject.`,
+    MISSING_FILE_NAME_IN_UPLOAD_FILE: `${errorPrefix} Validation error. File name is required when providing a base64 string`,
     MISSING_FILE_PATH_IN_UPLOAD_FILE: `${errorPrefix} Validation error. File path cannot be empty in file upload request. Specify a valid file path as string.`,
     INVALID_FILE_PATH_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid file path in file upload request. Specify a valid file path.`,
 

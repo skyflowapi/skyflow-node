@@ -889,11 +889,19 @@ export const validateUploadFileRequest = (fileRequest: FileUploadRequest, logLev
         }
 
 
-        if (!fileRequest?.filePath || !Object.prototype.hasOwnProperty.call(fileRequest, '_filePath')) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FILE_PATH_IN_UPLOAD_FILE);
+        if ((!fileRequest?.filePath && !fileRequest?.base64 && !fileRequest?.fileObject) || (fileRequest?.filePath && fileRequest?.base64) || (fileRequest?.filePath && fileRequest?.fileObject) || (fileRequest?.base64 && fileRequest?.fileObject)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_INPUT_IN_UPLOAD_FILE);
         }
 
-        if (typeof fileRequest?.filePath !== 'string' || fileRequest?.filePath.trim().length === 0 || !isValidPath(fileRequest.filePath)) {
+        if (fileRequest?.base64 && !fileRequest?.fileName) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FILE_NAME_IN_UPLOAD_FILE);
+        }
+
+        if (fileRequest?.fileObject && !fileRequest?.fileObject?.name) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FILE_NAME_IN_UPLOAD_FILE);
+        }
+
+        if (fileRequest?.filePath && (typeof fileRequest?.filePath !== 'string' || fileRequest?.filePath.trim().length === 0 || !isValidPath(fileRequest.filePath))) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH_IN_UPLOAD_FILE);
         }
     } else {

@@ -13,6 +13,8 @@ import GetRequest from '../../../src/vault/model/request/get';
 import GetColumnRequest from '../../../src/vault/model/request/get-column';
 import SkyflowError from '../../../src/error';
 import * as fs from 'fs';
+import path from 'path';
+import { FileUploadRequest } from '../../../src';
 
 jest.mock('fs');
 
@@ -1121,22 +1123,54 @@ describe('VaultController uploadFile method', () => {
         jest.clearAllMocks();
     });
 
-    test('should successfully upload file', async () => {
-        const mockRequest = {
-            filePath: '/path/to/file',
-            columnName: 'testColumn',
-            tableName: 'testTable',
-            skyflowId: 'id123',
-        };
-        const mockResponseData = {data:{ skyflow_id: 'id123' }};
+    test('should successfully upload file from filePath', async () => {
+        const mockFilePath = '/path/to/file.json';
+        const mockFileBuffer = Buffer.from('mock file content');
+        const fileName = path.basename(mockFilePath);
+        
+        jest.spyOn(fs, 'readFileSync').mockReturnValue(mockFileBuffer);
 
-        const mockStream = { on: jest.fn() };
-        jest.spyOn(mockFs, 'createReadStream').mockReturnValueOnce(mockStream);
+        const mockRequest = new FileUploadRequest('testTable', 'id123', 'testColumn', mockFilePath);
+        const mockResponseData = { data: { skyflow_id: 'id123' } };
+        
         mockVaultClient.vaultAPI.fileServiceUploadFile.mockResolvedValueOnce(mockResponseData);
 
         const response = await vaultController.uploadFile(mockRequest);
 
-        expect(mockFs.createReadStream).toHaveBeenCalledWith(mockRequest.filePath);
+        expect(fs.readFileSync).toHaveBeenCalledWith(mockFilePath);
+        expect(response).toBeInstanceOf(FileUploadResponse);
+        expect(response.skyflowId).toBe('id123');
+        expect(response.errors).toHaveLength(0);
+    });
+
+    test('should successfully upload file from base64 string', async () => {
+        const mockBase64 = Buffer.from('mock file content').toString('base64');
+        const mockBuffer = Buffer.from(mockBase64, 'base64');
+        
+        jest.spyOn(Buffer, 'from').mockReturnValue(mockBuffer);
+
+        const mockRequest = new FileUploadRequest('testTable', 'id123', 'testColumn', undefined, mockBase64, undefined, 'file.json');
+        const mockResponseData = { data: { skyflow_id: 'id123' } };
+        
+        mockVaultClient.vaultAPI.fileServiceUploadFile.mockResolvedValueOnce(mockResponseData);
+
+        const response = await vaultController.uploadFile(mockRequest);
+
+        expect(Buffer.from).toHaveBeenCalledWith(mockBase64, 'base64');
+        expect(response).toBeInstanceOf(FileUploadResponse);
+        expect(response.skyflowId).toBe('id123');
+        expect(response.errors).toHaveLength(0);
+    });
+
+    test('should successfully upload file from fileObject', async () => {
+        const mockFile = new File([Buffer.from('mock file content')], 'testFile.json', { type: 'application/json' });
+
+        const mockRequest = new FileUploadRequest('testTable', 'id123', 'testColumn', undefined, undefined, mockFile);
+        const mockResponseData = { data: { skyflow_id: 'id123' } };
+        
+        mockVaultClient.vaultAPI.fileServiceUploadFile.mockResolvedValueOnce(mockResponseData);
+
+        const response = await vaultController.uploadFile(mockRequest);
 
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
@@ -1160,6 +1194,24 @@ describe('VaultController uploadFile method', () => {
         expect(mockVaultClient.vaultAPI.fileServiceUploadFile).not.toHaveBeenCalled();
     });
 
+    test('should handle file read failure', async () => {
+        const mockFilePath = '/invalid/path/to/file.json';
+        const mockRequest = new FileUploadRequest('testTable', 'id123', 'testColumn', mockFilePath);
+
+        jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+            throw new Error('File read error');
+        });
+
+        await expect(vaultController.uploadFile(mockRequest)).rejects.toThrow('File read error');
+    });
+
+
+
+
+
+
+
+
     test('should handle file stream creation failure', async () => {
         const mockRequest = {
             filePath: '/path/to/nonexistent/file',
@@ -1178,22 +1230,16 @@ describe('VaultController uploadFile method', () => {
     });
 
     test('should handle API errors during file upload', async () => {
-        const mockRequest = {
-            filePath: '/path/to/file',
-            columnName: 'testColumn',
-            tableName: 'testTable',
-            skyflowId: 'id123',
-        };
-        const mockStream = { on: jest.fn() };
-        jest.spyOn(mockFs, 'createReadStream').mockReturnValueOnce(mockStream);
-        validateUploadFileRequest.mockImplementation(() => {
-            // throw new Error('Validation error');
-        });
-        const errorResponse = new Error('Validation error');
+        const mockFilePath = '/path/to/file.json';
+        const mockRequest = new FileUploadRequest('testTable', 'id123', 'testColumn', mockFilePath);
+
+        jest.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from('mock file content'));
+
+        const errorResponse = new Error('Invalid');
         mockVaultClient.vaultAPI.fileServiceUploadFile.mockRejectedValueOnce(errorResponse);
 
         await expect(vaultController.uploadFile(mockRequest)).rejects.toEqual(errorResponse);
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).not.toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
     });
 
     test('should log and reject errors during file upload', async () => {

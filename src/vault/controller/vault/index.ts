@@ -1,5 +1,6 @@
 //imports
 import * as fs from 'fs';
+import path from 'path';
 import InsertRequest from "../../model/request/insert";
 import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, V1BYOT, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest } from "../../../ _generated_/rest";
 import InsertOptions from "../../model/options/insert";
@@ -398,9 +399,30 @@ class VaultController {
 
                 //handle file exits
                 const formData = new FormData();
-                const fileStream = fs.createReadStream(request.filePath) as unknown as Blob;
-                formData.append('file', fileStream);
-                formData.append('columnName', request.columnName);
+                let fileBlob: Blob | File | undefined;
+                let fileName: string | undefined;
+
+                if(request.filePath){
+                    const fileBuffer = fs.readFileSync(request.filePath);
+                    fileName = path.basename(request.filePath);
+                    fileBlob = new Blob([fileBuffer], { type: 'application/json' });
+                }
+
+                else if (request.base64) {
+                    const buffer = Buffer.from(request.base64, 'base64');
+                    fileName = request.fileName;
+                    fileBlob = new Blob([buffer], { type: 'application/json' });
+                }
+
+                else if ((request.fileObject as Blob) instanceof Blob || (request.fileObject as File) instanceof File) {
+                    fileBlob = request.fileObject;
+                    fileName = request.fileObject?.name || "uploadedFile";
+                }
+                
+                if (fileBlob &&  fileName) {
+                    formData.append('file', fileBlob, fileName);
+                    formData.append('columnName', request.columnName);
+                }
 
                 this.handleRequest(
                     (headers: RawAxiosRequestConfig | undefined) => this.client.vaultAPI.fileServiceUploadFile(
