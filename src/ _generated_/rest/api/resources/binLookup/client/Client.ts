@@ -45,10 +45,17 @@ export class BinLookup {
      *         BIN: "012345"
      *     })
      */
-    public async binListServiceListCardsOfBin(
+    public binListServiceListCardsOfBin(
         request: Skyflow.V1BinListRequest = {},
         requestOptions?: BinLookup.RequestOptions,
-    ): Promise<Skyflow.V1BinListResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1BinListResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__binListServiceListCardsOfBin(request, requestOptions));
+    }
+
+    private async __binListServiceListCardsOfBin(
+        request: Skyflow.V1BinListRequest = {},
+        requestOptions?: BinLookup.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1BinListResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -75,17 +82,21 @@ export class BinLookup {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1BinListResponse;
+            return { data: _response.body as Skyflow.V1BinListResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -95,12 +106,14 @@ export class BinLookup {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError("Timeout exceeded when calling POST /v1/card_lookup.");
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

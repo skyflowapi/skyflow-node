@@ -26,8 +26,10 @@ import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, p
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
 import VaultClient from '../../client';
-import { Records } from '../../../ _generated_/rest/api/resources/records/client/Client';
 import { validateDeleteRequest, validateDetokenizeRequest, validateGetColumnRequest, validateGetRequest, validateInsertRequest, validateQueryRequest, validateTokenizeRequest, validateUpdateRequest, validateUploadFileRequest } from '../../../utils/validations';
+import path from 'path';
+import { Records } from '../../../ _generated_/rest/api/resources/records/client/Client';
+import FileUploadOptions from '../../model/options/fileUpload';
 
 class VaultController {
 
@@ -56,7 +58,7 @@ class VaultController {
         return [];
     }
 
-    private parseDetokenizeResponse(records: any[]): ParsedDetokenizeResponse {
+    private parseDetokenizeResponse(records: any[], requestId: any): ParsedDetokenizeResponse {
         const response: ParsedDetokenizeResponse = {
             success: [],
             errors: []
@@ -67,6 +69,7 @@ class VaultController {
         records.forEach(record => {
             if (record.error) {
                 response.errors.push({
+                    requestId: requestId,
                     token: record.token,
                     error: record.error
                 });
@@ -81,7 +84,7 @@ class VaultController {
         return response;
     }
 
-    private parseInsertBatchResponse(records: any[]): InsertResponse {
+    private parseInsertBatchResponse(records: any[], requestId: any): InsertResponse {
         const response: ParsedInsertBatchResponse = {
             success: [],
             errors: []
@@ -93,9 +96,10 @@ class VaultController {
 
         records.forEach((record, index) => {
             if (this.isSuccess(record)) {
+                
                 this.processSuccess(record, index, response);
             } else {
-                this.processError(record, index, response);
+                this.processError(record, index, requestId, response);
             }
         });
 
@@ -116,8 +120,9 @@ class VaultController {
         });
     }
 
-    private processError(record: any, index: number, response: ParsedInsertBatchResponse): void {
+    private processError(record: any, index: number, requestId: any, response: ParsedInsertBatchResponse): void {
         response.errors.push({
+            requestId: requestId,
             requestIndex: index,
             error: record?.Body?.error
         });
@@ -132,7 +137,8 @@ class VaultController {
                 this.client.initAPI(authInfo, requestType);
                 apiCall({ headers: { ...sdkHeaders } })
                     .then((response: any) => {
-                        const data = response;
+                        const { data, rawResponse } = response;
+                        const requestId = rawResponse?.headers?.get('x-request-id');
                         printLog(logs.infoLogs[`${requestType}_REQUEST_RESOLVED`], MessageType.LOG, this.client.getLogLevel());
                         switch (requestType) {
                             case TYPES.INSERT:
@@ -140,10 +146,10 @@ class VaultController {
                             case TYPES.QUERY:
                             case TYPES.DETOKENIZE:
                             case TYPES.TOKENIZE:
-                                resolve(this.handleRecordsResponse(data))
+                                resolve({records: this.handleRecordsResponse(data), requestId})
                                 break;
                             case TYPES.INSERT_BATCH:
-                                resolve(this.handleInsertBatchResponse(data))
+                                resolve({records: this.handleInsertBatchResponse(data), requestId})
                                 break;
                             case TYPES.UPDATE:
                             case TYPES.FILE_UPLOAD:
@@ -223,19 +229,19 @@ class VaultController {
                 this.handleRequest(
                     (headers: Records.RequestOptions | undefined) =>
                         isContinueOnError
-                            ? this.client.vaultAPI.recordServiceBatchOperation(this.client.vaultId, requestBody, headers)
-                            : this.client.vaultAPI.recordServiceInsertRecord(this.client.vaultId, tableName, requestBody as RecordServiceInsertRecordBody, headers),
+                            ? this.client.vaultAPI.recordServiceBatchOperation(this.client.vaultId, requestBody, headers).withRawResponse()
+                            : this.client.vaultAPI.recordServiceInsertRecord(this.client.vaultId, tableName, requestBody as RecordServiceInsertRecordBody, headers).withRawResponse(),
                     operationType
                 ).then((resp: any) => {
                     printLog(logs.infoLogs.INSERT_DATA_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const parsedResponse = isContinueOnError
-                        ? this.parseInsertBatchResponse(resp)
-                        : this.parseBulkInsertResponse(resp);
+                        ? this.parseInsertBatchResponse(resp.records, resp.requestId)
+                        : this.parseBulkInsertResponse(resp.records);
                     resolve(parsedResponse);
                 })
-                    .catch(error => {
-                        reject(error);
-                    });
+                .catch(error => {
+                    reject(error);
+                });
             } catch (error) {
                 if (error instanceof Error)
                     printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
@@ -269,7 +275,7 @@ class VaultController {
                         skyflowId as string,
                         updateData,
                         headers
-                    ),
+                    ).withRawResponse(),
                     TYPES.UPDATE
                 ).then(data => {
                     printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
@@ -308,7 +314,7 @@ class VaultController {
                         request.tableName,
                         deleteRequest,
                         headers
-                    ),
+                    ).withRawResponse(),
                     TYPES.DELETE
                 ).then(data => {
                     printLog(logs.infoLogs.DELETE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
@@ -369,11 +375,11 @@ class VaultController {
                         request.tableName,
                         payload,
                         headers
-                    ),
+                    ).withRawResponse(),
                     TYPES.GET
-                ).then(records => {
+                ).then(response => {
                     printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = records.map(record => ({
+                    const processedRecords = response.records.map(record => ({
                         ...record.fields,
                     }));
                     resolve(new GetResponse({ data: processedRecords, errors: [] }));
@@ -389,26 +395,48 @@ class VaultController {
         });
     }
 
-    uploadFile(request: FileUploadRequest): Promise<FileUploadResponse> {
+    uploadFile(request: FileUploadRequest, options?: FileUploadOptions): Promise<FileUploadResponse> {
         return new Promise((resolve, reject) => {
             try {
                 printLog(logs.infoLogs.UPLOAD_FILE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_FILE_UPLOAD_INPUT, MessageType.LOG, this.client.getLogLevel());
 
                 // Validation checks
-                validateUploadFileRequest(request, this.client.getLogLevel());
+                validateUploadFileRequest(request, options, this.client.getLogLevel());
 
                 //handle file exits
-                const fileStream = fs.createReadStream(request.filePath) as unknown as Blob;
+                let fileBlob: Blob | File | undefined;
+                let fileName: string | undefined;
+
+                if(options?.getFilePath()) {
+                    const fileBuffer = fs.readFileSync(options.getFilePath()!);
+                    fileName = path.basename(options.getFilePath()!);
+                    fileBlob = new File([fileBuffer], fileName, {
+                        type: 'application/json'
+                    });
+                } 
+                else if (options?.getBase64()) { 
+                    const buffer = Buffer.from(options.getBase64()!, 'base64');
+                    fileName = options.getFileName()!;
+                    fileBlob = new File([buffer], fileName, {
+                        type: 'application/json'
+                    });
+                }
+                
+                else if (options?.getFileObject() as File) {
+                    fileBlob = options?.getFileObject();
+                }
 
                 this.handleRequest(
                     (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.fileServiceUploadFile(
-                        fileStream,
+                        fileBlob as unknown as import('buffer').Blob,
                         this.client.vaultId,
                         request.tableName,
                         request.skyflowId,
-                        headers
-                    ),
+                        {
+                            columnName: request.columnName
+                        }
+                    ).withRawResponse(),
                     TYPES.FILE_UPLOAD
                 ).then(data => {
                     printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.client.getLogLevel());
@@ -443,11 +471,11 @@ class VaultController {
                         this.client.vaultId,
                         query,
                         headers
-                    ),
+                    ).withRawResponse(),
                     TYPES.QUERY
-                ).then(records => {
+                ).then(response => {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = records.map(record => ({
+                    const processedRecords = response.records.map(record => ({
                         ...record?.fields,
                         tokenizedData: {
                             ...record?.tokens,
@@ -475,15 +503,15 @@ class VaultController {
                 //validations checks
                 validateDetokenizeRequest(request, options, this.client.getLogLevel());
 
-                const fields = request.tokens.map(record => ({ token: record, redaction: request?.redactionType || RedactionType.PLAIN_TEXT })) as Array<V1DetokenizeRecordRequest>;
+                const fields = request.data.map(record => ({ token: record.token, redaction: record?.redactionType || RedactionType.DEFAULT })) as Array<V1DetokenizeRecordRequest>;
                 const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadURL() };
 
                 this.handleRequest(
-                    (headers: Records.RequestOptions | undefined) => this.client.tokensAPI.recordServiceDetokenize(this.client.vaultId, detokenizePayload, headers),
+                    (headers: Records.RequestOptions | undefined) => this.client.tokensAPI.recordServiceDetokenize(this.client.vaultId, detokenizePayload, headers).withRawResponse(),
                     TYPES.DETOKENIZE
-                ).then(records => {
+                ).then(response => {
                     printLog(logs.infoLogs.DETOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const parsedResponse: ParsedDetokenizeResponse = this.parseDetokenizeResponse(records);
+                    const parsedResponse: ParsedDetokenizeResponse = this.parseDetokenizeResponse(response.records, response.requestId);
                     resolve(new DetokenizeResponse({ detokenizedFields: parsedResponse.success, errors: parsedResponse.errors }));
                 })
                     .catch(error => {
@@ -510,11 +538,11 @@ class VaultController {
                 const tokenizePayload: V1TokenizePayload = { tokenizationParameters: fields };
 
                 this.handleRequest(
-                    (headers: Records.RequestOptions | undefined) => this.client.tokensAPI.recordServiceTokenize(this.client.vaultId, tokenizePayload,headers),
+                    (headers: Records.RequestOptions | undefined) => this.client.tokensAPI.recordServiceTokenize(this.client.vaultId, tokenizePayload,headers).withRawResponse(),
                     TYPES.TOKENIZE
-                ).then(records => {
+                ).then(response => {
                     printLog(logs.infoLogs.TOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    resolve(new TokenizeResponse({ tokens: records, errors: [] }))
+                    resolve(new TokenizeResponse({ tokens: response.records, errors: [] }))
                 })
                     .catch(error => {
                         reject(error);

@@ -8,7 +8,7 @@ import * as Skyflow from "../../../index";
 import urlJoin from "url-join";
 import * as errors from "../../../../errors/index";
 import * as fs from "fs";
-import Blob from "buffer";
+import { Blob } from "buffer";
 
 export declare namespace Records {
     export interface Options {
@@ -70,11 +70,21 @@ export class Records {
      *             }]
      *     })
      */
-    public async recordServiceBatchOperation(
+    public recordServiceBatchOperation(
         vaultId: string,
         request: Skyflow.RecordServiceBatchOperationBody = {},
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1BatchOperationResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1BatchOperationResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__recordServiceBatchOperation(vaultId, request, requestOptions),
+        );
+    }
+
+    private async __recordServiceBatchOperation(
+        vaultId: string,
+        request: Skyflow.RecordServiceBatchOperationBody = {},
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1BatchOperationResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -101,17 +111,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1BatchOperationResponse;
+            return { data: _response.body as Skyflow.V1BatchOperationResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -121,12 +135,14 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError("Timeout exceeded when calling POST /v1/vaults/{vaultID}.");
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -144,12 +160,23 @@ export class Records {
      * @example
      *     await client.records.recordServiceBulkGetRecord("vaultID", "objectName")
      */
-    public async recordServiceBulkGetRecord(
+    public recordServiceBulkGetRecord(
         vaultId: string,
         objectName: string,
         request: Skyflow.RecordServiceBulkGetRecordRequest = {},
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1BulkGetRecordResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1BulkGetRecordResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__recordServiceBulkGetRecord(vaultId, objectName, request, requestOptions),
+        );
+    }
+
+    private async __recordServiceBulkGetRecord(
+        vaultId: string,
+        objectName: string,
+        request: Skyflow.RecordServiceBulkGetRecordRequest = {},
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1BulkGetRecordResponse>> {
         const {
             skyflow_ids: skyflowIds,
             redaction,
@@ -241,17 +268,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1BulkGetRecordResponse;
+            return { data: _response.body as Skyflow.V1BulkGetRecordResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -261,6 +292,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -269,6 +301,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -305,12 +338,23 @@ export class Records {
      *         homogeneous: false
      *     })
      */
-    public async recordServiceInsertRecord(
+    public recordServiceInsertRecord(
         vaultId: string,
         objectName: string,
         request: Skyflow.RecordServiceInsertRecordBody = {},
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1InsertRecordResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1InsertRecordResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__recordServiceInsertRecord(vaultId, objectName, request, requestOptions),
+        );
+    }
+
+    private async __recordServiceInsertRecord(
+        vaultId: string,
+        objectName: string,
+        request: Skyflow.RecordServiceInsertRecordBody = {},
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1InsertRecordResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -337,17 +381,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1InsertRecordResponse;
+            return { data: _response.body as Skyflow.V1InsertRecordResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -357,6 +405,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -365,6 +414,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -384,12 +434,23 @@ export class Records {
      *         skyflow_ids: ["51782ea4-91a5-4430-a06d-f4b76efd3d2f", "110ce08f-6059-4874-b1ae-7c6651d286ff"]
      *     })
      */
-    public async recordServiceBulkDeleteRecord(
+    public recordServiceBulkDeleteRecord(
         vaultId: string,
         objectName: string,
         request: Skyflow.RecordServiceBulkDeleteRecordBody = {},
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1BulkDeleteRecordResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1BulkDeleteRecordResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__recordServiceBulkDeleteRecord(vaultId, objectName, request, requestOptions),
+        );
+    }
+
+    private async __recordServiceBulkDeleteRecord(
+        vaultId: string,
+        objectName: string,
+        request: Skyflow.RecordServiceBulkDeleteRecordBody = {},
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1BulkDeleteRecordResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -416,17 +477,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1BulkDeleteRecordResponse;
+            return { data: _response.body as Skyflow.V1BulkDeleteRecordResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -436,6 +501,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -444,6 +510,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -462,13 +529,25 @@ export class Records {
      * @example
      *     await client.records.recordServiceGetRecord("vaultID", "objectName", "ID")
      */
-    public async recordServiceGetRecord(
+    public recordServiceGetRecord(
         vaultId: string,
         objectName: string,
         id: string,
         request: Skyflow.RecordServiceGetRecordRequest = {},
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1FieldRecords> {
+    ): core.HttpResponsePromise<Skyflow.V1FieldRecords> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__recordServiceGetRecord(vaultId, objectName, id, request, requestOptions),
+        );
+    }
+
+    private async __recordServiceGetRecord(
+        vaultId: string,
+        objectName: string,
+        id: string,
+        request: Skyflow.RecordServiceGetRecordRequest = {},
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1FieldRecords>> {
         const { redaction, tokenization, fields, downloadURL: downloadUrl } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (redaction != null) {
@@ -517,17 +596,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1FieldRecords;
+            return { data: _response.body as Skyflow.V1FieldRecords, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -537,6 +620,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -545,6 +629,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -573,13 +658,25 @@ export class Records {
      *         tokenization: true
      *     })
      */
-    public async recordServiceUpdateRecord(
+    public recordServiceUpdateRecord(
         vaultId: string,
         objectName: string,
         id: string,
         request: Skyflow.RecordServiceUpdateRecordBody = {},
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1UpdateRecordResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1UpdateRecordResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__recordServiceUpdateRecord(vaultId, objectName, id, request, requestOptions),
+        );
+    }
+
+    private async __recordServiceUpdateRecord(
+        vaultId: string,
+        objectName: string,
+        id: string,
+        request: Skyflow.RecordServiceUpdateRecordBody = {},
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1UpdateRecordResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -606,17 +703,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1UpdateRecordResponse;
+            return { data: _response.body as Skyflow.V1UpdateRecordResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -626,6 +727,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -634,6 +736,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -651,12 +754,23 @@ export class Records {
      * @example
      *     await client.records.recordServiceDeleteRecord("vaultID", "objectName", "ID")
      */
-    public async recordServiceDeleteRecord(
+    public recordServiceDeleteRecord(
         vaultId: string,
         objectName: string,
         id: string,
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1DeleteRecordResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1DeleteRecordResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__recordServiceDeleteRecord(vaultId, objectName, id, requestOptions),
+        );
+    }
+
+    private async __recordServiceDeleteRecord(
+        vaultId: string,
+        objectName: string,
+        id: string,
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1DeleteRecordResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -682,17 +796,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1DeleteRecordResponse;
+            return { data: _response.body as Skyflow.V1DeleteRecordResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -702,6 +820,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -710,6 +829,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -717,27 +837,43 @@ export class Records {
     /**
      * Uploads a file to the specified record.
      *
-     * @param {File | fs.ReadStream | Blob | undefined} fileColumnName
+     * @param {File | fs.ReadStream | Blob | undefined} file
      * @param {string} vaultId
      * @param {string} objectName
      * @param {string} id
+     * @param {Skyflow.FileServiceUploadFileRequest} request
      * @param {Records.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Skyflow.NotFoundError}
      *
      * @example
-     *     await client.records.fileServiceUploadFile(fs.createReadStream("/path/to/your/file"), "vaultID", "objectName", "ID")
+     *     await client.records.fileServiceUploadFile(fs.createReadStream("/path/to/your/file"), "vaultID", "objectName", "ID", {})
      */
-    public async fileServiceUploadFile(
-        fileColumnName: File | fs.ReadStream | Blob | undefined,
+    public fileServiceUploadFile(
+        file: File | fs.ReadStream | Blob | undefined,
         vaultId: string,
         objectName: string,
         id: string,
+        request: Skyflow.FileServiceUploadFileRequest,
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1UpdateRecordResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1UpdateRecordResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__fileServiceUploadFile(file, vaultId, objectName, id, request, requestOptions),
+        );
+    }
+
+    private async __fileServiceUploadFile(
+        file: File | fs.ReadStream | Blob | undefined,
+        vaultId: string,
+        objectName: string,
+        id: string,
+        request: Skyflow.FileServiceUploadFileRequest,
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1UpdateRecordResponse>> {
         const _request = await core.newFormData();
-        if (fileColumnName != null) {
-            await _request.appendFile("fileColumnName", fileColumnName);
+        if (file != null && request.columnName != null) {
+            await _request.appendFile(request.columnName, file);
+        
         }
 
         const _maybeEncodedRequest = await _request.getRequest();
@@ -768,17 +904,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1UpdateRecordResponse;
+            return { data: _response.body as Skyflow.V1UpdateRecordResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -788,6 +928,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -796,6 +937,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -814,13 +956,25 @@ export class Records {
      * @example
      *     await client.records.fileServiceDeleteFile("vaultID", "tableName", "ID", "columnName")
      */
-    public async fileServiceDeleteFile(
+    public fileServiceDeleteFile(
         vaultId: string,
         tableName: string,
         id: string,
         columnName: string,
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1DeleteFileResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1DeleteFileResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__fileServiceDeleteFile(vaultId, tableName, id, columnName, requestOptions),
+        );
+    }
+
+    private async __fileServiceDeleteFile(
+        vaultId: string,
+        tableName: string,
+        id: string,
+        columnName: string,
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1DeleteFileResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -846,17 +1000,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1DeleteFileResponse;
+            return { data: _response.body as Skyflow.V1DeleteFileResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -866,6 +1024,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -874,6 +1033,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -892,13 +1052,25 @@ export class Records {
      * @example
      *     await client.records.fileServiceGetFileScanStatus("vaultID", "tableName", "ID", "columnName")
      */
-    public async fileServiceGetFileScanStatus(
+    public fileServiceGetFileScanStatus(
         vaultId: string,
         tableName: string,
         id: string,
         columnName: string,
         requestOptions?: Records.RequestOptions,
-    ): Promise<Skyflow.V1GetFileScanStatusResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1GetFileScanStatusResponse> {
+        return core.HttpResponsePromise.fromPromise(
+            this.__fileServiceGetFileScanStatus(vaultId, tableName, id, columnName, requestOptions),
+        );
+    }
+
+    private async __fileServiceGetFileScanStatus(
+        vaultId: string,
+        tableName: string,
+        id: string,
+        columnName: string,
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1GetFileScanStatusResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -924,17 +1096,21 @@ export class Records {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1GetFileScanStatusResponse;
+            return { data: _response.body as Skyflow.V1GetFileScanStatusResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -944,6 +1120,7 @@ export class Records {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -952,6 +1129,7 @@ export class Records {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

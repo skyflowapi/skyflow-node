@@ -46,11 +46,19 @@ export class Query {
      *         query: "select * from opportunities where id=\"01010000ade21cded569d43944544ec6\""
      *     })
      */
-    public async queryServiceExecuteQuery(
+    public queryServiceExecuteQuery(
         vaultId: string,
         request: Skyflow.QueryServiceExecuteQueryBody = {},
         requestOptions?: Query.RequestOptions,
-    ): Promise<Skyflow.V1GetQueryResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1GetQueryResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__queryServiceExecuteQuery(vaultId, request, requestOptions));
+    }
+
+    private async __queryServiceExecuteQuery(
+        vaultId: string,
+        request: Skyflow.QueryServiceExecuteQueryBody = {},
+        requestOptions?: Query.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1GetQueryResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -77,17 +85,21 @@ export class Query {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1GetQueryResponse;
+            return { data: _response.body as Skyflow.V1GetQueryResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -97,12 +109,14 @@ export class Query {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError("Timeout exceeded when calling POST /v1/vaults/{vaultID}/query.");
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

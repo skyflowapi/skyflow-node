@@ -48,10 +48,17 @@ export class Authentication {
      *         assertion: "eyLhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaXNzIjoiY29tcGFueSIsImV4cCI6MTYxNTE5MzgwNywiaWF0IjoxNjE1MTY1MDQwLCJhdWQiOiKzb21lYXVkaWVuY2UifQ.4pcPyMDQ9o1PSyXnrXCjTwXyr4BSezdI1AVTmud2fU3"
      *     })
      */
-    public async authenticationServiceGetAuthToken(
+    public authenticationServiceGetAuthToken(
         request: Skyflow.V1GetAuthTokenRequest,
         requestOptions?: Authentication.RequestOptions,
-    ): Promise<Skyflow.V1GetAuthTokenResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1GetAuthTokenResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__authenticationServiceGetAuthToken(request, requestOptions));
+    }
+
+    private async __authenticationServiceGetAuthToken(
+        request: Skyflow.V1GetAuthTokenRequest,
+        requestOptions?: Authentication.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1GetAuthTokenResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -78,21 +85,31 @@ export class Authentication {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1GetAuthTokenResponse;
+            return { data: _response.body as Skyflow.V1GetAuthTokenResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new Skyflow.BadRequestError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.BadRequestError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 case 401:
-                    throw new Skyflow.UnauthorizedError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.UnauthorizedError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -102,12 +119,14 @@ export class Authentication {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError("Timeout exceeded when calling POST /v1/auth/sa/oauth/token.");
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

@@ -45,10 +45,17 @@ export class Audit {
      *         "filterOps.accountID": "filterOps.accountID"
      *     })
      */
-    public async auditServiceListAuditEvents(
+    public auditServiceListAuditEvents(
         request: Skyflow.AuditServiceListAuditEventsRequest,
         requestOptions?: Audit.RequestOptions,
-    ): Promise<Skyflow.V1AuditResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1AuditResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__auditServiceListAuditEvents(request, requestOptions));
+    }
+
+    private async __auditServiceListAuditEvents(
+        request: Skyflow.AuditServiceListAuditEventsRequest,
+        requestOptions?: Audit.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1AuditResponse>> {
         const {
             "filterOps.context.changeID": filterOpsContextChangeId,
             "filterOps.context.requestID": filterOpsContextRequestId,
@@ -240,17 +247,21 @@ export class Audit {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1AuditResponse;
+            return { data: _response.body as Skyflow.V1AuditResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -260,12 +271,14 @@ export class Audit {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError("Timeout exceeded when calling GET /v1/audit/events.");
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

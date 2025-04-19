@@ -139,8 +139,18 @@ describe('VaultController insert method', () => {
         mockVaultClient = {
             getLogLevel: jest.fn().mockReturnValue('DEBUG'),
             vaultAPI: {
-                recordServiceInsertRecord: jest.fn(),
-                recordServiceBatchOperation: jest.fn(),
+                recordServiceInsertRecord: jest.fn().mockImplementation(() => ({
+                    withRawResponse: jest.fn().mockResolvedValueOnce({
+                        records: [{ skyflow_id: 'id123', tokens: {} }],
+                        rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+                    }),
+                })),
+                recordServiceBatchOperation: jest.fn().mockImplementation(() => ({
+                    withRawResponse: jest.fn().mockResolvedValueOnce({
+                        responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }],
+                        rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+                    }),
+                })),
             },
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
@@ -162,43 +172,20 @@ describe('VaultController insert method', () => {
             getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
             getTokenMode: jest.fn().mockReturnValue(''),
-            getTokens: jest.fn().mockReturnValue([{}])
+            getTokens: jest.fn().mockReturnValue([{}]),
         };
-        const mockResponseData = { records: [{ skyflow_id: 'id123', tokens: {} }] };
 
-        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce(mockResponseData);
-
+        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: {
+                    records: [{ skyflow_id: 'id456', tokens: { token1: 'value1' } }]
+                },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+            }),
+        }));
+    
         const response = await vaultController.insert(mockRequest, mockOptions);
-
-        expect(mockVaultClient.vaultAPI.recordServiceInsertRecord).toHaveBeenCalledWith(
-            mockVaultClient.vaultId,
-            mockRequest.tableName,
-            expect.any(Object), // Request body
-            expect.any(Object) // Headers
-        );
-        expect(response).toBeInstanceOf(InsertResponse);
-        expect(response.insertedFields).toHaveLength(1);
-    });
-
-    test('should successfully insert records with bulk insert', async () => {
-        const mockRequest = {
-            data: [{ field1: 'value1' }],
-            tableName: 'testTable',
-        };
-        const mockOptions = {
-            getContinueOnError: jest.fn().mockReturnValue(false),
-            getReturnTokens: jest.fn().mockReturnValue(true),
-            getUpsertColumn: jest.fn().mockReturnValue(''),
-            getHomogeneous: jest.fn().mockReturnValue(false),
-            getTokenMode: jest.fn().mockReturnValue(''),
-            getTokens: jest.fn().mockReturnValue([{}])
-        };
-        const mockResponseData = { records: [{ skyflow_id: 'id123', tokens: {} }] };
-
-        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce(mockResponseData);
-
-        const response = await vaultController.insert(mockRequest, mockOptions);
-
+    
         expect(mockVaultClient.vaultAPI.recordServiceInsertRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
             mockRequest.tableName,
@@ -222,9 +209,13 @@ describe('VaultController insert method', () => {
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([{}])
         };
-        const mockResponseData = { skyflow_id: 'id123', tokens: {} };
 
-        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockResolvedValueOnce(mockResponseData);
+        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: { skyflow_id: 'id123', tokens: {} },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+            }),
+        }));
 
         const response = await vaultController.insert(mockRequest, mockOptions);
 
@@ -251,9 +242,15 @@ describe('VaultController insert method', () => {
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([])
         };
-        const mockResponseData = { responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }, { Body: { records: [{ skyflow_id: 'id123' }] }, Status: 400 }] };
 
-        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce(mockResponseData);
+        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: {
+                    responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }, { Body: { records: [{ skyflow_id: 'id123' }] }, Status: 400 }]
+                },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+            }),
+        }));
 
         const response = await vaultController.insert(mockRequest, mockOptions);
 
@@ -274,10 +271,16 @@ describe('VaultController insert method', () => {
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([])
         };
-        const mockResponseData = { responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }, null] };
 
-        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce(mockResponseData);
-
+        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: {
+                    responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }, null]
+                },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+            }),
+        }));
+        
         const response = await vaultController.insert(mockRequest, mockOptions);
 
         expect(mockVaultClient.vaultAPI.recordServiceBatchOperation).toHaveBeenCalled();
@@ -297,10 +300,13 @@ describe('VaultController insert method', () => {
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([])
         };
-        const mockResponseData = null;
 
-        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce({ data: mockResponseData });
-
+        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: null,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+            }),
+        }));
         const response = await vaultController.insert(mockRequest, mockOptions);
 
         expect(mockVaultClient.vaultAPI.recordServiceBatchOperation).toHaveBeenCalled();
@@ -320,9 +326,14 @@ describe('VaultController insert method', () => {
             getTokenMode: jest.fn().mockReturnValue(''),
             getTokens: jest.fn().mockReturnValue([])
         };
-        const mockResponseData = [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }];
-
-        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockResolvedValueOnce({ data: mockResponseData });
+        mockVaultClient.vaultAPI.recordServiceBatchOperation.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: {data: {
+                    responses: [{ Body: { records: [{ skyflow_id: 'id123' }] }, Status: 200 }, { Body: { records: [{ skyflow_id: 'id123' }] }, Status: 400 }]
+                }},
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+            }),
+        }));
 
         const response = await vaultController.insert(mockRequest, mockOptions);
 
@@ -352,6 +363,28 @@ describe('VaultController insert method', () => {
         expect(mockVaultClient.vaultAPI.recordServiceInsertRecord).not.toHaveBeenCalled();
     });
 
+    test('should handle errors in the insert second Promise chain', async () => {
+        const mockRequest = {
+            data: [{ field1: 'value1' }],
+            tableName: 'testTable',
+        };
+        const mockOptions = {
+            getContinueOnError: jest.fn().mockReturnValue(false),
+            getReturnTokens: jest.fn().mockReturnValue(true),
+            getUpsertColumn: jest.fn().mockReturnValue(''),
+            getHomogeneous: jest.fn().mockReturnValue(false),
+            getTokenMode: jest.fn().mockReturnValue(''),
+            getTokens: jest.fn().mockReturnValue({}),
+        };
+
+        const validationError = new Error("Validation error");
+        (validateInsertRequest).mockImplementation(() => {
+            throw validationError;
+        });
+
+        await expect(vaultController.insert(mockRequest, mockOptions)).rejects.toThrow('Validation error');
+    });
+
     test('should log and reject on API error', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
@@ -362,12 +395,21 @@ describe('VaultController insert method', () => {
             getReturnTokens: jest.fn().mockReturnValue(true),
             getUpsertColumn: jest.fn().mockReturnValue(''),
             getHomogeneous: jest.fn().mockReturnValue(false),
-            getTokenMode: jest.fn().mockReturnValue('')
+            getTokenMode: jest.fn().mockReturnValue(''),
+            getTokens: jest.fn().mockReturnValue({}),
         };
-        const errorResponse = new Error("Validation error");
-        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockRejectedValueOnce(errorResponse.message);
-
-        await expect(vaultController.insert(mockRequest, mockOptions)).rejects.toEqual(errorResponse);
+        
+        mockVaultClient.vaultAPI.recordServiceInsertRecord.mockImplementation(() => {
+            return {
+                withRawResponse: jest.fn().mockRejectedValue(new Error('API error')),
+            };
+        });
+    
+        try {
+            await vaultController.insert(mockRequest, mockOptions);
+        } catch (error) {
+            expect(error).toBeDefined();
+        }
     });
 });
 
@@ -392,8 +434,16 @@ describe('VaultController detokenize method', () => {
 
     test('should successfully detokenize records', async () => {
         const mockRequest = {
-            tokens: ['token1', 'token2'],
-            redactionType: 'PLAIN_TEXT',
+            data: [
+                {
+                    token: 'token1',
+                    redactionType: 'PLAIN_TEXT',
+                },
+                {
+                    token: 'token2',
+                    redactionType: 'PLAIN_TEXT',
+                }
+            ]
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),

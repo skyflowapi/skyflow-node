@@ -53,11 +53,19 @@ export class Tokens {
      *         downloadURL: false
      *     })
      */
-    public async recordServiceDetokenize(
+    public recordServiceDetokenize(
         vaultId: string,
         request: Skyflow.V1DetokenizePayload = {},
         requestOptions?: Tokens.RequestOptions,
-    ): Promise<Skyflow.V1DetokenizeResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1DetokenizeResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__recordServiceDetokenize(vaultId, request, requestOptions));
+    }
+
+    private async __recordServiceDetokenize(
+        vaultId: string,
+        request: Skyflow.V1DetokenizePayload = {},
+        requestOptions?: Tokens.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1DetokenizeResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -84,17 +92,21 @@ export class Tokens {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1DetokenizeResponse;
+            return { data: _response.body as Skyflow.V1DetokenizeResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -104,6 +116,7 @@ export class Tokens {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -112,6 +125,7 @@ export class Tokens {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -128,11 +142,19 @@ export class Tokens {
      * @example
      *     await client.tokens.recordServiceTokenize("vaultID")
      */
-    public async recordServiceTokenize(
+    public recordServiceTokenize(
         vaultId: string,
         request: Skyflow.V1TokenizePayload = {},
         requestOptions?: Tokens.RequestOptions,
-    ): Promise<Skyflow.V1TokenizeResponse> {
+    ): core.HttpResponsePromise<Skyflow.V1TokenizeResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__recordServiceTokenize(vaultId, request, requestOptions));
+    }
+
+    private async __recordServiceTokenize(
+        vaultId: string,
+        request: Skyflow.V1TokenizePayload = {},
+        requestOptions?: Tokens.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.V1TokenizeResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -159,17 +181,21 @@ export class Tokens {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return _response.body as Skyflow.V1TokenizeResponse;
+            return { data: _response.body as Skyflow.V1TokenizeResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(_response.error.body as Record<string, unknown>);
+                    throw new Skyflow.NotFoundError(
+                        _response.error.body as Record<string, unknown>,
+                        _response.rawResponse,
+                    );
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -179,6 +205,7 @@ export class Tokens {
                 throw new errors.SkyflowError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
                 throw new errors.SkyflowTimeoutError(
@@ -187,6 +214,7 @@ export class Tokens {
             case "unknown":
                 throw new errors.SkyflowError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

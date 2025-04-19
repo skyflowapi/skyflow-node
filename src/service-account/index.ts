@@ -144,10 +144,11 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 client.authApi.authenticationServiceGetAuthToken(
                     req,
                     { headers: { "Content-Type": "application/json", } }
-                ).then((res: any) => {
-                    successResponse(res, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
+                ).withRawResponse().then((res: any) => {
+                    successResponse(res.data, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
                 })
                     .catch((err) => {
+                        // console.log("Errorrrr: ", err)
                         failureResponse(err).catch(err => reject(err))
                     });
             }
@@ -284,27 +285,28 @@ function generateSignedDataTokensFromCreds(credentials, options: SignedDataToken
 
 function failureResponse(err: any) {
     return new Promise((_, reject) => {
-        if (err.response) {
-            let data = err.response.data
-            const headerMap = err.response.headers
-            const requestId = headerMap['x-request-id'];
-            const contentType = headerMap["content-type"];
+        if (err.rawResponse) {
+            // console.log("RawL : ", err.rawResponse);
+            // let data = err.response.data
+            // const headerMap = err.response.headers
+            const requestId = err?.rawResponse?.headers?.get('x-request-id');;
+            const contentType = err?.rawResponse?.headers?.get('content-type');
             if (contentType && contentType.includes('application/json')) {
-                let description = data;
+                let description = err?.body;
                 if (description?.error?.message) {
                     description =description?.error?.message;
                 }
                 printLog(description, MessageType.ERROR);
                 reject(new SkyflowError({
-                    http_code: err.response.status,
+                    http_code: err?.body?.error?.http_code,
                     message: description,
                     request_ID: requestId,
                 }));
             } else if (contentType && contentType.includes('text/plain')) {
-                let description = data
+                let description = err?.body;
                 printLog(description, MessageType.ERROR);
                 reject(new SkyflowError({
-                    http_code: err.response.status,
+                    http_code: err?.body?.error?.http_code,
                     message: description,
                     request_ID: requestId
                 }));

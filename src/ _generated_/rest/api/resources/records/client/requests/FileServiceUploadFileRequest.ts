@@ -6,4 +6,7 @@
  * @example
  *     {}
  */
-export interface FileServiceUploadFileRequest {}
+export interface FileServiceUploadFileRequest {
+    /** Name of the column to store the file in. The column must have a file data type. */
+    columnName?: string;
+}

@@ -113,14 +113,48 @@ class VaultClient {
         this.skyflowCredentials = credentials;
     }
 
+    private normalizeErrorMeta(err: any) {
+        const isNewFormat = !!err?.rawResponse;
+    
+        if (isNewFormat) {
+            const headers = err?.rawResponse?.headers;
+            const contentType = headers?.get('content-type');
+            const requestId = headers?.get('x-request-id');
+            const errorFromClientHeader = headers?.get('error-from-client');
+            const errorFromClient = errorFromClientHeader
+                ? String(errorFromClientHeader).toLowerCase() === 'true'
+                : undefined;
+    
+            return {
+                isNewFormat,
+                contentType,
+                requestId,
+                errorFromClient
+            };
+        } else {
+            const headers = err?.response?.headers || {};
+            const contentType = headers['content-type'];
+            const requestId = headers['x-request-id'];
+            const errorFromClientHeader = headers['error-from-client'];
+            const errorFromClient = errorFromClientHeader
+                ? String(errorFromClientHeader).toLowerCase() === 'true'
+                : undefined;
+    
+            return {
+                isNewFormat,
+                contentType,
+                requestId,
+                errorFromClient
+            };
+        }
+    }
+    
+
     failureResponse = (err: any) => new Promise((_, reject) => {
-        const contentType = err.response?.headers['content-type'];
-        const data = err.response?.data;
-        const requestId = err.response?.headers['x-request-id'];
-
-        const errorFromClientHeader = err.response?.headers?.['error-from-client'];
-        const errorFromClient = errorFromClientHeader ? String(errorFromClientHeader).toLowerCase() === 'true' : undefined;
-
+        const { isNewFormat, contentType, requestId, errorFromClient } = this.normalizeErrorMeta(err);
+    
+        const data = isNewFormat ? err?.body?.error : err?.response?.data;
+    
         if (contentType) {
             if (contentType.includes('application/json')) {
                 this.handleJsonError(err, data, requestId, reject, errorFromClient);
@@ -133,43 +167,79 @@ class VaultClient {
             this.handleGenericError(err, requestId, reject, errorFromClient);
         }
     });
+    
 
     private handleJsonError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        let description = data;
-        const statusCode = description?.error?.http_status;
-        const grpcCode = description?.error?.grpc_code;
-        let details = description?.error?.details;
-        
+        const isNewFormat = !!err?.rawResponse;
+    
+        if (isNewFormat) {
+            let description = data?.message;
+            const statusCode = data?.http_code;
+            const grpcCode = data?.grpc_code;
+            let details = data?.details || [];
+    
+            if (errorFromClient !== undefined) {
+                details = Array.isArray(details)
+                    ? [...details, { errorFromClient }]
+                    : [{ errorFromClient }];
+            }
+    
+            this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details, isNewFormat);
+        } else {
+            let description = data;
+            const statusCode = description?.error?.http_status;
+            const grpcCode = description?.error?.grpc_code;
+            let details = description?.error?.details;
+    
+            if (errorFromClient !== undefined) {
+                details = Array.isArray(details)
+                    ? [...details, { errorFromClient }]
+                    : [{ errorFromClient }];
+            }
+    
+            description = description?.error?.message || description;
+            this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details, isNewFormat);
+        }
+    }
+    
+    
+    private handleTextError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
+        const isNewFormat = !!err?.rawResponse
+        let details: any = [];
+    
+        if (errorFromClient !== undefined) {
+            details.push({ errorFromClient });
+        }
+    
+        const description = isNewFormat ? data?.message: data;
+        this.logAndRejectError(description, err, requestId, reject, undefined, undefined, details, isNewFormat);
+    }
+    
+    
+    private handleGenericError(err: any, requestId: string, reject: Function, errorFromClient?: boolean) {
+        const isNewFormat = !!err?.rawResponse;
+        let description: any;
+        let grpcCode: any;
+        let details: any = [];
+    
+        if (isNewFormat) {
+            description = err?.body?.error?.message || err?.message;
+            grpcCode = err?.body?.error?.grpc_code;
+            details = err?.body?.error?.details || [];
+        } else {
+            description = err?.response?.data || err?.message || errorMessages.ERROR_OCCURRED;
+        }
+    
         if (errorFromClient !== undefined) {
             details = Array.isArray(details)
-                        ? [...details, { errorFromClient: errorFromClient }]
-                        : [{ errorFromClient: errorFromClient }];
+                ? [...details, { errorFromClient }]
+                : [{ errorFromClient }];
         }
- 
-        description = description?.error?.message || description;
-        this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
+    
+        this.logAndRejectError(description, err, requestId, reject, undefined, grpcCode, details, isNewFormat);
     }
-
-    private handleTextError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        let details: any = [];
-
-        if (errorFromClient !== undefined) {
-            details.push({ errorFromClient });
-        }
-        
-        this.logAndRejectError(data, err, requestId, reject, undefined, undefined, details);
-    }
-
-    private handleGenericError(err: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        const description =  err?.response?.data || err?.message || errorMessages.ERROR_OCCURRED;
-        let details: any = [];
-
-        if (errorFromClient !== undefined) {
-            details.push({ errorFromClient });
-        }
-        this.logAndRejectError(description, err, requestId, reject, undefined, undefined, details);
-    }
-
+    
+    
     private logAndRejectError(
         description: string,
         err: any,
@@ -177,11 +247,12 @@ class VaultClient {
         reject: Function,
         httpStatus?: number,
         grpcCode?: number,
-        details?: any
+        details?: any,
+        isNewError?: boolean
     ) {
         printLog(description, MessageType.ERROR, this.getLogLevel());
         reject(new SkyflowError({
-            http_code: err?.response?.status || 400,
+            http_code: isNewError ? err?.statusCode : err?.response?.status || 400,
             message: description,
             request_ID: requestId,
             grpc_code: grpcCode,
