@@ -87,7 +87,7 @@ To use this module, the Skyflow client must first be initialized as follows:
 import { Skyflow } from 'skyflow-node';
 
 // Initialize the Skyflow Vault client
-const client : Skyflow = Skyflow({
+const client : Skyflow = new Skyflow({
   vaultConfigs: [
     {
       // Id of the vault that the client should connect to.
