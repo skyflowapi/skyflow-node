@@ -114,8 +114,7 @@ class VaultClient {
     }
 
     private normalizeErrorMeta(err: any) {
-        const isNewFormat = !!err?.rawResponse;
-    
+        const isNewFormat = !!err?.rawResponse;    
         if (isNewFormat) {
             const headers = err?.rawResponse?.headers;
             const contentType = headers?.get('content-type');
@@ -132,10 +131,13 @@ class VaultClient {
                 errorFromClient
             };
         } else {
-            const headers = err?.response?.headers || {};
-            const contentType = headers['content-type'];
-            const requestId = headers['x-request-id'];
-            const errorFromClientHeader = headers['error-from-client'];
+            const headers = err?.headers || {};
+            const contentType = headers.get('content-type');
+            const requestId = headers.get('x-request-id');
+
+            
+            
+            const errorFromClientHeader = headers.get('error-from-client');
             const errorFromClient = errorFromClientHeader
                 ? String(errorFromClientHeader).toLowerCase() === 'true'
                 : undefined;
@@ -153,7 +155,7 @@ class VaultClient {
     failureResponse = (err: any) => new Promise((_, reject) => {
         const { isNewFormat, contentType, requestId, errorFromClient } = this.normalizeErrorMeta(err);
     
-        const data = isNewFormat ? err?.body?.error : err?.response?.data;
+        const data = isNewFormat ? err?.body?.error : err;
     
         if (contentType) {
             if (contentType.includes('application/json')) {
@@ -187,8 +189,8 @@ class VaultClient {
             this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details, isNewFormat);
         } else {
             let description = data;
-            const statusCode = description?.error?.http_status;
-            const grpcCode = description?.error?.grpc_code;
+            const statusCode = description?.statusCode;
+            const grpcCode = description?.grpcCode;
             let details = description?.error?.details;
     
             if (errorFromClient !== undefined) {
@@ -197,7 +199,7 @@ class VaultClient {
                     : [{ errorFromClient }];
             }
     
-            description = description?.error?.message || description;
+            description = description?.body?.error?.message || description;
             this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details, isNewFormat);
         }
     }
@@ -211,7 +213,7 @@ class VaultClient {
             details.push({ errorFromClient });
         }
     
-        const description = isNewFormat ? data?.message: data;
+        const description = isNewFormat ? data?.message: data?.body?.error?.message;
         this.logAndRejectError(description, err, requestId, reject, undefined, undefined, details, isNewFormat);
     }
     
@@ -227,7 +229,7 @@ class VaultClient {
             grpcCode = err?.body?.error?.grpc_code;
             details = err?.body?.error?.details || [];
         } else {
-            description = err?.response?.data || err?.message || errorMessages.ERROR_OCCURRED;
+            description = err?.body?.error?.message || errorMessages.ERROR_OCCURRED;
         }
     
         if (errorFromClient !== undefined) {

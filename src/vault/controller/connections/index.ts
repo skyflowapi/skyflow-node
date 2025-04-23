@@ -17,6 +17,30 @@ class ConnectionController {
         this.logLevel = client.getLogLevel();
     }
 
+    private buildInvokeConnectionBody(invokeRequest: InvokeConnectionRequest){
+        let requestBody;
+        const contentType = invokeRequest.headers?.['Content-Type'] || 'application/json';
+        if (contentType === 'application/json') {
+            requestBody = JSON.stringify(invokeRequest.body);
+        } else if (contentType === 'application/x-www-form-urlencoded') {
+            const urlSearchParams = new URLSearchParams();
+            Object.entries(invokeRequest.body || {}).forEach(([key, value]) => {
+                if (typeof value === 'object' && value !== null) {
+                    Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+                        urlSearchParams.append(`${key}[${nestedKey}]`, nestedValue as string);
+                    });
+                } else {
+                    urlSearchParams.append(key, value as string);
+                }
+            });
+            requestBody = urlSearchParams.toString();
+        } else {
+            requestBody = invokeRequest.body;
+        }
+
+        return requestBody;
+    }
+
     invoke(invokeRequest: InvokeConnectionRequest): Promise<InvokeConnectionResponse> {
         return new Promise((resolve, reject) => {
             try {
@@ -30,17 +54,32 @@ class ConnectionController {
                     const sdkHeaders = {};
                     sdkHeaders[SKYFLOW_AUTH_HEADER_KEY] = token.key;
                     sdkHeaders[SDK_METRICS_HEADER_KEY] = JSON.stringify(generateSDKMetrics());
+                    
                     fetch(filledUrl, {
                         method: invokeRequest.method || RequestMethod.POST,
-                        body: JSON.stringify(invokeRequest.body),
+                        body: this.buildInvokeConnectionBody(invokeRequest),
                         headers: { ...invokeRequest.headers, ...sdkHeaders },
                     })
-                        .then((jsonResponse) => jsonResponse.json())
-                        .then((response) => {
+                        .then(async (response) => {
+                            if(!response.ok){
+                                const errorBody = await response.json().catch(() => null);
+
+                                const error = {
+                                    body: errorBody,
+                                    statusCode: response.status,
+                                    message: response.statusText,
+                                    headers: response.headers
+                                };
+                                throw error;
+                            }
+                            const headers = response.headers;
+                            return response.json().then((body) => ({ headers, body }));
+                        })
+                        .then(({headers, body}) => {
                             printLog(logs.infoLogs.INVOKE_CONNECTION_REQUEST_RESOLVED, MessageType.LOG, this.logLevel);
-                            const requestId = response?.headers?.[REQUEST_ID_KEY] || '';
+                            const requestId = headers?.get(REQUEST_ID_KEY) || '';
                             const invokeConnectionResponse = new InvokeConnectionResponse({
-                                data: response.data,
+                                data: body,
                                 metadata: { requestId }
                             });
                             resolve(invokeConnectionResponse);
