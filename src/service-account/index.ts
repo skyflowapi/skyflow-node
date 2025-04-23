@@ -148,7 +148,6 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                     successResponse(res.data, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
                 })
                     .catch((err) => {
-                        // console.log("Errorrrr: ", err)
                         failureResponse(err).catch(err => reject(err))
                     });
             }
@@ -286,9 +285,6 @@ function generateSignedDataTokensFromCreds(credentials, options: SignedDataToken
 function failureResponse(err: any) {
     return new Promise((_, reject) => {
         if (err.rawResponse) {
-            // console.log("RawL : ", err.rawResponse);
-            // let data = err.response.data
-            // const headerMap = err.response.headers
             const requestId = err?.rawResponse?.headers?.get('x-request-id');;
             const contentType = err?.rawResponse?.headers?.get('content-type');
             if (contentType && contentType.includes('application/json')) {

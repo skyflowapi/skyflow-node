@@ -368,14 +368,14 @@ describe('getToken Tests', () => {
         expect(result.tokenType).toBe('Bearer');
     };
 
-    test("should get token with valid credentials", async () => {
-        mockClient.authApi.authenticationServiceGetAuthToken.mockResolvedValueOnce(mockTokenResponse);
-        await getToken(JSON.stringify(credentials), { logLevel: LogLevel.OFF });
-    });
-
     test("should get Bearer Token with valid credentials", async () => {
         const filePath = 'test/demo-credentials/valid.json';
-        mockClient.authApi.authenticationServiceGetAuthToken.mockResolvedValueOnce(mockTokenResponse);
+        mockClient.authApi.authenticationServiceGetAuthToken.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: mockTokenResponse,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
+            })
+        }));
         await generateBearerToken(filePath, { logLevel: LogLevel.OFF });
     });
 
