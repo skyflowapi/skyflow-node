@@ -75,7 +75,6 @@ async function performDetokenization() {
 
         // Handle Successful Response
         console.log('Detokenization successful:', response);
-
     } catch (error) {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
