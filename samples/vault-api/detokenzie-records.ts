@@ -9,7 +9,8 @@ import {
     Skyflow, 
     SkyflowError, 
     VaultConfig, 
-    SkyflowConfig 
+    SkyflowConfig, 
+    DetokenizeData
 } from 'skyflow-node';
 
 /**
@@ -46,13 +47,20 @@ async function performDetokenization() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Detokenization Data
-        const detokenizeData: Array<string> = ['token1', 'token2', 'token3']; // Tokens to be detokenized
-        const redactionType: RedactionType = RedactionType.REDACTED;          // Redaction type
+        const detokenizeData: DetokenizeData[] = [
+            {
+              token: "token1",                          // Token to be detokenized
+              redactionType: RedactionType.PLAIN_TEXT,  // Redaction type
+            },
+            {
+              token: "token2",                         // Token to be detokenized 
+              redactionType: RedactionType.MASKED,     // Redaction type
+            },
+          ]; 
 
         // Create Detokenize Request
         const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(
-            detokenizeData,
-            redactionType
+            detokenizeData
         );
 
         // Configure Detokenize Options

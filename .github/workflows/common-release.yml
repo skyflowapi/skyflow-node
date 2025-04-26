@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v1
         with:
-          node-version: 16.20.2
+          node-version: '20.x'
 
       - name: Install Packages
         run: npm install
@@ -77,7 +77,7 @@ jobs:
         run: |
           if [[ "${{ inputs.tag }}" == "beta" ]]; then
             npm publish --tag beta
-          if [[ "${{ inputs.tag }}" == "public" ]]; then
+          elif [[ "${{ inputs.tag }}" == "public" ]]; then
             npm publish
           elif [[ "${{ inputs.tag }}" == "internal" ]]; then
             curl -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_PASSWORD }} https://prekarilabs.jfrog.io/prekarilabs/api/npm/auth/ > ~/.npmrc
