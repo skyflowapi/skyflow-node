@@ -82,7 +82,6 @@ jobs:
           elif [[ "${{ inputs.tag }}" == "internal" ]]; then
             curl -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_PASSWORD }} https://prekarilabs.jfrog.io/prekarilabs/api/npm/auth/ > ~/.npmrc
             npm config set registry https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/
-            npm config set unsafe-perm true
             npm publish
           fi
         env:
