@@ -3,9 +3,6 @@ name: Common Release Workflow
 on:
   workflow_call:
     inputs:
-      registry-url:
-        required: true
-        type: string
       tag:
         required: false
         type: string
@@ -21,8 +18,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.17.6
-          registry-url: ${{ inputs.registry-url }}
+          node-version: 16.20.2
 
       - name: Install Packages
         run: npm install

@@ -1,18 +1,15 @@
 // imports 
-import { AuthenticationApi, Configuration } from "../../ _generated_/rest";
-
+import { Authentication } from "../../ _generated_/rest/api/resources/authentication/client/Client";
 
 class Client {
 
-    configuration: Configuration;
-
-    authApi: AuthenticationApi;
+    authApi: Authentication;
 
     constructor(tokenURI: string) {
-        this.configuration = new Configuration({
-            basePath: tokenURI,
+        this.authApi = new Authentication({
+            baseUrl: tokenURI,
+            token:''
         });
-        this.authApi = new AuthenticationApi(this.configuration);
     }
 
 }
