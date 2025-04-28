@@ -156,7 +156,7 @@ class VaultClient {
         const { isNewFormat, contentType, requestId, errorFromClient } = this.normalizeErrorMeta(err);
     
         const data = isNewFormat ? err?.body?.error : err;
-    
+
         if (contentType) {
             if (contentType.includes('application/json')) {
                 this.handleJsonError(err, data, requestId, reject, errorFromClient);
@@ -214,7 +214,9 @@ class VaultClient {
         }
     
         const description = isNewFormat ? data?.message: data?.body?.error?.message;
-        this.logAndRejectError(description, err, requestId, reject, undefined, undefined, details, isNewFormat);
+        const status = isNewFormat ? data?.http_status : err?.body?.error?.http_status;
+        const grpcCode = isNewFormat ? data?.grpc_code : err?.body?.error?.grpc_code;
+        this.logAndRejectError(description, err, requestId, reject, status, grpcCode, details, isNewFormat);
     }
     
     
@@ -254,7 +256,7 @@ class VaultClient {
     ) {
         printLog(description, MessageType.ERROR, this.getLogLevel());
         reject(new SkyflowError({
-            http_code: isNewError ? err?.statusCode : err?.response?.status || 400,
+            http_code: isNewError ? err?.statusCode : err?.body?.error?.http_code || 400,
             message: description,
             request_ID: requestId,
             grpc_code: grpcCode,
