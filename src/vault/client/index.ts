@@ -176,8 +176,8 @@ class VaultClient {
     
         if (isNewFormat) {
             let description = data?.message;
-            const statusCode = data?.http_code;
             const grpcCode = data?.grpc_code;
+            const status = data?.http_status;
             let details = data?.details || [];
     
             if (errorFromClient !== undefined) {
@@ -186,7 +186,7 @@ class VaultClient {
                     : [{ errorFromClient }];
             }
     
-            this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details, isNewFormat);
+            this.logAndRejectError(description, err, requestId, reject, status, grpcCode, details, isNewFormat);
         } else {
             let description = data;
             const statusCode = description?.statusCode;
