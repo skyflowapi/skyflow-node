@@ -117,10 +117,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -274,10 +271,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -387,10 +381,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -483,10 +474,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -602,10 +590,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -709,10 +694,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -802,10 +784,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -837,43 +816,39 @@ export class Records {
     /**
      * Uploads a file to the specified record.
      *
-     * @param {File | fs.ReadStream | Blob | undefined} file
+     * @param {File | fs.ReadStream | Blob | undefined} fileColumnName
      * @param {string} vaultId
      * @param {string} objectName
      * @param {string} id
-     * @param {Skyflow.FileServiceUploadFileRequest} request
      * @param {Records.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Skyflow.NotFoundError}
      *
      * @example
-     *     await client.records.fileServiceUploadFile(fs.createReadStream("/path/to/your/file"), "vaultID", "objectName", "ID", {})
+     *     await client.records.fileServiceUploadFile(fs.createReadStream("/path/to/your/file"), "vaultID", "objectName", "ID")
      */
     public fileServiceUploadFile(
-        file: File | fs.ReadStream | Blob | undefined,
+        fileColumnName: File | fs.ReadStream | Blob | undefined,
         vaultId: string,
         objectName: string,
         id: string,
-        request: Skyflow.FileServiceUploadFileRequest,
         requestOptions?: Records.RequestOptions,
     ): core.HttpResponsePromise<Skyflow.V1UpdateRecordResponse> {
         return core.HttpResponsePromise.fromPromise(
-            this.__fileServiceUploadFile(file, vaultId, objectName, id, request, requestOptions),
+            this.__fileServiceUploadFile(fileColumnName, vaultId, objectName, id, requestOptions),
         );
     }
 
     private async __fileServiceUploadFile(
-        file: File | fs.ReadStream | Blob | undefined,
+        fileColumnName: File | fs.ReadStream | Blob | undefined,
         vaultId: string,
         objectName: string,
         id: string,
-        request: Skyflow.FileServiceUploadFileRequest,
         requestOptions?: Records.RequestOptions,
     ): Promise<core.WithRawResponse<Skyflow.V1UpdateRecordResponse>> {
         const _request = await core.newFormData();
-        if (file != null && request.columnName != null) {
-            await _request.appendFile(request.columnName, file);
-        
+        if (fileColumnName != null) {
+            await _request.appendFile("fileColumnName", fileColumnName);
         }
 
         const _maybeEncodedRequest = await _request.getRequest();
@@ -910,10 +885,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -1006,10 +978,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -1102,10 +1071,7 @@ export class Records {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,

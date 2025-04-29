@@ -10,6 +10,7 @@ import SkyflowError from "../../error";
 import logs from "../../utils/logs";
 import { isLogLevel, validateConnectionConfig, validateSkyflowConfig, validateSkyflowCredentials, validateUpdateConnectionConfig, validateUpdateVaultConfig, validateVaultConfig } from "../../utils/validations";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
+import DetectController from "../controller/detect";
 
 class Skyflow {
 
@@ -49,16 +50,18 @@ class Skyflow {
         const env = config.env || Env.PROD;
         const vaultUrl = getVaultURL(config.clusterId, env);
         const client = new VaultClient(vaultUrl, config.vaultId, config?.credentials, this.commonCredentials, this.logLevel);
-        const controller = new VaultController(client);
+        const vaultController = new VaultController(client);
+        const detectController = new DetectController(client);
         printLog(parameterizedString(logs.infoLogs.VAULT_CONTROLLER_INITIALIZED, [config.vaultId]), MessageType.LOG, this.logLevel);
-        clients[config.vaultId] = { config, client, controller };
+        // printLog for detect controller
+        clients[config.vaultId] = { config, client, vaultController, detectController };
     }
 
     private addConnectionClient(config: ConnectionConfig, clients: ClientObj) {
         const client = new VaultClient(config.connectionUrl, '', config?.credentials, this.commonCredentials, this.logLevel);
-        const controller = new ConnectionController(client);
+        const connectionController = new ConnectionController(client);
         printLog(parameterizedString(logs.infoLogs.CONNECTION_CONTROLLER_INITIALIZED, [config.connectionId]), MessageType.LOG, this.logLevel);
-        clients[config.connectionId] = { config, client, controller };
+        clients[config.connectionId] = { config, client, connectionController };
     }
 
     addVaultConfig(config: VaultConfig) {
@@ -201,20 +204,45 @@ class Skyflow {
     }
 
     vault(vaultId?: string) {
-        return this.getClient(vaultId, this.vaultClients, VAULT_ID) as VaultController;
+        return this.getClient(vaultId, this.vaultClients, VAULT_ID, 'vault') as VaultController;
+    }
+
+    detect(vaultId?: string) {
+        return this.getClient(vaultId, this.vaultClients, VAULT_ID, 'detect') as DetectController;
     }
 
     connection(connectionId?: string) {
-        return this.getClient(connectionId, this.connectionClients, CONNECTION_ID) as ConnectionController;
+        return this.getClient(connectionId, this.connectionClients, CONNECTION_ID, 'connection') as ConnectionController;
     }
 
-    private getClient(id: string | undefined, clients: ClientObj, idKey: string) {
-        if(Object.keys(clients).length === 0) this.throwErrorForEmptyClients(idKey)
-        const clientId = id || Object.keys(clients)[0];
-        if (clientId && clients[clientId]?.controller) {
-            return clients[clientId].controller;
+    private getClient(
+        id: string | undefined,
+        clients: ClientObj,
+        idKey: string,
+        controllerType: 'vault' | 'detect' | 'connection'
+    ) {
+        if (Object.keys(clients).length === 0) {
+            this.throwErrorForEmptyClients(idKey);
         }
-        if (clientId) this.throwErrorForUnknownId(clientId, idKey)
+    
+        const clientId = id || Object.keys(clients)[0];
+        if (clientId) {
+            const clientData = clients[clientId];
+    
+            if (controllerType === 'vault' && clientData?.vaultController) {
+                return clientData.vaultController;
+            }
+    
+            if (controllerType === 'detect' && clientData?.detectController) {
+                return clientData.detectController;
+            }
+    
+            if (controllerType === 'connection' && clientData?.connectionController) {
+                return clientData.connectionController;
+            }
+    
+            this.throwErrorForUnknownId(clientId, idKey);
+        }
     }
 
     private updateClients(updateType: string) {

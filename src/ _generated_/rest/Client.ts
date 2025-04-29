@@ -10,6 +10,9 @@ import { Records } from "./api/resources/records/client/Client";
 import { Tokens } from "./api/resources/tokens/client/Client";
 import { Query } from "./api/resources/query/client/Client";
 import { Authentication } from "./api/resources/authentication/client/Client";
+import { Deprecated } from "./api/resources/deprecated/client/Client";
+import { Strings } from "./api/resources/strings/client/Client";
+import { Files } from "./api/resources/files/client/Client";
 
 export declare namespace SkyflowClient {
     export interface Options {
@@ -39,6 +42,9 @@ export class SkyflowClient {
     protected _tokens: Tokens | undefined;
     protected _query: Query | undefined;
     protected _authentication: Authentication | undefined;
+    protected _deprecated: Deprecated | undefined;
+    protected _strings: Strings | undefined;
+    protected _files: Files | undefined;
 
     constructor(protected readonly _options: SkyflowClient.Options) {}
 
@@ -64,5 +70,17 @@ export class SkyflowClient {
 
     public get authentication(): Authentication {
         return (this._authentication ??= new Authentication(this._options));
+    }
+
+    public get deprecated(): Deprecated {
+        return (this._deprecated ??= new Deprecated(this._options));
+    }
+
+    public get strings(): Strings {
+        return (this._strings ??= new Strings(this._options));
+    }
+
+    public get files(): Files {
+        return (this._files ??= new Files(this._options));
     }
 }

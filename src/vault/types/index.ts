@@ -5,6 +5,7 @@ import Credentials from "../config/credentials";
 import VaultController from "../controller/vault";
 import ConnectionController from "../controller/connections";
 import VaultClient from "../client";
+import DetectController from "../controller/detect";
 
 export interface SkyflowConfig {
     vaultConfigs: VaultConfig[];
@@ -15,7 +16,9 @@ export interface SkyflowConfig {
 
 export interface ClientConfig {
     config: VaultConfig | ConnectionConfig;
-    controller: VaultController | ConnectionController;
+    vaultController?: VaultController;
+    connectionController?: ConnectionController;
+    detectController?: DetectController;
     client: VaultClient;
 }
 

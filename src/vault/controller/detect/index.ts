@@ -1,9 +1,16 @@
 //imports
 
+import { MessageType, printLog } from "../../../utils";
+import logs from "../../../utils/logs";
+import VaultClient from "../../client";
+
 class DetectController {
 
-    constructor() {
+    private client: VaultClient;
 
+    constructor(client: VaultClient) {
+        this.client = client;
+        printLog(logs.infoLogs.CONTROLLER_INITIALIZED, MessageType.LOG, this.client.getLogLevel());
     }
 
     static initialize() {
