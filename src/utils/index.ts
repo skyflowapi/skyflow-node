@@ -96,10 +96,12 @@ export const TYPES = {
     GET: 'GET',
     FILE_UPLOAD: 'FILE_UPLOAD',
     QUERY: 'QUERY',
+    DETECT: 'DETECT',
     INVOKE_CONNECTION: 'INVOKE_CONNECTION',
+    DEIDENTIFY_TEXT: 'DEIDENTIFY_TEXT',
 };
 
-export enum DETECT_ENTITIES {
+export enum DetectEntities {
     ACCOUNT_NUMBER = 'ACCOUNT_NUMBER',
     AGE = 'AGE',
     ALL = 'ALL',

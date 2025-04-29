@@ -816,39 +816,43 @@ export class Records {
     /**
      * Uploads a file to the specified record.
      *
-     * @param {File | fs.ReadStream | Blob | undefined} fileColumnName
+     * @param {File | fs.ReadStream | Blob | undefined} file
      * @param {string} vaultId
      * @param {string} objectName
      * @param {string} id
+     * @param {Skyflow.FileServiceUploadFileRequest} request
      * @param {Records.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Skyflow.NotFoundError}
      *
      * @example
-     *     await client.records.fileServiceUploadFile(fs.createReadStream("/path/to/your/file"), "vaultID", "objectName", "ID")
+     *     await client.records.fileServiceUploadFile(fs.createReadStream("/path/to/your/file"), "vaultID", "objectName", "ID", {})
      */
     public fileServiceUploadFile(
-        fileColumnName: File | fs.ReadStream | Blob | undefined,
+        file: File | fs.ReadStream | Blob | undefined,
         vaultId: string,
         objectName: string,
         id: string,
+        request: Skyflow.FileServiceUploadFileRequest,
         requestOptions?: Records.RequestOptions,
     ): core.HttpResponsePromise<Skyflow.V1UpdateRecordResponse> {
         return core.HttpResponsePromise.fromPromise(
-            this.__fileServiceUploadFile(fileColumnName, vaultId, objectName, id, requestOptions),
+            this.__fileServiceUploadFile(file, vaultId, objectName, id, request, requestOptions),
         );
     }
 
     private async __fileServiceUploadFile(
-        fileColumnName: File | fs.ReadStream | Blob | undefined,
+        file: File | fs.ReadStream | Blob | undefined,
         vaultId: string,
         objectName: string,
         id: string,
+        request: Skyflow.FileServiceUploadFileRequest,
         requestOptions?: Records.RequestOptions,
     ): Promise<core.WithRawResponse<Skyflow.V1UpdateRecordResponse>> {
         const _request = await core.newFormData();
-        if (fileColumnName != null) {
-            await _request.appendFile("fileColumnName", fileColumnName);
+        if (file != null && request.columnName != null) {
+            await _request.appendFile(request.columnName, file);
+        
         }
 
         const _maybeEncodedRequest = await _request.getRequest();

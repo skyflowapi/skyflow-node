@@ -1,6 +1,7 @@
 // imports 
 import { Query } from "../../ _generated_/rest/api/resources/query/client/Client";
 import { Records } from "../../ _generated_/rest/api/resources/records/client/Client";
+import { Strings } from "../../ _generated_/rest/api/resources/strings/client/Client";
 import { Tokens } from "../../ _generated_/rest/api/resources/tokens/client/Client";
 import SkyflowError from "../../error";
 import errorMessages from "../../error/messages";
@@ -22,6 +23,8 @@ class VaultClient {
     tokensAPI!: Tokens;
 
     queryAPI!: Query;
+
+    stringsAPI!: Strings;
 
     individualCredentials?: Credentials;
 
@@ -77,6 +80,8 @@ class VaultClient {
             case TYPES.QUERY:
                 this.queryAPI = new Query(this.configuration);
                 break;
+            case TYPES.DETECT:
+                this.stringsAPI = new Strings(this.configuration);
             default:
                 break;
         }

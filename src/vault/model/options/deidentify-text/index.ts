@@ -1,14 +1,14 @@
-import { DETECT_ENTITIES } from "../../../../utils";
+import { DetectEntities } from "../../../../utils";
 
 class DeidentifyTextOptions {
-    private _entities: DETECT_ENTITIES[];
+    private _entities: DetectEntities[];
     private _allowRegexList: string[];
     private _restrictRegexList: string[];
     private _tokenFormat: TokenFormat;
     private _transformations: Transformations;
 
     constructor(
-        entities: DETECT_ENTITIES[],
+        entities: DetectEntities[],
         allowRegexList: string[],
         restrictRegexList: string[],
         tokenFormat: TokenFormat,
@@ -25,7 +25,7 @@ class DeidentifyTextOptions {
         return this._entities;
     }
 
-    public set entities(value: DETECT_ENTITIES[]) {
+    public set entities(value: DetectEntities[]) {
         this._entities = value;
     }
 
