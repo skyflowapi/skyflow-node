@@ -1,6 +1,6 @@
 //imports
 
-class DeidentifiedTextResponse {
+class DeidentifyTextResponse {
     //fields
     processedText: string;
     entities: Array<{
@@ -41,4 +41,4 @@ class DeidentifiedTextResponse {
     //getters and setters
 }
 
-export default DeidentifiedTextResponse;
+export default DeidentifyTextResponse;

@@ -1,19 +1,20 @@
 class Transformations {
-    private _shiftDays: {
-        max: number; 
+    // Fields
+    private _shiftDays?: {
+        max: number;
         min: number;
         entities: string[];
     };
 
-    constructor(shiftDays: { max: number; min: number; entities: string[] }) {
+    // Setters
+    setShiftDays(shiftDays: { max: number; min: number; entities: string[] }) {
         this._shiftDays = shiftDays;
     }
 
-    public get shiftDays(): { max: number; min: number; entities: string[] } {
+    // Getters
+    getShiftDays(): { max: number; min: number; entities: string[] } | undefined {
         return this._shiftDays;
     }
-
-    public set shiftDays(value: { max: number; min: number; entities: string[] }) {
-        this._shiftDays = value;
-    }
 }
+
+export default Transformations;

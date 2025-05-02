@@ -24,6 +24,10 @@ import * as fs from 'fs';
 import { isExpired } from "../jwt-utils";
 import logs from "../logs";
 import FileUploadOptions from "../../vault/model/options/fileUpload";
+import DeidentifyTextRequest from "../../vault/model/request/deidentify-text";
+import DeidentifyTextOptions from "../../vault/model/options/deidentify-text";
+import TokenFormat from "../../vault/model/options/deidentify-text/token-format";
+import Transformations from "../../vault/model/options/deidentify-text/transformations";
 
 export function isEnv(value?: string): boolean {
     return value !== undefined && Object.values(Env).includes(value as Env);
@@ -940,6 +944,34 @@ export const validateQueryRequest = (queryRequest: QueryRequest, logLevel: LogLe
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_QUERY_REQUEST);
     }
 }
+
+export const validateDeIdentifyText = (deIdentifyTextRequest: DeidentifyTextRequest, options?: DeidentifyTextOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!deIdentifyTextRequest.text || typeof deIdentifyTextRequest.text !== 'string' || deIdentifyTextRequest.text.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TEXT_IN_DEIDENTIFY);
+    }
+
+    if (options) {
+        if (options.getEntities() && !Array.isArray(options.getEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENTITIES_IN_DEIDENTIFY);
+        }
+
+        if (options.getAllowRegexList() && !Array.isArray(options.getAllowRegexList())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ALLOW_REGEX_LIST);
+        }
+
+        if (options.getRestrictRegexList() && !Array.isArray(options.getRestrictRegexList())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RESTRICT_REGEX_LIST);
+        }
+
+        if (options.getTokenFormat() && !(options.getTokenFormat() instanceof TokenFormat)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
+        }
+
+        if (options.getTransformations() && !(options.getTransformations() instanceof Transformations)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TRANSFORMATIONS);
+        }
+    }
+};
 
 function isStringKeyValueMap(obj: any): obj is StringKeyValueMapType {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {

@@ -193,7 +193,15 @@ const errorMessages = {
     INVAILD_JSON_RESPONSE: `${errorPrefix} Validation error. The invalid json response. Please reach out to skyflow using requestId - %s1.`,
 
     EMPTY_VAULT_CLIENTS: `${errorPrefix} Validation error. No vault config found. Please add a vault config`,
-    EMPTY_CONNECTION_CLIENTS: `${errorPrefix} Validation error. No connection config found. Please add a connection config`
+    EMPTY_CONNECTION_CLIENTS: `${errorPrefix} Validation error. No connection config found. Please add a connection config`,
+
+    INVALID_TEXT_IN_DEIDENTIFY: `${errorPrefix} Validation error. The text field is required and must be a non-empty string. Specify a valid text.`,
+    INVALID_ENTITIES_IN_DEIDENTIFY: `${errorPrefix} Validation error. The entities field must be an array of DetectEntities enums. Specify a valid entities.`,
+    INVALID_ALLOW_REGEX_LIST: `${errorPrefix} Validation error. The allowRegexList field must be an array of strings. Specify a valid allowRegexList.`,
+    INVALID_RESTRICT_REGEX_LIST: `${errorPrefix} Validation error. The restrictRegexList field must be an array of strings. Specify a valid restrictRegexList.`,
+    INVALID_TOKEN_FORMAT: `${errorPrefix} Validation error. The tokenFormat key must be an instance of TokenFormat. Specify a valid token format.`,
+    INVALID_TRANSFORMATIONS: `${errorPrefix} Validation error. The transformations key must be an instance of Transformations. Specify a valid transformations.`,
+
 };
 
 export default errorMessages;

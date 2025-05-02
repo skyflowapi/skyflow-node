@@ -189,6 +189,13 @@ const SKYFLOW_ERROR_CODE = {
 
     EMPTY_VAULT_CLIENTS: { http_code: 400, message: errorMessages.EMPTY_VAULT_CLIENTS },
     EMPTY_CONNECTION_CLIENTS: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_CLIENTS },
+
+    INVALID_TEXT_IN_DEIDENTIFY: { http_code: 400, message: errorMessages.INVALID_TEXT_IN_DEIDENTIFY },
+    INVALID_ENTITIES_IN_DEIDENTIFY: { http_code: 400, message: errorMessages.INVALID_ENTITIES_IN_DEIDENTIFY },
+    INVALID_ALLOW_REGEX_LIST: { http_code: 400, message: errorMessages.INVALID_ALLOW_REGEX_LIST },
+    INVALID_RESTRICT_REGEX_LIST: { http_code: 400, message: errorMessages.INVALID_RESTRICT_REGEX_LIST },
+    INVALID_TOKEN_FORMAT: { http_code: 400, message: errorMessages.INVALID_TOKEN_FORMAT },
+    INVALID_TRANSFORMATIONS: { http_code: 400, message: errorMessages.INVALID_TRANSFORMATIONS },
 };
 
 export default SKYFLOW_ERROR_CODE;

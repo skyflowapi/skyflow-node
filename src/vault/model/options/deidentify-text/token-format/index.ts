@@ -1,50 +1,43 @@
 class TokenFormat {
-    private _default: string;
-    private _vaultToken: string[];
-    private _entityUniqueCounter: string[];
-    private _entityOnly: string[];
+    // Fields
+    private _default?: string;
+    private _vaultToken?: string[];
+    private _entityUniqueCounter?: string[];
+    private _entityOnly?: string[];
 
-    constructor(
-        defaultToken: string,
-        vaultToken: string[],
-        entityUniqueCounter: string[],
-        entityOnly: string[]
-    ) {
+    // Setters
+    setDefault(defaultToken: string) {
         this._default = defaultToken;
+    }
+
+    setVaultToken(vaultToken: string[]) {
         this._vaultToken = vaultToken;
+    }
+
+    setEntityUniqueCounter(entityUniqueCounter: string[]) {
         this._entityUniqueCounter = entityUniqueCounter;
+    }
+
+    setEntityOnly(entityOnly: string[]) {
         this._entityOnly = entityOnly;
     }
 
-    public get default(): string {
+    // Getters
+    getDefault(): string | undefined {
         return this._default;
     }
 
-    public set default(value: string) {
-        this._default = value;
-    }
-
-    public get vaultToken(): string[] {
+    getVaultToken(): string[] | undefined {
         return this._vaultToken;
     }
 
-    public set vaultToken(value: string[]) {
-        this._vaultToken = value;
-    }
-
-    public get entityUniqueCounter(): string[] {
+    getEntityUniqueCounter(): string[] | undefined {
         return this._entityUniqueCounter;
     }
 
-    public set entityUniqueCounter(value: string[]) {
-        this._entityUniqueCounter = value;
-    }
-
-    public get entityOnly(): string[] {
+    getEntityOnly(): string[] | undefined {
         return this._entityOnly;
     }
-
-    public set entityOnly(value: string[]) {
-        this._entityOnly = value;
-    }
 }
+
+export default TokenFormat;
