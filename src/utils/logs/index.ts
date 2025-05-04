@@ -65,7 +65,11 @@ const logs = {
         USING_API_KEY: 'Using api key from credentials',
         USING_CREDENTIALS_STRING: 'Using credentials string from credentials',
         USING_PATH: 'Using path from credentials',
-        USING_SKYFLOW_CREDENTIALS_ENV: 'Using SKYFLOW_CREDENTIALS from env'
+        USING_SKYFLOW_CREDENTIALS_ENV: 'Using SKYFLOW_CREDENTIALS from env',
+        DEIDENTIFY_TEXT_TRIGGERED: 'Deidentify text method triggered',
+        VALIDATE_DEIDENTIFY_TEXT_INPUT: 'Validating deidentify text input',
+        REIDENTIFY_TEXT_TRIGGERED: 'Reidentify text method triggered',
+        VALIDATE_REIDENTIFY_TEXT_INPUT: 'Validating reidentify text input',
     },
     errorLogs: {
         VAULT_CONFIG_KEY_MISSING: "Invalid skyflow config. Vaults configs key missing in skyflow config.",

@@ -36,6 +36,9 @@ import DeidentifyTextOptions from './vault/model/options/deidentify-text';
 import DeidentifyTextResponse from './vault/model/response/deidentify-text';
 import ReidentifyTextRequest from './vault/model/request/reidentify-text';
 import ReidentifyTextOptions from './vault/model/options/reidentify-text';
+import ReidentifyTextResponse from './vault/model/response/reidentify-text';
+import TokenFormat from './vault/model/options/deidentify-text/token-format';
+import Transformations from './vault/model/options/deidentify-text/transformations';
 
 export {
     Env,
@@ -89,5 +92,8 @@ export {
     DetectEntities,
     DeidentifyTextResponse,
     ReidentifyTextRequest,
-    ReidentifyTextOptions
+    ReidentifyTextOptions,
+    ReidentifyTextResponse,
+    TokenFormat,
+    Transformations
 };

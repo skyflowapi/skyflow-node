@@ -3,7 +3,7 @@
 import { DetectedEntity, EntityType, Transformations } from "../../../ _generated_/rest/api";
 import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, removeSDKVersion, SDK_METRICS_HEADER_KEY, TYPES } from "../../../utils";
 import logs from "../../../utils/logs";
-import { validateDeIdentifyText } from "../../../utils/validations";
+import { validateDeIdentifyTextRequest, validateReidentifyTextRequest } from "../../../utils/validations";
 import VaultClient from "../../client";
 import DeidentifyTextOptions from "../../model/options/deidentify-text";
 import ReidentifyTextOptions from "../../model/options/reidentify-text";
@@ -11,6 +11,7 @@ import DeidentifyTextRequest from "../../model/request/deidentify-text";
 import ReidentifyTextRequest from "../../model/request/reidentify-text";
 import DeidentifiedTextResponse from "../../model/response/deidentify-text";
 import DeidentifyTextResponse from "../../model/response/deidentify-text";
+import ReidentifyTextResponse from "../../model/response/reidentify-text";
 
 class DetectController {
 
@@ -51,20 +52,30 @@ class DetectController {
     }
 
     private buildDeidentifyTextRequest(request: DeidentifyTextRequest, options?: DeidentifyTextOptions) {
+        
         return {
             vault_id: this.client.vaultId,
             text: request.text,
             entity_types: options?.getEntities() as EntityType[],
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
+            transformations: {
+                shift_dates: {
+                    max_days: options?.getTransformations()?.getShiftDays()?.max,
+                    min_days: options?.getTransformations()?.getShiftDays()?.min,
+                    entity_types: options?.getTransformations()?.getShiftDays()?.entities,
+                }
+            } as Transformations,
         };
     }
 
     deidentifyText(request: DeidentifyTextRequest, options?: DeidentifyTextOptions): Promise<DeidentifiedTextResponse> {
         return new Promise((resolve, reject) => {
             try {
-                validateDeIdentifyText(request, options, this.client.getLogLevel());
+                printLog(logs.infoLogs.DEIDENTIFY_TEXT_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
+                printLog(logs.infoLogs.VALIDATE_DEIDENTIFY_TEXT_INPUT, MessageType.LOG, this.client.getLogLevel());
+
+                validateDeIdentifyTextRequest(request, options, this.client.getLogLevel());
 
                 const requestBody = this.buildDeidentifyTextRequest(request, options);
                 this.handleRequest(
@@ -103,8 +114,41 @@ class DetectController {
         });
     }
 
-    reidentifyText(request: ReidentifyTextRequest, options?: ReidentifyTextOptions) {
-        
+    reidentifyText(request: ReidentifyTextRequest, options?: ReidentifyTextOptions): Promise<ReidentifyTextResponse> {
+        return new Promise((resolve, reject) => {
+            try {
+                printLog(logs.infoLogs.REIDENTIFY_TEXT_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
+                printLog(logs.infoLogs.VALIDATE_REIDENTIFY_TEXT_INPUT, MessageType.LOG, this.client.getLogLevel());
+                validateReidentifyTextRequest(request, options, this.client.getLogLevel());
+
+                const requestBody = {
+                    text: request.text,
+                    vault_id: this.client.vaultId,
+                    format: {
+                        redacted: options?.getRedactedEntities(),
+                        masked: options?.getMaskedEntities(),
+                        plaintext: options?.getPlainTextEntities(),
+                    }
+                };
+                this.handleRequest(
+                    () => this.client.stringsAPI.reidentifyString(
+                        requestBody
+                    ).withRawResponse(),
+                    TYPES.DETECT
+                ).then(data => {
+                    resolve(new ReidentifyTextResponse({
+                        processedText: data.records.text
+                    }));
+                }).catch(error => {
+                    reject(error)
+                });
+
+            } catch (error) {
+                if (error instanceof Error)
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
+                reject(error);
+            }
+        });
     }
 
 }

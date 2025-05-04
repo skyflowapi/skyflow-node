@@ -86,6 +86,81 @@ describe('Skyflow initialization', () => {
         })).toThrowError(invalidConnectionConfigError);
     });
 
+
+    describe('Detect Controller Tests', () => {
+        const validVaultConfig = {
+            vaultId: "VAULT_ID",
+            clusterId: "CLUSTER_ID"
+        };
+
+        const noConfigFoundError = "No vault config found.";
+        const missingVaultConfigError = "VAULT_ID is missing from the config.";
+
+        test('should return detect controller', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig]
+            });
+            expect(skyflow.detect("VAULT_ID")).toBeTruthy();
+        });
+
+        test('should return detect controller when called without vault id', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig]
+            });
+            expect(skyflow.detect()).toBeTruthy();
+        });
+
+        test('should throw error for invalid vault id in detect method', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig],
+            });
+            skyflow.removeVaultConfig("VAULT_ID");
+            expect(() => skyflow.detect("ID")).toThrowError(noConfigFoundError);
+        });
+
+        test('should throw error when no vault configs exist for detect method', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig],
+            });
+            skyflow.removeVaultConfig("VAULT_ID");
+            expect(() => skyflow.detect("ID")).toThrowError(noConfigFoundError);
+        });
+    });
+
+    describe('Update Clients Tests', () => {
+        const validVaultConfig = {
+            vaultId: "VAULT_ID",
+            clusterId: "CLUSTER_ID"
+        };
+
+        const validConnectionConfig = {
+            connectionId: "CONN_ID",
+            connectionUrl: "https://connection-url.com"
+        };
+
+        test('should update log level for all clients', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig],
+                connectionConfigs: [validConnectionConfig]
+            });
+            skyflow.setLogLevel(LogLevel.OFF);
+            expect(skyflow.getLogLevel()).toBe(LogLevel.OFF);
+        });
+
+        test('should update credentials for all clients', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [validVaultConfig],
+                connectionConfigs: [validConnectionConfig],
+                skyflowCredentials: {
+                    apiKey: "sky-KEY"
+                }
+            });
+            const newCredentials = { apiKey: "sky-VALID_KEY" };
+            skyflow.updateSkyflowCredentials(newCredentials);
+            expect(skyflow.getSkyflowCredentials()).toBe(newCredentials);
+        });
+    });
+
     describe('Log Level Tests', () => {
         const validVaultConfig = [{
             vaultId: "VAULT_ID",

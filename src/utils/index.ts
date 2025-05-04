@@ -101,6 +101,12 @@ export const TYPES = {
     DEIDENTIFY_TEXT: 'DEIDENTIFY_TEXT',
 };
 
+export const CONTROLLER_TYPES = {
+    DETECT: 'DETECT',
+    VAULT: 'VAULT',
+    CONNECTION: 'CONNECTION',
+}
+
 export enum DetectEntities {
     ACCOUNT_NUMBER = "account_number",
     AGE = 'age',

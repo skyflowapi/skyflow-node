@@ -1,4 +1,4 @@
-import { CONNECTION_ID, CREDENTIALS, Env, getVaultURL, ISkyflowError, LOGLEVEL, LogLevel, MessageType, parameterizedString, printLog, VAULT_ID } from "../../utils";
+import { CONNECTION_ID, CONTROLLER_TYPES, CREDENTIALS, Env, getVaultURL, ISkyflowError, LOGLEVEL, LogLevel, MessageType, parameterizedString, printLog, VAULT_ID } from "../../utils";
 import ConnectionConfig from "../config/connection";
 import VaultConfig from "../config/vault";
 import { SkyflowConfig, ClientObj } from "../types";
@@ -204,22 +204,22 @@ class Skyflow {
     }
 
     vault(vaultId?: string) {
-        return this.getClient(vaultId, this.vaultClients, VAULT_ID, 'vault') as VaultController;
+        return this.getClient(vaultId, this.vaultClients, VAULT_ID, CONTROLLER_TYPES.VAULT) as VaultController;
     }
 
     detect(vaultId?: string) {
-        return this.getClient(vaultId, this.vaultClients, VAULT_ID, 'detect') as DetectController;
+        return this.getClient(vaultId, this.vaultClients, VAULT_ID, CONTROLLER_TYPES.DETECT) as DetectController;
     }
 
     connection(connectionId?: string) {
-        return this.getClient(connectionId, this.connectionClients, CONNECTION_ID, 'connection') as ConnectionController;
+        return this.getClient(connectionId, this.connectionClients, CONNECTION_ID, CONTROLLER_TYPES.CONNECTION) as ConnectionController;
     }
 
     private getClient(
         id: string | undefined,
         clients: ClientObj,
         idKey: string,
-        controllerType: 'vault' | 'detect' | 'connection'
+        controllerType: string
     ) {
         if (Object.keys(clients).length === 0) {
             this.throwErrorForEmptyClients(idKey);
@@ -229,15 +229,15 @@ class Skyflow {
         if (clientId) {
             const clientData = clients[clientId];
     
-            if (controllerType === 'vault' && clientData?.vaultController) {
+            if (controllerType === CONTROLLER_TYPES.VAULT && clientData?.vaultController) {
                 return clientData.vaultController;
             }
     
-            if (controllerType === 'detect' && clientData?.detectController) {
+            if (controllerType === CONTROLLER_TYPES.DETECT && clientData?.detectController) {
                 return clientData.detectController;
             }
     
-            if (controllerType === 'connection' && clientData?.connectionController) {
+            if (controllerType === CONTROLLER_TYPES.CONNECTION && clientData?.connectionController) {
                 return clientData.connectionController;
             }
     
