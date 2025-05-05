@@ -4,7 +4,7 @@ const errorPrefix = `Skyflow Node SDK v${sdkDetails.version}`;
 
 const errorMessages = {
     CONFIG_MISSING: `${errorPrefix} Initialization failed. Skyflow config cannot be empty. Specify a valid skyflow config.`,
-    INVALID_SKYFLOW_CONFIG: `${errorPrefix} Initialization failed. Invalid skyflow config. Vaults configs key missing in skyflow config.`,
+    INVALID_SKYFLOW_CONFIG: `${errorPrefix} Initialization failed. Invalid skyflow config. Vault/Connection config key missing in skyflow config.`,
     INVALID_TYPE_FOR_CONFIG: `${errorPrefix} Initialization failed. Invalid %s1 config. Specify a valid %s1 config.`,
     EMPTY_VAULT_CONFIG: `${errorPrefix} Initialization failed. Vault config cannot be empty. Specify a valid vault config.`,
     EMPTY_CONNECTION_CONFIG: `${errorPrefix} Initialization failed. Connection config cannot be empty. Specify a valid connection config.`,
@@ -114,6 +114,11 @@ const errorMessages = {
     INVALID_COLUMN_NAME_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid column name in file upload request. Specify a valid column name.`,
     MISSING_FILE_PATH_IN_UPLOAD_FILE: `${errorPrefix} Validation error. File path cannot be empty in file upload request. Specify a valid file path as string.`,
     INVALID_FILE_PATH_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid file path in file upload request. Specify a valid file path.`,
+    MISSING_FILE_SOURCE_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Provide exactly one of filePath, base64, or fileObject.`,
+    MISSING_FILE_NAME_FOR_BASE64: `${errorPrefix} Validation error. File name is required when providing a base64 string`,
+    INVALID_FILE_OBJECT_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid file object in file upload request. Specify a valid file object.`,
+    MISSING_FILE_NAME_IN_FILE_OBJECT: `${errorPrefix} Validation error. File name is required when providing a file object. Specify a valid file name.`,
+    INVALID_BASE64_IN_UPLOAD_FILE: `${errorPrefix} Validation error. Invalid base64 string in file upload request. Specify a valid base64 string.`,
 
     MISSING_SKYFLOW_ID_IN_UPDATE: `${errorPrefix} Validation error. Skyflow id name cannot be empty in update request. Specify a skyflow Id name as string.`,
     INVALID_SKYFLOW_ID_IN_UPDATE: `${errorPrefix} Validation error. Invalid skyflow Id in update request. Specify a valid skyflow Id.`,

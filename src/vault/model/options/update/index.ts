@@ -6,7 +6,7 @@ class UpdateOptions {
     //fields
     private returnTokens?: boolean;
     private tokenMode?: TokenMode;
-    private tokens?: object;
+    private tokens?: Record<string, unknown>;
 
     // Constructor
     constructor() {
@@ -16,7 +16,7 @@ class UpdateOptions {
         this.returnTokens = returnTokens;
     }
 
-    setTokens(tokens: object) {
+    setTokens(tokens: Record<string, unknown>) {
         this.tokens = tokens;
     }
 
@@ -28,7 +28,7 @@ class UpdateOptions {
         return this.tokenMode;
     }
 
-    getTokens(): object | undefined {
+    getTokens(): Record<string, unknown> | undefined {
         return this.tokens;
     }
 

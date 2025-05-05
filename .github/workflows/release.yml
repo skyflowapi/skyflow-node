@@ -12,6 +12,5 @@ jobs:
   call-common-workflow:
     uses: ./.github/workflows/common-release.yml
     with:
-      registry-url: 'https://registry.npmjs.org'
       tag: public
     secrets: inherit

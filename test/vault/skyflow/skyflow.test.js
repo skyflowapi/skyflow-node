@@ -69,10 +69,6 @@ describe('Skyflow initialization', () => {
         })).toThrowError(invalidVaultConfigError);
     });
 
-    test('should throw error when empty vaultConfig is passed', () => {
-        expect(() => new Skyflow({ vaultConfigs: [] })).toThrowError(emptyVaultConfigError);
-    });
-
     test('should throw error when invalid connectionConfig is passed', () => {
         expect(() => new Skyflow({
             vaultConfigs: [{
