@@ -4,7 +4,7 @@ const errorPrefix = `Skyflow Node SDK v${sdkDetails.version}`;
 
 const errorMessages = {
     CONFIG_MISSING: `${errorPrefix} Initialization failed. Skyflow config cannot be empty. Specify a valid skyflow config.`,
-    INVALID_SKYFLOW_CONFIG: `${errorPrefix} Initialization failed. Invalid skyflow config. Vaults configs key missing in skyflow config.`,
+    INVALID_SKYFLOW_CONFIG: `${errorPrefix} Initialization failed. Invalid skyflow config. Vault/Connection config key missing in skyflow config.`,
     INVALID_TYPE_FOR_CONFIG: `${errorPrefix} Initialization failed. Invalid %s1 config. Specify a valid %s1 config.`,
     EMPTY_VAULT_CONFIG: `${errorPrefix} Initialization failed. Vault config cannot be empty. Specify a valid vault config.`,
     EMPTY_CONNECTION_CONFIG: `${errorPrefix} Initialization failed. Connection config cannot be empty. Specify a valid connection config.`,

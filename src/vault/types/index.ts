@@ -7,7 +7,7 @@ import ConnectionController from "../controller/connections";
 import VaultClient from "../client";
 
 export interface SkyflowConfig {
-    vaultConfigs: VaultConfig[];
+    vaultConfigs?: VaultConfig[];
     connectionConfigs?: ConnectionConfig[];
     skyflowCredentials?: Credentials;
     logLevel?: LogLevel;

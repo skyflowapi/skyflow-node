@@ -92,15 +92,20 @@ export const validateSkyflowConfig = (config: SkyflowConfig, logLevel: LogLevel 
     if (config) {
         if (!Object.prototype.hasOwnProperty.call(config, 'vaultConfigs')) {
             printLog(logs.errorLogs.VAULT_CONFIG_KEY_MISSING, MessageType.ERROR, logLevel);
+        }
+
+        const { vaultConfigs, connectionConfigs } = config;
+
+        // Count how many of the fields are defined
+        const definedFields = [vaultConfigs, connectionConfigs].filter(Boolean).length;
+
+        // If none are present
+        if (definedFields === 0) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_CONFIG);
         }
 
         if (config?.vaultConfigs && !Array.isArray(config.vaultConfigs)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_FOR_CONFIG, [VAULT])
-        }
-
-        if (config?.vaultConfigs.length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_CONFIG);
         }
 
         if (config?.connectionConfigs && !Array.isArray(config?.connectionConfigs)) {
@@ -322,13 +327,8 @@ function validateInsertInput(input: unknown, index: number): void {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
         }
 
-        // Iterate over the key-value pairs and check their types
-        for (const [key, value] of entries) {
+        for (const [key] of entries) {
             if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
-            }
-            // update the data type accordingly
-            if (value && typeof value !== 'string') {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
             }
         }
@@ -350,13 +350,8 @@ function validateUpdateInput(input: unknown): void {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
         }
 
-        // Iterate over the key-value pairs and check their types
-        for (const [key, value] of entries) {
+        for (const [key] of entries) {
             if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
-            }
-            // update the data type accordingly
-            if (value && typeof value !== 'string') {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
             }
         }
@@ -378,13 +373,8 @@ function validateUpdateToken(input: unknown): void {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_UPDATE);
         }
 
-        // Iterate over the key-value pairs and check their types
-        for (const [key, value] of entries) {
+        for (const [key] of entries) {
             if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_UPDATE);
-            }
-            // update the data type accordingly
-            if (value && typeof value !== 'string') {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_UPDATE);
             }
         }
@@ -435,42 +425,42 @@ export const validateInsertOptions = (insertOptions?: InsertOptions) => {
 };
 
 const validateTokensMapWithTokenStrict = (
-  data: object,
-  tokens: object
+    data: object,
+    tokens: object
 ) => {
-  const dataKeys = Object.keys(data);
+    const dataKeys = Object.keys(data);
 
-  for (const key of dataKeys) {
-    if (!tokens.hasOwnProperty(key)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+    for (const key of dataKeys) {
+        if (!tokens.hasOwnProperty(key)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+        }
     }
-  }
 };
 
 export const validateTokensForInsertRequest = (
-  insertRequest?: InsertRequest,
-  insertOptions?: InsertOptions
+    insertRequest?: InsertRequest,
+    insertOptions?: InsertOptions
 ) => {
-  if (insertRequest && insertOptions && insertOptions.getTokenMode()) {
-    if (
-      (insertOptions.getTokenMode() == TokenMode.ENABLE ||
-      insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && !insertOptions.getTokens()
-    ) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.NO_TOKENS_WITH_TOKEN_MODE);
-    }
-
-    if((insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && insertOptions.getTokens()) {
-        if(insertRequest.data.length!=insertOptions.getTokens()?.length) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+    if (insertRequest && insertOptions && insertOptions.getTokenMode()) {
+        if (
+            (insertOptions.getTokenMode() == TokenMode.ENABLE ||
+                insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && !insertOptions.getTokens()
+        ) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.NO_TOKENS_WITH_TOKEN_MODE);
         }
 
-        if(insertOptions.getTokens()) {
-        for(let i=0;i<insertRequest.data.length;i++) {
-            validateTokensMapWithTokenStrict(insertRequest.data[i], insertOptions.getTokens()![i])
+        if ((insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && insertOptions.getTokens()) {
+            if (insertRequest.data.length != insertOptions.getTokens()?.length) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+            }
+
+            if (insertOptions.getTokens()) {
+                for (let i = 0; i < insertRequest.data.length; i++) {
+                    validateTokensMapWithTokenStrict(insertRequest.data[i], insertOptions.getTokens()![i])
+                }
+            }
         }
     }
-    }
-  }
 };
 
 export const validateInsertRequest = (insertRequest: InsertRequest, insertOptions?: InsertOptions, logLevel: LogLevel = LogLevel.ERROR) => { //
