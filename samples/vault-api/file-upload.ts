@@ -63,9 +63,9 @@ async function performFileUpload() {
         const uploadOptions: FileUploadOptions = new FileUploadOptions();
         // Set any one of FilePath, Base64 or FileObject in FileUploadOptions
 
-        // uploadOptions.setFilePath(filePath); // Set the file path
+        // uploadOptions.setFilePath(filePath);      // Set the file path
         // uploadOptions.setBase64('base64-string'); // Set base64 string
-        // uploadOptions.setFileName('file-name'); // Set the file name when using base64
+        // uploadOptions.setFileName('file-name');   // Set the file name when using base64
         const buffer = fs.readFileSync(filePath);
         uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
 
