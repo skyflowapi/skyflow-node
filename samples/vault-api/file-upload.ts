@@ -21,6 +21,8 @@ import * as fs from 'fs';
  * 2. Set up vault configuration
  * 3. Create a file upload request
  * 4. Handle response and errors
+ * 
+ * Note: File upload requires Node version 20 or above.
  */
 async function performFileUpload() {
     try {
