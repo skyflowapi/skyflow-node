@@ -4,10 +4,10 @@ class UpdateRequest {
 
     //fields
     private _tableName: string;
-    private _data: object;
+    private _data: Record<string, unknown>;
 
     // Constructor
-    constructor(tableName: string, data: object) {
+    constructor(tableName: string, data: Record<string, unknown>) {
         this._tableName = tableName;
         this._data = data;
     }
@@ -23,12 +23,12 @@ class UpdateRequest {
     }
 
     // Getter for updateData
-    public get data(): object {
+    public get data(): Record<string, unknown> {
         return this._data;
     }
 
     // Setter for updateData
-    public set data(value: object) {
+    public set data(value: Record<string, unknown>) {
         this._data = value;
     }
 

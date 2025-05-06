@@ -46,7 +46,7 @@ async function performSecureDataUpdate() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Update Data
-        const updateData: object = {
+        const updateData: Record<string, unknown> = {
             skyflowId: 'your-skyflow-id',          // Skyflow ID of the record to update
             card_number: '1234567890123456'        // Updated sensitive data
         };

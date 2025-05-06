@@ -1,10 +1,15 @@
 import VaultClient from '../../../src/vault/client'; // Adjust the import path
-import { Configuration, QueryApi, RecordsApi, TokensApi } from '../../../src/ _generated_/rest';
+import { Query } from '../../../src/ _generated_/rest/api/resources/query/client/Client';
+import { Records } from '../../../src/ _generated_/rest/api/resources/records/client/Client';
+import { Tokens } from '../../../src/ _generated_/rest/api/resources/tokens/client/Client';
 import { AuthType, LogLevel, TYPES } from '../../../src/utils';
 import { isExpired } from '../../../src/utils/jwt-utils';
 import SkyflowError  from '../../../src/error';
 
 jest.mock('../../../src/ _generated_/rest');
+jest.mock('../../../src/ _generated_/rest/api/resources/records/client/Client');
+jest.mock('../../../src/ _generated_/rest/api/resources/query/client/Client');
+jest.mock('../../../src/ _generated_/rest/api/resources/tokens/client/Client');
 jest.mock('../../../src/utils/jwt-utils');
 jest.mock('../../../src/error');
 
@@ -43,54 +48,54 @@ describe('VaultClient', () => {
 
         test('should initialize RecordsApi for DELETE', () => {
             vaultClient.initAPI(authInfo, TYPES.DELETE);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for FILE_UPLOAD', () => {
             vaultClient.initAPI(authInfo, TYPES.FILE_UPLOAD);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for GET', () => {
             vaultClient.initAPI(authInfo, TYPES.GET);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for INSERT', () => {
             vaultClient.initAPI(authInfo, TYPES.INSERT);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for INSERT_BATCH', () => {
             vaultClient.initAPI(authInfo, TYPES.INSERT_BATCH);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize RecordsApi for UPDATE', () => {
             vaultClient.initAPI(authInfo, TYPES.UPDATE);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize TokensApi for DETOKENIZE', () => {
             vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
-            expect(TokensApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Tokens).toHaveBeenCalled();
         });
 
         test('should initialize TokensApi for TOKENIZE', () => {
             vaultClient.initAPI(authInfo, TYPES.TOKENIZE);
-            expect(TokensApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Tokens).toHaveBeenCalled();
         });
 
         test('should initialize QueryApi for QUERY', () => {
             vaultClient.initAPI(authInfo, TYPES.QUERY);
-            expect(QueryApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Query).toHaveBeenCalled();
         });
 
         test('should not initialize API for unsupported type', () => {
             vaultClient.initAPI(authInfo, 'UNSUPPORTED_TYPE');
-            expect(RecordsApi).not.toHaveBeenCalled();
-            expect(TokensApi).not.toHaveBeenCalled();
-            expect(QueryApi).not.toHaveBeenCalled();
+            expect(Records).not.toHaveBeenCalled();
+            expect(Tokens).not.toHaveBeenCalled();
+            expect(Query).not.toHaveBeenCalled();
         });
     });
 
@@ -116,24 +121,24 @@ describe('VaultClient', () => {
 
         test('should initialize RecordsApi for INSERT', () => {
             vaultClient.initAPI(authInfo, TYPES.INSERT);
-            expect(RecordsApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Records).toHaveBeenCalled();
         });
 
         test('should initialize TokensApi for TOKENIZE', () => {
             vaultClient.initAPI(authInfo, TYPES.TOKENIZE);
-            expect(TokensApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Tokens).toHaveBeenCalled();
         });
 
         test('should initialize QueryApi for QUERY', () => {
             vaultClient.initAPI(authInfo, TYPES.QUERY);
-            expect(QueryApi).toHaveBeenCalledWith(expect.any(Configuration));
+            expect(Query).toHaveBeenCalled();
         });
 
         test('should not initialize API for unsupported type', () => {
             vaultClient.initAPI(authInfo, 'UNSUPPORTED');
-            expect(RecordsApi).not.toHaveBeenCalled();
-            expect(TokensApi).not.toHaveBeenCalled();
-            expect(QueryApi).not.toHaveBeenCalled();
+            expect(Records).not.toHaveBeenCalled();
+            expect(Tokens).not.toHaveBeenCalled();
+            expect(Query).not.toHaveBeenCalled();
         });
     });
 
@@ -207,163 +212,211 @@ describe('VaultClient', () => {
     });
 
     describe('failureResponse', () => {
-        test('should handle JSON error responses correctly', () => {
+        test('should handle JSON error responses with rawResponse correctly', async () => {
             const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'application/json', 'x-request-id': '12345' },
-                    data: { error: { message: 'JSON error occurred', http_status: 400 } },
-                    status: 400,
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'abc-123'],
+                    ]),
                 },
+                body: {
+                    error: {
+                        message: 'JSON error occurred',
+                        http_code: 400,
+                        grpc_code: 3,
+                        details: [],
+                    },
+                },
+                statusCode: 400,
             };
-            vaultClient.failureResponse(errorResponse).catch(err => {
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
                 expect(err).toBeInstanceOf(SkyflowError);
-            })
+            }
         });
 
-        test('should handle JSON error responses with empty error correctly', () => {
+        test('should handle text error responses with rawResponse correctly', async () => {
             const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'application/json', 'x-request-id': '12345' },
-                    data: { error: { } },
-                    status: 400,
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'text/plain'],
+                        ['x-request-id', 'abc-123'],
+                    ]),
                 },
+                body: {
+                    error: {
+                        message: 'Text error occurred',
+                    },
+                },
+                statusCode: 500,
             };
-            vaultClient.failureResponse(errorResponse).catch(err => {
+
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
                 expect(err).toBeInstanceOf(SkyflowError);
-            })
+            }
         });
 
-        test('should handle JSON error responses with empty data correctly', () => {
+        test('should handle generic error responses with rawResponse correctly', async () => {
             const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'application/json', 'x-request-id': '12345' },
-                    data: { },
-                    status: 400,
+                rawResponse: {
+                    headers: new Map([
+                        ['x-request-id', 'abc-123'],
+                    ]),
                 },
+                body: {
+                    error: {
+                        message: 'Generic error occurred',
+                        grpc_code: 5,
+                    },
+                },
+                statusCode: 500,
             };
-            vaultClient.failureResponse(errorResponse).catch(err => {
+
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
                 expect(err).toBeInstanceOf(SkyflowError);
-            })
+            }
+        });
+        
+        test('should handle rawResponse with error-from-client header correctly', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'abc-123'],
+                        ['error-from-client', 'true'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'Client error occurred',
+                        http_code: 403,
+                        grpc_code: 7,
+                        details: [],
+                    },
+                },
+                statusCode: 403,
+            };
+
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
+                expect(err).toBeInstanceOf(SkyflowError);
+            }
         });
 
-        test('should handle JSON error responses without data correctly', () => {
+
+        test('should handle JSON error responses without rawResponse correctly', async () => {
             const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'application/json', 'x-request-id': '12345' },
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'abc-123'],
+                        ['error-from-client', 'true'],
+                    ]),
+                    data: {
+                        error: {
+                            message: 'JSON error occurred',
+                            http_status: 400,
+                            grpc_code: 3,
+                            details: [{ field: 'field1', issue: 'issue1' }],
+                        },
+                    },
                     status: 400,
-                },
             };
-            vaultClient.failureResponse(errorResponse).catch(err => {
+
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
                 expect(err).toBeInstanceOf(SkyflowError);
-            })
-        });
-    
-        test('should handle without error responses correctly', () => {
-            const errorResponse = {};
-            vaultClient.failureResponse(errorResponse).catch(err => {
-                expect(err).toBeInstanceOf(SkyflowError);
-            })
+            }
         });
 
-        test('should handle text error responses correctly', () => {
+
+        test('should handle text error responses without rawResponse correctly', async () => {
             const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'text/plain', 'x-request-id': '12345' },
+                    headers: new Map([
+                        ['content-type', 'text/plain'],
+                        ['x-request-id', 'abc-123'],
+                    ]),
                     data: 'Text error occurred',
                     status: 500,
-                },
             };
-            vaultClient.failureResponse(errorResponse).catch(err => {
+
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
                 expect(err).toBeInstanceOf(SkyflowError);
-            })
+            }
         });
 
-        test('should handle errors without content-type correctly', () => {
+        test('should handle generic error responses without rawResponse correctly', async () => {
             const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'none' },
+                    headers: new Map([
+                        ['x-request-id', 'abc-123'],
+                    ]),
+                    data: {
+                        error: {
+                            message: 'Generic error occurred',
+                        },
+                    },
                     status: 500,
-                },
             };
-            vaultClient.failureResponse(errorResponse).catch(err => {
+
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
                 expect(err).toBeInstanceOf(SkyflowError);
-            })
+            }
         });
 
-        test('should handle generic errors without content-type correctly', () => {
+        test('should handle error responses without content-type correctly', async () => {
             const errorResponse = {
-                response: {
-                    headers: {},
+                    headers: new Map([
+                        ['x-request-id', 'abc-123'],
+                    ]),
+                    data: {
+                        error: {
+                            message: 'Error without content-type',
+                        },
+                    },
                     status: 500,
-                },
             };
-            vaultClient.failureResponse(errorResponse).catch(err => {
+
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
                 expect(err).toBeInstanceOf(SkyflowError);
-            });
+            }
         });
 
-        test('should handle JSON error responses correctly with error-from-client header', () => {
+        test('should handle error responses with error-from-client header correctly', async () => {
             const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'application/json', 'x-request-id': '12345', 'error-from-client': 'true' },
-                    data: { error: { message: 'JSON error occurred', http_status: 400, } },
-                    status: 400,
-                },
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'abc-123'],
+                        ['error-from-client', 'true'],
+                    ]),
+                    data: {
+                        error: {
+                            message: 'Client error occurred',
+                            http_status: 403,
+                            grpc_code: 7,
+                            details: [],
+                        },
+                    },
+                    status: 403,
             };
-            vaultClient.failureResponse(errorResponse).catch(err => {
-                expect(err).toBeInstanceOf(SkyflowError);
-            })
-        });
 
-        test('should handle JSON error responses correctly with error-from-client header and details list', () => {
-            const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'application/json', 'x-request-id': '12345', 'error-from-client': 'true' },
-                    data: { error: { message: 'JSON error occurred', http_status: 400, details: [] } },
-                    status: 400,
-                },
-            };
-            vaultClient.failureResponse(errorResponse).catch(err => {
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
                 expect(err).toBeInstanceOf(SkyflowError);
-            })
-        });
-
-        test('should handle JSON error responses correctly with error-from-client header and details being null ', () => {
-            const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'application/json', 'x-request-id': '12345', 'error-from-client': 'true' },
-                    data: { error: { message: 'JSON error occurred', http_status: 400, details: null } },
-                    status: 400,
-                },
-            };
-            vaultClient.failureResponse(errorResponse).catch(err => {
-                expect(err).toBeInstanceOf(SkyflowError);
-            })
-        });
-
-        test('should handle text error responses correctly with error-from-client header', () => {
-            const errorResponse = {
-                response: {
-                    headers: { 'content-type': 'text/plain', 'x-request-id': '12345', 'error-from-client': 'false' },
-                    data: 'Text error occurred',
-                    status: 500,
-                },
-            };
-            vaultClient.failureResponse(errorResponse).catch(err => {
-                expect(err).toBeInstanceOf(SkyflowError);
-            })
-        });
-
-        test('should handle generic errors without content-type and with error-from-client header', () => {
-            const errorResponse = {
-                response: {
-                    headers: {'error-from-client': 'true'},
-                    status: 500,
-                },
-            };
-            vaultClient.failureResponse(errorResponse).catch(err => {
-                expect(err).toBeInstanceOf(SkyflowError);
-            });
+            }
         });
     });
 

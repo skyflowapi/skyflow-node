@@ -1,5 +1,4 @@
 //imports
-import axios from "axios";
 import { fillUrlWithPathAndQueryParams, generateSDKMetrics, getBearerToken, LogLevel, MessageType, RequestMethod, parameterizedString, printLog, SDK_METRICS_HEADER_KEY, SKYFLOW_AUTH_HEADER_KEY, REQUEST_ID_KEY, TYPES } from "../../../utils";
 import InvokeConnectionRequest from "../../model/request/inkove";
 import logs from "../../../utils/logs";
@@ -18,6 +17,30 @@ class ConnectionController {
         this.logLevel = client.getLogLevel();
     }
 
+    private buildInvokeConnectionBody(invokeRequest: InvokeConnectionRequest){
+        let requestBody;
+        const contentType = invokeRequest.headers?.['Content-Type'] || 'application/json';
+        if (contentType === 'application/json') {
+            requestBody = JSON.stringify(invokeRequest.body);
+        } else if (contentType === 'application/x-www-form-urlencoded') {
+            const urlSearchParams = new URLSearchParams();
+            Object.entries(invokeRequest.body || {}).forEach(([key, value]) => {
+                if (typeof value === 'object' && value !== null) {
+                    Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+                        urlSearchParams.append(`${key}[${nestedKey}]`, nestedValue as string);
+                    });
+                } else {
+                    urlSearchParams.append(key, value as string);
+                }
+            });
+            requestBody = urlSearchParams.toString();
+        } else {
+            requestBody = invokeRequest.body;
+        }
+
+        return requestBody;
+    }
+
     invoke(invokeRequest: InvokeConnectionRequest): Promise<InvokeConnectionResponse> {
         return new Promise((resolve, reject) => {
             try {
@@ -31,23 +54,39 @@ class ConnectionController {
                     const sdkHeaders = {};
                     sdkHeaders[SKYFLOW_AUTH_HEADER_KEY] = token.key;
                     sdkHeaders[SDK_METRICS_HEADER_KEY] = JSON.stringify(generateSDKMetrics());
-                    axios({
-                        url: filledUrl,
+                    
+                    fetch(filledUrl, {
                         method: invokeRequest.method || RequestMethod.POST,
-                        data: invokeRequest.body,
-                        headers: { ...invokeRequest.headers, ...sdkHeaders }
-                    }).then((response: any) => {
-                        printLog(logs.infoLogs.INVOKE_CONNECTION_REQUEST_RESOLVED, MessageType.LOG, this.logLevel);
-                        let requestId = response.headers[REQUEST_ID_KEY]
-                        const invokeConnectionResponse = new InvokeConnectionResponse({
-                            data: response.data,
-                            metadata: {requestId}
+                        body: this.buildInvokeConnectionBody(invokeRequest),
+                        headers: { ...invokeRequest.headers, ...sdkHeaders },
+                    })
+                        .then(async (response) => {
+                            if(!response.ok){
+                                const errorBody = await response.json().catch(() => null);
+
+                                const error = {
+                                    body: errorBody,
+                                    statusCode: response.status,
+                                    message: response.statusText,
+                                    headers: response.headers
+                                };
+                                throw error;
+                            }
+                            const headers = response.headers;
+                            return response.json().then((body) => ({ headers, body }));
+                        })
+                        .then(({headers, body}) => {
+                            printLog(logs.infoLogs.INVOKE_CONNECTION_REQUEST_RESOLVED, MessageType.LOG, this.logLevel);
+                            const requestId = headers?.get(REQUEST_ID_KEY) || '';
+                            const invokeConnectionResponse = new InvokeConnectionResponse({
+                                data: body,
+                                metadata: { requestId }
+                            });
+                            resolve(invokeConnectionResponse);
+                        }).catch((err) => {
+                            printLog(logs.errorLogs.INVOKE_CONNECTION_REQUEST_REJECTED, MessageType.LOG, this.logLevel);
+                            this.client.failureResponse(err).catch((err) => reject(err))
                         });
-                        resolve(invokeConnectionResponse);
-                    }).catch((err) => {
-                        printLog(logs.errorLogs.INVOKE_CONNECTION_REQUEST_REJECTED, MessageType.LOG, this.logLevel);
-                        this.client.failureResponse(err).catch((err)=>reject(err))
-                    });
                 }).catch(err => {
                     reject(err);
                 })

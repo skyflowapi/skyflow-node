@@ -1,4 +1,4 @@
-import { LogLevel } from "../../utils";
+import { LogLevel, RedactionType } from "../../utils";
 import ConnectionConfig from "../config/connection";
 import VaultConfig from "../config/vault"
 import Credentials from "../config/credentials";
@@ -7,7 +7,7 @@ import ConnectionController from "../controller/connections";
 import VaultClient from "../client";
 
 export interface SkyflowConfig {
-    vaultConfigs: VaultConfig[];
+    vaultConfigs?: VaultConfig[];
     connectionConfigs?: ConnectionConfig[];
     skyflowCredentials?: Credentials;
     logLevel?: LogLevel;
@@ -49,6 +49,7 @@ export interface SuccessDetokenizeResponse {
 }
 
 export interface ErrorDetokenizeResponse {
+    requestId: string;
     token: string;
     error: string;
 }
@@ -59,6 +60,7 @@ export interface ParsedDetokenizeResponse {
 }
 
 export interface ErrorInsertBatchResponse {
+    requestId: string;
     requestIndex: number;
     error: string;
 }
@@ -66,4 +68,9 @@ export interface ErrorInsertBatchResponse {
 export interface ParsedInsertBatchResponse {
     success: insertResponseType[];
     errors: ErrorInsertBatchResponse[];
+}
+
+export interface DetokenizeData {
+    token: string;
+    redactionType?: RedactionType;
 }
