@@ -8,8 +8,10 @@ import {
     SkyflowConfig, 
     VaultConfig, 
     SkyflowError, 
-    FileUploadResponse
+    FileUploadResponse,
+    FileUploadOptions
 } from 'skyflow-node';
+import * as fs from 'fs';
 
 /**
  * Skyflow File Upload Example
@@ -19,6 +21,8 @@ import {
  * 2. Set up vault configuration
  * 3. Create a file upload request
  * 4. Handle response and errors
+ * 
+ * Note: File upload requires Node version 20 or above.
  */
 async function performFileUpload() {
     try {
@@ -55,13 +59,22 @@ async function performFileUpload() {
             tableName,
             skyflowId,
             columnName,
-            filePath
         );
+
+        // Step 6: Configure FileUpload Options
+        const uploadOptions: FileUploadOptions = new FileUploadOptions();
+        // Set any one of FilePath, Base64 or FileObject in FileUploadOptions
+
+        // uploadOptions.setFilePath(filePath);      // Set the file path
+        // uploadOptions.setBase64('base64-string'); // Set base64 string
+        // uploadOptions.setFileName('file-name');   // Set the file name when using base64
+        const buffer = fs.readFileSync(filePath);
+        uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
 
         // Step 6: Perform File Upload
         const response: FileUploadResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)
-            .uploadFile(uploadReq);
+            .uploadFile(uploadReq, uploadOptions);
 
         // Handle Successful Response
         console.log('File upload successful:', response);

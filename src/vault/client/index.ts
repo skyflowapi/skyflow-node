@@ -1,5 +1,7 @@
 // imports 
-import { Configuration, QueryApi, RecordsApi, TokensApi } from "../../ _generated_/rest";
+import { Query } from "../../ _generated_/rest/api/resources/query/client/Client";
+import { Records } from "../../ _generated_/rest/api/resources/records/client/Client";
+import { Tokens } from "../../ _generated_/rest/api/resources/tokens/client/Client";
 import SkyflowError from "../../error";
 import errorMessages from "../../error/messages";
 import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES } from "../../utils/index";
@@ -13,13 +15,13 @@ class VaultClient {
 
     url!: string;
 
-    configuration!: Configuration;
+    configuration!: Records.Options;
 
-    vaultAPI!: RecordsApi;
+    vaultAPI!: Records;
 
-    tokensAPI!: TokensApi;
+    tokensAPI!: Tokens;
 
-    queryAPI!: QueryApi;
+    queryAPI!: Query;
 
     individualCredentials?: Credentials;
 
@@ -50,10 +52,10 @@ class VaultClient {
 
     private initConfig(authInfo: AuthInfo) {
         this.authInfo = authInfo;
-        this.configuration = new Configuration({
-            basePath: this.url,
-            accessToken: authInfo.key,
-        });
+        this.configuration = {
+            baseUrl: this.url,
+            token: authInfo.key,
+        };
 
     }
 
@@ -66,14 +68,14 @@ class VaultClient {
             case TYPES.INSERT:
             case TYPES.INSERT_BATCH:
             case TYPES.UPDATE:
-                this.vaultAPI = new RecordsApi(this.configuration);
+                this.vaultAPI = new Records(this.configuration);
                 break;
             case TYPES.DETOKENIZE:
             case TYPES.TOKENIZE:
-                this.tokensAPI = new TokensApi(this.configuration);
+                this.tokensAPI = new Tokens(this.configuration);
                 break;
             case TYPES.QUERY:
-                this.queryAPI = new QueryApi(this.configuration);
+                this.queryAPI = new Query(this.configuration);
                 break;
             default:
                 break;
@@ -111,13 +113,49 @@ class VaultClient {
         this.skyflowCredentials = credentials;
     }
 
-    failureResponse = (err: any) => new Promise((_, reject) => {
-        const contentType = err.response?.headers['content-type'];
-        const data = err.response?.data;
-        const requestId = err.response?.headers['x-request-id'];
+    private normalizeErrorMeta(err: any) {
+        const isNewFormat = !!err?.rawResponse;    
+        if (isNewFormat) {
+            const headers = err?.rawResponse?.headers;
+            const contentType = headers?.get('content-type');
+            const requestId = headers?.get('x-request-id');
+            const errorFromClientHeader = headers?.get('error-from-client');
+            const errorFromClient = errorFromClientHeader
+                ? String(errorFromClientHeader).toLowerCase() === 'true'
+                : undefined;
+    
+            return {
+                isNewFormat,
+                contentType,
+                requestId,
+                errorFromClient
+            };
+        } else {
+            const headers = err?.headers || {};
+            const contentType = headers.get('content-type');
+            const requestId = headers.get('x-request-id');
 
-        const errorFromClientHeader = err.response?.headers?.['error-from-client'];
-        const errorFromClient = errorFromClientHeader ? String(errorFromClientHeader).toLowerCase() === 'true' : undefined;
+            
+            
+            const errorFromClientHeader = headers.get('error-from-client');
+            const errorFromClient = errorFromClientHeader
+                ? String(errorFromClientHeader).toLowerCase() === 'true'
+                : undefined;
+    
+            return {
+                isNewFormat,
+                contentType,
+                requestId,
+                errorFromClient
+            };
+        }
+    }
+    
+
+    failureResponse = (err: any) => new Promise((_, reject) => {
+        const { isNewFormat, contentType, requestId, errorFromClient } = this.normalizeErrorMeta(err);
+    
+        const data = isNewFormat ? err?.body?.error : err;
 
         if (contentType) {
             if (contentType.includes('application/json')) {
@@ -131,43 +169,81 @@ class VaultClient {
             this.handleGenericError(err, requestId, reject, errorFromClient);
         }
     });
+    
 
     private handleJsonError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        let description = data;
-        const statusCode = description?.error?.http_status;
-        const grpcCode = description?.error?.grpc_code;
-        let details = description?.error?.details;
-        
+        const isNewFormat = !!err?.rawResponse;
+    
+        if (isNewFormat) {
+            let description = data?.message;
+            const grpcCode = data?.grpc_code;
+            const status = data?.http_status;
+            let details = data?.details || [];
+    
+            if (errorFromClient !== undefined) {
+                details = Array.isArray(details)
+                    ? [...details, { errorFromClient }]
+                    : [{ errorFromClient }];
+            }
+    
+            this.logAndRejectError(description, err, requestId, reject, status, grpcCode, details, isNewFormat);
+        } else {
+            let description = data;
+            const statusCode = description?.statusCode;
+            const grpcCode = description?.grpcCode;
+            let details = description?.error?.details;
+    
+            if (errorFromClient !== undefined) {
+                details = Array.isArray(details)
+                    ? [...details, { errorFromClient }]
+                    : [{ errorFromClient }];
+            }
+    
+            description = description?.body?.error?.message || description;
+            this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details, isNewFormat);
+        }
+    }
+    
+    
+    private handleTextError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
+        const isNewFormat = !!err?.rawResponse
+        let details: any = [];
+    
+        if (errorFromClient !== undefined) {
+            details.push({ errorFromClient });
+        }
+    
+        const description = isNewFormat ? data?.message: data?.body?.error?.message;
+        const status = isNewFormat ? data?.http_status : err?.body?.error?.http_status;
+        const grpcCode = isNewFormat ? data?.grpc_code : err?.body?.error?.grpc_code;
+        this.logAndRejectError(description, err, requestId, reject, status, grpcCode, details, isNewFormat);
+    }
+    
+    
+    private handleGenericError(err: any, requestId: string, reject: Function, errorFromClient?: boolean) {
+        const isNewFormat = !!err?.rawResponse;
+        let description: any;
+        let grpcCode: any;
+        let details: any = [];
+    
+        if (isNewFormat) {
+            description = err?.body?.error?.message || errorMessages.GENERIC_API_ERROR || err?.message
+            grpcCode = err?.body?.error?.grpc_code;
+            details = err?.body?.error?.details || [];
+        } else {
+            description = err?.body?.error?.message || errorMessages.ERROR_OCCURRED;
+        }
+    
         if (errorFromClient !== undefined) {
             details = Array.isArray(details)
-                        ? [...details, { errorFromClient: errorFromClient }]
-                        : [{ errorFromClient: errorFromClient }];
+                ? [...details, { errorFromClient }]
+                : [{ errorFromClient }];
         }
- 
-        description = description?.error?.message || description;
-        this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details);
+    
+        this.logAndRejectError(description, err, requestId, reject, undefined, grpcCode, details, isNewFormat);
     }
-
-    private handleTextError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        let details: any = [];
-
-        if (errorFromClient !== undefined) {
-            details.push({ errorFromClient });
-        }
-        
-        this.logAndRejectError(data, err, requestId, reject, undefined, undefined, details);
-    }
-
-    private handleGenericError(err: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        const description =  err?.response?.data || err?.message || errorMessages.ERROR_OCCURRED;
-        let details: any = [];
-
-        if (errorFromClient !== undefined) {
-            details.push({ errorFromClient });
-        }
-        this.logAndRejectError(description, err, requestId, reject, undefined, undefined, details);
-    }
-
+    
+    
     private logAndRejectError(
         description: string,
         err: any,
@@ -175,11 +251,12 @@ class VaultClient {
         reject: Function,
         httpStatus?: number,
         grpcCode?: number,
-        details?: any
+        details?: any,
+        isNewError?: boolean
     ) {
         printLog(description, MessageType.ERROR, this.getLogLevel());
         reject(new SkyflowError({
-            http_code: err?.response?.status || 400,
+            http_code: isNewError ? (err?.statusCode ?? err?.body?.error?.http_code ?? 400) : err?.body?.error?.http_code ?? 400,
             message: description,
             request_ID: requestId,
             grpc_code: grpcCode,

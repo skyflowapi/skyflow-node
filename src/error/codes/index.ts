@@ -118,6 +118,11 @@ const SKYFLOW_ERROR_CODE = {
     MISSING_FILE_PATH_IN_UPLOAD_FILE: { http_code: 400, message: errorMessages.MISSING_FILE_PATH_IN_UPLOAD_FILE },
     INVALID_FILE_PATH_IN_UPLOAD_FILE: { http_code: 400, message: errorMessages.INVALID_FILE_PATH_IN_UPLOAD_FILE },
     INVALID_FILE_UPLOAD_REQUEST: { http_code: 400, message: errorMessages.INVALID_FILE_UPLOAD_REQUEST },
+    MISSING_FILE_SOURCE_IN_UPLOAD_FILE: { http_code: 400, message: errorMessages.MISSING_FILE_SOURCE_IN_UPLOAD_FILE },
+    MISSING_FILE_NAME_FOR_BASE64: { http_code: 400, message: errorMessages.MISSING_FILE_NAME_FOR_BASE64 },
+    INVALID_FILE_OBJECT_IN_UPLOAD_FILE: { http_code: 400, message: errorMessages.INVALID_FILE_OBJECT_IN_UPLOAD_FILE },
+    MISSING_FILE_NAME_IN_FILE_OBJECT: { http_code: 400, message: errorMessages.MISSING_FILE_NAME_IN_FILE_OBJECT },
+    INVALID_BASE64_IN_UPLOAD_FILE: { http_code: 400, message: errorMessages.INVALID_BASE64_IN_UPLOAD_FILE },
 
     MISSING_SKYFLOW_ID_IN_UPDATE: { http_code: 400, message: errorMessages.MISSING_SKYFLOW_ID_IN_UPDATE },
     INVALID_SKYFLOW_ID_IN_UPDATE: { http_code: 400, message: errorMessages.INVALID_SKYFLOW_ID_IN_UPDATE },
