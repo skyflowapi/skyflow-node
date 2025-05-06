@@ -35,7 +35,7 @@ class Skyflow {
 
         this.commonCredentials = config?.skyflowCredentials;
         printLog(logs.infoLogs.VALIDATING_VAULT_CONFIG, MessageType.LOG, this.logLevel);
-        config.vaultConfigs.map(vaultConfig => {
+        config.vaultConfigs?.map(vaultConfig => {
             this.addVaultConfig(vaultConfig);
         });
         printLog(logs.infoLogs.VALIDATING_CONNECTION_CONFIG, MessageType.LOG, this.logLevel);

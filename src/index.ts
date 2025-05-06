@@ -6,6 +6,7 @@ import GetRequest from './vault/model/request/get';
 import GetOptions from './vault/model/options/get';
 import DetokenizeRequest from './vault/model/request/detokenize';
 import DetokenizeOptions from './vault/model/options/detokenize';
+import FileUploadOptions from './vault/model/options/fileUpload';
 import DeleteRequest from './vault/model/request/delete';
 import UpdateRequest from './vault/model/request/update';
 import FileUploadRequest from './vault/model/request/file-upload';
@@ -26,7 +27,7 @@ import UpdateResponse from './vault/model/response/update';
 import FileUploadResponse from './vault/model/response/file-upload';
 import QueryResponse from './vault/model/response/query';
 import InvokeConnectionResponse from './vault/model/response/invoke/invoke';
-import { SkyflowConfig, TokenizeRequestType } from './vault/types';
+import { SkyflowConfig, TokenizeRequestType, DetokenizeData } from './vault/types';
 import VaultConfig from './vault/config/vault';
 import SkyflowError from './error';
 import ConnectionConfig from './vault/config/connection';
@@ -61,6 +62,7 @@ export {
     GetOptions,
     GetResponse,
     DetokenizeRequest,
+    DetokenizeData,
     DetokenizeOptions,
     DetokenizeResponse,
     DeleteRequest,
@@ -69,6 +71,7 @@ export {
     UpdateOptions,
     UpdateResponse,
     FileUploadRequest,
+    FileUploadOptions,
     FileUploadResponse,
     QueryRequest,
     QueryResponse,
