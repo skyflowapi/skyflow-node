@@ -173,6 +173,12 @@ export enum DetectEntities {
     ZODIAC_SIGN = 'zodiac_sign',
 }
 
+export enum TokenType {
+    ENTITY_UNIQUE_COUNTER = 'entity_unq_counter',
+    ENTITY_ONLY = 'entity_only',
+    VAULT_TOKEN = 'vault_token'
+}
+
 export interface ISkyflowError {
     http_status?: string | number | null,
     grpc_code?: string | number | null,

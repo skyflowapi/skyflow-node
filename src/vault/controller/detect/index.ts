@@ -1,6 +1,6 @@
 //imports
 
-import { DetectedEntity, EntityType, Transformations } from "../../../ _generated_/rest/api";
+import { DetectedEntity, EntityType, TokenType, Transformations } from "../../../ _generated_/rest/api";
 import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, removeSDKVersion, SDK_METRICS_HEADER_KEY, TYPES } from "../../../utils";
 import logs from "../../../utils/logs";
 import { validateDeIdentifyTextRequest, validateReidentifyTextRequest } from "../../../utils/validations";
@@ -59,6 +59,12 @@ class DetectController {
             entity_types: options?.getEntities() as EntityType[],
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                vault_token: options?.getTokenFormat()?.getVaultToken(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenType,
             transformations: {
                 shift_dates: {
                     max_days: options?.getTransformations()?.getShiftDays()?.max,
@@ -66,6 +72,28 @@ class DetectController {
                     entity_types: options?.getTransformations()?.getShiftDays()?.entities,
                 }
             } as Transformations,
+        };
+    }
+
+    private parseDeidentifyTextResponse(data: any) {
+        return {
+            processedText: data.records.processed_text,
+            entities: data.records.entities.map((entity: DetectedEntity) => ({
+                token: entity.token,
+                value: entity.value,
+                textIndex: {
+                    start: entity.location?.start_index,
+                    end: entity.location?.end_index,
+                },
+                processedIndex: {
+                    start: entity.location?.start_index_processed,
+                    end: entity.location?.end_index_processed,
+                },
+                entity: entity.entity_type,
+                scores: entity.entity_scores,
+            })),
+            wordCount: data.records.word_count,
+            charCount: data.records.character_count,
         };
     }
 
@@ -84,25 +112,8 @@ class DetectController {
                     ).withRawResponse(),
                     TYPES.DETECT
                 ).then(data => {
-                    resolve(new DeidentifyTextResponse({
-                        processedText: data.records.processed_text,
-                        entities: data.records.entities.map((entity: DetectedEntity) => ({
-                            token: entity.token,
-                            value: entity.value,
-                            textIndex: {
-                                start: entity.location?.start_index,
-                                end: entity.location?.end_index,
-                            },
-                            processedIndex: {
-                                start: entity.location?.start_index_processed,
-                                end: entity.location?.end_index_processed,
-                            },
-                            entity: entity.entity_type,
-                            scores: entity.entity_scores,
-                        })),
-                        wordCount: data.records.word_count,
-                        charCount: data.records.character_count,
-                    }));
+                    const parsedResponse = new DeidentifyTextResponse(this.parseDeidentifyTextResponse(data))
+                    resolve(parsedResponse);
                 }).catch(error => {
                     reject(error)
                 });

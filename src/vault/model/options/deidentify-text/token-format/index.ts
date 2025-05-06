@@ -1,14 +1,14 @@
-import { DetectEntities } from "../../../../../utils";
+import { DetectEntities, TokenType } from "../../../../../utils";
 
 class TokenFormat {
     // Fields
-    private _default?: DetectEntities;
+    private _default?: TokenType = TokenType.ENTITY_UNIQUE_COUNTER;
     private _vaultToken?: DetectEntities[];
     private _entityUniqueCounter?: DetectEntities[];
     private _entityOnly?: DetectEntities[];
 
     // Setters
-    setDefault(defaultToken: DetectEntities) {
+    setDefault(defaultToken: TokenType) {
         this._default = defaultToken;
     }
 
