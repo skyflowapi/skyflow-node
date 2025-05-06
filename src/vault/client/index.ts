@@ -227,7 +227,7 @@ class VaultClient {
         let details: any = [];
     
         if (isNewFormat) {
-            description = err?.body?.error?.message || err?.message;
+            description = err?.body?.error?.message || errorMessages.GENERIC_API_ERROR || err?.message
             grpcCode = err?.body?.error?.grpc_code;
             details = err?.body?.error?.details || [];
         } else {
@@ -256,7 +256,7 @@ class VaultClient {
     ) {
         printLog(description, MessageType.ERROR, this.getLogLevel());
         reject(new SkyflowError({
-            http_code: isNewError ? err?.statusCode : err?.body?.error?.http_code || 400,
+            http_code: isNewError ? (err?.statusCode ?? err?.body?.error?.http_code ?? 400) : err?.body?.error?.http_code ?? 400,
             message: description,
             request_ID: requestId,
             grpc_code: grpcCode,

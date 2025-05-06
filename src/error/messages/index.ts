@@ -193,7 +193,9 @@ const errorMessages = {
     INVAILD_JSON_RESPONSE: `${errorPrefix} Validation error. The invalid json response. Please reach out to skyflow using requestId - %s1.`,
 
     EMPTY_VAULT_CLIENTS: `${errorPrefix} Validation error. No vault config found. Please add a vault config`,
-    EMPTY_CONNECTION_CLIENTS: `${errorPrefix} Validation error. No connection config found. Please add a connection config`
+    EMPTY_CONNECTION_CLIENTS: `${errorPrefix} Validation error. No connection config found. Please add a connection config`,
+
+    GENERIC_API_ERROR: `${errorPrefix} Validation error. Invalid configuration. Please add a valid vault configuration`,
 };
 
 export default errorMessages;
