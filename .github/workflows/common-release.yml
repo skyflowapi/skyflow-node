@@ -76,6 +76,8 @@ jobs:
       - name: Publish
         run: |
           if [[ "${{ inputs.tag }}" == "beta" ]]; then
+            npm config set registry https://registry.npmjs.org/
+            npm config fix
             npm publish --tag beta
           elif [[ "${{ inputs.tag }}" == "public" ]]; then
             npm publish
