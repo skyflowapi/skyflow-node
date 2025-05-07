@@ -1,24 +1,26 @@
+import { DetectEntities } from "../../../../../utils";
+
 class TokenFormat {
     // Fields
-    private _default?: string;
-    private _vaultToken?: string[];
-    private _entityUniqueCounter?: string[];
-    private _entityOnly?: string[];
+    private _default?: DetectEntities;
+    private _vaultToken?: DetectEntities[];
+    private _entityUniqueCounter?: DetectEntities[];
+    private _entityOnly?: DetectEntities[];
 
     // Setters
-    setDefault(defaultToken: string) {
+    setDefault(defaultToken: DetectEntities) {
         this._default = defaultToken;
     }
 
-    setVaultToken(vaultToken: string[]) {
+    setVaultToken(vaultToken: DetectEntities[]) {
         this._vaultToken = vaultToken;
     }
 
-    setEntityUniqueCounter(entityUniqueCounter: string[]) {
+    setEntityUniqueCounter(entityUniqueCounter: DetectEntities[]) {
         this._entityUniqueCounter = entityUniqueCounter;
     }
 
-    setEntityOnly(entityOnly: string[]) {
+    setEntityOnly(entityOnly: DetectEntities[]) {
         this._entityOnly = entityOnly;
     }
 

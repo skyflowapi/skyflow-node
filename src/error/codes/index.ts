@@ -219,6 +219,10 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_FILE_TYPE:{ http_code: 400, message: errorMessages.INVALID_FILE_TYPE },
     FILE_READ_ERROR:{ http_code: 400, message: errorMessages.FILE_READ_ERROR },
     INVALID_BASE64_HEADER:{ http_code: 400, message: errorMessages.INVALID_BASE64_HEADER },
+    INVALID_TEXT_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_TEXT_IN_REIDENTIFY },
+    INVALID_REDACTED_ENTITIES_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_REDACTED_ENTITIES_IN_REIDENTIFY },
+    INVALID_MASKED_ENTITIES_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_MASKED_ENTITIES_IN_REIDENTIFY },
+    INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY },
 };
 
 export default SKYFLOW_ERROR_CODE;

@@ -103,15 +103,15 @@ export const TYPES = {
 };
 
 export enum DeidenitfyFileRequestTypes {
-    IMAGE= "IMAGE", //
-    FILE= 'FILE', //
-    AUDIO= 'AUDIO', //
-    PPT= 'PPT', //
-    DOCUMENT= 'DOCUMENT',//
-    PDF= 'PDF', //
-    SPREADSHEET= 'SPREADSHEET', //
-    STRUCTURED_TEXT= 'STRUCTURED_TEXT', //
-    TEXT='TEXT' //
+    IMAGE= "IMAGE",
+    FILE= 'FILE', 
+    AUDIO= 'AUDIO', 
+    PPT= 'PPT', 
+    DOCUMENT= 'DOCUMENT',
+    PDF= 'PDF', 
+    SPREADSHEET= 'SPREADSHEET', 
+    STRUCTURED_TEXT= 'STRUCTURED_TEXT',
+    TEXT='TEXT'
 }
 export enum DetectTokenTypeWithoutVault {
     ENTITY_ONLY= "entity_only",
@@ -124,6 +124,10 @@ export enum DetectOutputTranscription {
     MEDICAL_TRANSCRIPTION = "medical_transcription",
     PLAINTEXT_TRANSCRIPTION = "plaintext_transcription",
     TRANSCRIPTION = "transcription",
+export const CONTROLLER_TYPES = {
+    DETECT: 'DETECT',
+    VAULT: 'VAULT',
+    CONNECTION: 'CONNECTION',
 }
 
 export enum DetectEntities {

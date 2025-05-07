@@ -5,11 +5,13 @@ import { Tokens } from '../../../src/ _generated_/rest/api/resources/tokens/clie
 import { AuthType, LogLevel, TYPES } from '../../../src/utils';
 import { isExpired } from '../../../src/utils/jwt-utils';
 import SkyflowError  from '../../../src/error';
+import { Strings } from '../../../src/ _generated_/rest/api/resources/strings/client/Client';
 
 jest.mock('../../../src/ _generated_/rest');
 jest.mock('../../../src/ _generated_/rest/api/resources/records/client/Client');
 jest.mock('../../../src/ _generated_/rest/api/resources/query/client/Client');
 jest.mock('../../../src/ _generated_/rest/api/resources/tokens/client/Client');
+jest.mock('../../../src/ _generated_/rest/api/resources/strings/client/Client');
 jest.mock('../../../src/utils/jwt-utils');
 jest.mock('../../../src/error');
 
@@ -89,6 +91,11 @@ describe('VaultClient', () => {
         test('should initialize QueryApi for QUERY', () => {
             vaultClient.initAPI(authInfo, TYPES.QUERY);
             expect(Query).toHaveBeenCalled();
+        });
+
+        test('should initialize Strings for DETECT', () => {
+            vaultClient.initAPI(authInfo, TYPES.DETECT);
+            expect(Strings).toHaveBeenCalled();
         });
 
         test('should not initialize API for unsupported type', () => {

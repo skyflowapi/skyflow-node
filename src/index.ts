@@ -39,7 +39,9 @@ import ReidentifyTextOptions from './vault/model/options/reidentify-text';
 import DeidentifyFileOptions from './vault/model/options/deidentify-file';
 import DeidentifyFileRequest from './vault/model/request/deidentify-file';
 import DeidentifyFileResponse from './vault/model/response/deidentify-file';
-
+import ReidentifyTextResponse from './vault/model/response/reidentify-text';
+import TokenFormat from './vault/model/options/deidentify-text/token-format';
+import Transformations from './vault/model/options/deidentify-text/transformations';
 
 export {
     Env,
@@ -97,4 +99,7 @@ export {
     DeidentifyFileOptions,
     DeidentifyFileRequest,
     DeidentifyFileResponse,
+    ReidentifyTextResponse,
+    TokenFormat,
+    Transformations
 };

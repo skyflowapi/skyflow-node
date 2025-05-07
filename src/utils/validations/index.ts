@@ -31,6 +31,9 @@ import Transformations from "../../vault/model/options/deidentify-text/transform
 import DeidentifyFileOptions from "../../vault/model/options/deidentify-file";
 import DeidentifyFileRequest from "../../vault/model/request/deidentify-file";
 
+import ReidentifyTextRequest from "../../vault/model/request/reidentify-text";
+import ReidentifyTextOptions from "../../vault/model/options/reidentify-text";
+
 export function isEnv(value?: string): boolean {
     return value !== undefined && Object.values(Env).includes(value as Env);
 }
@@ -947,7 +950,7 @@ export const validateQueryRequest = (queryRequest: QueryRequest, logLevel: LogLe
     }
 }
 
-export const validateDeIdentifyText = (deIdentifyTextRequest: DeidentifyTextRequest, options?: DeidentifyTextOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+export const validateDeIdentifyTextRequest = (deIdentifyTextRequest: DeidentifyTextRequest, options?: DeidentifyTextOptions, logLevel: LogLevel = LogLevel.ERROR) => {
     if (!deIdentifyTextRequest.text || typeof deIdentifyTextRequest.text !== 'string' || deIdentifyTextRequest.text.trim().length === 0) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TEXT_IN_DEIDENTIFY);
     }
@@ -971,6 +974,25 @@ export const validateDeIdentifyText = (deIdentifyTextRequest: DeidentifyTextRequ
 
         if (options.getTransformations() && !(options.getTransformations() instanceof Transformations)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TRANSFORMATIONS);
+        }
+    }
+};
+
+export const validateReidentifyTextRequest = (request: ReidentifyTextRequest, options?: ReidentifyTextOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!request.text || typeof request.text !== 'string' || request.text.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TEXT_IN_REIDENTIFY);
+    }
+
+    if (options) {
+        if (options.getRedactedEntities() && !Array.isArray(options.getRedactedEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTED_ENTITIES_IN_REIDENTIFY);
+        }
+
+        if (options.getMaskedEntities() && !Array.isArray(options.getMaskedEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_MASKED_ENTITIES_IN_REIDENTIFY);
+        }
+        if (options.getPlainTextEntities() && !Array.isArray(options.getPlainTextEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY);
         }
     }
 };

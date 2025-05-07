@@ -231,6 +231,11 @@ const errorMessages = {
     INVALID_FILE_NAME: `${errorPrefix} Validation error. Invalid file name. Specify a valid file name.`,
     FILE_READ_ERROR: `${errorPrefix} Validation error. Unable to read file. Verify the file path.`, 
     INVALID_BASE64_HEADER: `${errorPrefix} Validation error. Invalid base64 header. Specify a valid base64 header.`,
+
+    INVALID_TEXT_IN_REIDENTIFY: `${errorPrefix} Validation error. The text field is required and must be a non-empty string. Specify a valid text.`,
+    INVALID_REDACTED_ENTITIES_IN_REIDENTIFY: `${errorPrefix} Validation error. The redactedEntities field must be an array of DetectEntities enums. Specify a valid redactedEntities.`,
+    INVALID_MASKED_ENTITIES_IN_REIDENTIFY: `${errorPrefix} Validation error. The maskedEntities field must be an array of DetectEntities enums. Specify a valid maskedEntities.`,
+    INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY: `${errorPrefix} Validation error. The plainTextEntities field must be an array of DetectEntities enums. Specify a valid plainTextEntities.`,
 };
 
 export default errorMessages;
