@@ -36,6 +36,10 @@ import DeidentifyTextOptions from './vault/model/options/deidentify-text';
 import DeidentifyTextResponse from './vault/model/response/deidentify-text';
 import ReidentifyTextRequest from './vault/model/request/reidentify-text';
 import ReidentifyTextOptions from './vault/model/options/reidentify-text';
+import DeidentifyFileOptions from './vault/model/options/deidentify-file';
+import DeidentifyFileRequest from './vault/model/request/deidentify-file';
+import DeidentifyFileResponse from './vault/model/response/deidentify-file';
+
 
 export {
     Env,
@@ -89,5 +93,8 @@ export {
     DetectEntities,
     DeidentifyTextResponse,
     ReidentifyTextRequest,
-    ReidentifyTextOptions
+    ReidentifyTextOptions,
+    DeidentifyFileOptions,
+    DeidentifyFileRequest,
+    DeidentifyFileResponse,
 };

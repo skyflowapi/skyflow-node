@@ -1,4 +1,5 @@
 // imports 
+import { Files } from "../../ _generated_/rest/api/resources/files/client/Client";
 import { Query } from "../../ _generated_/rest/api/resources/query/client/Client";
 import { Records } from "../../ _generated_/rest/api/resources/records/client/Client";
 import { Strings } from "../../ _generated_/rest/api/resources/strings/client/Client";
@@ -25,6 +26,8 @@ class VaultClient {
     queryAPI!: Query;
 
     stringsAPI!: Strings;
+
+    filesAPI!: Files;
 
     individualCredentials?: Credentials;
 
@@ -82,6 +85,10 @@ class VaultClient {
                 break;
             case TYPES.DETECT:
                 this.stringsAPI = new Strings(this.configuration);
+                break
+            case TYPES.DEIDENTIFY_FILE:
+                this.filesAPI = new Files(this.configuration);  
+                break;  
             default:
                 break;
         }

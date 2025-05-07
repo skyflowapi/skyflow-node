@@ -99,7 +99,32 @@ export const TYPES = {
     DETECT: 'DETECT',
     INVOKE_CONNECTION: 'INVOKE_CONNECTION',
     DEIDENTIFY_TEXT: 'DEIDENTIFY_TEXT',
+    DEIDENTIFY_FILE: 'DEIDENTIFY_FILE',
 };
+
+export enum DeidenitfyFileRequestTypes {
+    IMAGE= "IMAGE", //
+    FILE= 'FILE', //
+    AUDIO= 'AUDIO', //
+    PPT= 'PPT', //
+    DOCUMENT= 'DOCUMENT',//
+    PDF= 'PDF', //
+    SPREADSHEET= 'SPREADSHEET', //
+    STRUCTURED_TEXT= 'STRUCTURED_TEXT', //
+    TEXT='TEXT' //
+}
+export enum DetectTokenTypeWithoutVault {
+    ENTITY_ONLY= "entity_only",
+    ENTITY_UNQ_COUNTER= "entity_unq_counter",
+}
+
+export enum DetectOutputTranscription {
+    DIARIZED_TRANSCRIPTION = "diarized_transcription",
+    MEDICAL_DIARIZED_TRANSCRIPTION = "medical_diarized_transcription",
+    MEDICAL_TRANSCRIPTION = "medical_transcription",
+    PLAINTEXT_TRANSCRIPTION = "plaintext_transcription",
+    TRANSCRIPTION = "transcription",
+}
 
 export enum DetectEntities {
     ACCOUNT_NUMBER = "account_number",
@@ -166,6 +191,12 @@ export enum DetectEntities {
     VEHICLE_ID = 'vehicle_id',
     ZODIAC_SIGN = 'zodiac_sign',
 }
+
+export enum MaskingMethod{
+    Blackout= "blackout",
+    Blur= "blur",
+}
+
 
 export interface ISkyflowError {
     http_status?: string | number | null,
