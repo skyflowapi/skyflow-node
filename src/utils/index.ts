@@ -120,12 +120,6 @@ export const CONTROLLER_TYPES = {
     CONNECTION: 'CONNECTION',
 }
 
-// export enum DetectTokenTypeWithoutVault {
-//     ENTITY_ONLY= "entity_only",
-//     ENTITY_UNQ_COUNTER= "entity_unq_counter",
-// }
-
-
 export enum DetectOutputTranscription {
     DIARIZED_TRANSCRIPTION = "diarized_transcription",
     MEDICAL_DIARIZED_TRANSCRIPTION = "medical_diarized_transcription",
