@@ -96,8 +96,120 @@ export const TYPES = {
     GET: 'GET',
     FILE_UPLOAD: 'FILE_UPLOAD',
     QUERY: 'QUERY',
+    DETECT: 'DETECT',
     INVOKE_CONNECTION: 'INVOKE_CONNECTION',
+    DEIDENTIFY_TEXT: 'DEIDENTIFY_TEXT',
+    DEIDENTIFY_FILE: 'DEIDENTIFY_FILE',
 };
+
+export enum DeidenitfyFileRequestTypes {
+    IMAGE= "IMAGE",
+    FILE= 'FILE', 
+    AUDIO= 'AUDIO', 
+    PPT= 'PPT', 
+    DOCUMENT= 'DOCUMENT',
+    PDF= 'PDF', 
+    SPREADSHEET= 'SPREADSHEET', 
+    STRUCTURED_TEXT= 'STRUCTURED_TEXT',
+    TEXT='TEXT'
+}
+
+export const CONTROLLER_TYPES = {
+    DETECT: 'DETECT',
+    VAULT: 'VAULT',
+    CONNECTION: 'CONNECTION',
+}
+
+// export enum DetectTokenTypeWithoutVault {
+//     ENTITY_ONLY= "entity_only",
+//     ENTITY_UNQ_COUNTER= "entity_unq_counter",
+// }
+
+
+export enum DetectOutputTranscription {
+    DIARIZED_TRANSCRIPTION = "diarized_transcription",
+    MEDICAL_DIARIZED_TRANSCRIPTION = "medical_diarized_transcription",
+    MEDICAL_TRANSCRIPTION = "medical_transcription",
+    PLAINTEXT_TRANSCRIPTION = "plaintext_transcription",
+    TRANSCRIPTION = "transcription",
+}
+
+export enum MaskingMethod{
+    Blackout= "blackout",
+    Blur= "blur",
+}
+
+export enum DetectEntities {
+    ACCOUNT_NUMBER = "account_number",
+    AGE = 'age',
+    ALL = 'all',
+    BANK_ACCOUNT = 'bank_account',
+    BLOOD_TYPE = 'blood_type',
+    CONDITION = 'condition',
+    CORPORATE_ACTION = 'corporate_action',
+    CREDIT_CARD = 'credit_card',
+    CREDIT_CARD_EXPIRATION = 'credit_card_expiration',
+    CVV = 'cvv',
+    DATE = 'date',
+    DATE_INTERVAL = 'date_interval',
+    DOB = 'dob',
+    DOSE = 'dose',
+    DRIVER_LICENSE = 'driver_license',
+    DRUG = 'drug',
+    DURATION = 'duration',
+    EMAIL_ADDRESS = 'email_address',
+    EVENT = 'event',
+    FILENAME = 'filename',
+    FINANCIAL_METRIC = 'financial_metric',
+    GENDER_SEXUALITY = 'gender_sexuality',
+    HEALTHCARE_NUMBER = 'healthcare_number',
+    INJURY = 'injury',
+    IP_ADDRESS = 'ip_address',
+    LANGUAGE = 'language',
+    LOCATION = 'location',
+    LOCATION_ADDRESS = 'location_address',
+    LOCATION_ADDRESS_STREET = 'location_address_street',
+    LOCATION_CITY = 'location_city',
+    LOCATION_COORDINATE = 'location_coordinate',
+    LOCATION_COUNTRY = 'location_country',
+    LOCATION_STATE = 'location_state',
+    LOCATION_ZIP = 'location_zip',
+    MARITAL_STATUS = 'marital_status',
+    MEDICAL_CODE = 'medical_code',
+    MEDICAL_PROCESS = 'medical_process',
+    MONEY = 'money',
+    NAME = 'name',
+    NAME_FAMILY = 'name_family',
+    NAME_GIVEN = 'name_given',
+    NAME_MEDICAL_PROFESSIONAL = 'name_medical_professional',
+    NUMERICAL_PII = 'numerical_pii',
+    OCCUPATION = 'occupation',
+    ORGANIZATION = 'organization',
+    ORGANIZATION_MEDICAL_FACILITY = 'organization_medical_facility',
+    ORIGIN = 'origin',
+    PASSPORT_NUMBER = 'passport_number',
+    PASSWORD = 'password',
+    PHONE_NUMBER = 'phone_number',
+    PHYSICAL_ATTRIBUTE = 'physical_attribute',
+    POLITICAL_AFFILIATION = 'political_affiliation',
+    PRODUCT = 'product',
+    RELIGION = 'religion',
+    ROUTING_NUMBER = 'routing_number',
+    SSN = 'ssn',
+    STATISTICS = 'statistics',
+    TIME = 'time',
+    TREND = 'trend',
+    URL = 'url',
+    USERNAME = 'username',
+    VEHICLE_ID = 'vehicle_id',
+    ZODIAC_SIGN = 'zodiac_sign',
+}
+
+export enum TokenType {
+    ENTITY_UNIQUE_COUNTER = 'entity_unq_counter',
+    ENTITY_ONLY = 'entity_only',
+    VAULT_TOKEN = 'vault_token'
+}
 
 export interface ISkyflowError {
     http_status?: string | number | null,

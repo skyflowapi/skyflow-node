@@ -24,6 +24,14 @@ import * as fs from 'fs';
 import { isExpired } from "../jwt-utils";
 import logs from "../logs";
 import FileUploadOptions from "../../vault/model/options/fileUpload";
+import DeidentifyTextRequest from "../../vault/model/request/deidentify-text";
+import DeidentifyTextOptions from "../../vault/model/options/deidentify-text";
+import TokenFormat from "../../vault/model/options/deidentify-text/token-format";
+import Transformations from "../../vault/model/options/deidentify-text/transformations";
+import ReidentifyTextRequest from "../../vault/model/request/reidentify-text";
+import ReidentifyTextOptions from "../../vault/model/options/reidentify-text";
+import DeidentifyFileOptions from "../../vault/model/options/deidentify-file";
+import DeidentifyFileRequest from "../../vault/model/request/deidentify-file";
 
 export function isEnv(value?: string): boolean {
     return value !== undefined && Object.values(Env).includes(value as Env);
@@ -930,6 +938,165 @@ export const validateQueryRequest = (queryRequest: QueryRequest, logLevel: LogLe
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_QUERY_REQUEST);
     }
 }
+
+export const validateDeIdentifyTextRequest = (deIdentifyTextRequest: DeidentifyTextRequest, options?: DeidentifyTextOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!deIdentifyTextRequest.text || typeof deIdentifyTextRequest.text !== 'string' || deIdentifyTextRequest.text.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TEXT_IN_DEIDENTIFY);
+    }
+
+    if (options) {
+        if (options.getEntities() && !Array.isArray(options.getEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENTITIES_IN_DEIDENTIFY);
+        }
+
+        if (options.getAllowRegexList() && !Array.isArray(options.getAllowRegexList())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ALLOW_REGEX_LIST);
+        }
+
+        if (options.getRestrictRegexList() && !Array.isArray(options.getRestrictRegexList())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RESTRICT_REGEX_LIST);
+        }
+
+        if (options.getTokenFormat() && !(options.getTokenFormat() instanceof TokenFormat)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
+        }
+
+        if (options.getTransformations() && !(options.getTransformations() instanceof Transformations)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TRANSFORMATIONS);
+        }
+    }
+};
+
+export const validateReidentifyTextRequest = (request: ReidentifyTextRequest, options?: ReidentifyTextOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!request.text || typeof request.text !== 'string' || request.text.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TEXT_IN_REIDENTIFY);
+    }
+
+    if (options) {
+        if (options.getRedactedEntities() && !Array.isArray(options.getRedactedEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTED_ENTITIES_IN_REIDENTIFY);
+        }
+
+        if (options.getMaskedEntities() && !Array.isArray(options.getMaskedEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_MASKED_ENTITIES_IN_REIDENTIFY);
+        }
+        if (options.getPlainTextEntities() && !Array.isArray(options.getPlainTextEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY);
+        }
+    }
+};
+
+
+export const validateDeidentifyFileRequest = (deidentifyFileRequest: DeidentifyFileRequest, deidentifyFileOptions?: DeidentifyFileOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!deidentifyFileRequest) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
+    }
+
+    // Validate file object
+    const file = deidentifyFileRequest.getFile();
+
+    // Check if the file is a valid File (browser) or Buffer (Node.js)
+    if (!(file instanceof File)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+    }
+
+    // Additional validation for File (browser)
+    if (file instanceof File) {
+        if (!file.name || !file.size) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+        }
+    }
+
+    // Validate options if provided
+    if (deidentifyFileOptions) {
+        validateDeidentifyFileOptions(deidentifyFileOptions);
+    }
+};
+
+export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyFileOptions) => {
+    if (!deidentifyFileOptions) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_OPTIONS);
+    }
+
+    //Validate waitTime
+    const waitTime = deidentifyFileOptions.getWaitTime();
+    if (waitTime !== undefined) {
+        if (typeof waitTime !== 'number' || waitTime > 20) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_WAIT_TIME);
+        }
+    }
+
+    // Validate outputDirectory
+    const outputDirectory = deidentifyFileOptions.getOutputDirectory();
+    if (outputDirectory !== undefined) {
+        if (typeof outputDirectory !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_DIRECTORY);
+        }
+        if (!fs.existsSync(outputDirectory) || !fs.lstatSync(outputDirectory).isDirectory()) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_DIRECTORY_PATH);
+        }
+    }
+
+    // Validate entities
+    if (deidentifyFileOptions.getEntities() !== undefined && (!Array.isArray(deidentifyFileOptions.getEntities()))) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENTITIES);
+    }
+
+    // Validate allowRegexList
+    if (deidentifyFileOptions.getAllowRegexList() && !Array.isArray(deidentifyFileOptions.getAllowRegexList())) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ALLOW_REGEX_LIST);
+    }
+
+    // Validate restrictRegexList
+    if (deidentifyFileOptions.getRestrictRegexList() && !Array.isArray(deidentifyFileOptions.getRestrictRegexList())) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RESTRICT_REGEX_LIST);
+    }
+
+    // Validate tokenFormat
+    if (deidentifyFileOptions.getTokenFormat() && typeof deidentifyFileOptions.getTokenFormat !== 'object') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
+    }
+
+    // Validate transformations
+    if (deidentifyFileOptions.getTransformations() && typeof deidentifyFileOptions.getTransformations() !== 'object') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TRANSFORMATIONS);
+    }
+
+    // Validate image-specific options
+    if (deidentifyFileOptions.getOutputProcessedImage() !== undefined && typeof deidentifyFileOptions.getOutputProcessedImage() !== 'boolean') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_PROCESSED_IMAGE);
+    }
+
+    if (deidentifyFileOptions.getOutputOcrText() !== undefined && typeof deidentifyFileOptions.getOutputOcrText() !== 'boolean') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_OCR_TEXT);
+    }
+
+    if (deidentifyFileOptions.getMaskingMethod() !== undefined && typeof deidentifyFileOptions.getMaskingMethod() !== 'string') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_MASKING_METHOD);
+    }
+
+    // Validate PDF-specific options
+    if (deidentifyFileOptions.getPixelDensity() !== undefined && typeof deidentifyFileOptions.getPixelDensity() !== 'number') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PIXEL_DENSITY);
+    }
+
+    if (deidentifyFileOptions.getMaxResolution() !== undefined && typeof deidentifyFileOptions.getMaxResolution() !== 'number') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_MAX_RESOLUTION);
+    }
+
+    // Validate audio-specific options
+    if (deidentifyFileOptions.getOutputProcessedAudio() !== undefined && typeof deidentifyFileOptions.getOutputProcessedAudio() !== 'boolean') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_PROCESSED_AUDIO);
+    }
+
+    if (deidentifyFileOptions.getOutputTranscription() !== undefined && typeof deidentifyFileOptions.getOutputTranscription() !== 'string') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_TRANSCRIPTION);
+    }
+
+    if (deidentifyFileOptions.getBleep() !== undefined && typeof deidentifyFileOptions.getBleep() !== 'object') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BLEEP);
+    }
+};
 
 function isStringKeyValueMap(obj: any): obj is StringKeyValueMapType {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {

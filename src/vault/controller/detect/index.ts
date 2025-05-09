@@ -1,27 +1,651 @@
 //imports
 
+import path from "path";
+import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest, DeidentifyAudioRequestFileDataFormat, DeidentifyDocumentRequest, DeidentifyDocumentRequestFileDataFormat, DeidentifyFileRequestFileDataFormat, DeidentifyImageRequest, DeidentifyImageRequestFileDataFormat, DeidentifyImageRequestMaskingMethod, DeidentifyPdfRequest, DeidentifyPresentationRequest, DeidentifyPresentationRequestFileDataFormat, DeidentifySpreadsheetRequest, DeidentifySpreadsheetRequestFileDataFormat, DeidentifyStructuredTextRequest, DeidentifyStructuredTextRequestFileDataFormat, DetectedEntity, EntityType, GetRunRequest, Transformations, DeidentifyStatusResponse, TokenTypeWithoutVault } from "../../../ _generated_/rest/api";
+import { DeidentifyFileRequest as  DeidentifyFileRequest2} from "../../../ _generated_/rest/api";
+
+import { TokenType } from "../../../ _generated_/rest/api";
+import { DeidenitfyFileRequestTypes, generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, removeSDKVersion, SDK_METRICS_HEADER_KEY, TYPES } from "../../../utils";
+import logs from "../../../utils/logs";
+import { validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateDeidentifyFileRequest } from "../../../utils/validations";
+import VaultClient from "../../client";
+import DeidentifyTextOptions from "../../model/options/deidentify-text";
+import ReidentifyTextOptions from "../../model/options/reidentify-text";
+import DeidentifyTextRequest from "../../model/request/deidentify-text";
+import ReidentifyTextRequest from "../../model/request/reidentify-text";
+import DeidentifiedTextResponse from "../../model/response/deidentify-text";
+import DeidentifyTextResponse from "../../model/response/deidentify-text";
+import ReidentifyTextResponse from "../../model/response/reidentify-text";
+import DeidentifyFileOptions from "../../model/options/deidentify-file";
+import DeidentifyFileRequest from "../../model/request/deidentify-file";
+import DeidentifyFileResponse from "../../model/response/deidentify-file";
+import * as fs from 'fs';
+import SkyflowError from "../../../error";
+import SKYFLOW_ERROR_CODE from "../../../error/codes";
+
 class DetectController {
 
-    constructor() {
+    private client: VaultClient;
+    
+    private waitTime: number = 20;
 
+    constructor(client: VaultClient) {
+        this.client = client;
+        printLog(logs.infoLogs.CONTROLLER_INITIALIZED, MessageType.LOG, this.client.getLogLevel());
     }
 
-    static initialize() {
-        //return detect object
+    private createSdkHeaders() {
+        return { [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
     }
 
-    deIdentify() {
-        return this;
+    private async getBase64FileContent(file: File){
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64String = buffer.toString('base64');
+        return base64String;
     }
 
-    text() {
-
+    private async buildAudioRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyAudioRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        var audioRequest : DeidentifyAudioRequest = {
+            file: {
+                base64: base64String as string,
+                data_format: fileExtension as DeidentifyAudioRequestFileDataFormat,
+            },
+            vault_id: this.client.vaultId,
+            entity_types: options?.getEntities() as EntityType[],
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenTypeWithoutVault,
+            allow_regex: options?.getAllowRegexList(),
+            restrict_regex: options?.getRestrictRegexList(),
+            transformations: options?.getTransformations() as Transformations,
+            output_transcription: options?.getOutputTranscription(),
+            output_processed_audio: options?.getOutputProcessedAudio(),
+            bleep_gain: options?.getBleep()?.getGain(),
+            bleep_frequency: options?.getBleep()?.getFrequency(),
+            bleep_start_padding: options?.getBleep()?.getStartPadding(),
+            bleep_stop_padding: options?.getBleep()?.getStopPadding(),
+        }
+        return audioRequest;
+    }
+    private async buildTextFileRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyTextRequest2> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        
+        var textFileRequest: DeidentifyTextRequest2 = {
+            vault_id: this.client.vaultId,
+            file: {
+                base64: base64String,
+                data_format: "txt",
+            },
+            entity_types: options?.getEntities() as EntityType[],
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenTypeWithoutVault,
+            allow_regex: options?.getAllowRegexList(),
+            restrict_regex: options?.getRestrictRegexList(),
+            transformations: options?.getTransformations() as Transformations,
+        }
+        return textFileRequest;
+    }
+    private async buildPdfRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyPdfRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        var pdfRequest: DeidentifyPdfRequest = {
+            file: {
+                base64: base64String as string,
+                data_format: "pdf",
+            },
+            vault_id: this.client.vaultId,
+            entity_types: options?.getEntities() as EntityType[],
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenTypeWithoutVault,
+            allow_regex: options?.getAllowRegexList(),
+            restrict_regex: options?.getRestrictRegexList(),
+            transformations: options?.getTransformations() as Transformations,
+            max_resolution: options?.getMaxResolution(),
+            density: options?.getDensity(),
+        }
+        return pdfRequest; 
     }
 
-    file() {
+    private async buildImageRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyImageRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        var imageRequest: DeidentifyImageRequest = {
+            vault_id: this.client.vaultId,
+            file: {
+                base64: base64String as string,
+                data_format: fileExtension as DeidentifyImageRequestFileDataFormat,
+            },
+            allow_regex: options?.getAllowRegexList(),
+            entity_types: options?.getEntities() as EntityType[],
+            masking_method: options?.getMaskingMethod() as DeidentifyImageRequestMaskingMethod,
+            output_ocr_text: options?.getOutputOcrText(),
+            output_processed_image: options?.getOutputProcessedImage(),
+            restrict_regex: options?.getRestrictRegexList(),
+            transformations: options?.getTransformations() as Transformations,
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenTypeWithoutVault,
+        };
 
+        return imageRequest; 
     }
 
+    private async buildPptRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyPresentationRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        var pptRequest: DeidentifyPresentationRequest = {
+            vault_id: this.client.vaultId,
+            file: {
+                base64: base64String as string,
+                data_format: fileExtension as DeidentifyPresentationRequestFileDataFormat,
+            },
+            entity_types: options?.getEntities() as EntityType[],
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenTypeWithoutVault,
+            allow_regex: options?.getAllowRegexList(),
+            restrict_regex: options?.getRestrictRegexList(),
+            transformations: options?.getTransformations() as Transformations,
+        };
+        return pptRequest;
+    }
+
+    private async buildSpreadsheetRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifySpreadsheetRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        var spreadsheetRequest: DeidentifySpreadsheetRequest = {
+            vault_id: this.client.vaultId,
+            file: {
+                base64: base64String as string,
+                data_format: fileExtension as DeidentifySpreadsheetRequestFileDataFormat,
+            },
+            entity_types: options?.getEntities() as EntityType[],
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenTypeWithoutVault,
+            allow_regex: options?.getAllowRegexList(),
+            restrict_regex: options?.getRestrictRegexList(),
+            transformations: options?.getTransformations() as Transformations,
+        };
+        return spreadsheetRequest;
+    }
+
+    private async buildStructuredTextRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyStructuredTextRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        var structuredTextRequest: DeidentifyStructuredTextRequest = {
+            vault_id: this.client.vaultId,
+            file: {
+                base64: base64String as string,
+                data_format: fileExtension as DeidentifyStructuredTextRequestFileDataFormat,
+            },
+            entity_types: options?.getEntities() as EntityType[],
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenTypeWithoutVault,
+            allow_regex: options?.getAllowRegexList(),
+            restrict_regex: options?.getRestrictRegexList(),
+            transformations: options?.getTransformations() as Transformations,
+        };
+        return structuredTextRequest; 
+    }
+
+    private async buildDocumentRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyDocumentRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        var documentRequest: DeidentifyDocumentRequest = {
+            vault_id: this.client.vaultId,
+            file: {
+                base64: base64String as string,
+                data_format: fileExtension as DeidentifyDocumentRequestFileDataFormat,
+            },
+            entity_types: options?.getEntities() as EntityType[],
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenTypeWithoutVault,
+            allow_regex: options?.getAllowRegexList(),
+            restrict_regex: options?.getRestrictRegexList(),
+            transformations: options?.getTransformations() as Transformations,
+        };
+        return documentRequest;
+    }
+
+    private async buildGenericFileRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyFileRequest2> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
+        var genericRequest: DeidentifyFileRequest2 = {
+                vault_id: this.client.vaultId,
+                file: {
+                    base64: base64String as string,
+                    data_format: fileExtension as DeidentifyAudioRequestFileDataFormat,
+                },
+                token_type: {
+                    default: options?.getTokenFormat()?.getDefault(),
+                    entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                    entity_only: options?.getTokenFormat()?.getEntityOnly(),
+                } as TokenTypeWithoutVault,
+                allow_regex: options?.getAllowRegexList(),
+                restrict_regex: options?.getRestrictRegexList(),
+                transformations: options?.getTransformations() as Transformations,
+                entity_types: options?.getEntities() as EntityType[],
+        }
+        return genericRequest;
+    }
+
+    private decodeBase64AndSaveToFile(base64Data: string, outputFilePath: string) {
+        try {
+            // Decode the base64 string
+            const buffer = Buffer.from(base64Data, 'base64');
+
+            // Write the decoded data to the specified file
+            fs.writeFileSync(outputFilePath, buffer);
+        } catch (error) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
+
+        }
+    }
+
+    private processDeidentifyFileResponse(response: any, outputDirectory: string, fileBaseName: string) {
+        try {
+            // Ensure the output directory exists
+            if (!fs.existsSync(outputDirectory)) {
+                fs.mkdirSync(outputDirectory, { recursive: true });
+            }
+
+            // Iterate over the output array in the response
+            response.output.forEach((fileObject: any, index: number) => {
+                const { processedFile, processedFileExtension } = fileObject;
+
+                if (!processedFile || !processedFileExtension) {
+                    return;
+                }
+
+                // Determine the output file name and path
+                const outputFileName = `processed-${fileBaseName}.${processedFileExtension}`;
+                const outputFilePath = path.join(outputDirectory, outputFileName);
+
+                // Handle JSON files
+                if (processedFileExtension === 'json') {
+                    const jsonData = Buffer.from(processedFile, 'base64').toString('utf-8');
+                    fs.writeFileSync(outputFilePath, jsonData);
+                } else if ( processedFileExtension === 'mp3' || processedFileExtension === 'wav') {
+                    const mp3Data = Buffer.from(processedFile, 'base64');
+                    fs.writeFileSync(outputFilePath, mp3Data, { encoding: 'binary' });
+                } else {
+                    // Handle other file types (e.g., images, PDFs, etc.)
+                    this.decodeBase64AndSaveToFile(processedFile, outputFilePath);
+                }
+            });
+            } catch (error) {
+            throw error;
+        }
+    }
+
+    private getReqType(format: string): DeidenitfyFileRequestTypes{
+        var reqType: DeidenitfyFileRequestTypes
+        if (Object.values(DeidentifyAudioRequestFileDataFormat).includes(format as DeidentifyAudioRequestFileDataFormat)){
+            reqType = DeidenitfyFileRequestTypes.AUDIO;
+        } else if (format.includes('pdf')){
+            reqType = DeidenitfyFileRequestTypes.PDF
+        } else if (format.includes('txt')){
+            reqType = DeidenitfyFileRequestTypes.TEXT
+        } else if (Object.values(DeidentifyImageRequestFileDataFormat).includes(format as DeidentifyImageRequestFileDataFormat)){
+            reqType = DeidenitfyFileRequestTypes.IMAGE;
+        } else if (Object.values(DeidentifyPresentationRequestFileDataFormat).includes(format as DeidentifyPresentationRequestFileDataFormat)){
+            reqType = DeidenitfyFileRequestTypes.PPT;
+        } else if (Object.values(DeidentifySpreadsheetRequestFileDataFormat).includes(format as DeidentifySpreadsheetRequestFileDataFormat)){
+            reqType = DeidenitfyFileRequestTypes.SPREADSHEET;
+        }  else if (Object.values(DeidentifyStructuredTextRequestFileDataFormat).includes(format as DeidentifyStructuredTextRequestFileDataFormat)){
+            reqType = DeidenitfyFileRequestTypes.STRUCTURED_TEXT;
+        }  else if (Object.values(DeidentifyDocumentRequestFileDataFormat).includes(format as DeidentifyDocumentRequestFileDataFormat)){
+            reqType = DeidenitfyFileRequestTypes.DOCUMENT;
+        }  else if (Object.values(DeidentifyFileRequestFileDataFormat).includes(format as DeidentifyFileRequestFileDataFormat)){
+            reqType = DeidenitfyFileRequestTypes.FILE
+        } else {
+            reqType = DeidenitfyFileRequestTypes.FILE
+        }
+        return reqType;
+    }
+
+    private pollForProcessedFile(runId: string, req: GetRunRequest, maxWaitTime: number, resolve: Function, reject: Function): void {
+        let currentWaitTime = 1; // Start with 1 second
+    
+        const poll = () => {
+            this.client.filesAPI.getRun(runId, req)
+                .then((response: any) => {
+                    if (response.status === 'IN_PROGRESS') {
+                        if (currentWaitTime > maxWaitTime) {
+                            resolve({ runId }); // Resolve with runId if max wait time is exceeded
+                        } else {
+                            setTimeout(() => {
+                                currentWaitTime *= 2; // Exponential backoff
+                                poll();
+                            }, currentWaitTime * 1000);
+                        }
+                    } else if (response.status === 'SUCCESS') {
+                        resolve(response); // Resolve with the processed file response
+                    }
+                })
+                .catch((error: any) => {
+                    reject(error);
+                });
+        };
+    
+        poll(); // Start polling
+    }
+    private handleRequest(apiCall: Function, requestType: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES[requestType]), MessageType.LOG, this.client.getLogLevel());
+            const sdkHeaders = this.createSdkHeaders();
+
+            getBearerToken(this.client.getCredentials(), this.client.getLogLevel()).then(authInfo => {
+                this.client.initAPI(authInfo, requestType);
+                apiCall({ headers: { ...sdkHeaders } })
+                    .then((response: any) => {
+                        const { data, rawResponse } = response;
+                        const requestId = rawResponse?.headers?.get('x-request-id');
+                        printLog(logs.infoLogs[`${requestType}_REQUEST_RESOLVED`], MessageType.LOG, this.client.getLogLevel());
+                        switch (requestType) {
+                            case TYPES.DETECT:
+                                resolve({records: data, requestId})
+                                break;
+                            case TYPES.DEIDENTIFY_FILE:
+                                const req: GetRunRequest = {
+                                    vault_id: this.client.vaultId,
+                                }
+
+                                const maxWaitTime = this.waitTime;
+
+                                this.pollForProcessedFile(data.run_id, req, maxWaitTime, resolve, reject); // Call the extracted polling function
+                                break;  
+                        }
+                    }).catch((error: any) => {
+                        printLog(logs.errorLogs[`${requestType}_REQUEST_REJECTED`], MessageType.ERROR, this.client.getLogLevel());
+                        this.client.failureResponse(error).catch((err) => reject(err))
+                    });
+            }).catch(reject);
+        });
+    }
+
+    private buildDeidentifyTextRequest(request: DeidentifyTextRequest, options?: DeidentifyTextOptions) {     
+        return {
+            vault_id: this.client.vaultId,
+            text: request.text,
+            entity_types: options?.getEntities() as EntityType[],
+            allow_regex: options?.getAllowRegexList(),
+            restrict_regex: options?.getRestrictRegexList(),
+            token_type: {
+                default: options?.getTokenFormat()?.getDefault(),
+                vault_token: options?.getTokenFormat()?.getVaultToken(),
+                entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
+                entity_only: options?.getTokenFormat()?.getEntityOnly(),
+            } as TokenType,
+            transformations: {
+                shift_dates: {
+                    max_days: options?.getTransformations()?.getShiftDays()?.max,
+                    min_days: options?.getTransformations()?.getShiftDays()?.min,
+                    entity_types: options?.getTransformations()?.getShiftDays()?.entities,
+                }
+            } as Transformations,
+        };
+    }
+
+    private parseDeidentifyTextResponse(data: any) {
+        return {
+            processedText: data.records.processed_text,
+            entities: data.records.entities.map((entity: DetectedEntity) => ({
+                token: entity.token,
+                value: entity.value,
+                textIndex: {
+                    start: entity.location?.start_index,
+                    end: entity.location?.end_index,
+                },
+                processedIndex: {
+                    start: entity.location?.start_index_processed,
+                    end: entity.location?.end_index_processed,
+                },
+                entity: entity.entity_type,
+                scores: entity.entity_scores,
+            })),
+            wordCount: data.records.word_count,
+            charCount: data.records.character_count,
+        };
+    }
+
+    deidentifyText(request: DeidentifyTextRequest, options?: DeidentifyTextOptions): Promise<DeidentifiedTextResponse> {
+        return new Promise((resolve, reject) => {
+            try {
+                printLog(logs.infoLogs.DEIDENTIFY_TEXT_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
+                printLog(logs.infoLogs.VALIDATE_DEIDENTIFY_TEXT_INPUT, MessageType.LOG, this.client.getLogLevel());
+
+                validateDeIdentifyTextRequest(request, options, this.client.getLogLevel());
+
+                const requestBody = this.buildDeidentifyTextRequest(request, options);
+                this.handleRequest(
+                    () => this.client.stringsAPI.deidentifyString(
+                        requestBody
+                    ).withRawResponse(),
+                    TYPES.DETECT
+                ).then(data => {
+                    const parsedResponse = new DeidentifyTextResponse(this.parseDeidentifyTextResponse(data))
+                    resolve(parsedResponse);
+                }).catch(error => {
+                    reject(error)
+                }); 
+            } catch (error) {
+                if (error instanceof Error)
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
+                reject(error);
+            }
+        });
+    }
+
+    reidentifyText(request: ReidentifyTextRequest, options?: ReidentifyTextOptions): Promise<ReidentifyTextResponse> {
+        return new Promise((resolve, reject) => {
+            try {
+                printLog(logs.infoLogs.REIDENTIFY_TEXT_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
+                printLog(logs.infoLogs.VALIDATE_REIDENTIFY_TEXT_INPUT, MessageType.LOG, this.client.getLogLevel());
+                validateReidentifyTextRequest(request, options, this.client.getLogLevel());
+
+                const requestBody = {
+                    text: request.text,
+                    vault_id: this.client.vaultId,
+                    format: {
+                        redacted: options?.getRedactedEntities(),
+                        masked: options?.getMaskedEntities(),
+                        plaintext: options?.getPlainTextEntities(),
+                    }
+                };
+                this.handleRequest(
+                    () => this.client.stringsAPI.reidentifyString(
+                        requestBody
+                    ).withRawResponse(),
+                    TYPES.DETECT
+                ).then(data => {
+                    resolve(new ReidentifyTextResponse({
+                        processedText: data.records.text
+                    }));
+                }).catch(error => {
+                    reject(error)
+                });
+
+            } catch (error) {
+                if (error instanceof Error)
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
+                reject(error);
+            }
+        });
+    }
+
+    deidentifyFile(request: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyFileResponse> {
+        return new Promise((resolve, reject) => {
+            try {
+                printLog(logs.infoLogs.DETECT_FILE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
+                printLog(logs.infoLogs.VALIDATE_DETECT_FILE_INPUT, MessageType.LOG, this.client.getLogLevel());
+                validateDeidentifyFileRequest(request, options, this.client.getLogLevel());
+
+                const fileName = request.getFile().name;
+                const fileBaseName = path.parse(request.getFile().name).name;
+                const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1); 
+
+                this.waitTime = options?.getWaitTime() ?? this.waitTime; 
+
+                var reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension); 
+                var promiseReq: Promise<any>;
+                switch (reqType){
+                    case DeidenitfyFileRequestTypes.AUDIO:
+                        promiseReq = this.buildAudioRequest(request, options, fileExtension)
+                            .then((audioReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifyAudio(
+                                        audioReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;
+                    case DeidenitfyFileRequestTypes.TEXT:
+                        promiseReq = this.buildTextFileRequest(request, options)
+                            .then((textFileReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifyText(
+                                        textFileReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;  
+                    case DeidenitfyFileRequestTypes.PDF:
+                        promiseReq = this.buildPdfRequest(request, options)
+                            .then((pdfReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifyPdf(
+                                        pdfReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;
+                    case DeidenitfyFileRequestTypes.IMAGE:
+                        promiseReq = this.buildImageRequest(request, options, fileExtension)
+                            .then((imageReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifyImage(
+                                        imageReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;
+                    case DeidenitfyFileRequestTypes.PPT:
+                        promiseReq = this.buildPptRequest(request, options, fileExtension)
+                            .then((pptReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifyPresentation(
+                                        pptReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;
+                    case DeidenitfyFileRequestTypes.SPREADSHEET:
+                        promiseReq = this.buildSpreadsheetRequest(request, options, fileExtension)
+                            .then((spreadsheetReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifySpreadsheet(
+                                        spreadsheetReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;
+                    case DeidenitfyFileRequestTypes.STRUCTURED_TEXT:
+                        promiseReq = this.buildStructuredTextRequest(request, options, fileExtension)
+                            .then((structuredTextReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifyStructuredText(
+                                        structuredTextReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;
+                    case DeidenitfyFileRequestTypes.DOCUMENT:
+                        promiseReq = this.buildDocumentRequest(request, options, fileExtension)
+                            .then((documentReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifyDocument(
+                                        documentReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;
+                    default:
+                        promiseReq = this.buildGenericFileRequest(request, options, fileExtension)
+                            .then((defaultReq) => {
+                                return this.handleRequest(
+                                    () => this.client.filesAPI.deidentifyFile(
+                                        defaultReq
+                                    ).withRawResponse(),
+                                    TYPES.DEIDENTIFY_FILE
+                                );
+                            });
+                        break;                    
+                }
+
+                promiseReq.then(data => {
+                    if(data.runId){
+                        resolve(new DeidentifyFileResponse({
+                            runId: data.runId,
+                        }));
+                    }
+                    if (options?.getOutputDirectory() && data.status === "SUCCESS") {
+                        this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
+                    }
+                    const deidentifiedFileResponse = new DeidentifyFileResponse(
+                        {
+                            file: data.output[0]?.processedFile ?? '',
+                            type: data.output[0]?.processedFileType ?? '',
+                            extension: data.output[0]?.processedFileExtension ?? '',
+                            wordCount: data.wordCharacterCount?.wordCount ?? 0,
+                            charCount: data.wordCharacterCount?.characterCount ?? 0,
+                            sizeInKb: data.size ?? 0,
+                            durationInSeconds: data.duration ?? 0,
+                            pageCount: data.pages ?? 0,
+                            slideCount: data.slides ?? 0,
+                            entities: data.output
+                                .filter((fileObject: any) => fileObject.processedFileType === 'entities') // Filter for 'entities'
+                                .map((fileObject: any) => ({
+                                    file: fileObject.processedFile,
+                                    extension: fileObject.processedFileExtension,
+                            })),
+                        }
+                    )
+                    resolve(deidentifiedFileResponse);
+                }).catch(error => {
+                    reject(error)
+                });
+            } catch (error) {
+                if (error instanceof Error)
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
+                reject(error);
+            }
+        });
+    }
 }
 
 export default DetectController;

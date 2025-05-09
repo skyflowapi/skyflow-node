@@ -189,6 +189,41 @@ const SKYFLOW_ERROR_CODE = {
 
     EMPTY_VAULT_CLIENTS: { http_code: 400, message: errorMessages.EMPTY_VAULT_CLIENTS },
     EMPTY_CONNECTION_CLIENTS: { http_code: 400, message: errorMessages.EMPTY_CONNECTION_CLIENTS },
+
+    INVALID_TEXT_IN_DEIDENTIFY: { http_code: 400, message: errorMessages.INVALID_TEXT_IN_DEIDENTIFY },
+    INVALID_ENTITIES_IN_DEIDENTIFY: { http_code: 400, message: errorMessages.INVALID_ENTITIES_IN_DEIDENTIFY },
+    INVALID_ALLOW_REGEX_LIST: { http_code: 400, message: errorMessages.INVALID_ALLOW_REGEX_LIST },
+    INVALID_RESTRICT_REGEX_LIST: { http_code: 400, message: errorMessages.INVALID_RESTRICT_REGEX_LIST },
+    INVALID_TOKEN_FORMAT: { http_code: 400, message: errorMessages.INVALID_TOKEN_FORMAT },
+    INVALID_TRANSFORMATIONS: { http_code: 400, message: errorMessages.INVALID_TRANSFORMATIONS },
+
+    INVALID_TEXT_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_TEXT_IN_REIDENTIFY },
+    INVALID_REDACTED_ENTITIES_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_REDACTED_ENTITIES_IN_REIDENTIFY },
+    INVALID_MASKED_ENTITIES_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_MASKED_ENTITIES_IN_REIDENTIFY },
+    INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY },
+
+    INVALID_DEIDENTIFY_FILE_REQUEST: { http_code: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_REQUEST },
+    EMPTY_FILE_OBJECT:{ http_code: 400, message: errorMessages.EMPTY_FILE_OBJECT },
+    INVALID_FILE_FORMAT: { http_code: 400, message: errorMessages.INVALID_FILE_FORMAT },
+    MISSING_FILE_SOURCE: { http_code: 400, message: errorMessages.MISSING_FILE_SOURCE },
+    INVALID_BASE64_STRING: { http_code: 400, message: errorMessages.INVALID_BASE64_STRING },
+    INVALID_DEIDENTIFY_FILE_OPTIONS: { http_code: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_OPTIONS },
+    INVALID_ENTITIES: { http_code: 400, message: errorMessages.INVALID_ENTITIES },
+    INVALID_OUTPUT_PROCESSED_IMAGE: { http_code: 400, message: errorMessages.INVALID_OUTPUT_PROCESSED_IMAGE },
+    INVALID_OUTPUT_OCR_TEXT: { http_code: 400, message: errorMessages.INVALID_OUTPUT_OCR_TEXT },
+    INVALID_MASKING_METHOD: { http_code: 400, message: errorMessages.INVALID_MASKING_METHOD },
+    INVALID_PIXEL_DENSITY: { http_code: 400, message: errorMessages.INVALID_PIXEL_DENSITY },
+    INVALID_MAX_RESOLUTION: { http_code: 400, message: errorMessages.INVALID_MAX_RESOLUTION },
+    INVALID_OUTPUT_PROCESSED_AUDIO: { http_code: 400, message: errorMessages.INVALID_OUTPUT_PROCESSED_AUDIO },
+    INVALID_OUTPUT_TRANSCRIPTION: { http_code: 400, message: errorMessages.INVALID_OUTPUT_TRANSCRIPTION },
+    INVALID_BLEEP:{ http_code: 400, message: errorMessages.INVALID_BLEEP },
+    INVALID_FILE_OR_ENCODED_FILE:{ http_code: 400, message: errorMessages.INVALID_FILE_OR_ENCODED_FILE },
+    INVALID_FILE_TYPE:{ http_code: 400, message: errorMessages.INVALID_FILE_TYPE },
+    FILE_READ_ERROR:{ http_code: 400, message: errorMessages.FILE_READ_ERROR },
+    INVALID_BASE64_HEADER:{ http_code: 400, message: errorMessages.INVALID_BASE64_HEADER },
+    INVALID_WAIT_TIME:{ http_code: 400, message: errorMessages.INVALID_WAIT_TIME },
+    INVALID_OUTPUT_DIRECTORY:{ http_code: 400, message: errorMessages.INVALID_OUTPUT_DIRECTORY },
+    INVALID_OUTPUT_DIRECTORY_PATH:{ http_code: 400, message: errorMessages.INVALID_OUTPUT_DIRECTORY_PATH },
 };
 
 export default SKYFLOW_ERROR_CODE;
