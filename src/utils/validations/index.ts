@@ -21,6 +21,7 @@ import TokenizeRequest from "../../vault/model/request/tokenize";
 import UpdateRequest from "../../vault/model/request/update";
 import { SkyflowConfig, StringKeyValueMapType } from "../../vault/types";
 import * as fs from 'fs';
+import * as path from 'path';
 import { isExpired } from "../jwt-utils";
 import logs from "../logs";
 import FileUploadOptions from "../../vault/model/options/fileUpload";
@@ -1000,12 +1001,17 @@ export const validateDeidentifyFileRequest = (deidentifyFileRequest: DeidentifyF
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
     }
 
-    // Additional validation for File (browser)
+    // Additional validation for File
     if (file instanceof File) {
-        if (!file.name || !file.size) {
+        if (!file.name || typeof file.name !== 'string' || file.name.trim().length === 0) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
         }
-    }
+        // Validate fileBaseName
+        const fileBaseName = path.parse(file.name).name;
+        if (!fileBaseName || typeof fileBaseName !== 'string' || fileBaseName.trim().length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+        }
+  }
 
     // Validate options if provided
     if (deidentifyFileOptions) {

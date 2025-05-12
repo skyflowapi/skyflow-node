@@ -9,6 +9,7 @@ const logs = {
         VALIDATING_VAULT_CONFIG: 'Validating vault config.',
         VALIDATING_CONNECTION_CONFIG: 'Validating connection config.',
         VAULT_CONTROLLER_INITIALIZED: 'Initialized vault controller with vault ID %s1.',
+        DETECT_CONTROLLER_INITIALIZED: 'Initialized detect controller with vault ID %s1.',
         CONNECTION_CONTROLLER_INITIALIZED: 'Intitialized connection controller with connection ID %s1.',
         vaultId_CONFIG_EXISTS: 'Vault config with vault ID %s1 already exists.',
         vaultId_CONFIG_DOES_NOT_EXIST: `Vault config with vault ID %s1 doesn't exist.`,
