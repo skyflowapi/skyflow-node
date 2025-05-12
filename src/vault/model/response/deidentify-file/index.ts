@@ -1,7 +1,7 @@
 class DeidentifyFileResponse {
     // fields
     file?: string;
-    enities?: Array<{
+    entities?: Array<{
         file: string;
         extension: string;
     }> = [];
@@ -55,7 +55,7 @@ class DeidentifyFileResponse {
         this.durationInSeconds = durationInSeconds;
         this.pageCount = pageCount;
         this.slideCount = slideCount;
-        this.enities = entities;
+        this.entities = entities;
         this.runId = runId;
     }
 

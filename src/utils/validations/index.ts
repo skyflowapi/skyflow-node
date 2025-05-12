@@ -33,6 +33,7 @@ import ReidentifyTextRequest from "../../vault/model/request/reidentify-text";
 import ReidentifyTextOptions from "../../vault/model/options/reidentify-text";
 import DeidentifyFileOptions from "../../vault/model/options/deidentify-file";
 import DeidentifyFileRequest from "../../vault/model/request/deidentify-file";
+import { Bleep } from "../../vault/model/options/deidentify-file/bleep-audio";
 
 export function isEnv(value?: string): boolean {
     return value !== undefined && Object.values(Env).includes(value as Env);
@@ -1058,12 +1059,12 @@ export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyF
     }
 
     // Validate tokenFormat
-    if (deidentifyFileOptions.getTokenFormat() && typeof deidentifyFileOptions.getTokenFormat !== 'object') {
+    if (deidentifyFileOptions.getTokenFormat() && !(deidentifyFileOptions.getTokenFormat() instanceof TokenFormat)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
     }
 
     // Validate transformations
-    if (deidentifyFileOptions.getTransformations() && typeof deidentifyFileOptions.getTransformations() !== 'object') {
+    if (deidentifyFileOptions.getTransformations() && !(deidentifyFileOptions.getTransformations() instanceof Transformations)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TRANSFORMATIONS);
     }
 
@@ -1098,7 +1099,7 @@ export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyF
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_TRANSCRIPTION);
     }
 
-    if (deidentifyFileOptions.getBleep() !== undefined && typeof deidentifyFileOptions.getBleep() !== 'object') {
+    if (deidentifyFileOptions.getBleep() && !(deidentifyFileOptions.getBleep() instanceof Bleep)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BLEEP);
     }
 };
