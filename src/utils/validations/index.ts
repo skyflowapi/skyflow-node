@@ -987,7 +987,6 @@ export const validateReidentifyTextRequest = (request: ReidentifyTextRequest, op
     }
 };
 
-
 export const validateDeidentifyFileRequest = (deidentifyFileRequest: DeidentifyFileRequest, deidentifyFileOptions?: DeidentifyFileOptions, logLevel: LogLevel = LogLevel.ERROR) => {
     if (!deidentifyFileRequest) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
