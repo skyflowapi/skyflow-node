@@ -19,17 +19,9 @@ class DeidentifyFileOptions {
     private _outputTranscription?: DetectOutputTranscription;
     private _bleep?: Bleep;
     private _outputDirectory?: string;
-    private _density?: number;
     private _waitTime?: number;
 
     constructor() {
-    }
-
-    getDensity(): number | undefined{
-        return this._density;
-    }
-    setDensity(density: number) {
-        this._density = density;
     }
 
     getEntities(): string[] | undefined {

@@ -109,7 +109,7 @@ class DetectController {
             restrict_regex: options?.getRestrictRegexList(),
             transformations: options?.getTransformations() as Transformations,
             max_resolution: options?.getMaxResolution(),
-            density: options?.getDensity(),
+            density: options?.getPixelDensity(),
         }
         return pdfRequest; 
     }
