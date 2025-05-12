@@ -52,8 +52,7 @@ class Skyflow {
         const client = new VaultClient(vaultUrl, config.vaultId, config?.credentials, this.commonCredentials, this.logLevel);
         const vaultController = new VaultController(client);
         const detectController = new DetectController(client);
-        printLog(parameterizedString(logs.infoLogs.VAULT_CONTROLLER_INITIALIZED, [config.vaultId]), MessageType.LOG, this.logLevel);
-        printLog(parameterizedString(logs.infoLogs.DETECT_CONTROLLER_INITIALIZED, [config.vaultId]), MessageType.LOG, this.logLevel);
+        printLog(logs.infoLogs.CONTROLLER_INITIALIZED, MessageType.LOG, this.logLevel);
         clients[config.vaultId] = { config, client, vaultController, detectController };
     }
 

@@ -31,7 +31,6 @@ class DetectController {
 
     constructor(client: VaultClient) {
         this.client = client;
-        printLog(logs.infoLogs.CONTROLLER_INITIALIZED, MessageType.LOG, this.client.getLogLevel());
     }
 
     private createSdkHeaders() {
