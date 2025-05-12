@@ -255,7 +255,6 @@ class VaultClient {
         this.logAndRejectError(description, err, requestId, reject, undefined, grpcCode, details, isNewFormat);
     }
     
-    
     private logAndRejectError(
         description: string,
         err: any,
