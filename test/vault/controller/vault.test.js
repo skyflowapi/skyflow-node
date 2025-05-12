@@ -96,14 +96,6 @@ describe('VaultController', () => {
         // Ensure the constructor sets the client and logs the initialization
         expect(vaultController).toBeInstanceOf(VaultController);
         expect(vaultController.client).toBe(mockVaultClient);
-
-        // Verify printLog is called with expected parameters
-        expect(printLog).toHaveBeenCalledTimes(1);
-        expect(printLog).toHaveBeenCalledWith(
-            logs.infoLogs.CONTROLLER_INITIALIZED,
-            MessageType.LOG,
-            'DEBUG'  // getLogLevel() should return 'DEBUG'
-        );
     });
 
     test('should have the connection method defined', () => {

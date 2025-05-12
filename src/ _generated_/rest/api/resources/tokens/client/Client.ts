@@ -98,10 +98,7 @@ export class Tokens {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
@@ -187,10 +184,7 @@ export class Tokens {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
-                        _response.rawResponse,
-                    );
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 default:
                     throw new errors.SkyflowError({
                         statusCode: _response.error.statusCode,
