@@ -42,7 +42,7 @@ import Transformations from './vault/model/options/deidentify-text/transformatio
 import DeidentifyFileOptions from './vault/model/options/deidentify-file';
 import DeidentifyFileRequest from './vault/model/request/deidentify-file';
 import DeidentifyFileResponse from './vault/model/response/deidentify-file';
-import { TokenType } from './utils';
+import { TokenType, MaskingMethod, DetectOutputTranscription } from './utils';
 import { Bleep } from './vault/model/options/deidentify-file/bleep-audio';
 export {
     Env,
@@ -104,5 +104,7 @@ export {
     DeidentifyFileRequest,
     DeidentifyFileResponse,
     TokenType,
-    Bleep
+    Bleep,
+    MaskingMethod,
+    DetectOutputTranscription
 };
