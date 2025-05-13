@@ -1,7 +1,7 @@
 //imports
 
 import path from "path";
-import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest, DeidentifyAudioRequestFileDataFormat, DeidentifyDocumentRequest, DeidentifyDocumentRequestFileDataFormat, DeidentifyFileRequestFileDataFormat, DeidentifyImageRequest, DeidentifyImageRequestFileDataFormat, DeidentifyImageRequestMaskingMethod, DeidentifyPdfRequest, DeidentifyPresentationRequest, DeidentifyPresentationRequestFileDataFormat, DeidentifySpreadsheetRequest, DeidentifySpreadsheetRequestFileDataFormat, DeidentifyStructuredTextRequest, DeidentifyStructuredTextRequestFileDataFormat, DetectedEntity, EntityType, GetRunRequest, Transformations, DeidentifyStatusResponse, TokenTypeWithoutVault } from "../../../ _generated_/rest/api";
+import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest, DeidentifyAudioRequestFileDataFormat, DeidentifyDocumentRequest, DeidentifyDocumentRequestFileDataFormat, DeidentifyFileRequestFileDataFormat, DeidentifyImageRequest, DeidentifyImageRequestFileDataFormat, DeidentifyImageRequestMaskingMethod, DeidentifyPdfRequest, DeidentifyPresentationRequest, DeidentifyPresentationRequestFileDataFormat, DeidentifySpreadsheetRequest, DeidentifySpreadsheetRequestFileDataFormat, DeidentifyStructuredTextRequest, DeidentifyStructuredTextRequestFileDataFormat, DetectedEntity, EntityType, GetRunRequest, Transformations as GeneratedTransformations, TokenTypeWithoutVault } from "../../../ _generated_/rest/api";
 import { DeidentifyFileRequest as  DeidentifyFileRequest2} from "../../../ _generated_/rest/api";
 
 import { TokenType } from "../../../ _generated_/rest/api";
@@ -23,6 +23,7 @@ import * as fs from 'fs';
 import SkyflowError from "../../../error";
 import SKYFLOW_ERROR_CODE from "../../../error/codes";
 import GetDetectRunRequest from "../../model/request/get-detect-run";
+import Transformations from "../../model/options/deidentify-text/transformations";
 
 class DetectController {
 
@@ -45,6 +46,17 @@ class DetectController {
         return base64String;
     }
 
+    private getTransformations(options?: DeidentifyFileOptions) {
+        const transformations = options?.getTransformations() as Transformations | undefined;
+        return {
+            shift_dates: {
+                max_days: transformations?.getShiftDays()?.max,
+                min_days: transformations?.getShiftDays()?.min,
+                entity_types: transformations?.getShiftDays()?.entities,
+            }
+        };
+    }
+
     private async buildAudioRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyAudioRequest> {
         const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var audioRequest : DeidentifyAudioRequest = {
@@ -61,7 +73,7 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
+            transformations: this.getTransformations(options) as GeneratedTransformations,
             output_transcription: options?.getOutputTranscription(),
             output_processed_audio: options?.getOutputProcessedAudio(),
             bleep_gain: options?.getBleep()?.getGain(),
@@ -88,7 +100,7 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
+            transformations: this.getTransformations(options) as GeneratedTransformations,
         }
         return textFileRequest;
     }
@@ -108,7 +120,6 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
             max_resolution: options?.getMaxResolution(),
             density: options?.getPixelDensity(),
         }
@@ -129,7 +140,6 @@ class DetectController {
             output_ocr_text: options?.getOutputOcrText(),
             output_processed_image: options?.getOutputProcessedImage(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
             token_type: {
                 default: options?.getTokenFormat()?.getDefault(),
                 entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
@@ -156,7 +166,6 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
         };
         return pptRequest;
     }
@@ -177,7 +186,7 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
+            transformations: this.getTransformations(options) as GeneratedTransformations,
         };
         return spreadsheetRequest;
     }
@@ -198,7 +207,7 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
+            transformations: this.getTransformations(options) as GeneratedTransformations,
         };
         return structuredTextRequest; 
     }
@@ -219,7 +228,6 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: options?.getTransformations() as Transformations,
         };
         return documentRequest;
     }
@@ -239,7 +247,7 @@ class DetectController {
                 } as TokenTypeWithoutVault,
                 allow_regex: options?.getAllowRegexList(),
                 restrict_regex: options?.getRestrictRegexList(),
-                transformations: options?.getTransformations() as Transformations,
+                transformations: this.getTransformations(options) as GeneratedTransformations,
                 entity_types: options?.getEntities() as EntityType[],
         }
         return genericRequest;
@@ -370,7 +378,8 @@ class DetectController {
                         const requestId = rawResponse?.headers?.get('x-request-id');
                         printLog(logs.infoLogs[`${requestType}_REQUEST_RESOLVED`], MessageType.LOG, this.client.getLogLevel());
                         switch (requestType) {
-                            case TYPES.DETECT:
+                            case TYPES.DEIDENTIFY_TEXT:
+                            case TYPES.REIDENTIFY_TEXT:
                                 resolve({records: data, requestId})
                                 break;
                             case TYPES.DEIDENTIFY_FILE:
@@ -408,13 +417,7 @@ class DetectController {
                 entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
                 entity_only: options?.getTokenFormat()?.getEntityOnly(),
             } as TokenType,
-            transformations: {
-                shift_dates: {
-                    max_days: options?.getTransformations()?.getShiftDays()?.max,
-                    min_days: options?.getTransformations()?.getShiftDays()?.min,
-                    entity_types: options?.getTransformations()?.getShiftDays()?.entities,
-                }
-            } as Transformations,
+            transformations: options?.getTransformations() as GeneratedTransformations,
         };
     }
 
@@ -442,7 +445,6 @@ class DetectController {
 
     private parseDeidentifyFileResponse(data: any, runId?: string, status?: string): DeidentifyFileResponse {
         return new DeidentifyFileResponse({
-            status: status,
             file: data.output?.[0]?.processedFile ?? '',
             type: data.output?.[0]?.processedFileType ?? '',
             extension: data.output?.[0]?.processedFileExtension ?? '',
@@ -459,6 +461,7 @@ class DetectController {
                     extension: fileObject.processedFileExtension,
                 })),
             runId: data.runId ?? data.run_id ?? runId, // Handles both camelCase and snake_case
+            status: status,
         });
     }
 
@@ -475,7 +478,7 @@ class DetectController {
                     () => this.client.stringsAPI.deidentifyString(
                         requestBody
                     ).withRawResponse(),
-                    TYPES.DETECT
+                    TYPES.DEIDENTIFY_TEXT
                 ).then(data => {
                     const parsedResponse = new DeidentifyTextResponse(this.parseDeidentifyTextResponse(data))
                     resolve(parsedResponse);
@@ -510,7 +513,7 @@ class DetectController {
                     () => this.client.stringsAPI.reidentifyString(
                         requestBody
                     ).withRawResponse(),
-                    TYPES.DETECT
+                    TYPES.REIDENTIFY_TEXT
                 ).then(data => {
                     resolve(new ReidentifyTextResponse({
                         processedText: data.records.text
@@ -679,12 +682,13 @@ class DetectController {
                     if(data.runId){
                         resolve(new DeidentifyFileResponse({
                             runId: data.runId,
+                            status: 'IN_PROGRESS',
                         }));
                     }
                     if (options?.getOutputDirectory() && data.status === "SUCCESS") {
                         this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
                     }
-                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data);
+                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, undefined, data.status);
                     resolve(deidentifiedFileResponse);
                 }).catch(error => {
                     reject(error)

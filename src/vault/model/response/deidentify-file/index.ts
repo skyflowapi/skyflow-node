@@ -19,7 +19,6 @@ class DeidentifyFileResponse {
     constructor({        
         file,
         type,
-        outputType,
         extension,
         wordCount,
         charCount,
@@ -33,7 +32,6 @@ class DeidentifyFileResponse {
     } :{
         file?: string;
         type?: string;
-        outputType?: string;
         extension?: string;
         wordCount?: number;
         charCount?: number;
@@ -50,7 +48,6 @@ class DeidentifyFileResponse {
     }) {
         this.file = file;
         this.type = type;
-        this.extension = outputType;
         this.extension = extension;
         this.wordCount = wordCount;
         this.charCount = charCount;

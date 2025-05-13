@@ -61,6 +61,11 @@ const logs = {
         GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: "generateSignedDataTokens is triggered",
         UPDATE_TRIGGERED: 'Update method triggered.',
         UPDATE_REQUEST_RESOLVED: 'Update request is resolved.',
+        DETECT_REQUEST_RESOLVED: 'Detect request is resolved.',
+        DEIDENTIFY_FILE_REQUEST_RESOLVED: 'Deidentify file request is resolved.',
+        DETECT_RUN_REQUEST_RESOLVED: 'Detect get run request is resolved.',
+        DEIDENTIFY_TEXT_REQUEST_RESOLVED: 'Deidentify text request is resolved.',
+        REIDENTIFY_TEXT_REQUEST_RESOLVED: 'Reidentify text request is resolved.',
         UNABLE_TO_GENERATE_SDK_METRIC: 'Unable to generate %s1 metric.',
         USING_BEARER_TOKEN: 'Using token from credentials',
         USING_API_KEY: 'Using api key from credentials',
@@ -168,6 +173,11 @@ const logs = {
         INVALID_SKYFLOW_ID_IN_FILE_UPLOAD: "Invalid file upload request. Skyflow Id is required.",
         EMPTY_RUN_ID: "Invalid Run Id. Run Id can not be empty.",
         INVALID_RUN_ID: "Invalid Run ID. A Run ID of string type is required.",
+        DETECT_REQUEST_RESOLVED: 'Detect request is resolved.',
+        DEIDENTIFY_FILE_REQUEST_REJECTED: 'Deidentify file resulted in failure.',
+        DETECT_RUN_REQUEST_REJECTED: 'Detect get run resulted in failure.',
+        DEIDENTIFY_TEXT_REQUEST_REJECTED: 'Deidentify text resulted in failure.',
+        REIDENTIFY_TEXT_REQUEST_REJECTED: 'Reidentify text resulted in failure.',
     },
     warnLogs: {
     }

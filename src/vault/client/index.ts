@@ -83,7 +83,8 @@ class VaultClient {
             case TYPES.QUERY:
                 this.queryAPI = new Query(this.configuration);
                 break;
-            case TYPES.DETECT:
+            case TYPES.DEIDENTIFY_TEXT:
+            case TYPES.REIDENTIFY_TEXT:
                 this.stringsAPI = new Strings(this.configuration);
                 break;
             case TYPES.DEIDENTIFY_FILE:

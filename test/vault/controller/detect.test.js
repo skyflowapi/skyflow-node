@@ -19,6 +19,8 @@ jest.mock('../../../src/utils', () => ({
         DETECT: 'DETECT',
         DEIDENTIFY_FILE: 'DEIDENTIFY_FILE',
         DETECT_RUN: 'DETECT_RUN',
+        DEIDENTIFY_TEXT: 'DEIDENTIFY_TEXT',
+        REIDENTIFY_TEXT: 'REIDENTIFY_TEXT',
     },
     DeidenitfyFileRequestTypes: {
         AUDIO: 'AUDIO',
