@@ -46,6 +46,7 @@ SDK for the Skyflow Data Privacy Vault.
     - [Deidentify Text](#deidentify-text)
     - [Reidentify Text](#reidentify-text)
     - [Deidentify File](#deidentify-file)
+    - [Get Run](#get-run)
   - [Connections](#connections)
     - [Invoke a connection](#invoke-a-connection)
   - [Authenticate with bearer tokens](#authenticate-with-bearer-tokens)
@@ -2348,6 +2349,145 @@ Sample response (when the API takes more than 20 seconds):
   pageCount: undefined,
   slideCount: undefined,
   runId: '1ad6dc12-8405-46cf-1c13-db1123f9f4c5'
+}
+```
+
+### Get run 
+To retrieve the results of a previously started file deidentification operation, use the `getDetectRun` method.  
+The `GetDetectRunRequest` class is initialized with the `runId` returned from a prior `deidentifyFile` call.  
+This method allows you to fetch the final results of the file processing operation once they are available.
+
+
+```typescript
+import {
+  GetDetectRunRequest,
+  DeidentifyFileResponse,
+  SkyflowError
+} from 'skyflow-node';
+
+try {
+  // Step 1: Prepare the GetDetectRunRequest with the runId from a previous deidentifyFile call
+  const getDetectRunRequest = new GetDetectRunRequest({
+    runId: '<RUN_ID_FROM_DEIDENTIFY_FILE>', // Replace with the runId you received earlier
+  });
+
+  // Step 2: Call getDetectRun
+  const response: DeidentifyFileResponse = await skyflowClient
+    .detect(primaryVaultConfig.vaultId)
+    .getDetectRun(getDetectRunRequest);
+
+  // Step 3: Handle the response
+  console.log('Get Detect Run Response:', response);
+
+} catch (error) {
+  if (error instanceof SkyflowError) {
+    console.error('Skyflow Error:', error.message);
+  } else {
+    console.error('Unexpected Error:', error);
+  }
+}
+```
+
+#### An example of a get run function
+
+```typescript
+import { 
+    Credentials, 
+    Env, 
+    LogLevel, 
+    Skyflow, 
+    SkyflowConfig, 
+    VaultConfig, 
+    SkyflowError, 
+    GetDetectRunRequest,
+    DeidentifyFileResponse
+} from 'skyflow-node';
+
+/**
+ * Skyflow Get Detect Run Example
+ * 
+ * This example demonstrates how to:
+ * 1. Configure credentials
+ * 2. Set up vault configuration
+ * 3. Create a get detect run request
+ * 4. Call getDetectRun to poll for file processing results
+ * 5. Handle response and errors
+ */
+
+async function performGetDetectRun() {
+    try {
+        // Step 1: Configure Credentials
+        const credentials: Credentials = {
+            token: '<YOUR_BEARER_TOKEN>', // Replace with your BEARER token
+        };
+
+        // Step 2: Configure Vault 
+        const primaryVaultConfig: VaultConfig = {
+            vaultId: '<VAULT_ID>',          // Unique vault identifier
+            clusterId: '<CLUSTER_ID>',      // From vault URL
+            env: Env.DEV,                   // Deployment environment
+            credentials: credentials        // Authentication method
+        };
+
+        // Step 3: Configure Skyflow Client
+        const skyflowConfig: SkyflowConfig = {
+            vaultConfigs: [primaryVaultConfig],
+            logLevel: LogLevel.INFO,        // Logging verbosity
+        };
+
+        // Initialize Skyflow Client
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
+
+        // Step 4: Prepare GetDetectRunRequest
+        const getDetectRunRequest = new GetDetectRunRequest({
+            runId: '<RUN_ID_FROM_DEIDENTIFY_FILE>', // Replace with the runId from a previous deidentifyFile call
+        });
+
+        // Step 5: Call getDetectRun API
+        const response: DeidentifyFileResponse = await skyflowClient
+            .detect(primaryVaultConfig.vaultId)
+            .getDetectRun(getDetectRunRequest);
+
+        // Handle Successful Response
+        console.log('Get Detect Run Response:', response);
+
+    } catch (error) {
+        // Comprehensive Error Handling
+        if (error instanceof SkyflowError) {
+            console.error('Skyflow Specific Error:', {
+                code: error.error?.http_code,
+                message: error.message,
+                details: error.error?.details,
+            });
+        } else {
+            console.error('Unexpected Error:', error);
+        }
+    }
+}
+
+// Invoke the get detect run function
+performGetDetectRun();
+```
+
+Sample Response
+
+```typescript
+{
+  entities: [
+    {
+      file: '0X2xhYmVsIjoiQ1JFRElUX0NB==',
+      extension: 'json'
+    }
+  ],
+  file: 'TXkgU1NOIGlzIFtTU0==',
+  type: 'redacted_file',
+  extension: 'txt',
+  wordCount: 12,
+  charCount: 58,
+  sizeInKb: 0.06,
+  durationInSeconds: 0,
+  pageCount: 0,
+  slideCount: 0,
 }
 ```
 
