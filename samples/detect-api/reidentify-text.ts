@@ -1,5 +1,3 @@
-// Sample: Using reidentifyText with ReidentifyTextOptions
-
 import {
   Credentials,
   Env,
@@ -13,7 +11,7 @@ import {
 } from 'skyflow-node';
 
 /**
- * Skyflow Deidentify Text Example
+ * Skyflow Reidentify Text Example
  * 
  * This example demonstrates how to:
  * 1. Configure credentials

@@ -15,7 +15,7 @@ import {
   Transformations,
   Bleep,
   VaultConfig,
-} from '../../src';
+} from 'skyflow-node';
 import fs from 'fs';
 
 /**
@@ -73,18 +73,18 @@ async function performDeidentifyFile() {
     options.setTokenFormat(tokenFormat);
 
     // Custom transformations for entities
-    const transformations = new Transformations();
-    transformations.setShiftDays({
-      max: 30,
-      min: 10,
-      entities: [DetectEntities.SSN],
-    });
-    options.setTransformations(transformations);
+    // const transformations = new Transformations();
+    // transformations.setShiftDays({
+    //   max: 30,
+    //   min: 10,
+    //   entities: [DetectEntities.SSN],
+    // });
+    // options.setTransformations(transformations);
 
     // Output directory for saving the deidentified file
     options.setOutputDirectory('<OUTPUT_DIRECTORY_PATH>'); // Replace with your output directory
 
-    // Wait time for response (max 20 seconds)
+    // Wait time for response (max 64 seconds)
     options.setWaitTime(15);
 
     // --- Image Options (apply when file is an image) ---

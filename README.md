@@ -2170,7 +2170,7 @@ try {
 
   options.setOutputDirectory('<OUTPUT_DIRECTORY_PATH>');  // Output directory for saving the deidentified file
 
-  options.setWaitTime(15);   // Wait time for response (max 20 seconds; throws error if more)
+  options.setWaitTime(15);   // Wait time for response (max 64 seconds; throws error if more)
 
   // ===== Image Options (apply when file is an image) =====
 
@@ -2267,7 +2267,7 @@ async function performDeidentifyFile() {
     // Output directory for saving the deidentified file
     options.setOutputDirectory('/home/user/output'); // Replace with your desired output directory
 
-    // Wait time for response (max 20 seconds)
+    // Wait time for response (max 64 seconds)
     options.setWaitTime(15);
 
 
@@ -2308,7 +2308,7 @@ performDeidentifyFile();
 - Audio: `mp3`, `wav`
 
 **Note:** 
-- The `waitTime` option must be ≤ 20 seconds; otherwise, an error is thrown.
+- The `waitTime` option must be ≤ 64 seconds; otherwise, an error is thrown.
 
 Sample Response:
 
@@ -2332,9 +2332,9 @@ Sample Response:
   runId: undefined
 }
 ```
-- If the API takes more than 20 seconds to process the file, it will return only the run ID in the response.
+- If the API takes more than 64 seconds to process the file, it will return only the run ID in the response.
 
-Sample response (when the API takes more than 20 seconds):
+Sample response (when the API takes more than 64 seconds):
 ```typescript
 
 {
