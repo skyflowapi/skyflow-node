@@ -87,6 +87,7 @@ class VaultClient {
                 this.stringsAPI = new Strings(this.configuration);
                 break;
             case TYPES.DEIDENTIFY_FILE:
+            case TYPES.DETECT_RUN:
                 this.filesAPI = new Files(this.configuration);  
                 break;  
             default:

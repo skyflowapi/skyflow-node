@@ -237,6 +237,8 @@ const errorMessages = {
     INVALID_WAIT_TIME: `${errorPrefix} Validation error. Invalid wait time. Specify a valid wait time as number and should not be greater than 20 secs.`,
     INVALID_OUTPUT_DIRECTORY: `${errorPrefix} Validation error. Invalid output directory. Specify a valid output directory as string.`,
     INVALID_OUTPUT_DIRECTORY_PATH: `${errorPrefix} Validation error. Invalid output directory path. Specify a valid output directory path as string.`,
+    EMPTY_RUN_ID: `${errorPrefix} Validation error. Run id cannot be empty. Specify a valid run id.`,
+    INVALID_RUN_ID: `${errorPrefix} Validation error. Invalid run id. Specify a valid run id as string.`,
 };
 
 export default errorMessages;

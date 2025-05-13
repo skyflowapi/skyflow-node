@@ -34,6 +34,7 @@ import ReidentifyTextOptions from "../../vault/model/options/reidentify-text";
 import DeidentifyFileOptions from "../../vault/model/options/deidentify-file";
 import DeidentifyFileRequest from "../../vault/model/request/deidentify-file";
 import { Bleep } from "../../vault/model/options/deidentify-file/bleep-audio";
+import GetDetectRunRequest from "../../vault/model/request/get-detect-run";
 
 export function isEnv(value?: string): boolean {
     return value !== undefined && Object.values(Env).includes(value as Env);
@@ -1018,6 +1019,19 @@ export const validateDeidentifyFileRequest = (deidentifyFileRequest: DeidentifyF
         validateDeidentifyFileOptions(deidentifyFileOptions);
     }
 };
+
+export const validateGetDetectRunRequest = (getDetectRunRequest: GetDetectRunRequest, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (getDetectRunRequest) {
+        if (!getDetectRunRequest?.runId) {
+            printLog(logs.errorLogs.EMPTY_RUN_ID, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RUN_ID);
+        }
+        if (typeof getDetectRunRequest.runId !== 'string' || getDetectRunRequest.runId.trim().length === 0) {
+            printLog(logs.errorLogs.INVALID_RUN_ID, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RUN_ID);
+        }
+    }
+}       
 
 export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyFileOptions) => {
     if (!deidentifyFileOptions) {
