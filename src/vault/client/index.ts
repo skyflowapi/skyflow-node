@@ -1,6 +1,8 @@
 // imports 
+import { Files } from "../../ _generated_/rest/api/resources/files/client/Client";
 import { Query } from "../../ _generated_/rest/api/resources/query/client/Client";
 import { Records } from "../../ _generated_/rest/api/resources/records/client/Client";
+import { Strings } from "../../ _generated_/rest/api/resources/strings/client/Client";
 import { Tokens } from "../../ _generated_/rest/api/resources/tokens/client/Client";
 import SkyflowError from "../../error";
 import errorMessages from "../../error/messages";
@@ -22,6 +24,10 @@ class VaultClient {
     tokensAPI!: Tokens;
 
     queryAPI!: Query;
+
+    stringsAPI!: Strings;
+
+    filesAPI!: Files;
 
     individualCredentials?: Credentials;
 
@@ -77,6 +83,14 @@ class VaultClient {
             case TYPES.QUERY:
                 this.queryAPI = new Query(this.configuration);
                 break;
+            case TYPES.DEIDENTIFY_TEXT:
+            case TYPES.REIDENTIFY_TEXT:
+                this.stringsAPI = new Strings(this.configuration);
+                break;
+            case TYPES.DEIDENTIFY_FILE:
+            case TYPES.DETECT_RUN:
+                this.filesAPI = new Files(this.configuration);  
+                break;  
             default:
                 break;
         }
@@ -242,7 +256,6 @@ class VaultClient {
     
         this.logAndRejectError(description, err, requestId, reject, undefined, grpcCode, details, isNewFormat);
     }
-    
     
     private logAndRejectError(
         description: string,

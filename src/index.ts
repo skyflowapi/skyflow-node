@@ -1,5 +1,5 @@
 import Skyflow from './vault/skyflow';
-import { LogLevel, Env, RedactionType, RequestMethod, OrderByEnum, TokenMode } from './utils';
+import { LogLevel, Env, RedactionType, RequestMethod, OrderByEnum, TokenMode, DetectEntities } from './utils';
 import InsertRequest from './vault/model/request/insert';
 import InsertOptions from './vault/model/options/insert';
 import GetRequest from './vault/model/request/get';
@@ -31,7 +31,20 @@ import { SkyflowConfig, TokenizeRequestType, DetokenizeData } from './vault/type
 import VaultConfig from './vault/config/vault';
 import SkyflowError from './error';
 import ConnectionConfig from './vault/config/connection';
-
+import DeidentifyTextRequest from './vault/model/request/deidentify-text';
+import DeidentifyTextOptions from './vault/model/options/deidentify-text';
+import DeidentifyTextResponse from './vault/model/response/deidentify-text';
+import ReidentifyTextRequest from './vault/model/request/reidentify-text';
+import ReidentifyTextOptions from './vault/model/options/reidentify-text';
+import ReidentifyTextResponse from './vault/model/response/reidentify-text';
+import TokenFormat from './vault/model/options/deidentify-text/token-format';
+import Transformations from './vault/model/options/deidentify-text/transformations';
+import DeidentifyFileOptions from './vault/model/options/deidentify-file';
+import DeidentifyFileRequest from './vault/model/request/deidentify-file';
+import DeidentifyFileResponse from './vault/model/response/deidentify-file';
+import GetDetectRunRequest from './vault/model/request/get-detect-run';
+import { TokenType, MaskingMethod, DetectOutputTranscription } from './utils';
+import { Bleep } from './vault/model/options/deidentify-file/bleep-audio';
 export {
     Env,
     LogLevel,
@@ -78,5 +91,22 @@ export {
     TokenizeRequest,
     TokenizeResponse,
     InvokeConnectionRequest,
-    InvokeConnectionResponse
+    InvokeConnectionResponse,
+    DeidentifyTextRequest,
+    DeidentifyTextOptions,
+    DetectEntities,
+    DeidentifyTextResponse,
+    ReidentifyTextRequest,
+    ReidentifyTextOptions,
+    ReidentifyTextResponse,
+    TokenFormat,
+    Transformations,
+    DeidentifyFileOptions,
+    DeidentifyFileRequest,
+    DeidentifyFileResponse,
+    TokenType,
+    Bleep,
+    MaskingMethod,
+    DetectOutputTranscription,
+    GetDetectRunRequest
 };
