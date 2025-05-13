@@ -7,7 +7,7 @@ import { DeidentifyFileRequest as  DeidentifyFileRequest2} from "../../../ _gene
 import { TokenType } from "../../../ _generated_/rest/api";
 import { DeidenitfyFileRequestTypes, generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, removeSDKVersion, SDK_METRICS_HEADER_KEY, TYPES } from "../../../utils";
 import logs from "../../../utils/logs";
-import { validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateDeidentifyFileRequest } from "../../../utils/validations";
+import { validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateDeidentifyFileRequest, validateGetDetectRunRequest } from "../../../utils/validations";
 import VaultClient from "../../client";
 import DeidentifyTextOptions from "../../model/options/deidentify-text";
 import ReidentifyTextOptions from "../../model/options/reidentify-text";
@@ -22,6 +22,7 @@ import DeidentifyFileResponse from "../../model/response/deidentify-file";
 import * as fs from 'fs';
 import SkyflowError from "../../../error";
 import SKYFLOW_ERROR_CODE from "../../../error/codes";
+import GetDetectRunRequest from "../../model/request/get-detect-run";
 
 class DetectController {
 
@@ -369,7 +370,11 @@ class DetectController {
                                 const maxWaitTime = this.waitTime;
 
                                 this.pollForProcessedFile(data.run_id, req, maxWaitTime, resolve, reject); // Call the extracted polling function
-                                break;  
+                                break; 
+                            case TYPES.DETECT_RUN:
+                                resolve({data, requestId})
+                                break;
+
                         }
                     }).catch((error: any) => {
                         printLog(logs.errorLogs[`${requestType}_REQUEST_REJECTED`], MessageType.ERROR, this.client.getLogLevel());
@@ -422,6 +427,27 @@ class DetectController {
             wordCount: data.records.word_count,
             charCount: data.records.character_count,
         };
+    }
+
+    private parseDeidentifyFileResponse(data: any): DeidentifyFileResponse {
+        return new DeidentifyFileResponse({
+            file: data.output?.[0]?.processedFile ?? '',
+            type: data.output?.[0]?.processedFileType ?? '',
+            extension: data.output?.[0]?.processedFileExtension ?? '',
+            wordCount: data.wordCharacterCount?.wordCount ?? 0,
+            charCount: data.wordCharacterCount?.characterCount ?? 0,
+            sizeInKb: data.size ?? 0,
+            durationInSeconds: data.duration ?? 0,
+            pageCount: data.pages ?? 0,
+            slideCount: data.slides ?? 0,
+            entities: (data.output || [])
+                .filter((fileObject: any) => fileObject.processedFileType === 'entities')
+                .map((fileObject: any) => ({
+                    file: fileObject.processedFile,
+                    extension: fileObject.processedFileExtension,
+                })),
+            runId: data.runId ?? data.run_id, // Handles both camelCase and snake_case
+        });
     }
 
     deidentifyText(request: DeidentifyTextRequest, options?: DeidentifyTextOptions): Promise<DeidentifiedTextResponse> {
@@ -481,6 +507,37 @@ class DetectController {
                     reject(error)
                 });
 
+            } catch (error) {
+                if (error instanceof Error)
+                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
+                reject(error);
+            }
+        });
+    }
+
+    getDetectRun(request: GetDetectRunRequest): Promise<DeidentifyFileResponse> {
+        return new Promise((resolve, reject) => {
+            try {
+                printLog(logs.infoLogs.GET_DETECT_RUN_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
+                printLog(logs.infoLogs.VALIDATE_GET_DETECT_RUN_INPUT, MessageType.LOG, this.client.getLogLevel());
+                validateGetDetectRunRequest(request, this.client.getLogLevel());
+
+                const req: GetRunRequest = {
+                    vault_id: this.client.vaultId
+                }
+
+                this.handleRequest(
+                    () => this.client.filesAPI.getRun(
+                        request.runId,
+                        req
+                    ).withRawResponse(),
+                    TYPES.DETECT_RUN
+                ).then(response => {
+                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(response.data);
+                    resolve(deidentifiedFileResponse);
+                }).catch(error => {
+                    reject(error)
+                });
             } catch (error) {
                 if (error instanceof Error)
                     printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
@@ -615,25 +672,7 @@ class DetectController {
                     if (options?.getOutputDirectory() && data.status === "SUCCESS") {
                         this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
                     }
-                    const deidentifiedFileResponse = new DeidentifyFileResponse(
-                        {
-                            file: data.output[0]?.processedFile ?? '',
-                            type: data.output[0]?.processedFileType ?? '',
-                            extension: data.output[0]?.processedFileExtension ?? '',
-                            wordCount: data.wordCharacterCount?.wordCount ?? 0,
-                            charCount: data.wordCharacterCount?.characterCount ?? 0,
-                            sizeInKb: data.size ?? 0,
-                            durationInSeconds: data.duration ?? 0,
-                            pageCount: data.pages ?? 0,
-                            slideCount: data.slides ?? 0,
-                            entities: data.output
-                                .filter((fileObject: any) => fileObject.processedFileType === 'entities') // Filter for 'entities'
-                                .map((fileObject: any) => ({
-                                    file: fileObject.processedFile,
-                                    extension: fileObject.processedFileExtension,
-                            })),
-                        }
-                    )
+                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data);
                     resolve(deidentifiedFileResponse);
                 }).catch(error => {
                     reject(error)

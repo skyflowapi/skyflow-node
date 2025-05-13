@@ -73,6 +73,8 @@ const logs = {
         VALIDATE_REIDENTIFY_TEXT_INPUT: 'Validating reidentify text input',
         VALIDATE_DETECT_FILE_INPUT: 'Validating deidentify file input.',
         DETECT_FILE_TRIGGERED: 'Deidentify file triggered.',
+        GET_DETECT_RUN_TRIGGERED: 'Get detect run triggered.',
+        VALIDATE_GET_DETECT_RUN_INPUT: 'Validating get detect run input.',
     },
     errorLogs: {
         VAULT_CONFIG_KEY_MISSING: "Invalid skyflow config. Vaults configs key missing in skyflow config.",
@@ -164,7 +166,8 @@ const logs = {
         INVALID_TABLE_IN_FILE_UPLOAD: "Invalid file upload request. Table name is required.",
         EMPTY_SKYFLOW_ID_IN_FILE_UPLOAD: "Invalid file upload request. Skyflow Id can not be empty.",
         INVALID_SKYFLOW_ID_IN_FILE_UPLOAD: "Invalid file upload request. Skyflow Id is required.",
-
+        EMPTY_RUN_ID: "Invalid Run Id. Run Id can not be empty.",
+        INVALID_RUN_ID: "Invalid Run ID. A Run ID of string type is required.",
     },
     warnLogs: {
     }

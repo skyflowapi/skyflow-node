@@ -1,5 +1,5 @@
 import DetectController from '../../../src/vault/controller/detect';
-import { validateDeidentifyFileRequest, validateDeIdentifyTextRequest, validateReidentifyTextRequest } from '../../../src/utils/validations';
+import { validateDeidentifyFileRequest, validateDeIdentifyTextRequest, validateGetDetectRunRequest, validateReidentifyTextRequest } from '../../../src/utils/validations';
 import DeidentifyTextResponse from '../../../src/vault/model/response/deidentify-text';
 import ReidentifyTextResponse from '../../../src/vault/model/response/reidentify-text';
 import DeidentifyFileRequest from '../../../src/vault/model/request/deidentify-file';
@@ -18,6 +18,7 @@ jest.mock('../../../src/utils', () => ({
     TYPES: {
         DETECT: 'DETECT',
         DEIDENTIFY_FILE: 'DEIDENTIFY_FILE',
+        DETECT_RUN: 'DETECT_RUN',
     },
     DeidenitfyFileRequestTypes: {
         AUDIO: 'AUDIO',
@@ -38,6 +39,7 @@ jest.mock('../../../src/utils/validations', () => ({
     validateDeIdentifyTextRequest: jest.fn(),
     validateReidentifyTextRequest: jest.fn(),
     validateDeidentifyFileRequest: jest.fn(),
+    validateGetDetectRunRequest: jest.fn(),
 }));
 
 describe('DetectController', () => {
@@ -765,4 +767,91 @@ describe('DetectController - Files', () => {
     });
 
     
+});
+
+describe('getDetectRun', () => {
+    let mockVaultClient;
+    let detectController;
+
+    beforeEach(() => {
+        mockVaultClient = {
+            getLogLevel: jest.fn().mockReturnValue('DEBUG'),
+            getCredentials: jest.fn().mockReturnValue({}),
+            initAPI: jest.fn(),
+            filesAPI: {
+                getRun: jest.fn(),
+            },
+            failureResponse: jest.fn().mockRejectedValue(new Error('API error')),
+            vaultId: 'vault123',
+        };
+        detectController = new DetectController(mockVaultClient);
+        jest.clearAllMocks();
+    });
+
+    test('should successfully get detect run and parse response', async () => {
+        jest.mock('../../../src/utils/validations', () => ({
+            validateGetDetectRunRequest: jest.fn(),
+        }));
+        validateGetDetectRunRequest.mockImplementation(() => {
+            // No validation error
+        });
+        const mockRequest = { runId: 'mockRunId' };
+        const mockResponseData = {
+            output: [
+                {
+                    processedFile: 'mockProcessedFile',
+                    processedFileType: 'text',
+                    processedFileExtension: 'txt',
+                },
+            ],
+            wordCharacterCount: {
+                wordCount: 100,
+                characterCount: 500,
+            },
+            size: 1024,
+            duration: 0,
+            pages: 1,
+            slides: 0,
+            run_id: 'mockRunId',
+        };
+
+        mockVaultClient.filesAPI.getRun.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: mockResponseData,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+            }),
+        }));
+
+        const result = await detectController.getDetectRun(mockRequest);
+
+        expect(mockVaultClient.filesAPI.getRun).toHaveBeenCalledWith(
+            mockRequest.runId,
+            { vault_id: 'vault123' }
+        );
+    });
+
+    test('should handle validation errors', async () => {
+        const mockRequest = { runId: 'mockRunId' };
+        validateGetDetectRunRequest.mockImplementation(() => {
+            throw new Error('Validation error');
+        });
+
+        await expect(detectController.getDetectRun(mockRequest)).rejects.toThrow('Validation error');
+        expect(mockVaultClient.filesAPI.getRun).not.toHaveBeenCalled();
+    });
+
+    test('should handle API errors during getDetectRun', async () => {
+        jest.mock('../../../src/utils/validations', () => ({
+            validateGetDetectRunRequest: jest.fn(),
+        }));
+        validateGetDetectRunRequest.mockImplementation(() => {
+            // No validation error
+        });
+        const mockRequest = { runId: 'mockRunId' };
+        mockVaultClient.filesAPI.getRun.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockRejectedValue(new Error('API error')),
+        }));
+
+        await expect(detectController.getDetectRun(mockRequest)).rejects.toThrow('API error');
+    });
 });

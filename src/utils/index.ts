@@ -100,6 +100,7 @@ export const TYPES = {
     INVOKE_CONNECTION: 'INVOKE_CONNECTION',
     DEIDENTIFY_TEXT: 'DEIDENTIFY_TEXT',
     DEIDENTIFY_FILE: 'DEIDENTIFY_FILE',
+    DETECT_RUN: 'DETECT_RUN',
 };
 
 export enum DeidenitfyFileRequestTypes {
