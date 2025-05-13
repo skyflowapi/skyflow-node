@@ -46,7 +46,7 @@ class DetectController {
         return base64String;
     }
 
-    private getTransformations(options?: DeidentifyFileOptions) {
+    private getTransformations(options?: DeidentifyFileOptions | DeidentifyTextOptions) {
         const transformations = options?.getTransformations() as Transformations | undefined;
         return {
             shift_dates: {
@@ -417,7 +417,7 @@ class DetectController {
                 entity_unq_counter: options?.getTokenFormat()?.getEntityUniqueCounter(),
                 entity_only: options?.getTokenFormat()?.getEntityOnly(),
             } as TokenType,
-            transformations: options?.getTransformations() as GeneratedTransformations,
+            transformations: this.getTransformations(options) as GeneratedTransformations,
         };
     }
 
