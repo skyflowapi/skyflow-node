@@ -1041,7 +1041,7 @@ export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyF
     //Validate waitTime
     const waitTime = deidentifyFileOptions.getWaitTime();
     if (waitTime !== undefined) {
-        if (typeof waitTime !== 'number' || waitTime > 20) {
+        if (typeof waitTime !== 'number' || waitTime > 64) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_WAIT_TIME);
         }
     }

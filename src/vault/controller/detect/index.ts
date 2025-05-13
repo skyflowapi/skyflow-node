@@ -28,7 +28,7 @@ class DetectController {
 
     private client: VaultClient;
     
-    private waitTime: number = 20;
+    private waitTime: number = 64;
 
     constructor(client: VaultClient) {
         this.client = client;
@@ -327,16 +327,27 @@ class DetectController {
             this.client.filesAPI.getRun(runId, req)
                 .then((response: any) => {
                     if (response.status === 'IN_PROGRESS') {
-                        if (currentWaitTime > maxWaitTime) {
+                        if (currentWaitTime >= maxWaitTime) {
                             resolve({ runId }); // Resolve with runId if max wait time is exceeded
                         } else {
+                            const nextWaitTime = currentWaitTime * 2;
+                            let waitTime = 0;
+                            if (nextWaitTime >= maxWaitTime) {
+                                waitTime = maxWaitTime - currentWaitTime;
+                                currentWaitTime = maxWaitTime;
+                            } else {
+                                waitTime = nextWaitTime;
+                                currentWaitTime = nextWaitTime;
+                            }
                             setTimeout(() => {
-                                currentWaitTime *= 2; // Exponential backoff
                                 poll();
-                            }, currentWaitTime * 1000);
+                            }, waitTime * 1000);
                         }
                     } else if (response.status === 'SUCCESS') {
                         resolve(response); // Resolve with the processed file response
+                    }
+                    else if (response.status === 'FAILED') {
+                        reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     }
                 })
                 .catch((error: any) => {
@@ -429,8 +440,9 @@ class DetectController {
         };
     }
 
-    private parseDeidentifyFileResponse(data: any): DeidentifyFileResponse {
+    private parseDeidentifyFileResponse(data: any, runId?: string, status?: string): DeidentifyFileResponse {
         return new DeidentifyFileResponse({
+            status: status,
             file: data.output?.[0]?.processedFile ?? '',
             type: data.output?.[0]?.processedFileType ?? '',
             extension: data.output?.[0]?.processedFileExtension ?? '',
@@ -446,7 +458,7 @@ class DetectController {
                     file: fileObject.processedFile,
                     extension: fileObject.processedFileExtension,
                 })),
-            runId: data.runId ?? data.run_id, // Handles both camelCase and snake_case
+            runId: data.runId ?? data.run_id ?? runId, // Handles both camelCase and snake_case
         });
     }
 
@@ -533,7 +545,7 @@ class DetectController {
                     ).withRawResponse(),
                     TYPES.DETECT_RUN
                 ).then(response => {
-                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(response.data);
+                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(response.data, request.runId, response.data.status);
                     resolve(deidentifiedFileResponse);
                 }).catch(error => {
                     reject(error)
