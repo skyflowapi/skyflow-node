@@ -14,11 +14,11 @@ class DeidentifyFileResponse {
     pageCount?: number;
     slideCount?: number;
     runId?: string;
+    status?: string;
 
     constructor({        
         file,
         type,
-        outputType,
         extension,
         wordCount,
         charCount,
@@ -27,11 +27,11 @@ class DeidentifyFileResponse {
         pageCount,
         slideCount,
         entities,
-        runId
+        runId,
+        status
     } :{
         file?: string;
         type?: string;
-        outputType?: string;
         extension?: string;
         wordCount?: number;
         charCount?: number;
@@ -44,10 +44,10 @@ class DeidentifyFileResponse {
             extension: string;
         }>;
         runId?: string;
+        status?: string;
     }) {
         this.file = file;
         this.type = type;
-        this.extension = outputType;
         this.extension = extension;
         this.wordCount = wordCount;
         this.charCount = charCount;
@@ -57,6 +57,7 @@ class DeidentifyFileResponse {
         this.slideCount = slideCount;
         this.entities = entities;
         this.runId = runId;
+        this.status = status;
     }
 
 }

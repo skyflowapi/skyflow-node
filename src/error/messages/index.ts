@@ -239,6 +239,7 @@ const errorMessages = {
     INVALID_OUTPUT_DIRECTORY_PATH: `${errorPrefix} Validation error. Invalid output directory path. Specify a valid output directory path as string.`,
     EMPTY_RUN_ID: `${errorPrefix} Validation error. Run id cannot be empty. Specify a valid run id.`,
     INVALID_RUN_ID: `${errorPrefix} Validation error. Invalid run id. Specify a valid run id as string.`,
+    INTERNAL_SERVER_ERROR: `${errorPrefix}. Internal server error.  %s1.`,
 };
 
 export default errorMessages;
