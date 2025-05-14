@@ -75,7 +75,7 @@ async function performDeidentifyFile() {
     options.setTokenFormat(tokenFormat);
 
     // Custom transformations for entities
-    // const transformations = new Transformations();
+    // const transformations = new Transformations(); // Transformations cannot be applied to Documents, Images, or PDFs file formats.
     // transformations.setShiftDays({
     //   max: 30,
     //   min: 10,

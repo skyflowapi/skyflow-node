@@ -2351,6 +2351,8 @@ Sample Response:
 - Audio: `mp3`, `wav`
 
 **Note:** 
+- Transformations cannot be applied to Documents, Images, or PDFs file formats.
+
 - The `waitTime` option must be ≤ 64 seconds; otherwise, an error is thrown.
 
 - If the API takes more than 64 seconds to process the file, it will return only the run ID in the response.
@@ -2369,7 +2371,7 @@ Sample response (when the API takes more than 64 seconds):
   durationInSeconds: undefined,
   pageCount: undefined,
   slideCount: undefined,
-  runId: '1ad6dc12-8405-46cf-1c13-db1123f9f4c5'
+  runId: '1ad6dc12-8405-46cf-1c13-db1123f9f4c5',
   status: 'IN_PROGRESS'
 }
 ```
