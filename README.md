@@ -204,7 +204,7 @@ const primaryVaultConfig: VaultConfig = {
 const skyflowConfig: SkyflowConfig = {
     vaultConfigs: [primaryVaultConfig],
     skyflowCredentials: credentials, // Skyflow credentials will be used if no individual credentials are passed
-    logLevel: LogLevel.ERROR,      // Logging verbosity
+    logLevel: LogLevel.INFO,        // Recommended to use LogLevel.ERROR in production environment.
 };
 
 // Initialize Skyflow Client
@@ -466,7 +466,7 @@ const tertiaryVaultConfig: VaultConfig = {
 const skyflowConfig: SkyflowConfig = {
     vaultConfigs: [primaryVaultConfig, secondaryVaultConfig, tertiaryVaultConfig],  // Add the primary, secondary and tertiary vault configurations.
     skyflowCredentials: skyflowCredentials, // Add JSON-formatted credentials if applicable.
-    logLevel: LogLevel.INFO // Set log level for debugging or monitoring purposes.
+    logLevel: LogLevel.INFO     // Recommended to use LogLevel.ERROR in production environment.
 };
 
 // Step 10: Initialize Skyflow Client
@@ -1901,7 +1901,7 @@ try {
   if (error instanceof SkyflowError) {
     console.error('Skyflow Error:', error.message);
   } else {
-    console.error('Unexpected Error:', error);
+    console.error('Unexpected Error:', JSON.stringify(error));
   }
 }
 ```
@@ -1975,7 +1975,7 @@ async function performDeidentifyText() {
                 details: error.error?.details,
             });
         } else {
-            console.error('Unexpected Error:', error);
+            console.error('Unexpected Error:', JSON.stringify(error));
         }
     }
 }
@@ -2061,11 +2061,16 @@ try {
   console.log('Reidentify Text Response:', response);
 
 } catch (error) {
-  if (error instanceof SkyflowError) {
-    console.error('Skyflow Error:', error.message);
-  } else {
-    console.error('Unexpected Error:', error);
-  }
+    // Comprehensive Error Handling
+    if (error instanceof SkyflowError) {
+        console.error('Skyflow Specific Error:', {
+            code: error.error?.http_code,
+            message: error.message,
+            details: error.error?.details,
+        });
+    } else {
+        console.error('Unexpected Error:', JSON.stringify(error));
+    }
 }
 ```
 
@@ -2079,7 +2084,7 @@ import {
 } from 'skyflow-node';
 
 /**
- * Skyflow Deidentify Text Example
+ * Skyflow Reidentify Text Example
  * 
  * This example demonstrates how to:
  * 1. Configure credentials
@@ -2093,16 +2098,14 @@ async function performReidentifyText() {
   try {
     // Step 1: Prepare Reidentify Text Request
     const reidentifyTextRequest = new ReidentifyTextRequest(
-      '<REDACTED_TEXT_TO_REIDENTIFY>' // The redacted text to reidentify
+      'My SSN is [SSN_0ykQWPA] and my card is [CREDIT_CARD_N92QAVa].' // The redacted text to reidentify
     );
 
     // Step 2: Configure ReidentifyTextOptions
     const options = new ReidentifyTextOptions();
 
     // Specify which entities to reidentify as redacted, masked, or plain text
-    options.setRedactedEntities([DetectEntities.NAME, DetectEntities.SSN]);
-    options.setMaskedEntities([DetectEntities.DOB]);
-    options.setPlainTextEntities([DetectEntities.PHONE_NUMBER]);
+    options.setPlainTextEntities([DetectEntities.CREDIT_CARD, DetectEntities.SSN]);
 
     // Step 4: Call reidentifyText
     const response = await skyflowClient
@@ -2113,7 +2116,16 @@ async function performReidentifyText() {
     console.log('Reidentified Text Response:', response);
 
   } catch (error) {
-    console.error('Error during reidentifyText:', error);
+      // Comprehensive Error Handling
+      if (error instanceof SkyflowError) {
+          console.error('Skyflow Specific Error:', {
+              code: error.error?.http_code,
+              message: error.message,
+              details: error.error?.details,
+          });
+      } else {
+          console.error('Unexpected Error:', JSON.stringify(error));
+      }
   }
 }
 
@@ -2132,6 +2144,8 @@ Sample Response:
 ### Deidentify File
 
 To deidentify files, use the `deidentifyFile` method. The `DeidentifyFileRequest` class creates a deidentify file request, which includes the file to be deidentified (such as images, PDFs, audio, documents, spreadsheets, or presentations). Additionally, you can provide optional parameters using the `DeidentifyFileOptions` class to control how entities are detected and deidentified, as well as how the output is generated for different file types.
+
+**Note:** File deidentification requires Node.js version 20 or above.
 
 ```typescript
 import {
@@ -2157,7 +2171,7 @@ try {
   options.setRestrictRegexList(['<YOUR_REGEX_PATTERN>']);
 
   const tokenFormat = new TokenFormat();           // Token format for deidentified entities
-  tokenFormat.setDefault(TokenType.VAULT_TOKEN);
+  tokenFormat.setDefault(TokenType.ENTITY_ONLY);
   options.setTokenFormat(tokenFormat);
 
   const transformations = new Transformations();   // transformations for entities
@@ -2207,10 +2221,15 @@ try {
   console.log('Deidentify File Response:', response);
 
 } catch (error) {
+  // Comprehensive Error Handling
   if (error instanceof SkyflowError) {
-    console.error('Skyflow Error:', error.message);
+      console.error('Skyflow Specific Error:', {
+          code: error.error?.http_code,
+          message: error.message,
+          details: error.error?.details,
+      });
   } else {
-    console.error('Unexpected Error:', error);
+      console.error('Unexpected Error:', JSON.stringify(error));
   }
 }
 ```
@@ -2240,8 +2259,8 @@ async function performDeidentifyFile() {
   try {
     // Step 4: Prepare Deidentify File Request
     // Replace with your file object (e.g., from fs.readFileSync or browser File API)
-    const buffer = fs.readFileSync('<FILE_PATH>');
-    const file = new File([buffer], '<FILE_PATH>');
+    const buffer = fs.readFileSync('/detect/sample.txt');
+    const file = new File([buffer], '/detect/sample.txt');
     const fileReq = new DeidentifyFileRequest(file);
 
     // Step 5: Configure DeidentifyFileOptions
@@ -2252,7 +2271,7 @@ async function performDeidentifyFile() {
 
     // Token format for deidentified entities
     const tokenFormat = new TokenFormat();
-    tokenFormat.setDefault(TokenType.VAULT_TOKEN);
+    tokenFormat.setDefault(TokenType.ENTITY_ONLY);
     options.setTokenFormat(tokenFormat);
 
     // Custom transformations for entities
@@ -2280,14 +2299,15 @@ async function performDeidentifyFile() {
     console.log('Deidentify File Response:', response);
 
   } catch (error) {
+    // Comprehensive Error Handling
     if (error instanceof SkyflowError) {
-      console.error('Skyflow Specific Error:', {
-        code: error.error?.http_code,
-        message: error.message,
-        details: error.error?.details,
-      });
+        console.error('Skyflow Specific Error:', {
+            code: error.error?.http_code,
+            message: error.message,
+            details: error.error?.details,
+        });
     } else {
-      console.error('Unexpected Error:', error);
+        console.error('Unexpected Error:', JSON.stringify(error));
     }
   }
 }
@@ -2296,19 +2316,6 @@ async function performDeidentifyFile() {
 performDeidentifyFile();
 
 ```
-
-
-**Supported file types:**  
-- Documents: `doc`, `docx`, `pdf`
-- PDFs: `pdf`
-- Images: `bmp`, `jpeg`, `jpg`, `png`, `tif`, `tiff`
-- Structured text: `json`, `xml`
-- Spreadsheets: `csv`, `xls`, `xlsx`
-- Presentations: `ppt`, `pptx`
-- Audio: `mp3`, `wav`
-
-**Note:** 
-- The `waitTime` option must be ≤ 64 seconds; otherwise, an error is thrown.
 
 Sample Response:
 
@@ -2329,9 +2336,23 @@ Sample Response:
   durationInSeconds: 0,
   pageCount: 0,
   slideCount: 0,
-  runId: undefined
+  runId: undefined,
+  status: 'SUCCESS'
 }
 ```
+
+**Supported file types:**  
+- Documents: `doc`, `docx`, `pdf`
+- PDFs: `pdf`
+- Images: `bmp`, `jpeg`, `jpg`, `png`, `tif`, `tiff`
+- Structured text: `json`, `xml`
+- Spreadsheets: `csv`, `xls`, `xlsx`
+- Presentations: `ppt`, `pptx`
+- Audio: `mp3`, `wav`
+
+**Note:** 
+- The `waitTime` option must be ≤ 64 seconds; otherwise, an error is thrown.
+
 - If the API takes more than 64 seconds to process the file, it will return only the run ID in the response.
 
 Sample response (when the API takes more than 64 seconds):
@@ -2349,6 +2370,7 @@ Sample response (when the API takes more than 64 seconds):
   pageCount: undefined,
   slideCount: undefined,
   runId: '1ad6dc12-8405-46cf-1c13-db1123f9f4c5'
+  status: 'IN_PROGRESS'
 }
 ```
 
@@ -2425,14 +2447,14 @@ async function performGetDetectRun() {
         const primaryVaultConfig: VaultConfig = {
             vaultId: '<VAULT_ID>',          // Unique vault identifier
             clusterId: '<CLUSTER_ID>',      // From vault URL
-            env: Env.DEV,                   // Deployment environment
+            env: Env.PROD,                   // Deployment environment
             credentials: credentials        // Authentication method
         };
 
         // Step 3: Configure Skyflow Client
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig],
-            logLevel: LogLevel.INFO,        // Logging verbosity
+            logLevel: LogLevel.INFO,        // Recommended to use LogLevel.ERROR in production environment.
         };
 
         // Initialize Skyflow Client
@@ -2488,6 +2510,7 @@ Sample Response
   durationInSeconds: 0,
   pageCount: 0,
   slideCount: 0,
+  status: 'SUCCESS'
 }
 ```
 
@@ -2626,7 +2649,7 @@ try {
   // Step 2: Configure Skyflow Client
   const skyflowConfig: SkyflowConfig = {
       connectionConfigs: [connectionConfig],  // Add connection configuration to client
-      logLevel: LogLevel.DEBUG // Set log level to DEBUG for detailed logs
+      logLevel: LogLevel.INFO    // Recommended to use LogLevel.ERROR in production environment.
   };
 
   // Step 3: Initialize Skyflow Client
@@ -3159,7 +3182,7 @@ async function main() {
         // Creating a Skyflow client instance with the configured vault
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig],
-            logLevel: LogLevel.ERROR,            // Setting log level to ERROR
+            logLevel: LogLevel.INFO,            // Recommended to use LogLevel.ERROR in production environment.
         };
 
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
@@ -3254,7 +3277,7 @@ try {
   const skyflowConfig: SkyflowConfig = {
       vaultConfigs: [vaultConfig],  // Add the Vault configuration
       skyflowCredentials: skyflowCredentials, // Use Skyflow credentials if no token is passed
-      logLevel: LogLevel.INFO // Set log level to INFO (default is ERROR)
+      logLevel: LogLevel.INFO      // Recommended to use LogLevel.ERROR in production environment.
   };
   
   // Step 10: Initialize Skyflow Client

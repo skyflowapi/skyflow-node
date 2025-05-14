@@ -23,20 +23,22 @@ import fs from 'fs';
  * 
  * This sample demonstrates how to use all available options for deidentifying files.
  * Supported file types: images (jpg, png, etc.), pdf, audio (mp3, wav), documents, spreadsheets, presentations, structured text.
+ * 
+ * Note: File deidentification requires Node.js version 20 or above.
  */
 
 async function performDeidentifyFile() {
   try {
     // Step 1: Configure Credentials
     const credentials: Credentials = {
-      token: '<YOUR_BEARER_TOKEN>', // Replace with your BEARER token
+      path: 'path-to-credentials-json', // Path to credentials file
     };
 
     // Step 2: Configure Vault
     const primaryVaultConfig: VaultConfig = {
       vaultId: '<VAULT_ID>',
       clusterId: '<CLUSTER_ID>',
-      env: Env.DEV,
+      env: Env.PROD,
       credentials: credentials,
     };
 
@@ -69,7 +71,7 @@ async function performDeidentifyFile() {
 
     // Token format for deidentified entities
     const tokenFormat = new TokenFormat();
-    tokenFormat.setDefault(TokenType.VAULT_TOKEN);
+    tokenFormat.setDefault(TokenType.ENTITY_ONLY);
     options.setTokenFormat(tokenFormat);
 
     // Custom transformations for entities
@@ -118,15 +120,16 @@ async function performDeidentifyFile() {
     console.log('Deidentify File Response:', response);
 
   } catch (error) {
-    if (error instanceof SkyflowError) {
-      console.error('Skyflow Specific Error:', {
-        code: error.error?.http_code,
-        message: error.message,
-        details: error.error?.details,
-      });
-    } else {
-      console.error('Unexpected Error:', error);
-    }
+      // Comprehensive Error Handling
+      if (error instanceof SkyflowError) {
+          console.error('Skyflow Specific Error:', {
+              code: error.error?.http_code,
+              message: error.message,
+              details: error.error?.details,
+          });
+      } else {
+          console.error('Unexpected Error:', JSON.stringify(error));
+      }
   }
 }
 

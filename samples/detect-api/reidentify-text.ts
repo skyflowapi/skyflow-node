@@ -7,7 +7,8 @@ import {
   VaultConfig,
   ReidentifyTextRequest,
   ReidentifyTextOptions,
-  DetectEntities
+  DetectEntities,
+  SkyflowError
 } from 'skyflow-node';
 
 /**
@@ -25,14 +26,14 @@ async function performReidentifyText() {
   try {
     // Step 1: Configure Credentials
     const credentials: Credentials = {
-      token: '<YOUR_BEARER_TOKEN>', // Replace with your BEARER token
+      path: 'path-to-credentials-json', // Path to credentials file
     };
 
     // Step 2: Configure Vault
     const primaryVaultConfig: VaultConfig = {
       vaultId: '<VAULT_ID>',
       clusterId: '<CLUSTER_ID>',
-      env: Env.DEV,
+      env: Env.PROD,
       credentials: credentials
     };
 
@@ -67,7 +68,16 @@ async function performReidentifyText() {
     console.log('Reidentified Text Response:', response);
 
   } catch (error) {
-    console.error('Error during reidentifyText:', error);
+    // Comprehensive Error Handling
+    if (error instanceof SkyflowError) {
+        console.error('Skyflow Specific Error:', {
+            code: error.error?.http_code,
+            message: error.message,
+            details: error.error?.details,
+        });
+    } else {
+        console.error('Unexpected Error:', JSON.stringify(error));
+    }
   }
 }
 

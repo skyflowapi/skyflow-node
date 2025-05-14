@@ -29,14 +29,14 @@ async function performDeidentifyText() {
     try {
         // Step 1: Configure Credentials
         const credentials: Credentials = {
-            token: '<YOUR_BEARER_TOKEN>', // Replace with your BEARER token
+            path: 'path-to-credentials-json', // Path to credentials file
         };
 
         // Step 2: Configure Vault 
         const primaryVaultConfig: VaultConfig = {
             vaultId: '<VAULT_ID>',          // Unique vault identifier
             clusterId: '<CLUSTER_ID>',      // From vault URL
-            env: Env.DEV,                   // Deployment environment
+            env: Env.PROD,                   // Deployment environment
             credentials: credentials        // Authentication method
         };
 
@@ -97,7 +97,7 @@ async function performDeidentifyText() {
                 details: error.error?.details,
             });
         } else {
-            console.error('Unexpected Error:', error);
+            console.error('Unexpected Error:', JSON.stringify(error));
         }
     }
 }
