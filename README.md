@@ -42,6 +42,11 @@ SDK for the Skyflow Data Privacy Vault.
     - [Delete](#delete)
     - [Invoke Connection](#invoke-a-connection)
     - [Query](#query)
+  - [Detect](#detect)
+    - [Deidentify Text](#deidentify-text)
+    - [Reidentify Text](#reidentify-text)
+    - [Deidentify File](#deidentify-file)
+    - [Get Run](#get-run)
   - [Connections](#connections)
     - [Invoke a connection](#invoke-a-connection)
   - [Authenticate with bearer tokens](#authenticate-with-bearer-tokens)
@@ -199,7 +204,7 @@ const primaryVaultConfig: VaultConfig = {
 const skyflowConfig: SkyflowConfig = {
     vaultConfigs: [primaryVaultConfig],
     skyflowCredentials: credentials, // Skyflow credentials will be used if no individual credentials are passed
-    logLevel: LogLevel.ERROR,      // Logging verbosity
+    logLevel: LogLevel.INFO,        // Recommended to use LogLevel.ERROR in production environment.
 };
 
 // Initialize Skyflow Client
@@ -461,7 +466,7 @@ const tertiaryVaultConfig: VaultConfig = {
 const skyflowConfig: SkyflowConfig = {
     vaultConfigs: [primaryVaultConfig, secondaryVaultConfig, tertiaryVaultConfig],  // Add the primary, secondary and tertiary vault configurations.
     skyflowCredentials: skyflowCredentials, // Add JSON-formatted credentials if applicable.
-    logLevel: LogLevel.INFO // Set log level for debugging or monitoring purposes.
+    logLevel: LogLevel.INFO     // Recommended to use LogLevel.ERROR in production environment.
 };
 
 // Step 10: Initialize Skyflow Client
@@ -1844,6 +1849,673 @@ QueryResponse {
 }
 ```
 
+## Detect
+Skyflow Detect enables you to deidentify and reidentify sensitive data in text and files, supporting advanced privacy-preserving workflows. The Detect API supports the following operations:
+
+### Deidentify Text
+To deidentify text, use the `deidentifyText` method. The `DeidentifyTextRequest` class creates a deidentify text request, which includes the text to be deidentified. Additionally, you can provide optional parameters using the `DeidentifyTextOptions` class.
+
+```typescript
+import {
+  DeidentifyTextRequest,
+  DeidentifyTextOptions,
+  SkyflowError,
+  TokenFormat,
+  TokenType,
+  Transformations,
+  DetectEntities
+} from 'skyflow-node';
+
+try {
+  // Step 1: Prepare the text to be deidentified
+  const deidentifyTextRequest = new DeidentifyTextRequest(
+    '<TEXT_TO_BE_DEIDENTIFIED>'
+  );
+
+  // Step 2: Configure DeidentifyTextOptions
+  const options = new DeidentifyTextOptions();
+  options.setEntities([DetectEntities.ACCOUNT_NUMBER, DetectEntities.SSN]); // Entities to deidentify
+  options.setAllowRegexList(['<YOUR_REGEX_PATTERN>']); // Allowlist regex patterns
+  options.setRestrictRegexList(['<YOUR_REGEX_PATTERN>']); // Restrict regex patterns
+
+  const tokenFormat = new TokenFormat();  // Specify the token format for deidentified entities
+  tokenFormat.setDefault(TokenType.VAULT_TOKEN);
+  optionsText.setTokenFormat(tokenFormat);
+
+  const transformations = new Transformations(); // Specify custom transformations for entities
+  transformations.setShiftDays({
+      max: 30, // Maximum shift days
+      min: 30, // Minimum shift days
+      entities: [DetectEntities.ACCOUNT_NUMBER, DetectEntities.SSN], // Entities to apply the shift
+  });
+  optionsText.setTransformations(transformations);
+
+  // Step 3: Call deidentifyText
+  const response = await skyflowClient
+    .detect(primaryVaultConfig.vaultId)
+    .deidentifyText(deidentifyTextRequest, options);
+
+  console.log('Deidentify Text Response:', response);
+
+} catch (error) {
+  if (error instanceof SkyflowError) {
+    console.error('Skyflow Error:', error.message);
+  } else {
+    console.error('Unexpected Error:', JSON.stringify(error));
+  }
+}
+```
+
+#### An example of a deidentify text call
+
+```typescript
+import {
+    SkyflowError, 
+    DeidentifyTextRequest,
+    DeidentifyTextOptions,
+    TokenFormat,
+    TokenType,
+    Transformations,
+    DetectEntities
+} from 'skyflow-node';
+
+/**
+ * Skyflow Deidentify Text Example
+ * 
+ * This example demonstrates how to:
+ * 1. Configure credentials
+ * 2. Set up vault configuration
+ * 3. Create a deidentify text request
+ * 4. Use all available options for deidentification
+ * 5. Handle response and errors
+ */
+
+async function performDeidentifyText() {
+    try {
+
+        // Step 1: Prepare Deidentify Text Request
+        const textReq = new DeidentifyTextRequest(
+            'My SSN is 123-45-6789 and my card is 4111 1111 1111 1111.', // Text to be deidentified
+        );
+
+        // Step 2: Configure DeidentifyTextOptions
+        const optionsText = new DeidentifyTextOptions();
+
+        // setEntities: Specify which entities to deidentify
+        optionsText.setEntities([DetectEntities.SSN, DetectEntities.CREDIT_CARD_NUMBER]);
+
+        // setTokenFormat: Specify the token format for deidentified entities
+        const tokenFormat = new TokenFormat();
+        tokenFormat.setDefault(TokenType.VAULT_TOKEN);
+        optionsText.setTokenFormat(tokenFormat);
+
+        // setTransformations: Specify custom transformations for entities
+        const transformations = new Transformations();
+        transformations.setShiftDays({
+            max: 30, // Maximum shift days
+            min: 30, // Minimum shift days
+            entities: [DetectEntities.DOB], // Entities to apply the shift
+        });
+        optionsText.setTransformations(transformations);
+
+        // Step 3: Call deidentifyText API
+        const response = await skyflowClient
+            .detect(primaryVaultConfig.vaultId)
+            .deidentifyText(textReq, optionsText);
+
+        // Handle Successful Response
+        console.log('Deidentify Text Response:', response);
+
+    } catch (error) {
+        // Comprehensive Error Handling
+        if (error instanceof SkyflowError) {
+            console.error('Skyflow Specific Error:', {
+                code: error.error?.http_code,
+                message: error.message,
+                details: error.error?.details,
+            });
+        } else {
+            console.error('Unexpected Error:', JSON.stringify(error));
+        }
+    }
+}
+
+// Invoke the deidentify text function
+performDeidentifyText();
+
+```
+Sample Response:
+
+```typescript
+{
+  "processedText": "My SSN is [SSN_0ykQWPA] and my card is [CREDIT_CARD_N92QAVa].",
+  "entities": [
+    {
+      "token": "SSN_0ykQWPA",
+      "value": "123-45-6789",
+      "textIndex": {
+        "start": 10,
+        "end": 21
+      },
+      "processedIndex": {
+        "start": 10,
+        "end": 23
+      },
+      "entity": "SSN",
+      "scores": {
+        "SSN": 0.9383999705314636
+      }
+    },
+    {
+      "token": "CREDIT_CARD_N92QAVa",
+      "value": "4111 1111 1111 1111",
+      "textIndex": {
+        "start": 37,
+        "end": 56
+      },
+      "processedIndex": {
+        "start": 39,
+        "end": 60
+      },
+      "entity": "CREDIT_CARD",
+      "scores": {
+        "CREDIT_CARD": 0.9050999879837
+      }
+    }
+  ],
+  "wordCount": 9,
+  "charCount": 57
+}
+```
+
+### Reidentify Text
+
+To reidentify text, use the `reidentifyText` method. The `ReidentifyTextRequest` class creates a reidentify text request, which includes the redacted or deidentified text to be reidentified. Additionally, you can provide optional parameters using the `ReidentifyTextOptions` class to control how specific entities are returned (as redacted, masked, or plain text).
+
+
+```typescript
+import {
+  ReidentifyTextRequest,
+  ReidentifyTextOptions,
+  SkyflowError,
+  DetectEntities
+} from 'skyflow-node';
+
+try {
+  // Step 1: Prepare the redacted text to be reidentified
+  const textReq = new ReidentifyTextRequest(
+    '<REDACTED_TEXT_TO_REIDENTIFY>'
+  );
+
+  // Step 2: Configure ReidentifyTextOptions
+  const options = new ReidentifyTextOptions();
+  options.setRedactedEntities([DetectEntities.SSN]); // Entities to keep redacted
+  options.setMaskedEntities([DetectEntities.CREDIT_CARD_NUMBER]); // Entities to mask
+  options.setPlainTextEntities([DetectEntities.NAME]); // Entities to return as plain text
+
+  // Step 3: Call reidentifyText
+  const response = await skyflowClient
+    .detect(primaryVaultConfig.vaultId)
+    .reidentifyText(textReq, options);
+
+  console.log('Reidentify Text Response:', response);
+
+} catch (error) {
+    // Comprehensive Error Handling
+    if (error instanceof SkyflowError) {
+        console.error('Skyflow Specific Error:', {
+            code: error.error?.http_code,
+            message: error.message,
+            details: error.error?.details,
+        });
+    } else {
+        console.error('Unexpected Error:', JSON.stringify(error));
+    }
+}
+```
+
+#### An example of a reidentify text call
+
+```typescript
+import {
+  ReidentifyTextRequest,
+  ReidentifyTextOptions,
+  DetectEntities
+} from 'skyflow-node';
+
+/**
+ * Skyflow Reidentify Text Example
+ * 
+ * This example demonstrates how to:
+ * 1. Configure credentials
+ * 2. Set up vault configuration
+ * 3. Create a reidentify text request
+ * 4. Use all available options for reidentification
+ * 5. Handle response and errors
+ */
+
+async function performReidentifyText() {
+  try {
+    // Step 1: Prepare Reidentify Text Request
+    const reidentifyTextRequest = new ReidentifyTextRequest(
+      'My SSN is [SSN_0ykQWPA] and my card is [CREDIT_CARD_N92QAVa].' // The redacted text to reidentify
+    );
+
+    // Step 2: Configure ReidentifyTextOptions
+    const options = new ReidentifyTextOptions();
+
+    // Specify which entities to reidentify as redacted, masked, or plain text
+    options.setPlainTextEntities([DetectEntities.CREDIT_CARD, DetectEntities.SSN]);
+
+    // Step 4: Call reidentifyText
+    const response = await skyflowClient
+        .detect(primaryVaultConfig.vaultId)
+        .reidentifyText(reidentifyTextRequest, options);
+
+    // Step 5: Handle response
+    console.log('Reidentified Text Response:', response);
+
+  } catch (error) {
+      // Comprehensive Error Handling
+      if (error instanceof SkyflowError) {
+          console.error('Skyflow Specific Error:', {
+              code: error.error?.http_code,
+              message: error.message,
+              details: error.error?.details,
+          });
+      } else {
+          console.error('Unexpected Error:', JSON.stringify(error));
+      }
+  }
+}
+
+// Invoke the reidentify text function
+performReidentifyText();
+```
+
+Sample Response:
+
+```typescript
+{
+  processedText: 'My SSN is 123-45-6789 and my card is 4111 1111 1111 1111.'
+}
+```
+
+### Deidentify File
+
+To deidentify files, use the `deidentifyFile` method. The `DeidentifyFileRequest` class creates a deidentify file request, which includes the file to be deidentified (such as images, PDFs, audio, documents, spreadsheets, or presentations). Additionally, you can provide optional parameters using the `DeidentifyFileOptions` class to control how entities are detected and deidentified, as well as how the output is generated for different file types.
+
+**Note:** File deidentification requires Node.js version 20 or above.
+
+```typescript
+import {
+  DeidentifyFileRequest,
+  DeidentifyFileOptions,
+  SkyflowError,
+  DetectEntities,
+  MaskingMethod,
+  DetectOutputTranscription,
+  Bleep
+} from 'skyflow-node';
+
+try {
+  // Step 1: Prepare the file to be deidentified
+  const buffer = fs.readFileSync('<FILE_PATH>');
+  const file = new File([buffer], '<FILE_PATH>');
+  const fileReq = new DeidentifyFileRequest(file);
+
+  // Step 2: Configure DeidentifyFileOptions
+  const options = new DeidentifyFileOptions();
+  options.setEntities([DetectEntities.SSN, DetectEntities.ACCOUNT_NUMBER]);
+  options.setAllowRegexList(['<YOUR_REGEX_PATTERN>']);
+  options.setRestrictRegexList(['<YOUR_REGEX_PATTERN>']);
+
+  const tokenFormat = new TokenFormat();           // Token format for deidentified entities
+  tokenFormat.setDefault(TokenType.ENTITY_ONLY);
+  options.setTokenFormat(tokenFormat);
+
+  const transformations = new Transformations();   // transformations for entities
+  transformations.setShiftDays({
+    max: 30,
+    min: 10,
+    entities: [DetectEntities.SSN],
+  });
+  options.setTransformations(transformations);
+
+  options.setOutputDirectory('<OUTPUT_DIRECTORY_PATH>');  // Output directory for saving the deidentified file
+
+  options.setWaitTime(15);   // Wait time for response (max 64 seconds; throws error if more)
+
+  // ===== Image Options (apply when file is an image) =====
+
+  // options.setOutputProcessedImage(true);        // Include processed image in output
+
+  // options.setOutputOcrText(true);               // Include OCR text in response
+
+  // options.setMaskingMethod(MaskingMethod.Blackout);  // Masking method for image entities
+
+  // ===== PDF Options (apply when file is a PDF) =====
+
+  // options.setPixelDensity(300);    // Pixel density for PDF processing
+
+  // options.setMaxResolution(2000);  // Max resolution for PDF
+
+  // ===== Audio Options (apply when file is audio) =====
+  
+  // options.setOutputProcessedAudio(true);  // Include processed audio in output
+
+  // options.setOutputTranscription(DetectOutputTranscription.PLAINTEXT_TRANSCRIPTION);  // Type of transcription
+
+  // const bleep = new Bleep();  // Bleep audio configuration
+  // bleep.setGain(5);           // Relative loudness in dB
+  // bleep.setFrequency(1000);   // Pitch in Hz
+  // bleep.setStartPadding(0.1); // Padding at start in seconds
+  // bleep.setStopPadding(0.2);  // Padding at end in seconds
+  // options.setBleep(bleep);
+
+  // Step 3: Call deidentifyFile
+  const response = await skyflowClient
+    .detect(primaryVaultConfig.vaultId)
+    .deidentifyFile(fileReq, options);
+
+  console.log('Deidentify File Response:', response);
+
+} catch (error) {
+  // Comprehensive Error Handling
+  if (error instanceof SkyflowError) {
+      console.error('Skyflow Specific Error:', {
+          code: error.error?.http_code,
+          message: error.message,
+          details: error.error?.details,
+      });
+  } else {
+      console.error('Unexpected Error:', JSON.stringify(error));
+  }
+}
+```
+
+#### An example of a deidentify file
+
+```typescript
+import {
+  SkyflowError,
+  DeidentifyFileRequest,
+  DeidentifyFileOptions,
+  DetectEntities,
+  TokenFormat,
+  TokenType,
+  Transformations,
+} from 'skyflow-node';
+import fs from 'fs';
+
+/**
+ * Skyflow Deidentify File Example
+ * 
+ * This sample demonstrates how to use all available options for deidentifying files.
+ * Supported file types: images (jpg, png, etc.), pdf, audio (mp3, wav), documents, spreadsheets, presentations, structured text.
+ */
+
+async function performDeidentifyFile() {
+  try {
+    // Step 4: Prepare Deidentify File Request
+    // Replace with your file object (e.g., from fs.readFileSync or browser File API)
+    const buffer = fs.readFileSync('/detect/sample.txt');
+    const file = new File([buffer], '/detect/sample.txt');
+    const fileReq = new DeidentifyFileRequest(file);
+
+    // Step 5: Configure DeidentifyFileOptions
+    const options = new DeidentifyFileOptions();
+
+    // Entities to detect and deidentify
+    options.setEntities([DetectEntities.SSN, DetectEntities.ACCOUNT_NUMBER]);
+
+    // Token format for deidentified entities
+    const tokenFormat = new TokenFormat();
+    tokenFormat.setDefault(TokenType.ENTITY_ONLY);
+    options.setTokenFormat(tokenFormat);
+
+    // Custom transformations for entities
+    const transformations = new Transformations();
+    transformations.setShiftDays({
+      max: 30,
+      min: 10,
+      entities: [DetectEntities.SSN],
+    });
+    options.setTransformations(transformations);
+
+    // Output directory for saving the deidentified file
+    options.setOutputDirectory('/home/user/output'); // Replace with your desired output directory
+
+    // Wait time for response (max 64 seconds)
+    options.setWaitTime(15);
+
+
+    // Step 6: Call deidentifyFile API
+    const response = await skyflowClient
+      .detect(primaryVaultConfig.vaultId)
+      .deidentifyFile(fileReq, options);
+
+    // Handle Successful Response
+    console.log('Deidentify File Response:', response);
+
+  } catch (error) {
+    // Comprehensive Error Handling
+    if (error instanceof SkyflowError) {
+        console.error('Skyflow Specific Error:', {
+            code: error.error?.http_code,
+            message: error.message,
+            details: error.error?.details,
+        });
+    } else {
+        console.error('Unexpected Error:', JSON.stringify(error));
+    }
+  }
+}
+
+// Invoke the deidentify file function
+performDeidentifyFile();
+
+```
+
+Sample Response:
+
+```typescript
+{
+  entities: [
+    {
+      file: '0X2xhYmVsIjoiQ1JFRElUX0NB==',
+      extension: 'json'
+    }
+  ],
+  file: 'TXkgU1NOIGlzIFtTU0==',
+  type: 'redacted_file',
+  extension: 'txt',
+  wordCount: 12,
+  charCount: 58,
+  sizeInKb: 0.06,
+  durationInSeconds: 0,
+  pageCount: 0,
+  slideCount: 0,
+  runId: undefined,
+  status: 'SUCCESS'
+}
+```
+
+**Supported file types:**  
+- Documents: `doc`, `docx`, `pdf`
+- PDFs: `pdf`
+- Images: `bmp`, `jpeg`, `jpg`, `png`, `tif`, `tiff`
+- Structured text: `json`, `xml`
+- Spreadsheets: `csv`, `xls`, `xlsx`
+- Presentations: `ppt`, `pptx`
+- Audio: `mp3`, `wav`
+
+**Note:** 
+- Transformations cannot be applied to Documents, Images, or PDFs file formats.
+
+- The `waitTime` option must be ≤ 64 seconds; otherwise, an error is thrown.
+
+- If the API takes more than 64 seconds to process the file, it will return only the run ID in the response.
+
+Sample response (when the API takes more than 64 seconds):
+```typescript
+
+{
+  entities: undefined,
+  file: undefined,
+  type: undefined,
+  extension: undefined,
+  wordCount: undefined,
+  charCount: undefined,
+  sizeInKb: undefined,
+  durationInSeconds: undefined,
+  pageCount: undefined,
+  slideCount: undefined,
+  runId: '1ad6dc12-8405-46cf-1c13-db1123f9f4c5',
+  status: 'IN_PROGRESS'
+}
+```
+
+### Get run 
+To retrieve the results of a previously started file deidentification operation, use the `getDetectRun` method.  
+The `GetDetectRunRequest` class is initialized with the `runId` returned from a prior `deidentifyFile` call.  
+This method allows you to fetch the final results of the file processing operation once they are available.
+
+
+```typescript
+import {
+  GetDetectRunRequest,
+  DeidentifyFileResponse,
+  SkyflowError
+} from 'skyflow-node';
+
+try {
+  // Step 1: Prepare the GetDetectRunRequest with the runId from a previous deidentifyFile call
+  const getDetectRunRequest = new GetDetectRunRequest({
+    runId: '<RUN_ID_FROM_DEIDENTIFY_FILE>', // Replace with the runId you received earlier
+  });
+
+  // Step 2: Call getDetectRun
+  const response: DeidentifyFileResponse = await skyflowClient
+    .detect(primaryVaultConfig.vaultId)
+    .getDetectRun(getDetectRunRequest);
+
+  // Step 3: Handle the response
+  console.log('Get Detect Run Response:', response);
+
+} catch (error) {
+  if (error instanceof SkyflowError) {
+    console.error('Skyflow Error:', error.message);
+  } else {
+    console.error('Unexpected Error:', error);
+  }
+}
+```
+
+#### An example of a get run function
+
+```typescript
+import { 
+    Credentials, 
+    Env, 
+    LogLevel, 
+    Skyflow, 
+    SkyflowConfig, 
+    VaultConfig, 
+    SkyflowError, 
+    GetDetectRunRequest,
+    DeidentifyFileResponse
+} from 'skyflow-node';
+
+/**
+ * Skyflow Get Detect Run Example
+ * 
+ * This example demonstrates how to:
+ * 1. Configure credentials
+ * 2. Set up vault configuration
+ * 3. Create a get detect run request
+ * 4. Call getDetectRun to poll for file processing results
+ * 5. Handle response and errors
+ */
+
+async function performGetDetectRun() {
+    try {
+        // Step 1: Configure Credentials
+        const credentials: Credentials = {
+            token: '<YOUR_BEARER_TOKEN>', // Replace with your BEARER token
+        };
+
+        // Step 2: Configure Vault 
+        const primaryVaultConfig: VaultConfig = {
+            vaultId: '<VAULT_ID>',          // Unique vault identifier
+            clusterId: '<CLUSTER_ID>',      // From vault URL
+            env: Env.PROD,                   // Deployment environment
+            credentials: credentials        // Authentication method
+        };
+
+        // Step 3: Configure Skyflow Client
+        const skyflowConfig: SkyflowConfig = {
+            vaultConfigs: [primaryVaultConfig],
+            logLevel: LogLevel.INFO,        // Recommended to use LogLevel.ERROR in production environment.
+        };
+
+        // Initialize Skyflow Client
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
+
+        // Step 4: Prepare GetDetectRunRequest
+        const getDetectRunRequest = new GetDetectRunRequest({
+            runId: '<RUN_ID_FROM_DEIDENTIFY_FILE>', // Replace with the runId from a previous deidentifyFile call
+        });
+
+        // Step 5: Call getDetectRun API
+        const response: DeidentifyFileResponse = await skyflowClient
+            .detect(primaryVaultConfig.vaultId)
+            .getDetectRun(getDetectRunRequest);
+
+        // Handle Successful Response
+        console.log('Get Detect Run Response:', response);
+
+    } catch (error) {
+        // Comprehensive Error Handling
+        if (error instanceof SkyflowError) {
+            console.error('Skyflow Specific Error:', {
+                code: error.error?.http_code,
+                message: error.message,
+                details: error.error?.details,
+            });
+        } else {
+            console.error('Unexpected Error:', error);
+        }
+    }
+}
+
+// Invoke the get detect run function
+performGetDetectRun();
+```
+
+Sample Response
+
+```typescript
+{
+  entities: [
+    {
+      file: '0X2xhYmVsIjoiQ1JFRElUX0NB==',
+      extension: 'json'
+    }
+  ],
+  file: 'TXkgU1NOIGlzIFtTU0==',
+  type: 'redacted_file',
+  extension: 'txt',
+  wordCount: 12,
+  charCount: 58,
+  sizeInKb: 0.06,
+  durationInSeconds: 0,
+  pageCount: 0,
+  slideCount: 0,
+  status: 'SUCCESS'
+}
+```
+
 ## Connections
 
 Skyflow Connections is a gateway service that uses tokenization to securely send and receive data between your systems and first- or third-party services. The [connections](https://github.com/skyflowapi/skyflow-node/tree/v2/src/vault/controller/connections) module invokes both inbound and/or outbound connections.
@@ -1979,7 +2651,7 @@ try {
   // Step 2: Configure Skyflow Client
   const skyflowConfig: SkyflowConfig = {
       connectionConfigs: [connectionConfig],  // Add connection configuration to client
-      logLevel: LogLevel.DEBUG // Set log level to DEBUG for detailed logs
+      logLevel: LogLevel.INFO    // Recommended to use LogLevel.ERROR in production environment.
   };
 
   // Step 3: Initialize Skyflow Client
@@ -2512,7 +3184,7 @@ async function main() {
         // Creating a Skyflow client instance with the configured vault
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig],
-            logLevel: LogLevel.ERROR,            // Setting log level to ERROR
+            logLevel: LogLevel.INFO,            // Recommended to use LogLevel.ERROR in production environment.
         };
 
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
@@ -2607,7 +3279,7 @@ try {
   const skyflowConfig: SkyflowConfig = {
       vaultConfigs: [vaultConfig],  // Add the Vault configuration
       skyflowCredentials: skyflowCredentials, // Use Skyflow credentials if no token is passed
-      logLevel: LogLevel.INFO // Set log level to INFO (default is ERROR)
+      logLevel: LogLevel.INFO      // Recommended to use LogLevel.ERROR in production environment.
   };
   
   // Step 10: Initialize Skyflow Client
