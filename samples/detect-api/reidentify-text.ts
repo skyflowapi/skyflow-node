@@ -40,7 +40,7 @@ async function performReidentifyText() {
     // Step 3: Configure Skyflow Client
     const skyflowConfig: SkyflowConfig = {
       vaultConfigs: [primaryVaultConfig],
-      logLevel: LogLevel.INFO,
+      logLevel: LogLevel.INFO,        // Recommended to use LogLevel.ERROR in production environment.
     };
 
     // Initialize Skyflow Client

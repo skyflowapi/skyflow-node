@@ -39,7 +39,7 @@ async function performGetDetectRun() {
         // Step 3: Configure Skyflow Client
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig],
-            logLevel: LogLevel.INFO,        // Logging verbosity
+            logLevel: LogLevel.INFO,        // Recommended to use LogLevel.ERROR in production environment.
         };
 
         // Initialize Skyflow Client
