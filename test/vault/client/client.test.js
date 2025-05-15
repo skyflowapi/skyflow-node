@@ -94,7 +94,7 @@ describe('VaultClient', () => {
         });
 
         test('should initialize Strings for DETECT', () => {
-            vaultClient.initAPI(authInfo, TYPES.DETECT);
+            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_TEXT);
             expect(Strings).toHaveBeenCalled();
         });
 
