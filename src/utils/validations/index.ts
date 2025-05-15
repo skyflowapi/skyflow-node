@@ -1,5 +1,5 @@
 import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW_ID, VAULT, VAULT_ID, TokenMode } from "..";
-import { V1BYOT } from "../../ _generated_/rest";
+import { V1Byot } from "../../ _generated_/rest/api";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
 import ConnectionConfig from "../../vault/config/connection";
@@ -21,8 +21,20 @@ import TokenizeRequest from "../../vault/model/request/tokenize";
 import UpdateRequest from "../../vault/model/request/update";
 import { SkyflowConfig, StringKeyValueMapType } from "../../vault/types";
 import * as fs from 'fs';
+import * as path from 'path';
 import { isExpired } from "../jwt-utils";
 import logs from "../logs";
+import FileUploadOptions from "../../vault/model/options/fileUpload";
+import DeidentifyTextRequest from "../../vault/model/request/deidentify-text";
+import DeidentifyTextOptions from "../../vault/model/options/deidentify-text";
+import TokenFormat from "../../vault/model/options/deidentify-text/token-format";
+import Transformations from "../../vault/model/options/deidentify-text/transformations";
+import ReidentifyTextRequest from "../../vault/model/request/reidentify-text";
+import ReidentifyTextOptions from "../../vault/model/options/reidentify-text";
+import DeidentifyFileOptions from "../../vault/model/options/deidentify-file";
+import DeidentifyFileRequest from "../../vault/model/request/deidentify-file";
+import { Bleep } from "../../vault/model/options/deidentify-file/bleep-audio";
+import GetDetectRunRequest from "../../vault/model/request/get-detect-run";
 
 export function isEnv(value?: string): boolean {
     return value !== undefined && Object.values(Env).includes(value as Env);
@@ -33,7 +45,7 @@ export function isRedactionType(value?: string): boolean {
 }
 
 export function isByot(value?: string): boolean {
-    return value !== undefined && Object.values(V1BYOT).includes(value as V1BYOT);
+    return value !== undefined && Object.values(V1Byot).includes(value as V1Byot);
 }
 
 export function isOrderBy(value?: string): boolean {
@@ -91,15 +103,20 @@ export const validateSkyflowConfig = (config: SkyflowConfig, logLevel: LogLevel 
     if (config) {
         if (!Object.prototype.hasOwnProperty.call(config, 'vaultConfigs')) {
             printLog(logs.errorLogs.VAULT_CONFIG_KEY_MISSING, MessageType.ERROR, logLevel);
+        }
+
+        const { vaultConfigs, connectionConfigs } = config;
+
+        // Count how many of the fields are defined
+        const definedFields = [vaultConfigs, connectionConfigs].filter(Boolean).length;
+
+        // If none are present
+        if (definedFields === 0) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_CONFIG);
         }
 
         if (config?.vaultConfigs && !Array.isArray(config.vaultConfigs)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_FOR_CONFIG, [VAULT])
-        }
-
-        if (config?.vaultConfigs.length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_CONFIG);
         }
 
         if (config?.connectionConfigs && !Array.isArray(config?.connectionConfigs)) {
@@ -321,13 +338,8 @@ function validateInsertInput(input: unknown, index: number): void {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
         }
 
-        // Iterate over the key-value pairs and check their types
-        for (const [key, value] of entries) {
+        for (const [key] of entries) {
             if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
-            }
-            // update the data type accordingly
-            if (value && typeof value !== 'string') {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
             }
         }
@@ -349,13 +361,8 @@ function validateUpdateInput(input: unknown): void {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
         }
 
-        // Iterate over the key-value pairs and check their types
-        for (const [key, value] of entries) {
+        for (const [key] of entries) {
             if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
-            }
-            // update the data type accordingly
-            if (value && typeof value !== 'string') {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
             }
         }
@@ -377,13 +384,8 @@ function validateUpdateToken(input: unknown): void {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_UPDATE);
         }
 
-        // Iterate over the key-value pairs and check their types
-        for (const [key, value] of entries) {
+        for (const [key] of entries) {
             if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_UPDATE);
-            }
-            // update the data type accordingly
-            if (value && typeof value !== 'string') {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_UPDATE);
             }
         }
@@ -434,42 +436,42 @@ export const validateInsertOptions = (insertOptions?: InsertOptions) => {
 };
 
 const validateTokensMapWithTokenStrict = (
-  data: object,
-  tokens: object
+    data: object,
+    tokens: object
 ) => {
-  const dataKeys = Object.keys(data);
+    const dataKeys = Object.keys(data);
 
-  for (const key of dataKeys) {
-    if (!tokens.hasOwnProperty(key)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+    for (const key of dataKeys) {
+        if (!tokens.hasOwnProperty(key)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+        }
     }
-  }
 };
 
 export const validateTokensForInsertRequest = (
-  insertRequest?: InsertRequest,
-  insertOptions?: InsertOptions
+    insertRequest?: InsertRequest,
+    insertOptions?: InsertOptions
 ) => {
-  if (insertRequest && insertOptions && insertOptions.getTokenMode()) {
-    if (
-      (insertOptions.getTokenMode() == TokenMode.ENABLE ||
-      insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && !insertOptions.getTokens()
-    ) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.NO_TOKENS_WITH_TOKEN_MODE);
-    }
-
-    if((insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && insertOptions.getTokens()) {
-        if(insertRequest.data.length!=insertOptions.getTokens()?.length) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+    if (insertRequest && insertOptions && insertOptions.getTokenMode()) {
+        if (
+            (insertOptions.getTokenMode() == TokenMode.ENABLE ||
+                insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && !insertOptions.getTokens()
+        ) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.NO_TOKENS_WITH_TOKEN_MODE);
         }
 
-        if(insertOptions.getTokens()) {
-        for(let i=0;i<insertRequest.data.length;i++) {
-            validateTokensMapWithTokenStrict(insertRequest.data[i], insertOptions.getTokens()![i])
+        if ((insertOptions.getTokenMode() == TokenMode.ENABLE_STRICT) && insertOptions.getTokens()) {
+            if (insertRequest.data.length != insertOptions.getTokens()?.length) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT);
+            }
+
+            if (insertOptions.getTokens()) {
+                for (let i = 0; i < insertRequest.data.length; i++) {
+                    validateTokensMapWithTokenStrict(insertRequest.data[i], insertOptions.getTokens()![i])
+                }
+            }
         }
     }
-    }
-  }
 };
 
 export const validateInsertRequest = (insertRequest: InsertRequest, insertOptions?: InsertOptions, logLevel: LogLevel = LogLevel.ERROR) => { //
@@ -557,7 +559,7 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
         }
 
-        if (updateRequest?.data[SKYFLOW_ID]  && typeof updateRequest.data[SKYFLOW_ID] !== 'string' || updateRequest.data[SKYFLOW_ID].trim().length === 0) {
+        if (updateRequest?.data[SKYFLOW_ID]  && typeof updateRequest.data[SKYFLOW_ID] !== 'string' || (updateRequest.data[SKYFLOW_ID] as string).trim().length === 0) {
             printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
         }
@@ -738,34 +740,33 @@ export const validateDetokenizeOptions = (detokenizeOptions?: DetokenizeOptions)
 
 export const validateDetokenizeRequest = (detokenizeRequest: DetokenizeRequest, detokenizeOptions?: DetokenizeOptions, logLevel: LogLevel = LogLevel.ERROR) => {
     if (detokenizeRequest) {
-        if (!detokenizeRequest?.tokens) {
+        if (!detokenizeRequest?.data) {
             printLog(logs.errorLogs.EMPTY_TOKENS_IN_DETOKENIZE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TOKENS_IN_DETOKENIZE)
         }
 
-        if (!Array.isArray(detokenizeRequest.tokens)) {
+        if (!Array.isArray(detokenizeRequest.data)) {
             printLog(logs.errorLogs.INVALID_TOKENS_IN_DETOKENIZE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKENS_TYPE_IN_DETOKENIZE)
         }
 
-        const tokens = detokenizeRequest?.tokens;
+        const records = detokenizeRequest?.data;
 
-        if (tokens.length === 0)
+        if (records.length === 0)
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TOKENS_IN_DETOKENIZE);
 
-        tokens.forEach((token, index) => {
-            if (!token) {
+        records.forEach((record, index) => {
+            if (!record) {
                 printLog(parameterizedString(logs.errorLogs.INVALID_TOKEN_IN_DETOKENIZE, [index]), MessageType.ERROR, logLevel);
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TOKEN_IN_DETOKENIZE, [index]);
             }
-            if (typeof token !== 'string' || token.trim().length === 0) {
+            if (typeof record.token !== 'string' || record.token.trim().length === 0) {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_DETOKENIZE, [index]);
             }
+            if (record?.redactionType && (typeof record.redactionType !== 'string' || !isRedactionType(record.redactionType))) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
+            }
         });
-
-        if (detokenizeRequest?.redactionType && (typeof detokenizeRequest.redactionType !== 'string' || !isRedactionType(detokenizeRequest.redactionType))) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTION_TYPE);
-        }
 
         validateDetokenizeOptions(detokenizeOptions);
 
@@ -857,47 +858,70 @@ export const validateDeleteRequest = (deleteRequest: DeleteRequest, logLevel: Lo
     }
 }
 
-export const validateUploadFileRequest = (fileRequest: FileUploadRequest, logLevel: LogLevel = LogLevel.ERROR) => {
-    if (fileRequest) {
-        if (!fileRequest?.tableName || !Object.prototype.hasOwnProperty.call(fileRequest, '_tableName')) {
-            printLog(logs.errorLogs.EMPTY_TABLE_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_UPLOAD_FILE);
-        }
+export const validateUploadFileRequest = (fileRequest: FileUploadRequest, options?: FileUploadOptions,  logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!fileRequest) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_UPLOAD_REQUEST);
+    }
 
-        if (typeof fileRequest?.tableName !== 'string' || fileRequest?.tableName.trim().length === 0) {
-            printLog(logs.errorLogs.INVALID_TABLE_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPLOAD_FILE);
-        }
+    if (!fileRequest?.tableName || !Object.prototype.hasOwnProperty.call(fileRequest, '_tableName')) {
+        printLog(logs.errorLogs.EMPTY_TABLE_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_UPLOAD_FILE);
+    }
 
-        if (!fileRequest?.skyflowId || !Object.prototype.hasOwnProperty.call(fileRequest, '_skyflowId')) {
-            printLog(logs.errorLogs.EMPTY_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPLOAD_FILE);
-        }
+    if (typeof fileRequest?.tableName !== 'string' || fileRequest?.tableName.trim().length === 0) {
+        printLog(logs.errorLogs.INVALID_TABLE_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPLOAD_FILE);
+    }
 
-        if (typeof fileRequest?.skyflowId !== 'string' || fileRequest.skyflowId.trim().length === 0) {
-            printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPLOAD_FILE);
-        }
+    if (!fileRequest?.skyflowId || !Object.prototype.hasOwnProperty.call(fileRequest, '_skyflowId')) {
+        printLog(logs.errorLogs.EMPTY_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPLOAD_FILE);
+    }
 
+    if (typeof fileRequest?.skyflowId !== 'string' || fileRequest.skyflowId.trim().length === 0) {
+        printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPLOAD_FILE);
+    }
 
-        if (!fileRequest?.columnName || !Object.prototype.hasOwnProperty.call(fileRequest, '_columnName')) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_COLUMN_NAME_IN_UPLOAD_FILE);
-        }
+    if (!fileRequest?.columnName || !Object.prototype.hasOwnProperty.call(fileRequest, '_columnName')) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_COLUMN_NAME_IN_UPLOAD_FILE);
+    }
 
-        if (typeof fileRequest?.columnName !== 'string' || fileRequest?.columnName.trim().length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_COLUMN_NAME_IN_UPLOAD_FILE);
-        }
+    if (typeof fileRequest?.columnName !== 'string' || fileRequest?.columnName.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_COLUMN_NAME_IN_UPLOAD_FILE);
+    }
 
-
-        if (!fileRequest?.filePath || !Object.prototype.hasOwnProperty.call(fileRequest, '_filePath')) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FILE_PATH_IN_UPLOAD_FILE);
-        }
-
-        if (typeof fileRequest?.filePath !== 'string' || fileRequest?.filePath.trim().length === 0 || !isValidPath(fileRequest.filePath)) {
+    if(options){
+        const hasFilePath = !!options.getFilePath();
+        if(hasFilePath && typeof options.getFilePath() !== 'string') {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH_IN_UPLOAD_FILE);
         }
-    } else {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_UPLOAD_REQUEST);
+        const hasBase64 = !!options.getBase64();
+        if(hasBase64 && typeof options.getBase64() !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BASE64_IN_UPLOAD_FILE);
+        }
+        const hasFileObject = !!options.getFileObject();
+        if(hasFileObject && typeof options.getFileObject() !== 'object') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_OBJECT_IN_UPLOAD_FILE);
+        }
+
+        if (!hasFilePath && !hasBase64 && !hasFileObject) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FILE_SOURCE_IN_UPLOAD_FILE);
+        }
+
+        if (hasBase64 && !options.getFileName()) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FILE_NAME_FOR_BASE64);
+        }
+
+        if (hasFileObject) {
+            const fileObject = options.getFileObject();
+            if (!(fileObject instanceof File)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_OBJECT_IN_UPLOAD_FILE);
+            }
+            if (!fileObject.name || typeof fileObject.name !== 'string' || fileObject.name.trim().length === 0) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_FILE_NAME_IN_FILE_OBJECT);
+            }
+        }
     }
 }
 
@@ -917,6 +941,182 @@ export const validateQueryRequest = (queryRequest: QueryRequest, logLevel: LogLe
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_QUERY_REQUEST);
     }
 }
+
+export const validateDeIdentifyTextRequest = (deIdentifyTextRequest: DeidentifyTextRequest, options?: DeidentifyTextOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!deIdentifyTextRequest.text || typeof deIdentifyTextRequest.text !== 'string' || deIdentifyTextRequest.text.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TEXT_IN_DEIDENTIFY);
+    }
+
+    if (options) {
+        if (options.getEntities() && !Array.isArray(options.getEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENTITIES_IN_DEIDENTIFY);
+        }
+
+        if (options.getAllowRegexList() && !Array.isArray(options.getAllowRegexList())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ALLOW_REGEX_LIST);
+        }
+
+        if (options.getRestrictRegexList() && !Array.isArray(options.getRestrictRegexList())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RESTRICT_REGEX_LIST);
+        }
+
+        if (options.getTokenFormat() && !(options.getTokenFormat() instanceof TokenFormat)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
+        }
+
+        if (options.getTransformations() && !(options.getTransformations() instanceof Transformations)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TRANSFORMATIONS);
+        }
+    }
+};
+
+export const validateReidentifyTextRequest = (request: ReidentifyTextRequest, options?: ReidentifyTextOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!request.text || typeof request.text !== 'string' || request.text.trim().length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TEXT_IN_REIDENTIFY);
+    }
+
+    if (options) {
+        if (options.getRedactedEntities() && !Array.isArray(options.getRedactedEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_REDACTED_ENTITIES_IN_REIDENTIFY);
+        }
+
+        if (options.getMaskedEntities() && !Array.isArray(options.getMaskedEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_MASKED_ENTITIES_IN_REIDENTIFY);
+        }
+        if (options.getPlainTextEntities() && !Array.isArray(options.getPlainTextEntities())) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY);
+        }
+    }
+};
+
+export const validateDeidentifyFileRequest = (deidentifyFileRequest: DeidentifyFileRequest, deidentifyFileOptions?: DeidentifyFileOptions, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (!deidentifyFileRequest) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
+    }
+
+    // Validate file object
+    const file = deidentifyFileRequest.getFile();
+
+    // Check if the file is a valid File (browser) or Buffer (Node.js)
+    if (!(file instanceof File)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+    }
+
+    // Additional validation for File
+    if (file instanceof File) {
+        if (!file.name || typeof file.name !== 'string' || file.name.trim().length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+        }
+        // Validate fileBaseName
+        const fileBaseName = path.parse(file.name).name;
+        if (!fileBaseName || typeof fileBaseName !== 'string' || fileBaseName.trim().length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+        }
+  }
+
+    // Validate options if provided
+    if (deidentifyFileOptions) {
+        validateDeidentifyFileOptions(deidentifyFileOptions);
+    }
+};
+
+export const validateGetDetectRunRequest = (getDetectRunRequest: GetDetectRunRequest, logLevel: LogLevel = LogLevel.ERROR) => {
+    if (getDetectRunRequest) {
+        if (!getDetectRunRequest?.runId) {
+            printLog(logs.errorLogs.EMPTY_RUN_ID, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_RUN_ID);
+        }
+        if (typeof getDetectRunRequest.runId !== 'string' || getDetectRunRequest.runId.trim().length === 0) {
+            printLog(logs.errorLogs.INVALID_RUN_ID, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RUN_ID);
+        }
+    }
+}       
+
+export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyFileOptions) => {
+    if (!deidentifyFileOptions) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_OPTIONS);
+    }
+
+    //Validate waitTime
+    const waitTime = deidentifyFileOptions.getWaitTime();
+    if (waitTime !== undefined) {
+        if (typeof waitTime !== 'number' || waitTime > 64) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_WAIT_TIME);
+        }
+    }
+
+    // Validate outputDirectory
+    const outputDirectory = deidentifyFileOptions.getOutputDirectory();
+    if (outputDirectory !== undefined) {
+        if (typeof outputDirectory !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_DIRECTORY);
+        }
+        if (!fs.existsSync(outputDirectory) || !fs.lstatSync(outputDirectory).isDirectory()) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_DIRECTORY_PATH);
+        }
+    }
+
+    // Validate entities
+    if (deidentifyFileOptions.getEntities() !== undefined && (!Array.isArray(deidentifyFileOptions.getEntities()))) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENTITIES);
+    }
+
+    // Validate allowRegexList
+    if (deidentifyFileOptions.getAllowRegexList() && !Array.isArray(deidentifyFileOptions.getAllowRegexList())) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ALLOW_REGEX_LIST);
+    }
+
+    // Validate restrictRegexList
+    if (deidentifyFileOptions.getRestrictRegexList() && !Array.isArray(deidentifyFileOptions.getRestrictRegexList())) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RESTRICT_REGEX_LIST);
+    }
+
+    // Validate tokenFormat
+    if (deidentifyFileOptions.getTokenFormat() && !(deidentifyFileOptions.getTokenFormat() instanceof TokenFormat)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
+    }
+
+    // Validate transformations
+    if (deidentifyFileOptions.getTransformations() && !(deidentifyFileOptions.getTransformations() instanceof Transformations)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TRANSFORMATIONS);
+    }
+
+    // Validate image-specific options
+    if (deidentifyFileOptions.getOutputProcessedImage() !== undefined && typeof deidentifyFileOptions.getOutputProcessedImage() !== 'boolean') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_PROCESSED_IMAGE);
+    }
+
+    if (deidentifyFileOptions.getOutputOcrText() !== undefined && typeof deidentifyFileOptions.getOutputOcrText() !== 'boolean') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_OCR_TEXT);
+    }
+
+    if (deidentifyFileOptions.getMaskingMethod() !== undefined && typeof deidentifyFileOptions.getMaskingMethod() !== 'string') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_MASKING_METHOD);
+    }
+
+    // Validate PDF-specific options
+    if (deidentifyFileOptions.getPixelDensity() !== undefined && typeof deidentifyFileOptions.getPixelDensity() !== 'number') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PIXEL_DENSITY);
+    }
+
+    if (deidentifyFileOptions.getMaxResolution() !== undefined && typeof deidentifyFileOptions.getMaxResolution() !== 'number') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_MAX_RESOLUTION);
+    }
+
+    // Validate audio-specific options
+    if (deidentifyFileOptions.getOutputProcessedAudio() !== undefined && typeof deidentifyFileOptions.getOutputProcessedAudio() !== 'boolean') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_PROCESSED_AUDIO);
+    }
+
+    if (deidentifyFileOptions.getOutputTranscription() !== undefined && typeof deidentifyFileOptions.getOutputTranscription() !== 'string') {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_TRANSCRIPTION);
+    }
+
+    if (deidentifyFileOptions.getBleep() && !(deidentifyFileOptions.getBleep() instanceof Bleep)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BLEEP);
+    }
+};
 
 function isStringKeyValueMap(obj: any): obj is StringKeyValueMapType {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {

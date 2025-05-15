@@ -3,9 +3,6 @@ name: Common Release Workflow
 on:
   workflow_call:
     inputs:
-      registry-url:
-        required: true
-        type: string
       tag:
         required: false
         type: string
@@ -21,8 +18,8 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v1
         with:
-          node-version: 14.17.6
-          registry-url: ${{ inputs.registry-url }}
+          node-version: '20.x'
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install Packages
         run: npm install
@@ -81,12 +78,12 @@ jobs:
         run: |
           if [[ "${{ inputs.tag }}" == "beta" ]]; then
             npm publish --tag beta
-          if [[ "${{ inputs.tag }}" == "public" ]]; then
+          elif [[ "${{ inputs.tag }}" == "public" ]]; then
             npm publish
           elif [[ "${{ inputs.tag }}" == "internal" ]]; then
             curl -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_PASSWORD }} https://prekarilabs.jfrog.io/prekarilabs/api/npm/auth/ > ~/.npmrc
             npm config set registry https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/
-            npm config set unsafe-perm true
+            npm config fix
             npm publish
           fi
         env:

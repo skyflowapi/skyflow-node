@@ -1,11 +1,12 @@
 import Skyflow from './vault/skyflow';
-import { LogLevel, Env, RedactionType, RequestMethod, OrderByEnum, TokenMode } from './utils';
+import { LogLevel, Env, RedactionType, RequestMethod, OrderByEnum, TokenMode, DetectEntities } from './utils';
 import InsertRequest from './vault/model/request/insert';
 import InsertOptions from './vault/model/options/insert';
 import GetRequest from './vault/model/request/get';
 import GetOptions from './vault/model/options/get';
 import DetokenizeRequest from './vault/model/request/detokenize';
 import DetokenizeOptions from './vault/model/options/detokenize';
+import FileUploadOptions from './vault/model/options/fileUpload';
 import DeleteRequest from './vault/model/request/delete';
 import UpdateRequest from './vault/model/request/update';
 import FileUploadRequest from './vault/model/request/file-upload';
@@ -26,11 +27,24 @@ import UpdateResponse from './vault/model/response/update';
 import FileUploadResponse from './vault/model/response/file-upload';
 import QueryResponse from './vault/model/response/query';
 import InvokeConnectionResponse from './vault/model/response/invoke/invoke';
-import { SkyflowConfig, TokenizeRequestType } from './vault/types';
+import { SkyflowConfig, TokenizeRequestType, DetokenizeData } from './vault/types';
 import VaultConfig from './vault/config/vault';
 import SkyflowError from './error';
 import ConnectionConfig from './vault/config/connection';
-
+import DeidentifyTextRequest from './vault/model/request/deidentify-text';
+import DeidentifyTextOptions from './vault/model/options/deidentify-text';
+import DeidentifyTextResponse from './vault/model/response/deidentify-text';
+import ReidentifyTextRequest from './vault/model/request/reidentify-text';
+import ReidentifyTextOptions from './vault/model/options/reidentify-text';
+import ReidentifyTextResponse from './vault/model/response/reidentify-text';
+import TokenFormat from './vault/model/options/deidentify-text/token-format';
+import Transformations from './vault/model/options/deidentify-text/transformations';
+import DeidentifyFileOptions from './vault/model/options/deidentify-file';
+import DeidentifyFileRequest from './vault/model/request/deidentify-file';
+import DeidentifyFileResponse from './vault/model/response/deidentify-file';
+import GetDetectRunRequest from './vault/model/request/get-detect-run';
+import { TokenType, MaskingMethod, DetectOutputTranscription } from './utils';
+import { Bleep } from './vault/model/options/deidentify-file/bleep-audio';
 export {
     Env,
     LogLevel,
@@ -61,6 +75,7 @@ export {
     GetOptions,
     GetResponse,
     DetokenizeRequest,
+    DetokenizeData,
     DetokenizeOptions,
     DetokenizeResponse,
     DeleteRequest,
@@ -69,11 +84,29 @@ export {
     UpdateOptions,
     UpdateResponse,
     FileUploadRequest,
+    FileUploadOptions,
     FileUploadResponse,
     QueryRequest,
     QueryResponse,
     TokenizeRequest,
     TokenizeResponse,
     InvokeConnectionRequest,
-    InvokeConnectionResponse
+    InvokeConnectionResponse,
+    DeidentifyTextRequest,
+    DeidentifyTextOptions,
+    DetectEntities,
+    DeidentifyTextResponse,
+    ReidentifyTextRequest,
+    ReidentifyTextOptions,
+    ReidentifyTextResponse,
+    TokenFormat,
+    Transformations,
+    DeidentifyFileOptions,
+    DeidentifyFileRequest,
+    DeidentifyFileResponse,
+    TokenType,
+    Bleep,
+    MaskingMethod,
+    DetectOutputTranscription,
+    GetDetectRunRequest
 };
