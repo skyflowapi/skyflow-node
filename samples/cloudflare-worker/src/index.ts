@@ -77,9 +77,9 @@ async function performFileUpload(file: File, skyflowClient: Skyflow, vaultId: st
     try {
         // 1. Create file upload request with table and column details
         const request = new FileUploadRequest(
-            "table2", 
-            "252d05d6-8353-4438-b102-1557097f4e77", 
-            "file"
+            "<TABLE_NAME", 
+            "<SKYFLOW_ID>", 
+            "<COLUMN_NAME>"
         );
 
         // 2. Configure upload options
@@ -115,12 +115,12 @@ export default {
     async fetch(request, env, ctx): Promise<Response> {
         // 1. Set up authentication credentials
         const credentials: Credentials = {
-            token: '<BEAERER_TOKEN>', // Replace with your BEARER token
+            credentialsString: '<CREDENTIALS_STRING>', // Replace with your credentials string
         };
 
         // Step 2: Configure Vault 
         const primaryVaultConfig: VaultConfig = {
-            vaultId: '<VAULT_ID>>',          // Unique vault identifier
+            vaultId: '<VAULT_ID>',          // Unique vault identifier
             clusterId: '<CLUSTER_ID>>',      // From vault URL
             env: Env.DEV,                   // Deployment environment
             credentials: credentials        // Authentication method
