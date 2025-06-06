@@ -1,0 +1,39 @@
+export async function readFileSync(filePath) {
+    // Validate the input (must be a URL)
+    if (typeof filePath !== 'string' || !filePath.startsWith('http')) {
+        throw new Error('Only HTTP(s) URLs are supported in this environment');
+    }
+
+    const response = await fetch(filePath);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch file from ${filePath} - ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer); // Similar to Node.js Buffer
+
+    return buffer;
+}
+
+
+export function existsSync(filePath) {
+    // Simulate checking if a file exists
+    return true; // Assume the file exists for this example
+}
+
+export function writeFileSync(filePath, data) {  
+    // Simulate writing to a file
+    console.log(`Writing data to ${filePath}`);
+    console.log(data);
+
+}
+
+export function lstatSync(filePath) {
+
+    return {
+        isFile: () => true,
+        isDirectory: () => true,
+        size: 1024,
+        mtime: new Date(),
+    };
+}
