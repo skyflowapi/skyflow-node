@@ -451,16 +451,22 @@ describe('getToken', () => {
 
 describe('getBearerToken', () => {
     const logLevel = LogLevel.INFO;
+    const originalEnv = process.env;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        process.env.SKYFLOW_CREDENTIALS = undefined;
+        process.env = { ...originalEnv };
+        delete process.env.SKYFLOW_CREDENTIALS;
+    });
+
+    afterEach(() => {
+        process.env = originalEnv;
     });
 
     test('should throw error if no credentials and no env variable', async () => {
         await expect(getBearerToken(undefined, logLevel))
             .rejects
-            .toThrow();
+            .toThrow(errorMessages.CREDENTIALS_REQUIRED);
     });
 
     test('should use environment variable when credentials not provided', async () => {
