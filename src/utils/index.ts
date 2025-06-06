@@ -1,7 +1,7 @@
 import SkyflowError from "../error";
 import * as sdkDetails from "../../package.json";
 import { generateBearerToken, generateBearerTokenFromCreds } from "../service-account";
-import Credentials from "../vault/config/credentials";
+import Credentials, { ApiKeyCredentials, PathCredentials, StringCredentials, TokenCredentials } from "../vault/config/credentials";
 import dotenv from "dotenv";
 import logs from "./logs";
 import os from 'os';
@@ -265,21 +265,23 @@ export function removeSDKVersion(message: string): string {
 }
 
 // Helper function to generate token based on credentials
-export async function getToken(credentials?: Credentials, logLevel?: LogLevel) {
-    if (credentials?.credentialsString) {
+export async function getToken(credentials: Credentials, logLevel?: LogLevel): Promise<{ accessToken: string }> {
+    if ('credentialsString' in credentials) {
+        const stringCred = credentials as StringCredentials;
         printLog(logs.infoLogs.USING_CREDENTIALS_STRING, MessageType.LOG, logLevel);
-        return generateBearerTokenFromCreds(credentials.credentialsString, {
-            roleIDs: credentials.roles,
-            ctx: credentials.context,
+        return generateBearerTokenFromCreds(stringCred.credentialsString, {
+            roleIDs: stringCred.roles,
+            ctx: stringCred.context,
             logLevel,
         });
     }
 
-    if (credentials?.path) {
+    if ('path' in credentials) {
+        const pathCred = credentials as PathCredentials;
         printLog(logs.infoLogs.USING_PATH, MessageType.LOG, logLevel);
-        return generateBearerToken(credentials.path, {
-            roleIDs: credentials.roles,
-            ctx: credentials.context,
+        return generateBearerToken(pathCred.path, {
+            roleIDs: pathCred.roles,
+            ctx: pathCred.context,
             logLevel,
         });
     }
@@ -293,42 +295,45 @@ export async function getBearerToken(credentials?: Credentials, logLevel?: LogLe
         if (!credentials && process.env.SKYFLOW_CREDENTIALS === undefined) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CREDENTIALS);
         }
+
         // If credentials are missing but environment variable exists, use it
         if (!credentials && process.env.SKYFLOW_CREDENTIALS) {
             printLog(logs.infoLogs.USING_SKYFLOW_CREDENTIALS_ENV, MessageType.LOG, logLevel);
             credentials = {
                 credentialsString: process.env.SKYFLOW_CREDENTIALS
-            }
+            } as StringCredentials;
         }
 
-        // If token already exists, resolve immediately
-        if (credentials?.apiKey && credentials.apiKey.trim().length > 0) {
-            if(isValidAPIKey(credentials?.apiKey)){
+        // Handle ApiKeyCredentials
+        if ('apiKey' in credentials!) {
+            const apiKeyCred = credentials as ApiKeyCredentials;
+            if (apiKeyCred.apiKey.trim().length > 0 && isValidAPIKey(apiKeyCred.apiKey)) {
                 printLog(logs.infoLogs.USING_API_KEY, MessageType.LOG, logLevel);
-                return { type: AuthType.API_KEY, key: credentials.apiKey };
+                return { type: AuthType.API_KEY, key: apiKeyCred.apiKey };
             }
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY);
         }
 
-        // If token already exists, resolve immediately
-        if (credentials?.token) {
+        // Handle TokenCredentials
+        if ('token' in credentials!) {
+            const tokenCred = credentials as TokenCredentials;
             printLog(logs.infoLogs.USING_BEARER_TOKEN, MessageType.LOG, logLevel);
-            return { type: AuthType.TOKEN, key: validateToken(credentials.token) };
+            return { type: AuthType.TOKEN, key: validateToken(tokenCred.token) };
         }
 
         printLog(logs.infoLogs.BEARER_TOKEN_LISTENER, MessageType.LOG, logLevel);
 
         // Generate token based on provided credentials
-        const token = await getToken(credentials, logLevel);
+        const token = await getToken(credentials!, logLevel);
 
         printLog(logs.infoLogs.BEARER_TOKEN_RESOLVED, MessageType.LOG, logLevel);
 
         return { type: AuthType.TOKEN, key: token.accessToken };
 
     } catch (err) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS); // rethrow any errors that occur
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS);
     }
-};
+}
 
 export function getBaseUrl(url: string): string {
     try {

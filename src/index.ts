@@ -12,6 +12,7 @@ import UpdateRequest from './vault/model/request/update';
 import FileUploadRequest from './vault/model/request/file-upload';
 import QueryRequest from './vault/model/request/query';
 import Credentials from './vault/config/credentials';
+import { TokenCredentials, ApiKeyCredentials, PathCredentials, StringCredentials } from './vault/config/credentials';
 import TokenizeRequest from './vault/model/request/tokenize';
 import TokenizeResponse from './vault/model/response/tokenize';
 import { BearerTokenOptions, generateBearerToken, generateBearerTokenFromCreds, generateSignedDataTokens, generateSignedDataTokensFromCreds, GenerateTokenOptions, SignedDataTokensOptions } from './service-account';
@@ -64,6 +65,10 @@ export {
     generateSignedDataTokensFromCreds,
     isExpired,
     Credentials,
+    ApiKeyCredentials,
+    TokenCredentials,
+    PathCredentials,
+    StringCredentials,
     RedactionType,
     OrderByEnum,
     TokenMode,
