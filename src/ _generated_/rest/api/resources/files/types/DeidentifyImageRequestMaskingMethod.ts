@@ -5,8 +5,8 @@
 /**
  * Method to mask the entities in the image.
  */
-export type DeidentifyImageRequestMaskingMethod = "blackout" | "blur";
+export type DeidentifyImageRequestMaskingMethod = "blackbox" | "blur";
 export const DeidentifyImageRequestMaskingMethod = {
-    Blackout: "blackout",
+    Blackbox: "blackbox",
     Blur: "blur",
 } as const;

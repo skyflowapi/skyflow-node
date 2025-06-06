@@ -131,7 +131,7 @@ export enum DetectOutputTranscription {
 }
 
 export enum MaskingMethod{
-    Blackout= "blackout",
+    Blackbox= "blackbox",
     Blur= "blur",
 }
 
