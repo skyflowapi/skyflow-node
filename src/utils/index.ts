@@ -210,7 +210,7 @@ export enum TokenType {
 export interface ISkyflowError {
     http_status?: string | number | null,
     grpc_code?: string | number | null,
-    http_code: string | number | null,
+    http_code: string | number | null | undefined,
     message: string,
     request_ID?: string | null,
     details?: Array<string> | null,

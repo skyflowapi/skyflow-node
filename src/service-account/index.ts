@@ -6,6 +6,7 @@ import Client from './client';
 import logs from '../utils/logs';
 import SkyflowError from '../error';
 import SKYFLOW_ERROR_CODE from '../error/codes';
+import { ServiceAccountResponseError } from '../vault/types';
 
 export type BearerTokenOptions = {
     ctx?: string,
@@ -282,16 +283,13 @@ function generateSignedDataTokensFromCreds(credentials, options: SignedDataToken
     return getSignedTokens(credentials, options)
 }
 
-function failureResponse(err: any) {
+function failureResponse(err: ServiceAccountResponseError) {
     return new Promise((_, reject) => {
         if (err.rawResponse) {
-            const requestId = err?.rawResponse?.headers?.get('x-request-id');;
+            const requestId = err?.rawResponse?.headers?.get('x-request-id');
             const contentType = err?.rawResponse?.headers?.get('content-type');
             if (contentType && contentType.includes('application/json')) {
-                let description = err?.body;
-                if (description?.error?.message) {
-                    description =description?.error?.message;
-                }
+                let description = err?.body?.error?.message ?? err?.body;
                 printLog(description, MessageType.ERROR);
                 reject(new SkyflowError({
                     http_code: err?.body?.error?.http_code,
@@ -310,7 +308,7 @@ function failureResponse(err: any) {
                 let description = logs.errorLogs.ERROR_OCCURED;
                 printLog(description, MessageType.ERROR);
                 reject(new SkyflowError({
-                    http_code: err.response.status,
+                    http_code: err.response?.status,
                     message: description,
                     request_ID: requestId
                 }));

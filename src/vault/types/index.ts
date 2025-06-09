@@ -121,3 +121,17 @@ export type SkyflowErrorData =
   | SkyflowApiErrorNewFormat['body']['error']
   | SkyflowApiErrorLegacyBody['error']
   | undefined;
+
+export type ServiceAccountResponseError = {
+  rawResponse?: {
+    headers?: {
+      get: (header: string) => string | undefined;
+    };
+  };
+  body: any;
+  response?: {
+    status?: number | string;
+  };
+  message: string;
+  [key: string]: any;
+};
