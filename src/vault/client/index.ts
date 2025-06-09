@@ -205,7 +205,7 @@ class VaultClient {
             const errorData = data as SkyflowApiErrorNewFormat['body']['error'];
             let description: string = errorData?.message;
             const grpcCode: number | string | undefined = errorData?.grpc_code;
-            const status: number | undefined = errorData?.http_code;
+            const status: string | undefined = errorData?.http_status;
             let details: any = errorData?.details || [];
 
             if (errorFromClient !== undefined) {
@@ -260,7 +260,7 @@ class VaultClient {
         errorFromClient?: boolean
     ) {
         const isNewFormat = this.isSkyflowApiErrorNewFormat(err);
-        let details: any = [];
+        let details: object[] = [];
 
         if (errorFromClient !== undefined) {
             details.push({ errorFromClient });
@@ -272,7 +272,7 @@ class VaultClient {
 
         if (isNewFormat) {
             const errorData = data as SkyflowApiErrorNewFormat['body']['error'];
-            description = errorData?.message || errorMessages.ERROR_OCCURRED;
+            description = errorData?.message || data?.rawBody || errorMessages.ERROR_OCCURRED;
             status = errorData?.http_code;
             grpcCode = errorData?.grpc_code;
         } else {
@@ -345,7 +345,7 @@ class VaultClient {
         err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy,
         requestId: string,
         reject: Function,
-        httpStatus?: number,
+        httpStatus?: string | number,
         grpcCode?: number | string,
         details?: any,
         isNewError?: boolean

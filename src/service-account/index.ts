@@ -149,7 +149,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                     successResponse(res.data, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
                 })
                     .catch((err) => {
-                        failureResponse(err).catch(err => reject(err))
+                        failureResponse(err, options).catch(err => reject(err))
                     });
             }
         }
@@ -283,14 +283,14 @@ function generateSignedDataTokensFromCreds(credentials, options: SignedDataToken
     return getSignedTokens(credentials, options)
 }
 
-function failureResponse(err: ServiceAccountResponseError) {
+function failureResponse(err: ServiceAccountResponseError, options?: BearerTokenOptions) {
     return new Promise((_, reject) => {
         if (err.rawResponse) {
             const requestId = err?.rawResponse?.headers?.get('x-request-id');
             const contentType = err?.rawResponse?.headers?.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 let description = err?.body?.error?.message ?? err?.body;
-                printLog(description, MessageType.ERROR);
+                printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
                     http_code: err?.body?.error?.http_code,
                     message: description,
@@ -298,7 +298,7 @@ function failureResponse(err: ServiceAccountResponseError) {
                 }));
             } else if (contentType && contentType.includes('text/plain')) {
                 let description = err?.body;
-                printLog(description, MessageType.ERROR);
+                printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
                     http_code: err?.body?.error?.http_code,
                     message: description,
@@ -306,7 +306,7 @@ function failureResponse(err: ServiceAccountResponseError) {
                 }));
             } else {
                 let description = logs.errorLogs.ERROR_OCCURED;
-                printLog(description, MessageType.ERROR);
+                printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
                     http_code: err.response?.status,
                     message: description,
@@ -314,7 +314,7 @@ function failureResponse(err: ServiceAccountResponseError) {
                 }));
             }
         } else {
-            printLog(err.message, MessageType.ERROR);
+            printLog(err.message, MessageType.ERROR, options?.logLevel);
             reject(new SkyflowError({
                 http_code: "500",
                 message: err.message,

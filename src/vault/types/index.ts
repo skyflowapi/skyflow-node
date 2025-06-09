@@ -89,6 +89,8 @@ export interface SkyflowApiErrorNewFormat {
       http_code?: number;
       grpc_code?: number | string;
       details?: any[];
+      http_status?: string;
+      rawBody?: string;
     };
   };
   statusCode?: number;
@@ -101,6 +103,7 @@ export interface SkyflowApiErrorLegacyBody {
     http_code?: number;
     grpc_code?: number | string;
     details?: any[];
+    rawBody?: string;
   };
 }
 
