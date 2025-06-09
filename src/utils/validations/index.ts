@@ -161,7 +161,6 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
 
     // Validate PathCredentials
     if (isPathCred) {
-        console.log("PathCredentials");
         const pathCred = credentials as PathCredentials;
         if (typeof pathCred.path !== 'string' || !isValidPath(pathCred.path)) {
             printLog(logs.errorLogs.EMPTY_CREDENTIALS_PATH, MessageType.ERROR, logLevel);
