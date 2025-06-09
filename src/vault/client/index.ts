@@ -10,6 +10,7 @@ import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES } from "../.
 import { isExpired } from "../../utils/jwt-utils";
 import logs from "../../utils/logs";
 import Credentials from "../config/credentials";
+import { SkyflowApiErrorLegacy, SkyflowApiErrorNewFormat, SkyflowErrorData } from "../types";
 
 class VaultClient {
 
@@ -127,12 +128,12 @@ class VaultClient {
         this.skyflowCredentials = credentials;
     }
 
-    private normalizeErrorMeta(err: any) {
-        const isNewFormat = !!err?.rawResponse;    
+    private normalizeErrorMeta(err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy | SkyflowError | Error) {
+        const isNewFormat = (err as SkyflowApiErrorNewFormat).rawResponse !== undefined;
         if (isNewFormat) {
-            const headers = err?.rawResponse?.headers;
+            const headers = (err as SkyflowApiErrorNewFormat).rawResponse?.headers;
             const contentType = headers?.get('content-type');
-            const requestId = headers?.get('x-request-id');
+            const requestId = headers?.get('x-request-id') || '';
             const errorFromClientHeader = headers?.get('error-from-client');
             const errorFromClient = errorFromClientHeader
                 ? String(errorFromClientHeader).toLowerCase() === 'true'
@@ -145,9 +146,9 @@ class VaultClient {
                 errorFromClient
             };
         } else {
-            const headers = err?.headers || {};
+            const headers = (err as SkyflowApiErrorLegacy).headers || {};
             const contentType = headers.get('content-type');
-            const requestId = headers.get('x-request-id');
+            const requestId = headers.get('x-request-id') || '';
 
             
             
@@ -166,104 +167,186 @@ class VaultClient {
     }
     
 
-    failureResponse = (err: any) => new Promise((_, reject) => {
+    failureResponse = (err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy | SkyflowError | Error) => new Promise((_, reject) => {
         const { isNewFormat, contentType, requestId, errorFromClient } = this.normalizeErrorMeta(err);
     
-        const data = isNewFormat ? err?.body?.error : err;
+        const data: SkyflowErrorData = isNewFormat
+        ? (err as SkyflowApiErrorNewFormat).body?.error
+        : (err as SkyflowApiErrorLegacy).body?.error;
 
         if (contentType) {
             if (contentType.includes('application/json')) {
-                this.handleJsonError(err, data, requestId, reject, errorFromClient);
+                this.handleJsonError(err as SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy, data, requestId, reject, errorFromClient);
             } else if (contentType.includes('text/plain')) {
-                this.handleTextError(err, data, requestId, reject, errorFromClient);
+                this.handleTextError(err as SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy, data, requestId, reject, errorFromClient);
             } else {
-                this.handleGenericError(err, requestId, reject, errorFromClient);
+                this.handleGenericError(err as SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy, requestId, reject, errorFromClient);
             }
         } else {
-            this.handleGenericError(err, requestId, reject, errorFromClient);
+            this.handleGenericError(err as SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy, requestId, reject, errorFromClient);
         }
     });
-    
 
-    private handleJsonError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        const isNewFormat = !!err?.rawResponse;
-    
-        if (isNewFormat) {
-            let description = data?.message;
-            const grpcCode = data?.grpc_code;
-            const status = data?.http_status;
-            let details = data?.details || [];
-    
-            if (errorFromClient !== undefined) {
-                details = Array.isArray(details)
-                    ? [...details, { errorFromClient }]
-                    : [{ errorFromClient }];
-            }
-    
-            this.logAndRejectError(description, err, requestId, reject, status, grpcCode, details, isNewFormat);
-        } else {
-            let description = data;
-            const statusCode = description?.statusCode;
-            const grpcCode = description?.grpcCode;
-            let details = description?.error?.details;
-    
-            if (errorFromClient !== undefined) {
-                details = Array.isArray(details)
-                    ? [...details, { errorFromClient }]
-                    : [{ errorFromClient }];
-            }
-    
-            description = description?.body?.error?.message || description;
-            this.logAndRejectError(description, err, requestId, reject, statusCode, grpcCode, details, isNewFormat);
-        }
+
+    private isSkyflowApiErrorNewFormat(err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy): err is SkyflowApiErrorNewFormat {
+        return (err as SkyflowApiErrorNewFormat).rawResponse !== undefined;
     }
-    
-    
-    private handleTextError(err: any, data: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        const isNewFormat = !!err?.rawResponse
-        let details: any = [];
-    
-        if (errorFromClient !== undefined) {
-            details.push({ errorFromClient });
-        }
-    
-        const description = isNewFormat ? data?.message: data?.body?.error?.message;
-        const status = isNewFormat ? data?.http_status : err?.body?.error?.http_status;
-        const grpcCode = isNewFormat ? data?.grpc_code : err?.body?.error?.grpc_code;
-        this.logAndRejectError(description, err, requestId, reject, status, grpcCode, details, isNewFormat);
-    }
-    
-    
-    private handleGenericError(err: any, requestId: string, reject: Function, errorFromClient?: boolean) {
-        const isNewFormat = !!err?.rawResponse;
-        let description: any;
-        let grpcCode: any;
-        let details: any = [];
-    
+
+    private handleJsonError(
+        err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy,
+        data: SkyflowErrorData,
+        requestId: string,
+        reject: Function,
+        errorFromClient?: boolean
+        ) {
+        const isNewFormat = this.isSkyflowApiErrorNewFormat(err);
+
         if (isNewFormat) {
-            description = err?.body?.error?.message || errorMessages.GENERIC_API_ERROR || err?.message
-            grpcCode = err?.body?.error?.grpc_code;
-            details = err?.body?.error?.details || [];
-        } else {
-            description = err?.body?.error?.message || errorMessages.ERROR_OCCURRED;
-        }
-    
-        if (errorFromClient !== undefined) {
+            const errorData = data as SkyflowApiErrorNewFormat['body']['error'];
+            let description: string = errorData?.message;
+            const grpcCode: number | string | undefined = errorData?.grpc_code;
+            const status: number | undefined = errorData?.http_code;
+            let details: any = errorData?.details || [];
+
+            if (errorFromClient !== undefined) {
             details = Array.isArray(details)
                 ? [...details, { errorFromClient }]
                 : [{ errorFromClient }];
+            }
+
+            this.logAndRejectError(
+            description,
+            err,
+            requestId,
+            reject,
+            status,
+            grpcCode,
+            details,
+            isNewFormat
+            );
+        } else {
+            // data is SkyflowApiErrorLegacyBody['error']
+            const legacyErr = err as SkyflowApiErrorLegacy;
+            const errorData = legacyErr.body?.error;
+            let description: string = errorData?.message || errorMessages.ERROR_OCCURRED;
+            const statusCode: number | undefined = errorData?.http_code;
+            const grpcCode: number | string | undefined = errorData?.grpc_code;
+            let details: any = errorData?.details || [];
+
+            if (errorFromClient !== undefined) {
+            details = Array.isArray(details)
+                ? [...details, { errorFromClient }]
+                : [{ errorFromClient }];
+            }
+
+            this.logAndRejectError(
+            description,
+            err,
+            requestId,
+            reject,
+            statusCode,
+            grpcCode,
+            details,
+            isNewFormat
+            );
         }
-    
-        this.logAndRejectError(description, err, requestId, reject, undefined, grpcCode, details, isNewFormat);
+    }
+
+    private handleTextError(
+        err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy,
+        data: SkyflowErrorData,
+        requestId: string,
+        reject: Function,
+        errorFromClient?: boolean
+    ) {
+        const isNewFormat = this.isSkyflowApiErrorNewFormat(err);
+        let details: any = [];
+
+        if (errorFromClient !== undefined) {
+            details.push({ errorFromClient });
+        }
+
+        let description: string;
+        let status: number | undefined;
+        let grpcCode: number | string | undefined;
+
+        if (isNewFormat) {
+            const errorData = data as SkyflowApiErrorNewFormat['body']['error'];
+            description = errorData?.message || errorMessages.ERROR_OCCURRED;
+            status = errorData?.http_code;
+            grpcCode = errorData?.grpc_code;
+        } else {
+            const legacyErr = err as SkyflowApiErrorLegacy;
+            const errorData = legacyErr.body?.error;
+            description = errorData?.message || errorMessages.ERROR_OCCURRED;
+            status = errorData?.http_code;
+            grpcCode = errorData?.grpc_code;
+        }
+
+        this.logAndRejectError(
+            description,
+            err,
+            requestId,
+            reject,
+            status,
+            grpcCode,
+            details,
+            isNewFormat
+        );
+    }
+
+    private handleGenericError(
+        err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy,
+        requestId: string,
+        reject: Function,
+        errorFromClient?: boolean
+    ) {
+        const isNewFormat = this.isSkyflowApiErrorNewFormat(err);
+        let description: string;
+        let grpcCode: number | string | undefined;
+        let details: any = [];
+
+        if (isNewFormat) {
+            const errorData = (err as SkyflowApiErrorNewFormat).body?.error;
+            description =
+            errorData?.message ??
+            (err as SkyflowApiErrorNewFormat).message ??
+            errorMessages.GENERIC_API_ERROR;
+            grpcCode = errorData?.grpc_code;
+            details = errorData?.details || [];
+        } else {
+            const legacyErr = err as SkyflowApiErrorLegacy;
+            const errorData = legacyErr.body?.error;
+            description = errorData?.message || errorMessages.ERROR_OCCURRED;
+            grpcCode = errorData?.grpc_code;
+            details = errorData?.details || [];
+        }
+
+        if (errorFromClient !== undefined) {
+            details = Array.isArray(details)
+            ? [...details, { errorFromClient }]
+            : [{ errorFromClient }];
+        }
+
+        this.logAndRejectError(
+            description,
+            err,
+            requestId,
+            reject,
+            undefined,
+            grpcCode,
+            details,
+            isNewFormat
+        );
     }
     
     private logAndRejectError(
         description: string,
-        err: any,
+        err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy,
         requestId: string,
         reject: Function,
         httpStatus?: number,
-        grpcCode?: number,
+        grpcCode?: number | string,
         details?: any,
         isNewError?: boolean
     ) {

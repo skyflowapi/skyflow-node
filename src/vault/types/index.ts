@@ -6,6 +6,7 @@ import VaultController from "../controller/vault";
 import ConnectionController from "../controller/connections";
 import VaultClient from "../client";
 import DetectController from "../controller/detect";
+import SkyflowError from "../../error";
 
 export interface SkyflowConfig {
     vaultConfigs?: VaultConfig[];
@@ -77,3 +78,46 @@ export interface DetokenizeData {
     token: string;
     redactionType?: RedactionType;
 }
+
+export interface SkyflowApiErrorNewFormat {
+  rawResponse: {
+    headers: { get(key: string): string | undefined };
+  };
+  body: {
+    error: {
+      message: string;
+      http_code?: number;
+      grpc_code?: number | string;
+      details?: any[];
+    };
+  };
+  statusCode?: number;
+  message?: string;
+}
+
+export interface SkyflowApiErrorLegacyBody {
+  error: {
+    message: string;
+    http_code?: number;
+    grpc_code?: number | string;
+    details?: any[];
+  };
+}
+
+export interface SkyflowApiErrorLegacy {
+  headers: { get(key: string): string | undefined };
+  body?: SkyflowApiErrorLegacyBody;
+  statusCode?: number;
+  message?: string;
+}
+
+export type SkyflowAllError =
+  | SkyflowApiErrorNewFormat
+  | SkyflowApiErrorLegacy
+  | SkyflowError
+  | Error;
+
+export type SkyflowErrorData =
+  | SkyflowApiErrorNewFormat['body']['error']
+  | SkyflowApiErrorLegacyBody['error']
+  | undefined;
