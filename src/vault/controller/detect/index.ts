@@ -24,6 +24,7 @@ import SkyflowError from "../../../error";
 import SKYFLOW_ERROR_CODE from "../../../error/codes";
 import GetDetectRunRequest from "../../model/request/get-detect-run";
 import Transformations from "../../model/options/deidentify-text/transformations";
+import { SkyflowAllError } from "../../types";
 
 class DetectController {
 
@@ -396,7 +397,7 @@ class DetectController {
                                 break;
 
                         }
-                    }).catch((error: any) => {
+                    }).catch((error: SkyflowAllError) => {
                         printLog(logs.errorLogs[`${requestType}_REQUEST_REJECTED`], MessageType.ERROR, this.client.getLogLevel());
                         this.client.failureResponse(error).catch((err) => reject(err))
                     });
