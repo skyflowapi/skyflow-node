@@ -267,7 +267,7 @@ class VaultClient {
         }
 
         let description: string;
-        let status: number | undefined;
+        let status: string | number | undefined;
         let grpcCode: number | string | undefined;
 
         if (isNewFormat) {
@@ -279,7 +279,7 @@ class VaultClient {
             const legacyErr = err as SkyflowApiErrorLegacy;
             const errorData = legacyErr.body?.error;
             description = errorData?.message || errorMessages.ERROR_OCCURRED;
-            status = errorData?.http_code;
+            status = errorData?.http_status;
             grpcCode = errorData?.grpc_code;
         }
 

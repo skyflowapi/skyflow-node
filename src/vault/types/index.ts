@@ -106,6 +106,7 @@ export interface SkyflowApiErrorLegacyBody {
     grpc_code?: number | string;
     details?: any[];
     rawBody?: string;
+    http_status?: string;
   };
 }
 
