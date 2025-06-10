@@ -164,8 +164,8 @@ export interface TokensResponse extends SkyflowIdResponse {
   tokens?: Record<string, unknown>;
 }
 export interface IndexRange {
-    start: number;
-    end: number;
+    start?: number;
+    end?: number;
 }
 
 export type DeidentifyFileOutputProcessedFileType =
