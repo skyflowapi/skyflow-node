@@ -1,15 +1,16 @@
 //imports
 
-import { queryResponseType } from "../../../types";
+import { SkyflowRecordError } from "../../../../utils";
+import { QueryResponseType } from "../../../types";
 
 class QueryResponse {
 
     //fields
-    fields?: Array<queryResponseType>;
+    fields: Array<QueryResponseType>;
 
-    errors?: Object;
+    errors: Array<SkyflowRecordError> | null;
 
-    constructor( { fields, errors }: { fields?: Array<queryResponseType>, errors?: object }) {
+    constructor( { fields, errors }: { fields: Array<QueryResponseType>, errors: Array<SkyflowRecordError> | null }) {
         this.fields = fields;
         this.errors = errors;
     }

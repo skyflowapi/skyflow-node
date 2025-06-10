@@ -302,7 +302,7 @@ describe('VaultController insert method', () => {
         const response = await vaultController.insert(mockRequest, mockOptions);
 
         expect(mockVaultClient.vaultAPI.recordServiceBatchOperation).toHaveBeenCalled();
-        expect(response.insertedFields).toStrictEqual([]);
+        expect(response.insertedFields).toBe(null);
     });
 
     test('should reject insert records with batch insert', async () => {
@@ -330,7 +330,7 @@ describe('VaultController insert method', () => {
         const response = await vaultController.insert(mockRequest, mockOptions);
 
         expect(mockVaultClient.vaultAPI.recordServiceBatchOperation).toHaveBeenCalled();
-        expect(response.insertedFields).toStrictEqual([]);
+        expect(response.insertedFields).toStrictEqual(null);
     });
 
     test('should handle validation errors', async () => {
@@ -582,8 +582,8 @@ describe('VaultController detokenize method', () => {
             expect.anything(), // Detokenization payload
             expect.any(Object) // Headers
         );
-        expect(response.detokenizedFields).toHaveLength(0); // Success responses
-        expect(response.errors).toHaveLength(0); // Error responses
+        expect(response.detokenizedFields).toBe(null); // Success responses
+        expect(response.errors).toBe(null); // Error responses
     });
 
     test('should reject detokenize records with validation error', async () => {
@@ -753,7 +753,7 @@ describe('VaultController delete method', () => {
         );
         expect(response).toBeInstanceOf(DeleteResponse);
         expect(response.deletedIds).toHaveLength(1);
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBe(null);
     });
 
     test('should handle delete validation errors', async () => {
@@ -809,7 +809,7 @@ describe('VaultController delete method', () => {
         const response = await vaultController.delete(mockRequest);
 
         expect(response.deletedIds).toHaveLength(0);
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBe(null);
     });
 
     test('should log and reject when API returns errors during delete', async () => {
@@ -865,7 +865,7 @@ describe('VaultController tokenize method', () => {
         expect(mockVaultClient.tokensAPI.recordServiceTokenize).toHaveBeenCalled();
         expect(response).toBeInstanceOf(TokenizeResponse);
         expect(response.tokens).toHaveLength(1);
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBe(null);
     });
 
     test('should handle validation errors', async () => {
@@ -992,7 +992,7 @@ describe('VaultController query method', () => {
         expect(response.fields).toHaveLength(1);
         expect(response.fields[0].id).toBe('1');
         expect(response.fields[0].tokenizedData.id).toBe('token123');
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBe(null);
     });
 
     test('should successfully query records as null', async () => {
@@ -1017,7 +1017,7 @@ describe('VaultController query method', () => {
         );
         expect(response).toBeInstanceOf(QueryResponse);
         expect(response.fields).toHaveLength(0);
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBe(null);
     });
 
     test('should handle validation errors', async () => {
@@ -1140,7 +1140,7 @@ describe('VaultController update method', () => {
         expect(response).toBeInstanceOf(UpdateResponse);
         expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
 
     test('should successfully update record', async () => {
@@ -1171,7 +1171,7 @@ describe('VaultController update method', () => {
         expect(response).toBeInstanceOf(UpdateResponse);
         expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
     test('should successfully update record using enable tokens', async () => {
         const skyflowId = 'id123';
@@ -1205,7 +1205,7 @@ describe('VaultController update method', () => {
         expect(response).toBeInstanceOf(UpdateResponse);
         expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
 
     test('should handle validation errors', async () => {
@@ -1355,7 +1355,7 @@ describe('VaultController uploadFile method', () => {
         expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
 
     test('should successfully upload file using base64', async () => {
@@ -1384,7 +1384,7 @@ describe('VaultController uploadFile method', () => {
         expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
 
     test('should successfully upload file using fileObject', async () => {
@@ -1413,7 +1413,7 @@ describe('VaultController uploadFile method', () => {
         expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
 
     test('should handle validation errors during upload', async () => {
@@ -1508,7 +1508,7 @@ describe('VaultController get method', () => {
         // Validate the response structure and content
         expect(response).toBeInstanceOf(GetResponse);
         expect(response.data).toEqual([{ field1: 'value1' }, { field2: 'value2' }]);
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
 
     test('should successfully get records for GetRequest with options', async () => {
@@ -1539,7 +1539,7 @@ describe('VaultController get method', () => {
         // Validate the response structure and content
         expect(response).toBeInstanceOf(GetResponse);
         expect(response.data).toEqual([{ field1: 'value1' }, { field2: 'value2' }]);
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
 
     test('should successfully get records for GetColumnRequest', async () => {
@@ -1561,7 +1561,7 @@ describe('VaultController get method', () => {
         // Validate the response structure and content
         expect(response).toBeInstanceOf(GetResponse);
         expect(response.data).toEqual([{ field1: 'value1' }]);
-        expect(response.errors).toHaveLength(0);
+        expect(response.errors).toBeNull();
     });
 
     test('should handle validation errors for GetRequest', async () => {

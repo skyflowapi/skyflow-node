@@ -1,7 +1,7 @@
 //imports
 
 import path from "path";
-import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest, DeidentifyAudioRequestFileDataFormat, DeidentifyDocumentRequest, DeidentifyDocumentRequestFileDataFormat, DeidentifyFileRequestFileDataFormat, DeidentifyImageRequest, DeidentifyImageRequestFileDataFormat, DeidentifyImageRequestMaskingMethod, DeidentifyPdfRequest, DeidentifyPresentationRequest, DeidentifyPresentationRequestFileDataFormat, DeidentifySpreadsheetRequest, DeidentifySpreadsheetRequestFileDataFormat, DeidentifyStructuredTextRequest, DeidentifyStructuredTextRequestFileDataFormat, DetectedEntity, EntityType, GetRunRequest, Transformations as GeneratedTransformations, TokenTypeWithoutVault } from "../../../ _generated_/rest/api";
+import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest, DeidentifyAudioRequestFileDataFormat, DeidentifyDocumentRequest, DeidentifyDocumentRequestFileDataFormat, DeidentifyFileRequestFileDataFormat, DeidentifyImageRequest, DeidentifyImageRequestFileDataFormat, DeidentifyImageRequestMaskingMethod, DeidentifyPdfRequest, DeidentifyPresentationRequest, DeidentifyPresentationRequestFileDataFormat, DeidentifySpreadsheetRequest, DeidentifySpreadsheetRequestFileDataFormat, DeidentifyStructuredTextRequest, DeidentifyStructuredTextRequestFileDataFormat, DetectedEntity, EntityType, GetRunRequest, Transformations as GeneratedTransformations, TokenTypeWithoutVault, DeidentifyStringResponse, DeidentifyStatusResponse } from "../../../ _generated_/rest/api";
 import { DeidentifyFileRequest as  DeidentifyFileRequest2} from "../../../ _generated_/rest/api";
 
 import { TokenType } from "../../../ _generated_/rest/api";
@@ -25,6 +25,7 @@ import SKYFLOW_ERROR_CODE from "../../../error/codes";
 import GetDetectRunRequest from "../../model/request/get-detect-run";
 import Transformations from "../../model/options/deidentify-text/transformations";
 import { SkyflowAllError } from "../../types";
+import { DeidentifyFileDetectRunResponse, DeidentifyFileOutput, DetectTextResponse, DetectFileResponse } from "../../types";
 
 class DetectController {
 
@@ -267,7 +268,7 @@ class DetectController {
         }
     }
 
-    private processDeidentifyFileResponse(response: any, outputDirectory: string, fileBaseName: string) {
+    private processDeidentifyFileResponse(response: DeidentifyFileDetectRunResponse, outputDirectory: string, fileBaseName: string) {
         try {
             // Ensure the output directory exists
             if (!fs.existsSync(outputDirectory)) {
@@ -275,7 +276,7 @@ class DetectController {
             }
 
             // Iterate over the output array in the response
-            response.output.forEach((fileObject: any, index: number) => {
+            response.output.forEach((fileObject: DeidentifyFileOutput, index: number) => {
                 const { processedFile, processedFileExtension } = fileObject;
 
                 if (!processedFile || !processedFileExtension) {
@@ -334,7 +335,7 @@ class DetectController {
     
         const poll = () => {
             this.client.filesAPI.getRun(runId, req)
-                .then((response: any) => {
+                .then((response: DeidentifyStatusResponse) => {
                     if (response.status === 'IN_PROGRESS') {
                         if (currentWaitTime >= maxWaitTime) {
                             resolve({ runId }); // Resolve with runId if max wait time is exceeded
@@ -359,14 +360,14 @@ class DetectController {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     }
                 })
-                .catch((error: any) => {
+                .catch((error) => {
                     reject(error);
                 });
         };
     
         poll(); // Start polling
     }
-    private handleRequest(apiCall: Function, requestType: string): Promise<any> {
+    private handleRequest<T>(apiCall: Function, requestType: string): Promise<T> {
         return new Promise((resolve, reject) => {
             printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES[requestType]), MessageType.LOG, this.client.getLogLevel());
             const sdkHeaders = this.createSdkHeaders();
@@ -381,7 +382,7 @@ class DetectController {
                         switch (requestType) {
                             case TYPES.DEIDENTIFY_TEXT:
                             case TYPES.REIDENTIFY_TEXT:
-                                resolve({records: data, requestId})
+                                resolve({records: data, requestId} as T)
                                 break;
                             case TYPES.DEIDENTIFY_FILE:
                                 const req: GetRunRequest = {
@@ -393,7 +394,7 @@ class DetectController {
                                 this.pollForProcessedFile(data.run_id, req, maxWaitTime, resolve, reject); // Call the extracted polling function
                                 break; 
                             case TYPES.DETECT_RUN:
-                                resolve({data, requestId})
+                                resolve({data, requestId} as T)
                                 break;
 
                         }
@@ -422,29 +423,29 @@ class DetectController {
         };
     }
 
-    private parseDeidentifyTextResponse(data: any) {
+    private parseDeidentifyTextResponse(records: DeidentifyStringResponse) {
         return {
-            processedText: data.records.processed_text,
-            entities: data.records.entities.map((entity: DetectedEntity) => ({
-                token: entity.token,
-                value: entity.value,
+            processedText: records.processed_text,
+            entities: records.entities.map((entity: DetectedEntity) => ({
+                token: entity.token!,
+                value: entity.value!,
                 textIndex: {
-                    start: entity.location?.start_index,
-                    end: entity.location?.end_index,
+                    start: entity.location?.start_index!,
+                    end: entity.location?.end_index!,
                 },
                 processedIndex: {
-                    start: entity.location?.start_index_processed,
-                    end: entity.location?.end_index_processed,
+                    start: entity.location?.start_index_processed!,
+                    end: entity.location?.end_index_processed!,
                 },
-                entity: entity.entity_type,
-                scores: entity.entity_scores,
+                entity: entity.entity_type!,
+                scores: entity.entity_scores!,
             })),
-            wordCount: data.records.word_count,
-            charCount: data.records.character_count,
+            wordCount: records.word_count,
+            charCount: records.character_count,
         };
     }
 
-    private parseDeidentifyFileResponse(data: any, runId?: string, status?: string): DeidentifyFileResponse {
+    private parseDeidentifyFileResponse(data: DeidentifyFileDetectRunResponse, runId?: string, status?: string): DeidentifyFileResponse {
         return new DeidentifyFileResponse({
             file: data.output?.[0]?.processedFile ?? '',
             type: data.output?.[0]?.processedFileType ?? '',
@@ -456,12 +457,12 @@ class DetectController {
             pageCount: data.pages ?? 0,
             slideCount: data.slides ?? 0,
             entities: (data.output || [])
-                .filter((fileObject: any) => fileObject.processedFileType === 'entities')
-                .map((fileObject: any) => ({
-                    file: fileObject.processedFile,
-                    extension: fileObject.processedFileExtension,
+                .filter((fileObject: DeidentifyFileOutput) => fileObject.processedFileType === 'entities')
+                .map((fileObject: DeidentifyFileOutput) => ({
+                    file: fileObject.processedFile as string,
+                    extension: fileObject.processedFileExtension as string,
                 })),
-            runId: data.runId ?? data.run_id ?? runId, // Handles both camelCase and snake_case
+            runId: data.runId ?? data.runId ?? runId,
             status: status,
         });
     }
@@ -475,13 +476,13 @@ class DetectController {
                 validateDeIdentifyTextRequest(request, options, this.client.getLogLevel());
 
                 const requestBody = this.buildDeidentifyTextRequest(request, options);
-                this.handleRequest(
+                this.handleRequest<DetectTextResponse<DeidentifyStringResponse>>(
                     () => this.client.stringsAPI.deidentifyString(
                         requestBody
                     ).withRawResponse(),
                     TYPES.DEIDENTIFY_TEXT
                 ).then(data => {
-                    const parsedResponse = new DeidentifyTextResponse(this.parseDeidentifyTextResponse(data))
+                    const parsedResponse = new DeidentifyTextResponse(this.parseDeidentifyTextResponse(data.records))
                     resolve(parsedResponse);
                 }).catch(error => {
                     reject(error)
@@ -510,7 +511,7 @@ class DetectController {
                         plaintext: options?.getPlainTextEntities(),
                     }
                 };
-                this.handleRequest(
+                this.handleRequest<DetectTextResponse<Record<string, string>>>(
                     () => this.client.stringsAPI.reidentifyString(
                         requestBody
                     ).withRawResponse(),
@@ -542,7 +543,7 @@ class DetectController {
                     vault_id: this.client.vaultId
                 }
 
-                this.handleRequest(
+                this.handleRequest<DetectFileResponse<DeidentifyFileDetectRunResponse>>(
                     () => this.client.filesAPI.getRun(
                         request.runId,
                         req
@@ -576,7 +577,7 @@ class DetectController {
                 this.waitTime = options?.getWaitTime() ?? this.waitTime; 
 
                 var reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension); 
-                var promiseReq: Promise<any>;
+                var promiseReq: Promise<DeidentifyFileDetectRunResponse>;
                 switch (reqType){
                     case DeidenitfyFileRequestTypes.AUDIO:
                         promiseReq = this.buildAudioRequest(request, options, fileExtension)

@@ -514,7 +514,6 @@ describe('deidentifyFile', () => {
         expect(result.charCount).toBe(100);
         expect(result.sizeInKb).toBe(2048);
         expect(result.pageCount).toBe(2);
-        expect(result.runId).toBe('run123');
         expect(result.status).toBe('SUCCESS');
     });
 
@@ -695,7 +694,6 @@ describe('deidentifyFile', () => {
         expect(result.wordCount).toBe(8);
         expect(result.charCount).toBe(80);
         expect(result.sizeInKb).toBe(1024);
-        expect(result.runId).toBe('sheetRunId');
         expect(result.status).toBe('SUCCESS');
     });
 
@@ -744,7 +742,6 @@ describe('deidentifyFile', () => {
         expect(result.charCount).toBe(30);
         expect(result.sizeInKb).toBe(2048);
         expect(result.slideCount).toBe(5);
-        expect(result.runId).toBe('pptRunId');
         expect(result.status).toBe('SUCCESS');
     });
 
@@ -792,7 +789,6 @@ describe('deidentifyFile', () => {
         expect(result.wordCount).toBe(6);
         expect(result.charCount).toBe(60);
         expect(result.sizeInKb).toBe(512);
-        expect(result.runId).toBe('jsonRunId');
         expect(result.status).toBe('SUCCESS');
     });
 
@@ -841,7 +837,6 @@ describe('deidentifyFile', () => {
         expect(result.charCount).toBe(70);
         expect(result.sizeInKb).toBe(1024);
         expect(result.pageCount).toBe(1);
-        expect(result.runId).toBe('docRunId');
         expect(result.status).toBe('SUCCESS');
     });
 
@@ -936,7 +931,6 @@ describe('deidentifyFile', () => {
         expect(result.wordCount).toBe(4);
         expect(result.charCount).toBe(40);
         expect(result.sizeInKb).toBe(256);
-        expect(result.runId).toBe('genRunId');
         expect(result.status).toBe('SUCCESS');
     });
 

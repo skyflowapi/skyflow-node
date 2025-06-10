@@ -28,7 +28,7 @@ import UpdateResponse from './vault/model/response/update';
 import FileUploadResponse from './vault/model/response/file-upload';
 import QueryResponse from './vault/model/response/query';
 import InvokeConnectionResponse from './vault/model/response/invoke/invoke';
-import { SkyflowConfig, TokenizeRequestType, DetokenizeData } from './vault/types';
+import { SkyflowConfig, TokenizeRequestType, DetokenizeData, InsertResponseType, GetResponseData, QueryResponseType, IndexRange } from './vault/types';
 import VaultConfig from './vault/config/vault';
 import SkyflowError from './error';
 import ConnectionConfig from './vault/config/connection';
@@ -46,6 +46,7 @@ import DeidentifyFileResponse from './vault/model/response/deidentify-file';
 import GetDetectRunRequest from './vault/model/request/get-detect-run';
 import { TokenType, MaskingMethod, DetectOutputTranscription } from './utils';
 import { Bleep } from './vault/model/options/deidentify-file/bleep-audio';
+import { SkyflowRecordError } from './utils/index';
 export {
     Env,
     LogLevel,
@@ -113,5 +114,10 @@ export {
     Bleep,
     MaskingMethod,
     DetectOutputTranscription,
-    GetDetectRunRequest
+    GetDetectRunRequest,
+    SkyflowRecordError,
+    InsertResponseType,
+    GetResponseData,
+    QueryResponseType,
+    IndexRange
 };
