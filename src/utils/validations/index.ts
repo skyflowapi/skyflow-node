@@ -3,7 +3,7 @@ import { V1Byot } from "../../ _generated_/rest/api";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
 import ConnectionConfig from "../../vault/config/connection";
-import Credentials from "../../vault/config/credentials";
+import Credentials, { ApiKeyCredentials, PathCredentials, StringCredentials, TokenCredentials } from "../../vault/config/credentials";
 import VaultConfig from "../../vault/config/vault";
 import DetokenizeOptions from "../../vault/model/options/detokenize";
 import GetOptions from "../../vault/model/options/get";
@@ -130,42 +130,73 @@ export const validateSkyflowConfig = (config: SkyflowConfig, logLevel: LogLevel 
 
 
 export const validateCredentialsWithId = (credentials: Credentials, type: string, typeId: string, id: string, logLevel: LogLevel = LogLevel.ERROR) => {
-    // validates types for ctx roles
-    const { token, path, credentialsString, apiKey } = credentials;
-
-    // Count how many of the fields are defined
-    const definedFields = [token, path, credentialsString, apiKey].filter(Boolean).length;
-
-    // If none are present
-    if (definedFields === 0) {
+    if (!credentials) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_WITH_ID, [type, typeId, id]);
     }
 
-    // If more than one is present
-    if (definedFields > 1) {
+    const isTokenCred = 'token' in credentials;
+    const isPathCred = 'path' in credentials;
+    const isStringCred = 'credentialsString' in credentials;
+    const isApiKeyCred = 'apiKey' in credentials;
+
+    // Check if exactly one credential type is provided
+    const definedTypes = [isTokenCred, isPathCred, isStringCred, isApiKeyCred].filter(Boolean).length;
+
+    if (definedTypes === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_WITH_ID, [type, typeId, id]);
+    }
+
+    if (definedTypes > 1) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.MULTIPLE_CREDENTIALS_PASSED_WITH_ID, [type, typeId, id]);
     }
 
-    if (credentials?.token && (typeof credentials?.token !== 'string' || isExpired(credentials?.token))) {
-        printLog(logs.errorLogs.EMPTY_TOKEN_VALUE, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BEARER_TOKEN_WITH_ID, [type, typeId, id]);
+    // Validate TokenCredentials
+    if (isTokenCred) {
+        const tokenCred = credentials as TokenCredentials;
+        if (typeof tokenCred.token !== 'string' || isExpired(tokenCred.token)) {
+            printLog(logs.errorLogs.EMPTY_TOKEN_VALUE, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BEARER_TOKEN_WITH_ID, [type, typeId, id]);
+        }
     }
 
-    if (credentials?.credentialsString && (typeof credentials?.credentialsString !== 'string' || !isValidCredentialsString(credentials?.credentialsString))) {
-        printLog(logs.errorLogs.EMPTY_CREDENTIALS_STRING, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING_WITH_ID, [type, typeId, id]);
+    // Validate PathCredentials
+    if (isPathCred) {
+        const pathCred = credentials as PathCredentials;
+        if (typeof pathCred.path !== 'string' || !isValidPath(pathCred.path)) {
+            printLog(logs.errorLogs.EMPTY_CREDENTIALS_PATH, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH_WITH_ID, [type, typeId, id]);
+        }
+        if (pathCred.roles !== undefined && !Array.isArray(pathCred.roles)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE, [type, typeId, id]);
+        }
+        if (pathCred.context !== undefined && typeof pathCred.context !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT, [type, typeId, id]);
+        }
     }
 
-    if (credentials?.apiKey && (typeof credentials?.apiKey !== 'string' || !isValidAPIKey(credentials?.apiKey))) {
-        printLog(logs.errorLogs.INVALID_API_KEY, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY_WITH_ID, [type, typeId, id]);
+    // Validate StringCredentials
+    if (isStringCred) {
+        const stringCred = credentials as StringCredentials;
+        if (typeof stringCred.credentialsString !== 'string' || !isValidCredentialsString(stringCred.credentialsString)) {
+            printLog(logs.errorLogs.EMPTY_CREDENTIALS_STRING, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING_WITH_ID, [type, typeId, id]);
+        }
+        if (stringCred.roles !== undefined && !Array.isArray(stringCred.roles)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE, [type, typeId, id]);
+        }
+        if (stringCred.context !== undefined && typeof stringCred.context !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT, [type, typeId, id]);
+        }
     }
 
-    if (credentials?.path && (typeof credentials?.path !== 'string' || !isValidPath(credentials?.path))) {
-        printLog(logs.errorLogs.EMPTY_CREDENTIALS_PATH, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH_WITH_ID, [type, typeId, id]);
+    // Validate ApiKeyCredentials
+    if (isApiKeyCred) {
+        const apiKeyCred = credentials as ApiKeyCredentials;
+        if (typeof apiKeyCred.apiKey !== 'string' || !isValidAPIKey(apiKeyCred.apiKey)) {
+            printLog(logs.errorLogs.INVALID_API_KEY, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY_WITH_ID, [type, typeId, id]);
+        }
     }
-
 };
 
 export const validateVaultConfig = (vaultConfig: VaultConfig, logLevel: LogLevel = LogLevel.ERROR) => {
@@ -225,41 +256,73 @@ export const validateUpdateVaultConfig = (vaultConfig: VaultConfig, logLevel: Lo
 };
 
 export const validateSkyflowCredentials = (credentials: Credentials, logLevel: LogLevel = LogLevel.ERROR) => {
-    const { token, path, credentialsString, apiKey } = credentials;
-
-    // Count how many of the fields are defined
-    const definedFields = [token, path, credentialsString, apiKey].filter(Boolean).length;
-
-    // If none are present
-    if (definedFields === 0) {
+    if (!credentials) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.CREDENTIALS_WITH_NO_VALID_KEY);
     }
 
-    // If more than one is present
-    if (definedFields > 1) {
+    const isTokenCred = 'token' in credentials;
+    const isPathCred = 'path' in credentials;
+    const isStringCred = 'credentialsString' in credentials;
+    const isApiKeyCred = 'apiKey' in credentials;
+
+    // Check if exactly one credential type is provided
+    const definedTypes = [isTokenCred, isPathCred, isStringCred, isApiKeyCred].filter(Boolean).length;
+
+    if (definedTypes === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.CREDENTIALS_WITH_NO_VALID_KEY);
+    }
+
+    if (definedTypes > 1) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.MULTIPLE_CREDENTIALS_PASSED);
     }
 
-    if (credentials?.token && (typeof credentials?.token !== 'string' || isExpired(credentials?.token))) {
-        printLog(logs.errorLogs.EMPTY_TOKEN_VALUE, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BEARER_TOKEN);
+    // Validate TokenCredentials
+    if (isTokenCred) {
+        const tokenCred = credentials as TokenCredentials;
+        if (typeof tokenCred.token !== 'string' || isExpired(tokenCred.token)) {
+            printLog(logs.errorLogs.EMPTY_TOKEN_VALUE, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BEARER_TOKEN);
+        }
     }
 
-    if (credentials?.credentialsString && (typeof credentials?.credentialsString !== 'string' || !isValidCredentialsString(credentials?.credentialsString))) {
-        printLog(logs.errorLogs.EMPTY_CREDENTIALS_STRING, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+    // Validate PathCredentials
+    if (isPathCred) {
+        const pathCred = credentials as PathCredentials;
+        if (typeof pathCred.path !== 'string' || !isValidPath(pathCred.path)) {
+            printLog(logs.errorLogs.EMPTY_CREDENTIALS_PATH, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH);
+        }
+        if (pathCred.roles !== undefined && !Array.isArray(pathCred.roles)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE);
+        }
+        if (pathCred.context !== undefined && typeof pathCred.context !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
+        }
     }
 
-    if (credentials?.apiKey && (typeof credentials?.apiKey !== 'string' || !isValidAPIKey(credentials?.apiKey))) {
-        printLog(logs.errorLogs.INVALID_API_KEY, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY);
+    // Validate StringCredentials
+    if (isStringCred) {
+        const stringCred = credentials as StringCredentials;
+        if (typeof stringCred.credentialsString !== 'string' || !isValidCredentialsString(stringCred.credentialsString)) {
+            printLog(logs.errorLogs.EMPTY_CREDENTIALS_STRING, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+        }
+        if (stringCred.roles !== undefined && !Array.isArray(stringCred.roles)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE);
+        }
+        if (stringCred.context !== undefined && typeof stringCred.context !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
+        }
     }
 
-    if (credentials?.path && (typeof credentials?.path !== 'string' || !isValidPath(credentials?.path))) {
-        printLog(logs.errorLogs.EMPTY_CREDENTIALS_PATH, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH);
+    // Validate ApiKeyCredentials
+    if (isApiKeyCred) {
+        const apiKeyCred = credentials as ApiKeyCredentials;
+        if (typeof apiKeyCred.apiKey !== 'string' || !isValidAPIKey(apiKeyCred.apiKey)) {
+            printLog(logs.errorLogs.INVALID_API_KEY, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY);
+        }
     }
-
 };
 
 export const validateConnectionConfig = (connectionConfig: ConnectionConfig, logLevel: LogLevel = LogLevel.ERROR) => {
@@ -436,8 +499,8 @@ export const validateInsertOptions = (insertOptions?: InsertOptions) => {
 };
 
 const validateTokensMapWithTokenStrict = (
-    data: object,
-    tokens: object
+    data: Record<string, unknown>,
+    tokens: Record<string, unknown>
 ) => {
     const dataKeys = Object.keys(data);
 
@@ -1118,7 +1181,7 @@ export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyF
     }
 };
 
-function isStringKeyValueMap(obj: any): obj is StringKeyValueMapType {
+function isStringKeyValueMap(obj: unknown): obj is StringKeyValueMapType {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
         return false;
     }

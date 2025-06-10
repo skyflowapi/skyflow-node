@@ -61,6 +61,7 @@ const errorMessages = {
     MISSING_TOKEN_URI: `${errorPrefix} Validation error. Unable to read token URI in credentials. Verify your token URI.`,
 
     INVALID_ROLES_KEY_TYPE: `${errorPrefix} Validation error. Invalid roles. Specify roles as an array.`,
+    INVALID_CONTEXT: `${errorPrefix} Validation error. Invalid context. Specify context as a string.`,
     EMPTY_ROLES: `${errorPrefix} Validation error. Invalid roles. Specify at least one role.`,
 
     INVALID_JSON_FORMAT: `${errorPrefix} Validation error. Credentials is not in valid JSON format. Verify the credentials.`,
