@@ -1,4 +1,4 @@
-import { LogLevel, RedactionType } from "../../utils";
+import { LogLevel, RedactionType, SkyflowRecordError } from "../../utils";
 import ConnectionConfig from "../config/connection";
 import VaultConfig from "../config/vault"
 import Credentials from "../config/credentials";
@@ -27,15 +27,17 @@ export interface ClientObj {
     [vaultId: string]: ClientConfig;
 }
 
-export interface insertResponseType {
+export interface InsertResponseType {
     skyflowId: string;
-    [key: string]: string;
+    [key: string]: unknown;
 }
 
-export interface queryResponseType {
-    skyflowId: string;
-    tokenizedData: insertResponseType;
-    [key: string]: string | insertResponseType;
+export interface GetResponseData {
+    [key: string]: unknown;
+}
+
+export interface QueryResponseType {
+    [key: string]: unknown;
 }
 
 export interface StringKeyValueMapType {
@@ -60,7 +62,7 @@ export interface ErrorDetokenizeResponse {
 
 export interface ParsedDetokenizeResponse {
     success: SuccessDetokenizeResponse[];
-    errors: ErrorDetokenizeResponse[];
+    errors: SkyflowRecordError[];
 }
 
 export interface ErrorInsertBatchResponse {
@@ -70,8 +72,8 @@ export interface ErrorInsertBatchResponse {
 }
 
 export interface ParsedInsertBatchResponse {
-    success: insertResponseType[];
-    errors: ErrorInsertBatchResponse[];
+    success: InsertResponseType[];
+    errors: SkyflowRecordError[];
 }
 
 export interface DetokenizeData {
@@ -138,3 +140,67 @@ export type ServiceAccountResponseError = {
   message: string;
   [key: string]: any;
 };
+
+export interface RecordsResponse<T = Record<string, unknown>> {
+  records: T[];
+  requestId: string;
+}
+
+export interface DetectTextResponse<T = unknown> {
+  records: T;
+  requestId: string;
+}
+
+export interface DetectFileResponse<T = unknown> {
+  data: T;
+  requestId: string;
+}
+export interface SkyflowIdResponse {
+  skyflow_id: string;
+}
+  
+export interface TokensResponse extends SkyflowIdResponse {
+  tokens?: Record<string, unknown>;
+}
+export interface IndexRange {
+    start: number;
+    end: number;
+}
+
+export type DeidentifyFileOutputProcessedFileType =
+    | "entities"
+    | "plaintext_transcription"
+    | "redacted_audio"
+    | "redacted_diarized_transcription"
+    | "redacted_file"
+    | "redacted_image"
+    | "redacted_medical_diarized_transcription"
+    | "redacted_medical_transcription"
+    | "redacted_text"
+    | "redacted_transcription";
+
+export interface DeidentifyFileOutput {
+    processedFile?: string;
+    processedFileType?: DeidentifyFileOutputProcessedFileType;
+    processedFileExtension?: string;
+}
+
+export type DeidentifyStatusResponseOutputType = "BASE64" | "EFS_PATH" | "UNKNOWN";
+
+export type WordCharacterCount = {
+    wordCount?: number;
+    characterCount?: number;
+}
+
+export interface DeidentifyFileDetectRunResponse {
+    status: "FAILED" | "IN_PROGRESS" | "SUCCESS";
+    output: DeidentifyFileOutput[];
+    outputType: DeidentifyStatusResponseOutputType;
+    message: string;
+    wordCharacterCount?: WordCharacterCount;
+    size?: number;
+    duration?: number;
+    pages?: number;
+    slides?: number;
+    runId?: string;
+}

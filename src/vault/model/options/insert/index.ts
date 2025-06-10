@@ -5,7 +5,7 @@ class InsertOptions {
     // Fields
     private returnTokens?: boolean;
     private upsert?: string;
-    private tokens?: Array<object>;
+    private tokens?: Array<Record<string, unknown>>;
     private homogeneous?: boolean;
     private tokenMode?: TokenMode;
     private continueOnError?: boolean;
@@ -22,7 +22,7 @@ class InsertOptions {
         this.upsert = upsert;
     }
 
-    setTokens(tokens: Array<object>) {
+    setTokens(tokens: Array<Record<string, unknown>>) {
         this.tokens = tokens;
     }
 
@@ -47,7 +47,7 @@ class InsertOptions {
         return this.upsert;
     }
 
-    getTokens(): Array<object> | undefined {
+    getTokens(): Array<Record<string, unknown>> | undefined {
         return this.tokens;
     }
 

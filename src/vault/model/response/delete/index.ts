@@ -1,14 +1,16 @@
 //imports
 
+import { SkyflowRecordError } from "../../../../utils";
+
 class DeleteResponse {
 
     //fields
 
-    deletedIds?: Array<string>;
+    deletedIds: Array<string>;
 
-    errors?: Object;
+    errors: Array<SkyflowRecordError> | null;
 
-    constructor({ deletedIds, errors }: { deletedIds?: Array<string>, errors?: object }) {
+    constructor({ deletedIds, errors }: { deletedIds: Array<string>, errors: Array<SkyflowRecordError> | null}) {
         this.deletedIds = deletedIds;
         this.errors = errors;
     }

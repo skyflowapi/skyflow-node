@@ -9,6 +9,7 @@ import process from "process";
 import SKYFLOW_ERROR_CODE from "../error/codes";
 import { isExpired } from "./jwt-utils";
 import { isValidAPIKey } from "./validations";
+import { StringKeyValueMapType } from "../vault/types";
 
 dotenv.config();
 
@@ -216,6 +217,14 @@ export interface ISkyflowError {
     details?: Array<string> | null,
 }
 
+export interface SkyflowRecordError {
+    error: string,
+    requestId: string | null,
+    httpCode?: string | number | null,
+    requestIndex?: number | null,
+    token?: string | null,
+}
+
 export interface AuthInfo {
     key: string,
     type: AuthType
@@ -345,12 +354,12 @@ export function getBaseUrl(url: string): string {
 }
 
 export function fillUrlWithPathAndQueryParams(url: string,
-    pathParams?: object,
-    queryParams?: object) {
+    pathParams?: StringKeyValueMapType,
+    queryParams?: StringKeyValueMapType) {
     let filledUrl = url;
     if (pathParams) {
         Object.entries(pathParams).forEach(([key, value]) => {
-            filledUrl = url.replace(`{${key}}`, value);
+            filledUrl = url.replace(`{${key}}`, String(value));
         });
     }
     if (queryParams) {
@@ -402,13 +411,12 @@ export const printLog = (message: string, messageType: MessageType, logLevel: Lo
     }
 };
 
-export const parameterizedString = (...args: any[]) => {
-    const str = args[0];
-    const params = args.filter((arg, index) => index !== 0);
+export const parameterizedString = (message: string, ...args: Array<string | number | number[] | LogLevel | LogLevel[] | string[]>) => {
+    const str = message;
     if (!str) return '';
-    return str.replace(/%s[0-9]+/g, (matchedStr: any) => {
-        const variableIndex = matchedStr.replace('%s', '') - 1;
-        return params[variableIndex];
+    return str.replace(/%s[0-9]+/g, (matchedStr: string | number) => {
+        const variableIndex = parseInt((matchedStr as string).replace('%s', '')) - 1;
+        return args[variableIndex] as string;
     });
 };
 

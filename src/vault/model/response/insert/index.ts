@@ -1,14 +1,15 @@
 //imports
-import { insertResponseType } from "../../../types";
+import { SkyflowRecordError } from "../../../../utils";
+import { InsertResponseType } from "../../../types";
 
 class InsertResponse {
 
     //fields
-    insertedFields: Array<insertResponseType>;
+    insertedFields: Array<InsertResponseType> | null;
 
-    errors?: object;
+    errors: Array<SkyflowRecordError> | null;
 
-    constructor({ insertedFields, errors }: { insertedFields: Array<insertResponseType>, errors?: object }) {
+    constructor({ insertedFields, errors }: { insertedFields: Array<InsertResponseType> | null, errors: Array<SkyflowRecordError> | null }) {
         this.insertedFields = insertedFields;  
         this.errors = errors;
     }

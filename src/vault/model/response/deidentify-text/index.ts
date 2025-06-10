@@ -1,15 +1,17 @@
 //imports
 
+import { IndexRange } from "../../../types";
+
 class DeidentifyTextResponse {
     //fields
     processedText: string;
     entities: Array<{
         token: string;
         value: string;
-        textIndex: object;
-        processedIndex: object;
+        textIndex: IndexRange;
+        processedIndex: IndexRange;
         entity: string;
-        scores: object;
+        scores: Record<string, number>;
     }>;
     wordCount: number;
     charCount: number;
@@ -24,10 +26,10 @@ class DeidentifyTextResponse {
         entities: Array<{
             token: string;
             value: string;
-            textIndex: object;
-            processedIndex: object;
+            textIndex: IndexRange;
+            processedIndex: IndexRange;
             entity: string;
-            scores: object;
+            scores: Record<string, number>;
         }>;
         wordCount: number;
         charCount: number;

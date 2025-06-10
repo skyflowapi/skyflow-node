@@ -499,8 +499,8 @@ export const validateInsertOptions = (insertOptions?: InsertOptions) => {
 };
 
 const validateTokensMapWithTokenStrict = (
-    data: object,
-    tokens: object
+    data: Record<string, unknown>,
+    tokens: Record<string, unknown>
 ) => {
     const dataKeys = Object.keys(data);
 
@@ -1181,7 +1181,7 @@ export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyF
     }
 };
 
-function isStringKeyValueMap(obj: any): obj is StringKeyValueMapType {
+function isStringKeyValueMap(obj: unknown): obj is StringKeyValueMapType {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
         return false;
     }

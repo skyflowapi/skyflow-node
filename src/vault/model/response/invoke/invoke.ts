@@ -1,16 +1,17 @@
 //imports
 
-import { queryResponseType } from "../../../types";
+import { SkyflowRecordError } from "../../../../utils";
+import { QueryResponseType } from "../../../types";
 
 class InvokeConnectionResponse {
     //fields
     data?: Object;
 
-    metadata?: Object;
+    metadata?: Record<string, unknown>;
 
-    errors?: Object;
+    errors: Array<SkyflowRecordError> | null;
 
-    constructor({ data, metadata, errors }: { data?: object, metadata?: Object, errors?: object }) {
+    constructor({ data, metadata, errors }: { data?: object, metadata?: Record<string, unknown>, errors: Array<SkyflowRecordError> | null }) {
         this.data = data;
         this.metadata = metadata;
         this.errors = errors;

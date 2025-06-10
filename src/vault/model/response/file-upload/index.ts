@@ -1,13 +1,15 @@
 //imports
 
+import { SkyflowRecordError } from "../../../../utils";
+
 class FileUploadResponse {
 
     //fields
-    skyflowId?: string;
+    skyflowId: string;
 
-    errors?: Object;
+    errors: Array<SkyflowRecordError> | null;
 
-    constructor({ skyflowId, errors }: { skyflowId?: string, errors?: object }) {
+    constructor({ skyflowId, errors }: { skyflowId: string, errors: Array<SkyflowRecordError> | null }) {
         this.skyflowId = skyflowId;
         this.errors = errors;
     }
