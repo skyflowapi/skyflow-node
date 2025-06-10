@@ -6,12 +6,12 @@ class DeidentifyTextResponse {
     //fields
     processedText: string;
     entities: Array<{
-        token: string;
-        value: string;
-        textIndex: IndexRange;
-        processedIndex: IndexRange;
-        entity: string;
-        scores: Record<string, number>;
+        token?: string;
+        value?: string;
+        textIndex?: IndexRange;
+        processedIndex?: IndexRange;
+        entity?: string;
+        scores?: Record<string, number>;
     }>;
     wordCount: number;
     charCount: number;
@@ -24,12 +24,12 @@ class DeidentifyTextResponse {
     }: {
         processedText: string;
         entities: Array<{
-            token: string;
-            value: string;
-            textIndex: IndexRange;
-            processedIndex: IndexRange;
-            entity: string;
-            scores: Record<string, number>;
+            token?: string;
+            value?: string;
+            textIndex?: IndexRange;
+            processedIndex?: IndexRange;
+            entity?: string;
+            scores?: Record<string, number>;
         }>;
         wordCount: number;
         charCount: number;

@@ -43,7 +43,7 @@ class VaultController {
         return { [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
     }
 
-    private handleRecordsResponse(records: Record<string, unknown>[]): Record<string, unknown>[] {
+    private handleRecordsResponse(records?: Record<string, unknown>[]): Record<string, unknown>[] {
         if (records && Array.isArray(records) && records.length > 0) {
             return records;
         }
@@ -156,7 +156,7 @@ class VaultController {
                             case TYPES.QUERY:
                             case TYPES.DETOKENIZE:
                             case TYPES.TOKENIZE:
-                                resolve({records: this.handleRecordsResponse(data.records), requestId} as T);
+                                resolve({records: this.handleRecordsResponse(data?.records), requestId} as T);
                                 break;
                             case TYPES.INSERT_BATCH:
                                 resolve({records: this.handleInsertBatchResponse(data?.responses), requestId} as T)
@@ -166,7 +166,7 @@ class VaultController {
                                 resolve(data)
                                 break;
                             case TYPES.DELETE:
-                                resolve(new DeleteResponse({ deletedIds: data.RecordIDResponse, errors: null }) as T);
+                                resolve(new DeleteResponse({ deletedIds: data?.RecordIDResponse, errors: null }) as T);
                                 break;
                         }
                     }).catch((error: any) => {

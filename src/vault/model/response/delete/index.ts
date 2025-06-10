@@ -6,7 +6,7 @@ class DeleteResponse {
 
     //fields
 
-    deletedIds: Array<string>;
+    deletedIds?: Array<string>;
 
     errors: Array<SkyflowRecordError> | null;
 

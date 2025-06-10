@@ -391,7 +391,7 @@ class DetectController {
 
                                 const maxWaitTime = this.waitTime;
 
-                                this.pollForProcessedFile(data.run_id, req, maxWaitTime, resolve, reject); // Call the extracted polling function
+                                this.pollForProcessedFile(data?.run_id, req, maxWaitTime, resolve, reject); // Call the extracted polling function
                                 break; 
                             case TYPES.DETECT_RUN:
                                 resolve({data, requestId} as T)
@@ -426,19 +426,19 @@ class DetectController {
     private parseDeidentifyTextResponse(records: DeidentifyStringResponse) {
         return {
             processedText: records.processed_text,
-            entities: records.entities.map((entity: DetectedEntity) => ({
-                token: entity.token!,
-                value: entity.value!,
+            entities: records?.entities.map((entity: DetectedEntity) => ({
+                token: entity?.token,
+                value: entity?.value,
                 textIndex: {
-                    start: entity.location?.start_index!,
-                    end: entity.location?.end_index!,
+                    start: entity?.location?.start_index,
+                    end: entity?.location?.end_index,
                 },
                 processedIndex: {
-                    start: entity.location?.start_index_processed!,
-                    end: entity.location?.end_index_processed!,
+                    start: entity?.location?.start_index_processed,
+                    end: entity?.location?.end_index_processed,
                 },
-                entity: entity.entity_type!,
-                scores: entity.entity_scores!,
+                entity: entity?.entity_type,
+                scores: entity?.entity_scores,
             })),
             wordCount: records.word_count,
             charCount: records.character_count,
