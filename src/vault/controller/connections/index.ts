@@ -80,7 +80,8 @@ class ConnectionController {
                             const requestId = headers?.get(REQUEST_ID_KEY) || '';
                             const invokeConnectionResponse = new InvokeConnectionResponse({
                                 data: body,
-                                metadata: { requestId }
+                                metadata: { requestId },
+                                errors: null
                             });
                             resolve(invokeConnectionResponse);
                         }).catch((err) => {

@@ -57,7 +57,7 @@ class DeidentifyFileOptions {
         this._tokenFormat = tokenFormat;
     }
 
-    getTransformations(): object | undefined{
+    getTransformations(): Transformations | undefined{
         return this._transformations;
     }
 

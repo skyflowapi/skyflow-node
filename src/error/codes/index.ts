@@ -61,6 +61,7 @@ const SKYFLOW_ERROR_CODE = {
     MISSING_PRIVATE_KEY: { http_code: 400, message: errorMessages.MISSING_PRIVATE_KEY },
 
     INVALID_ROLES_KEY_TYPE: { http_code: 400, message: errorMessages.INVALID_ROLES_KEY_TYPE },
+    INVALID_CONTEXT: { http_code: 400, message: errorMessages.INVALID_CONTEXT },
     EMPTY_ROLES: { http_code: 400, message: errorMessages.EMPTY_ROLES },
 
     INVALID_JSON_FORMAT: { http_code: 400, message: errorMessages.INVALID_JSON_FORMAT },
