@@ -1,12 +1,13 @@
 import * as fs from 'fs';
 import jwt from "jsonwebtoken";
-import { V1GetAuthTokenRequest } from '../ _generated_/rest/api';
+import { V1GetAuthTokenRequest, V1GetAuthTokenResponse } from '../ _generated_/rest/api';
 import { getBaseUrl, LogLevel, MessageType, parameterizedString, printLog } from '../utils';
 import Client from './client';
 import logs from '../utils/logs';
 import SkyflowError from '../error';
 import SKYFLOW_ERROR_CODE from '../error/codes';
 import { ServiceAccountResponseError } from '../vault/types';
+import { WithRawResponse } from '../ _generated_/rest/core';
 
 export type BearerTokenOptions = {
     ctx?: string,
@@ -145,7 +146,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 client.authApi.authenticationServiceGetAuthToken(
                     req,
                     { headers: { "Content-Type": "application/json", } }
-                ).withRawResponse().then((res: any) => {
+                ).withRawResponse().then((res: WithRawResponse<V1GetAuthTokenResponse>) => {
                     successResponse(res.data, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
                 })
                     .catch((err) => {
@@ -323,12 +324,12 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
     })
 }
 
-function successResponse(res: any, logLevel?: LogLevel): Promise<TokenResponse> {
+function successResponse(res: V1GetAuthTokenResponse, logLevel?: LogLevel): Promise<TokenResponse> {
     printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_SUCCESS, MessageType.LOG, logLevel);
     return new Promise((resolve, _) => {
         resolve({
-            accessToken: res.accessToken,
-            tokenType: res.tokenType,
+            accessToken: res.accessToken ?? '',
+            tokenType: res.tokenType ?? '',
         });
     })
 }
