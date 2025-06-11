@@ -186,6 +186,7 @@ class VaultClient {
             this.handleGenericError(err as SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy, requestId, reject, errorFromClient);
         }
     });
+    
 
 
     private isSkyflowApiErrorNewFormat(err: SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy): err is SkyflowApiErrorNewFormat {
