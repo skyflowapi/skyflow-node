@@ -8,7 +8,9 @@ import {
     VaultConfig, 
     SkyflowConfig,
     SkyflowError, 
-    InsertResponse
+    InsertResponse,
+    ApiKeyCredentials,
+    SkyflowRecordError
 } from 'skyflow-node';
 
 /**
@@ -23,10 +25,13 @@ import {
 async function performSecureDataInsertion() {
     try {
         // Step 1: Configure Credentials
-        const credentials: Credentials = {
+        const apiCredentials: ApiKeyCredentials = {
             // Using API Key authentication
             apiKey: 'your-skyflow-api-key',
         };
+
+        const credentials: Credentials = apiCredentials;
+
 
         // Step 2: Configure Vault 
         const primaryVaultConfig: VaultConfig = {
@@ -46,7 +51,7 @@ async function performSecureDataInsertion() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Insertion Data
-        const insertData: Array<object> = [
+        const insertData: Record<string, unknown>[] = [
             { card_number: "41111111111111111", cvv: "111" }, // Example sensitive data
             { card_numbe: "41111111111111111", cvv: "132" },  // Example incorrect data
           ];
@@ -69,6 +74,7 @@ async function performSecureDataInsertion() {
         
 
         if (
+            response.insertedFields &&
             response.insertedFields.length === 0 &&
             Array.isArray(response.errors) &&
             response.errors.length > 0
@@ -76,16 +82,25 @@ async function performSecureDataInsertion() {
             //handle insert response failure
             console.error("Insert failed: ", response.errors);
         } else if (
+            response.insertedFields &&
             response.insertedFields.length > 0 &&
             Array.isArray(response.errors) &&
             response.errors.length > 0
         ) {
             // handle partial response
             console.log("Inserted Fields: ", response.insertedFields);
-            console.warn("Partially Errors: ", response.errors);
+            console.warn("Partial Errors: ", response.errors);
         } else {
             // handle successful response
             console.log("Insert successful: ", response.insertedFields);
+        }
+
+        if(response.errors!=null) {
+            for (let i=0; i < response.errors.length; i++) {
+                let error: SkyflowRecordError = response.errors[i];
+                console.log('Skyflow Record Error:', error);
+                // Handle error
+            }
         }
 
     } catch (error) {

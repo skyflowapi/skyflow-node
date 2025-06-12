@@ -15,6 +15,7 @@ import {
   Transformations,
   Bleep,
   VaultConfig,
+  DeidentifyFileResponse,
 } from 'skyflow-node'; 
 import fs from 'fs';
 
@@ -92,7 +93,7 @@ async function performDeidentifyFile() {
     // --- Image Options (apply when file is an image) ---
     // options.setOutputProcessedImage(true); // Include processed image in output
     // options.setOutputOcrText(true);        // Include OCR text in response
-    // options.setMaskingMethod(MaskingMethod.Blackout); // Masking method for image entities
+    // options.setMaskingMethod(MaskingMethod.Blackbox); // Masking method for image entities
 
     // --- PDF Options (apply when file is a PDF) ---
     // options.setPixelDensity(1.5); // Pixel density for PDF processing
@@ -112,7 +113,7 @@ async function performDeidentifyFile() {
 
 
     // Step 6: Call deidentifyFile API
-    const response = await skyflowClient
+    const response: DeidentifyFileResponse = await skyflowClient
       .detect(primaryVaultConfig.vaultId)
       .deidentifyFile(deidentifyFile, options);
 

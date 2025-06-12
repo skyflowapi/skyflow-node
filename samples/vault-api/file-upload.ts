@@ -49,10 +49,10 @@ async function performFileUpload() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare File Upload Data
-        const tableName = 'table-name';      // Table name
-        const skyflowId = 'skyflow-id';      // Skyflow ID of the record
-        const columnName = 'column-name';    // Column name to store file
-        const filePath = 'file-path';        // Path to the file for upload
+        const tableName: string = 'table-name';      // Table name
+        const skyflowId: string = 'skyflow-id';      // Skyflow ID of the record
+        const columnName: string = 'column-name';    // Column name to store file
+        const filePath: string = 'file-path';        // Path to the file for upload
 
         // Step 5: Create File Upload Request
         const uploadReq: FileUploadRequest = new FileUploadRequest(

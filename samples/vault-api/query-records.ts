@@ -45,7 +45,7 @@ async function executeQuery() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Query
-        const query = 'select * from table_name limit 1'; // Example query
+        const query: string = 'select * from table_name limit 1'; // Example query
         const queryRequest: QueryRequest = new QueryRequest(query);
 
         // Step 5: Execute Query

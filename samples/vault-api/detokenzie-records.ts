@@ -10,7 +10,8 @@ import {
     SkyflowError, 
     VaultConfig, 
     SkyflowConfig, 
-    DetokenizeData
+    DetokenizeData,
+    SkyflowRecordError
 } from 'skyflow-node';
 
 /**
@@ -75,6 +76,11 @@ async function performDetokenization() {
 
         // Handle Successful Response
         console.log('Detokenization successful:', response);
+        if (response.errors != null) {
+            (response.errors).forEach((error: SkyflowRecordError) => {
+                console.log('Handle Error:', error.requestIndex, error.token);
+            });
+        }
     } catch (error) {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {

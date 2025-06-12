@@ -8,7 +8,8 @@ import {
   ReidentifyTextRequest,
   ReidentifyTextOptions,
   DetectEntities,
-  SkyflowError
+  SkyflowError,
+  ReidentifyTextResponse
 } from 'skyflow-node';
 
 /**
@@ -60,7 +61,7 @@ async function performReidentifyText() {
     options.setPlainTextEntities([DetectEntities.PHONE_NUMBER]);
 
     // Step 6: Call reidentifyText
-    const response = await skyflowClient
+    const response: ReidentifyTextResponse = await skyflowClient
         .detect(primaryVaultConfig.vaultId)
         .reidentifyText(reidentifyRequest, options);
 

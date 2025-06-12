@@ -6,7 +6,7 @@ import {
   generateSignedDataTokensFromCreds,
 } from 'skyflow-node';
 
-let filepath = 'CREDENTIALS_FILE_PATH';
+let filepath: string = 'CREDENTIALS_FILE_PATH';
 
 // To generate Bearer Token from credentials string.
 let cred = {

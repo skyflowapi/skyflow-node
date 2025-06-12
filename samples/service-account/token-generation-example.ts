@@ -7,8 +7,8 @@ import {
   isExpired,
 } from 'skyflow-node';
 
-const filepath = 'CREDENTIALS_FILE_PATH';
-let bearerToken = '';
+const filepath: string = 'CREDENTIALS_FILE_PATH';
+let bearerToken: string = '';
 
 // To generate Bearer Token from credentials string.
 const cred = {

@@ -74,11 +74,11 @@ async function transferDataBetweenVaults() {
         // Step 6: Handle Get Response and Insert Data into Secondary Vault
         const getResponseData: GetResponse = getResponse as GetResponse;
 
-        const insertData: Array<Object> = getResponseData.data!;
+        const insertData: Array<Record<string, unknown>> = getResponseData.data!;
 
         // Remove skyflow_id from the data (if needed for re-insertion)
-        const sanitizedData = insertData.map(item => {
-            const { skyflow_id, ...rest } = item as any;  // Exclude the skyflow_id field
+        const sanitizedData = insertData.map((item: Record<string, unknown>) => {
+            const { skyflow_id, ...rest } = item;  // Exclude the skyflow_id field
             return rest;
         });
 

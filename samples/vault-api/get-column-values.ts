@@ -8,7 +8,8 @@ import {
     SkyflowConfig, 
     VaultConfig, 
     SkyflowError, 
-    GetResponse
+    GetResponse,
+    GetResponseData
 } from 'skyflow-node';
 
 /**
@@ -70,6 +71,12 @@ async function performSecureColumnRetrieval() {
 
         // Handle Successful Response
         console.log('Column-based retrieval successful:', response);
+        if (response.data != null) {
+          response.data.forEach((record: GetResponseData) => {
+            console.log("Get data:", record);
+            // Handle record data
+          });
+        }
 
     } catch (error) {
         // Comprehensive Error Handling

@@ -11,7 +11,8 @@ import {
     TokenFormat,
     TokenType,
     Transformations,
-    DetectEntities
+    DetectEntities,
+    DeidentifyTextResponse
 } from 'skyflow-node';
 
 /**
@@ -55,10 +56,10 @@ async function performDeidentifyText() {
         );
 
         // Step 5: Configure DeidentifyTextOptions
-        const optionsText = new DeidentifyTextOptions();
+        const options = new DeidentifyTextOptions();
 
         // setEntities: Specify which entities to deidentify
-        optionsText.setEntities([DetectEntities.CREDIT_CARD, DetectEntities.SSN]);
+        options.setEntities([DetectEntities.CREDIT_CARD, DetectEntities.SSN]);
 
         // setAllowRegexList: Allowlist regex patterns (entities matching these will not be deidentified)
         // optionsText.setAllowRegexList(['<YOUR_REGEX_PATTERN>']);
@@ -69,7 +70,7 @@ async function performDeidentifyText() {
         // setTokenFormat: Specify the token format for deidentified entities
         const tokenFormat = new TokenFormat();
         tokenFormat.setDefault(TokenType.VAULT_TOKEN);
-        optionsText.setTokenFormat(tokenFormat);
+        options.setTokenFormat(tokenFormat);
 
         // setTransformations: Specify custom transformations for entities
         const transformations = new Transformations();
@@ -78,12 +79,12 @@ async function performDeidentifyText() {
             min: 30, // Minimum shift days
             entities: [DetectEntities.DOB], // Entities to apply the shift
         });
-        optionsText.setTransformations(transformations);
+        options.setTransformations(transformations);
 
         // Step 6: Call deidentifyText API
-        const response = await skyflowClient
+        const response: DeidentifyTextResponse = await skyflowClient
             .detect(primaryVaultConfig.vaultId)
-            .deidentifyText(deidentifyTextRequest, optionsText);
+            .deidentifyText(deidentifyTextRequest, options);
 
         // Handle Successful Response
         console.log('Deidentify Text Response:', response);
