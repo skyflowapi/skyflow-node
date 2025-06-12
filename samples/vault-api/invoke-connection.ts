@@ -55,12 +55,12 @@ async function invokeSkyflowConnection() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 5: Prepare Connection Request
-        const requestBody = {
+        const requestBody: Record<string, string> = {
             key1: 'value1',  // Replace with actual key-value pairs
             key2: 'value2'
         };
 
-        const requestHeaders = {
+        const requestHeaders: Record<string, string> = {
             'content-type': 'application/json'
         };
 

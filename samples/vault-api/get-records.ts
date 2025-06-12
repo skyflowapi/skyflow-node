@@ -8,7 +8,8 @@ import {
     VaultConfig, 
     SkyflowConfig, 
     SkyflowError, 
-    GetResponse
+    GetResponse,
+    GetResponseData
 } from 'skyflow-node';
 
 /**
@@ -67,6 +68,13 @@ async function performSecureDataRetrieval() {
 
         // Handle Successful Response
         console.log('Data retrieval successful:', response);
+        if(response.data!=null) {
+            for(let i=0; i<response.data.length; i++) {
+                const record: GetResponseData = response.data[i];
+                console.log('Get data: ',record);
+                // Handle record data
+            }
+        }
 
     } catch (error) {
         // Comprehensive Error Handling

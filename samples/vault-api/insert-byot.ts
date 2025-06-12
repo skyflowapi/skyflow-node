@@ -9,7 +9,8 @@ import {
     VaultConfig, 
     SkyflowConfig, 
     InsertResponse, 
-    SkyflowError 
+    SkyflowError, 
+    TokenCredentials
 } from 'skyflow-node';
 
 /**
@@ -24,9 +25,11 @@ import {
 async function performSecureDataInsertionWithBYOT() {
     try {
         // Step 1: Configure Credentials
-        const credentials: Credentials = {
+        const tokenCredentials: TokenCredentials = {
             token: 'bearer', // Bearer token authentication
         };
+
+        const credentials: Credentials = tokenCredentials;
 
         // Step 2: Configure Vault
         const primaryVaultConfig: VaultConfig = {
@@ -46,7 +49,7 @@ async function performSecureDataInsertionWithBYOT() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Insertion Data
-        const insertData: Array<object> = [
+        const insertData: Record<string, unknown>[] = [
             { card_number: 'skyflow_id1', card_cvv: 'skyflow_id2' },
         ];
 
@@ -54,7 +57,7 @@ async function performSecureDataInsertionWithBYOT() {
         const insertReq: InsertRequest = new InsertRequest(tableName, insertData);
 
         // Step 5: BYOT Configuration
-        const tokens: Array<object> = [
+        const tokens: Record<string, unknown>[] = [
             { card_number: 'token1', card_cvv: 'token2' },
         ];
 

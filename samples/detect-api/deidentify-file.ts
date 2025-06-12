@@ -15,6 +15,7 @@ import {
   Transformations,
   Bleep,
   VaultConfig,
+  DeidentifyFileResponse,
 } from 'skyflow-node'; 
 import fs from 'fs';
 
@@ -112,7 +113,7 @@ async function performDeidentifyFile() {
 
 
     // Step 6: Call deidentifyFile API
-    const response = await skyflowClient
+    const response: DeidentifyFileResponse = await skyflowClient
       .detect(primaryVaultConfig.vaultId)
       .deidentifyFile(deidentifyFile, options);
 

@@ -22,7 +22,7 @@ import {
 async function performSecureDataDeletion() {
     try {
         // Step 1: Configure Skyflow client Credentials
-        const cred: object = {
+        const cred:  Record<string, string> = {
             clientID: '<your-client-id>',       // Client identifier
             clientName: '<your-client-name>',   // Client name
             keyID: '<your-key-id>',             // Key identifier

@@ -8,7 +8,9 @@ import {
     VaultConfig, 
     SkyflowConfig,
     SkyflowError, 
-    InsertResponse
+    InsertResponse,
+    ApiKeyCredentials,
+    InsertResponseType
 } from 'skyflow-node';
 
 /**
@@ -23,10 +25,12 @@ import {
 async function performSecureDataInsertion() {
     try {
         // Step 1: Configure Credentials
-        const credentials: Credentials = {
+        const apiKey: ApiKeyCredentials = {
             // Using API Key authentication
             apiKey: 'your-skyflow-api-key',
         };
+
+        const credentials: Credentials = apiKey;
 
         // Step 2: Configure Vault 
         const primaryVaultConfig: VaultConfig = {
@@ -46,7 +50,7 @@ async function performSecureDataInsertion() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Insertion Data
-        const insertData: Array<object> = [
+        const insertData: Record<string, unknown>[] = [
             { card_number: '4111111111111112' }  // Example sensitive data
         ];
 
@@ -67,7 +71,13 @@ async function performSecureDataInsertion() {
             .insert(insertReq, insertOptions);
         
         // Handle Successful Response
-        console.log('Insertion successful:', response);
+        if(response.insertedFields!=null) {
+            for(let i = 0; i < response.insertedFields.length; i++) {
+                const field: InsertResponseType = response.insertedFields[i];
+                console.log('Inserted Field: ',field);
+                // Handle filed
+            }
+        }
 
     } catch (error) {
         // Comprehensive Error Handling
