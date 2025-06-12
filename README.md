@@ -245,7 +245,7 @@ const result = skyflow.insert({
 #### V2 (New) - Request Building
 ```typescript
 // Prepare Insertion Data
-const insertData: Array<object> = [
+const insertData: Record<string, unknown>[] = [
   { card_number: '4111111111111112' } // Example sensitive data
 ];
 
@@ -291,7 +291,7 @@ InsertResponse(
            "<FIELD_NAME4>": "<TOKEN4>"
        }
    ],
-   errors: null // optional
+   errors: null
 );
 ```
 
@@ -508,7 +508,7 @@ import {
 
 try{
   // Step 1: Initialize data to be inserted into the Skyflow vault
-  const insertData: Array<object> = [
+  const insertData: Record<string, unknown>[] = [
       { 
         card_number: '4111111111111112',  // Replace with actual card number (sensitive data)
         cardholder_name: 'John Doe',  // Replace with actual cardholder name (sensitive data)
@@ -557,7 +557,7 @@ InsertResponse {
     card_number: '5484-7829-1702-9110',
     cardholder_name: 'b2308e2a-c1f5-469b-97b7-1f193159399b'
   }, 
-  errors: []
+  errors: null
 }
 ```
 
@@ -586,7 +586,7 @@ import {
 try {
   // Initialize Skyflow client
   // Step 1: Prepare the data to be inserted into the Skyflow vault
-  const insertData: Array<object> = [
+  const insertData: Record<string, unknown>[] = [
     {
         <FIELD_NAME_1>: '<VALUE_1>',  // Replace with actual fielname and value
         <FIELD_NAME_2>: '<VALUE_2>',  // Replace with actual fielname and value
@@ -649,7 +649,7 @@ This example demonstrates how to insert sensitive data (e.g., card information) 
 try {
   // Initialize Skyflow client
   // Step 1: Initialize a list to hold the data records to be inserted into the vault
-  const insertData: Array<object> = [
+  const insertData: Record<string, unknown>[] = [
       // Step 2: Create the first record with card number and cardholder name
       { 
         card_number: '4111111111111111',  // Replace with actual card number (sensitive data)
@@ -702,15 +702,15 @@ InsertResponse {
   [
     {
         card_number: '5484-7829-1702-9110',
-        request_index: 0,
+        requestIndex: 0,
         skyflowId: '9fac9201-7b8a-4446-93f8-5244e1213bd1',
         cardholder_name: 'b2308e2a-c1f5-469b-97b7-1f193159399'
     }
   ],
   errors: [
       {
-        request_index: 1,
-        error: 'Insert failed. Column card_numbe is invaliSpecify a valid column.'
+        requestIndex: 1,
+        error: 'Insert failed. Column card_numbe is invalid. Specify a valid column.'
       }
     ]
   }
@@ -741,7 +741,7 @@ This example demonstrates how to insert sensitive data (e.g., card information) 
 try {
   // Initialize Skyflow client
   // Step 1: Initialize a list to hold the data records for the insert/upsert operation
-  const insertData: Array<object> = [
+  const insertData: Record<string, unknown>[] = [
     // Step 2: Create a record with the field 'cardholder_name' to insert or upsert
     {
       cardholder_name: 'John Doe', // Replace with actual cardholder name
@@ -790,7 +790,7 @@ InsertResponse {
       cardholder_name: "73ce45ce-20fd-490e-9310-c1d4f603ee83"
     }
   ],
-  errors: []
+  errors: null
 }
 ```
 
@@ -804,7 +804,7 @@ import {
     DetokenizeOptions, 
     DetokenizeRequest, 
     DetokenizeResponse, 
-    RedactionType, 
+    DetokenizeData, 
     SkyflowError, 
 } from 'skyflow-node';
 
@@ -814,23 +814,28 @@ This example demonstrates how to detokenize sensitive data from tokens stored in
 
 try {
   // Step 1: Prepare Detokenization Data
-  const detokenizeData: Array<string> = ['token1', 'token2', 'token3']; // Tokens to be detokenized
+  const detokenizeData: DetokenizeData[] = [
+    {
+      token: "token1",                          // Token to be detokenized
+      redactionType: RedactionType.PLAIN_TEXT,  // Redaction type
+    },
+    {
+      token: "token2",                          // Token to be detokenized 
+      redactionType: RedactionType.PLAIN_TEXT,  // Redaction type
+    },
+  ];  
 
-  // Step 2: Set the redaction type
-  const redactionType: RedactionType = RedactionType.REDACTED;   
-
-  // Step 3: Create the DetokenizeRequest object with the tokens and redaction type
+  // Step 2: Create the DetokenizeRequest object with the tokens data
   const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(
-      detokenizeData,
-      redactionType
+      detokenizeData
   );
 
-  // Step 4: Configure Detokenize Options
+  // Step 3: Configure Detokenize Options
   const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
   detokenizeOptions.setContinueOnError(true); // Continue processing on errors
   detokenizeOptions.setDownloadURL(false);   // Disable download URL generation
 
-  // Step 5: Perform Detokenization
+  // Step 4: Perform Detokenization
   const response: DetokenizeResponse = await skyflowClient
       .vault(primaryVaultConfig.vaultId)
       .detokenize(detokenizeRequest, detokenizeOptions);
@@ -863,7 +868,7 @@ import {
     DetokenizeOptions, 
     DetokenizeRequest, 
     DetokenizeResponse, 
-    RedactionType, 
+    DetokenizeData,
     SkyflowError, 
 } from 'skyflow-node';
 
@@ -877,22 +882,27 @@ import {
 
 try {
   // Step 1: Prepare Detokenization Data
-  const detokenizeData: Array<string> = ['9738-1683-0486-1480', '6184-6357-8409-6668', '4914-9088-2814-3840']; // Replace with your actual token values
+  const detokenizeData: DetokenizeData[] = [
+    {
+      token: "9738-1683-0486-1480",             // Replace with your actual token value
+      redactionType: RedactionType.PLAIN_TEXT,      // Redaction type
+    },
+    {
+      token: "6184-6357-8409-6668",             // Replace with your actual token value
+      redactionType: RedactionType.PLAIN_TEXT,  // Redaction type
+    },
+  ];  
 
-  // Step 2: Set the redaction type
-  const redactionType: RedactionType = RedactionType.PLAIN_TEXT;   
-
-  // Step 3: Create the DetokenizeRequest object with the tokens and redaction type
+  // Step 2: Create the DetokenizeRequest object with the tokens data
   const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(
-      detokenizeData,
-      redactionType
+      detokenizeData
   );
 
-  // Step 4: Configure Detokenize Options
+  // Step 3: Configure Detokenize Options
   const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
   detokenizeOptions.setContinueOnError(false); // Stop the process if any token cannot be detokenized
 
-  // Step 5: Perform Detokenization
+  // Step 4: Perform Detokenization
   const response: DetokenizeResponse = await skyflowClient
       .vault(primaryVaultConfig.vaultId)
       .detokenize(detokenizeRequest, detokenizeOptions);
@@ -920,9 +930,8 @@ DetokenizeResponse {
   detokenizedFields: [
     {token: '9738-1683-0486-1480', value: '4111111111111115', type: 'STRING'},
     {token: '6184-6357-8409-6668', value: '4111111111111119', type: 'STRING'},
-    {token: '4914-9088-2814-3840', value: '4111111111111118', type: 'STRING'}
   ],
-  errors: []
+  errors: null
 }
 ```
 
@@ -933,7 +942,7 @@ import {
     DetokenizeOptions, 
     DetokenizeRequest, 
     DetokenizeResponse, 
-    RedactionType, 
+    DetokenizeData, 
     SkyflowError, 
 } from 'skyflow-node';
 
@@ -947,18 +956,28 @@ import {
 
 try {
   // Step 1: Prepare Detokenization Data
-  const detokenizeData: Array<string> = ['9738-1683-0486-1480', '6184-6357-8409-6668', '4914-9088-2814-3840']; // Replace with your actual token values
+  const detokenizeData: DetokenizeData[] = [
+    {
+      token: "9738-1683-0486-1480",             // Replace with your actual token value
+      redactionType: RedactionType.PLAIN_TEXT,      // Redaction type
+    },
+    {
+      token: "6184-6357-8409-6668",             // Replace with your actual token value
+      redactionType: RedactionType.PLAIN_TEXT,  // Redaction type
+    },
+    {
+      token: "4914-9088-2814-3840",             // Replace with your actual token value
+      redactionType: RedactionType.PLAIN_TEXT,      // Redaction type
+    },
+  ];   
 
-  // Step 2: Set the redaction type
-  const redactionType: RedactionType = RedactionType.PLAIN_TEXT;   
-
-  // Step 3: Create the DetokenizeRequest object with the tokens and redaction type
+  // Step 2: Create the DetokenizeRequest object with the tokens and redaction type
   const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(
       detokenizeData,
       redactionType
   );
 
-  // Step 4: Configure Detokenize Options
+  // Step 3: Configure Detokenize Options
   const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
   detokenizeOptions.setContinueOnError(true); // Continue even if some tokens cannot be detokenized
 
@@ -1013,6 +1032,7 @@ import {
     TokenizeRequest, 
     TokenizeResponse,  
     SkyflowError, 
+    TokenizeRequestType
 } from 'skyflow-node';
 
 try {
@@ -1055,6 +1075,7 @@ import {
     TokenizeRequest, 
     TokenizeResponse,  
     SkyflowError, 
+    TokenizeRequestType
 } from 'skyflow-node';
 
 /*
@@ -1102,11 +1123,12 @@ Sample response:
 
 ```typescript
 TokenizeResponse {
-  tokenizedFields: [
+  tokens: [
     {
       token: '5479-4229-4622-1393'
     }
-  ]
+  ],
+  errors: null
 }
 ```
 
@@ -1272,16 +1294,16 @@ GetResponse {
       card_number: '4555555555555553',
       email: 'john.doe@gmail.com',
       name: 'john doe',
-      skyflowId: 'a581d205-1969-4350-acbe-a2a13eb871a6'
+      skyflow_id: 'a581d205-1969-4350-acbe-a2a13eb871a6'
     },
     {
       card_number: '4555555555555559',
       email: 'jane.doe@gmail.com',
       name: 'jane doe',
-      skyflowId: '5ff887c3-b334-4294-9acc-70e78ae5164a'
+      skyflow_id: '5ff887c3-b334-4294-9acc-70e78ae5164a'
     }
   ],
-  errors: []
+  errors: null
 }
 ```
 
@@ -1352,16 +1374,16 @@ GetResponse {
       card_number: '3998-2139-0328-0697',
       email: 'c9a6c9555060@82c092e7.bd52',
       name: '82c092e7-74c0-4e60-bd52-c9a6c9555060',
-      skyflowId: 'a581d205-1969-4350-acbe-a2a13eb871a6'
+      skyflow_id: 'a581d205-1969-4350-acbe-a2a13eb871a6'
     },
     {
       card_number: '3562-0140-8820-7499',
       email: '6174366e2bc6@59f82e89.93fc',
       name: '59f82e89-138e-4f9b-93fc-6174366e2bc6',
-      skyflowId: '5ff887c3-b334-4294-9acc-70e78ae5164a'
+      skyflow_id: '5ff887c3-b334-4294-9acc-70e78ae5164a'
     }
   ],
-  errors: []
+  errors: null
 }
 ```
 
@@ -1438,16 +1460,16 @@ GetResponse {
       card_number: '4555555555555553',
       email: 'john.doe@gmail.com',
       name: 'john doe',
-      skyflowId: 'a581d205-1969-4350-acbe-a2a13eb871a6'
+      skyflow_id: 'a581d205-1969-4350-acbe-a2a13eb871a6'
     },
     {
       card_number: '4555555555555559',
       email: 'jane.doe@gmail.com',
       name: 'jane doe',
-      skyflowId: '5ff887c3-b334-4294-9acc-70e78ae5164a'
+      skyflow_id: '5ff887c3-b334-4294-9acc-70e78ae5164a'
     }
   ],
-  errors: []
+  errors: null
 }
 ```
 
@@ -1487,14 +1509,14 @@ try {
   // Initialize Skyflow client
   // Step 1: Prepare the data to update in the vault
   // Use a dictionary to store the data that will be updated in the specified table
-  const updateData: object = {
+  const updateData: Record<string, unknown> = {
       skyflowId: 'your-skyflow-id',   // Skyflow ID for identifying the record to update
       COLUMN_NAME1: '<COLUMN_VALUE_1>'    //Example of a column name and its value to update
       COLUMN_NAME2: '<COLUMN_VALUE_2>'// Another example of a column name and its value to update
   };
 
   // Step 2: Prepare the tokens (if necessary) for certain columns that require tokenization
-  const tokens: object = {
+  const tokens: Record<string, unknown> = {
     COLUMN_NAME_2: '<TOKEN_VALUE_2>'    // Example of a column name that should be tokenized
   }
 
@@ -1555,14 +1577,14 @@ try {
   // Initialize Skyflow client
   // Step 1: Prepare the data to update in the vault
   // Use a dictionary to store the data that will be updated in the specified table
-  const updateData: object = {
+  const updateData: Record<string, unknown> = {
       skyflowId: '5b699e2c-4301-4f9f-bcff-0a8fd3057413',   // Skyflow ID for identifying the record to update
       name: 'john doe'    //Example of a column name and its value to update
       card_number: '4111111111111115'// Another example of a column name and its value to update
   };
 
   // Step 2: Prepare the tokens (if necessary) for certain columns that require tokenization
-  const tokens: object = {
+  const tokens: Record<string, unknown> = {
     name: '72b8ffe3-c8d3-4b4f-8052-38b2a7405b5a'    // Example of a column name that should be tokenized
   }
 
@@ -1608,7 +1630,7 @@ UpdateResponse {
     name: '72b8ffe3-c8d3-4b4f-8052-38b2a7405b5a',
     card_number: '4131-1751-0217-8491'
   },
-  errors: []
+  errors: null
 }
 ```
 
@@ -1618,7 +1640,7 @@ UpdateResponse {
   updatedField: {
     skyflowId: '5b699e2c-4301-4f9f-bcff-0a8fd3057413',
   },
-  errors: []
+  errors: null
 }
 ```
 
@@ -1733,7 +1755,7 @@ DeleteResponse {
     'ea74bef4-f27e-46fe-b6a0-a28e91b4477b',
     '47700796-6d3b-4b54-9153-3973e281cafb'
   ],
-  errors: []
+  errors: null
 }
 ```
 
@@ -1759,7 +1781,7 @@ try {
   // Initialize Skyflow client
   // Step 1: Define the SQL query to execute on the Skyflow vault
   // Replace "<YOUR_SQL_QUERY>" with the actual SQL query you want to run
-  const query = "<YOUR_SQL_QUERY>"; //  Example: "SELECT * FROM table1 WHERE column1 = 'value'"
+  const query: string = "<YOUR_SQL_QUERY>"; //  Example: "SELECT * FROM table1 WHERE column1 = 'value'"
   
   // Step 2: Create a QueryRequest with the specified SQL query
   const queryRequest: QueryRequest = new QueryRequest(query);
@@ -1807,7 +1829,7 @@ try {
   // Initialize Skyflow client
   // Step 1: Define the SQL query to execute on the Skyflow vault
   // Example query: Retrieve all records from the "cards" table with a specific skyflow_id
-  const query = "SELECT * FROM cards WHERE skyflow_id='3ea3861-x107-40w8-la98-106sp08ea83f'";
+  const query: string = "SELECT * FROM cards WHERE skyflow_id='3ea3861-x107-40w8-la98-106sp08ea83f'";
   
   // Step 2: Create a QueryRequest with the specified SQL query
   const queryRequest: QueryRequest = new QueryRequest(query);
@@ -1841,11 +1863,11 @@ QueryResponse {
     {
       card_number: 'XXXXXXXXXXXX1112',
       name: 'S***ar',
-      skyflowId: '3ea3861-x107-40w8-la98-106sp08ea83f',
+      skyflow_id: '3ea3861-x107-40w8-la98-106sp08ea83f',
       tokenizedData: {}
     }
   ],
-  errors: [],
+  errors: null,
 }
 ```
 
@@ -1916,7 +1938,8 @@ import {
     TokenFormat,
     TokenType,
     Transformations,
-    DetectEntities
+    DetectEntities,
+    DeidentifyTextResponse
 } from 'skyflow-node';
 
 /**
@@ -1959,7 +1982,7 @@ async function performDeidentifyText() {
         optionsText.setTransformations(transformations);
 
         // Step 3: Call deidentifyText API
-        const response = await skyflowClient
+        const response: DeidentifyTextResponse = await skyflowClient
             .detect(primaryVaultConfig.vaultId)
             .deidentifyText(textReq, optionsText);
 
@@ -2038,7 +2061,8 @@ import {
   ReidentifyTextRequest,
   ReidentifyTextOptions,
   SkyflowError,
-  DetectEntities
+  DetectEntities,
+  ReidentifyTextResponse
 } from 'skyflow-node';
 
 try {
@@ -2054,7 +2078,7 @@ try {
   options.setPlainTextEntities([DetectEntities.NAME]); // Entities to return as plain text
 
   // Step 3: Call reidentifyText
-  const response = await skyflowClient
+  const response: ReidentifyTextResponse = await skyflowClient
     .detect(primaryVaultConfig.vaultId)
     .reidentifyText(textReq, options);
 
@@ -2080,7 +2104,8 @@ try {
 import {
   ReidentifyTextRequest,
   ReidentifyTextOptions,
-  DetectEntities
+  DetectEntities,
+  ReidentifyTextResponse
 } from 'skyflow-node';
 
 /**
@@ -2108,7 +2133,7 @@ async function performReidentifyText() {
     options.setPlainTextEntities([DetectEntities.CREDIT_CARD, DetectEntities.SSN]);
 
     // Step 4: Call reidentifyText
-    const response = await skyflowClient
+    const response: ReidentifyTextResponse = await skyflowClient
         .detect(primaryVaultConfig.vaultId)
         .reidentifyText(reidentifyTextRequest, options);
 
@@ -2151,6 +2176,7 @@ To deidentify files, use the `deidentifyFile` method. The `DeidentifyFileRequest
 import {
   DeidentifyFileRequest,
   DeidentifyFileOptions,
+  DeidentifyFileResponse
   SkyflowError,
   DetectEntities,
   MaskingMethod,
@@ -2214,7 +2240,7 @@ try {
   // options.setBleep(bleep);
 
   // Step 3: Call deidentifyFile
-  const response = await skyflowClient
+  const response: DeidentifyFileResponse = await skyflowClient
     .detect(primaryVaultConfig.vaultId)
     .deidentifyFile(fileReq, options);
 
@@ -2245,6 +2271,7 @@ import {
   TokenFormat,
   TokenType,
   Transformations,
+  DeidentifyFileResponse
 } from 'skyflow-node';
 import fs from 'fs';
 
@@ -2291,7 +2318,7 @@ async function performDeidentifyFile() {
 
 
     // Step 6: Call deidentifyFile API
-    const response = await skyflowClient
+    const response: DeidentifyFileResponse = await skyflowClient
       .detect(primaryVaultConfig.vaultId)
       .deidentifyFile(fileReq, options);
 
@@ -2386,6 +2413,7 @@ This method allows you to fetch the final results of the file processing operati
 import {
   GetDetectRunRequest,
   DeidentifyFileResponse,
+  DeidentifyFileResponse
   SkyflowError
 } from 'skyflow-node';
 
@@ -2711,7 +2739,7 @@ InvokeConnectionResponse {
   metadata: {
     requestId: '801279ety19289899'
   },
-  errors: []
+  errors: null
 }
 ```
 
@@ -2750,7 +2778,7 @@ The token can be generated in two ways:
 */
 
 // Variable to store the generated token
-let bearerToken = '';
+let bearerToken: string = '';
 
 // Specify the full file path to the credentials.json file
 const filepath = 'CREDENTIALS_FILE_PATH';
@@ -3082,13 +3110,13 @@ function getSignedTokenFromCreds() {
 
 const tokens = async () => {
   try {
-    const tokenResponseFromFilePath: any = await getSignedTokenFromFilePath();
+    const tokenResponseFromFilePath = await getSignedTokenFromFilePath();
     tokenResponseFromFilePath.forEach((response) => {
       console.log(`Data Token: ${response.token}`);
       console.log(`Signed Data Token: ${response.signedToken}`);
     });
 
-    const tokenResponseFromCreds: any = await getSignedTokenFromCreds();
+    const tokenResponseFromCreds = await getSignedTokenFromCreds();
     tokenResponseFromCreds.forEach((response) => {
       console.log(`Data Token: ${response.token}`);
       console.log(`Signed Data Token: ${response.signedToken}`);
@@ -3122,6 +3150,7 @@ import {
     DetokenizeOptions,
     DetokenizeRequest,
     DetokenizeResponse,
+    DetokenizeData,
     Env,
     LogLevel,
     RedactionType,
@@ -3141,12 +3170,20 @@ import {
 async function detokenizeData(skyflowClient: Skyflow, vaultId: string) {
     try {
         // Creating a list of tokens to be detokenized
-        const detokenizeData: Array<string> = ['<YOUR_TOKEN_VALUE_1>', '<YOUR_TOKEN_VALUE_2>'];
+        const detokenizeData: DetokenizeData[] = [
+          {
+            token: "<YOUR_TOKEN_VALUE_1>",            // Replace with your actual token value
+            redactionType: RedactionType.MASKED,      // Redaction type
+          },
+          {
+            token: "<YOUR_TOKEN_VALUE_2>",            // Replace with your actual token value
+            redactionType: RedactionType.PLAIN_TEXT,  // Redaction type
+          },
+        ];
 
         // Building a detokenization request
         const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(
-            detokenizeData,
-            RedactionType.PLAIN_TEXT // Redaction type (e.g., PLAIN_TEXT)
+            detokenizeData
         );
 
         // Configuring detokenization options
