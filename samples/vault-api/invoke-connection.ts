@@ -61,7 +61,7 @@ async function invokeSkyflowConnection() {
         };
 
         const requestHeaders: Record<string, string> = {
-            'content-type': 'application/json'
+            'Content-Type': 'application/json'
         };
 
         const requestMethod: RequestMethod = RequestMethod.POST;
