@@ -1,11 +1,13 @@
 import * as fs from 'fs';
 import jwt from "jsonwebtoken";
-import { V1GetAuthTokenRequest } from '../ _generated_/rest/api';
+import { V1GetAuthTokenRequest, V1GetAuthTokenResponse } from '../ _generated_/rest/api';
 import { getBaseUrl, LogLevel, MessageType, parameterizedString, printLog } from '../utils';
 import Client from './client';
 import logs from '../utils/logs';
 import SkyflowError from '../error';
 import SKYFLOW_ERROR_CODE from '../error/codes';
+import { ServiceAccountResponseError } from '../vault/types';
+import { WithRawResponse } from '../ _generated_/rest/core';
 
 export type BearerTokenOptions = {
     ctx?: string,
@@ -144,11 +146,11 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 client.authApi.authenticationServiceGetAuthToken(
                     req,
                     { headers: { "Content-Type": "application/json", } }
-                ).withRawResponse().then((res: any) => {
+                ).withRawResponse().then((res: WithRawResponse<V1GetAuthTokenResponse>) => {
                     successResponse(res.data, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
                 })
                     .catch((err) => {
-                        failureResponse(err).catch(err => reject(err))
+                        failureResponse(err, options).catch(err => reject(err))
                     });
             }
         }
@@ -282,17 +284,14 @@ function generateSignedDataTokensFromCreds(credentials, options: SignedDataToken
     return getSignedTokens(credentials, options)
 }
 
-function failureResponse(err: any) {
+function failureResponse(err: ServiceAccountResponseError, options?: BearerTokenOptions) {
     return new Promise((_, reject) => {
         if (err.rawResponse) {
-            const requestId = err?.rawResponse?.headers?.get('x-request-id');;
+            const requestId = err?.rawResponse?.headers?.get('x-request-id');
             const contentType = err?.rawResponse?.headers?.get('content-type');
             if (contentType && contentType.includes('application/json')) {
-                let description = err?.body;
-                if (description?.error?.message) {
-                    description =description?.error?.message;
-                }
-                printLog(description, MessageType.ERROR);
+                let description = err?.body?.error?.message ?? err?.body;
+                printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
                     http_code: err?.body?.error?.http_code,
                     message: description,
@@ -300,7 +299,7 @@ function failureResponse(err: any) {
                 }));
             } else if (contentType && contentType.includes('text/plain')) {
                 let description = err?.body;
-                printLog(description, MessageType.ERROR);
+                printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
                     http_code: err?.body?.error?.http_code,
                     message: description,
@@ -308,15 +307,15 @@ function failureResponse(err: any) {
                 }));
             } else {
                 let description = logs.errorLogs.ERROR_OCCURED;
-                printLog(description, MessageType.ERROR);
+                printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err.response.status,
+                    http_code: err.response?.status,
                     message: description,
                     request_ID: requestId
                 }));
             }
         } else {
-            printLog(err.message, MessageType.ERROR);
+            printLog(err.message, MessageType.ERROR, options?.logLevel);
             reject(new SkyflowError({
                 http_code: "500",
                 message: err.message,
@@ -325,12 +324,12 @@ function failureResponse(err: any) {
     })
 }
 
-function successResponse(res: any, logLevel?: LogLevel): Promise<TokenResponse> {
+function successResponse(res: V1GetAuthTokenResponse, logLevel?: LogLevel): Promise<TokenResponse> {
     printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_SUCCESS, MessageType.LOG, logLevel);
     return new Promise((resolve, _) => {
         resolve({
-            accessToken: res.accessToken,
-            tokenType: res.tokenType,
+            accessToken: res.accessToken ?? '',
+            tokenType: res.tokenType ?? '',
         });
     })
 }

@@ -388,7 +388,7 @@ describe('printLog', () => {
 describe('getToken', () => {
     const logLevel = LogLevel.INFO;
 
-    test('should generate token from credentialsString', async () => {
+    test('should generate token from StringCredentials', async () => {
         const credentials = {
             credentialsString: 'someCredentials',
             roles: ['role1', 'role2'],
@@ -397,7 +397,7 @@ describe('getToken', () => {
         const mockToken = { accessToken: 'token123' };
 
         generateBearerTokenFromCreds.mockResolvedValue(mockToken);
-        console.log(getToken)
+
         const result = await getToken(credentials, logLevel);
 
         expect(result).toEqual(mockToken);
@@ -408,7 +408,7 @@ describe('getToken', () => {
         });
     });
 
-    test('should generate token from path', async () => {
+    test('should generate token from PathCredentials', async () => {
         const credentials = {
             path: '/some/path',
             roles: ['role1'],
@@ -428,78 +428,104 @@ describe('getToken', () => {
         });
     });
 
+    test('should throw error for TokenCredentials', async () => {
+        const credentials = {
+            token: 'someToken'
+        };
+
+        await expect(getToken(credentials, logLevel))
+            .rejects
+            .toThrow();
+    });
+
+    test('should throw error for ApiKeyCredentials', async () => {
+        const credentials = {
+            apiKey: 'sky-api-key'
+        };
+
+        await expect(getToken(credentials, logLevel))
+            .rejects
+            .toThrow();
+    });
 });
 
 describe('getBearerToken', () => {
     const logLevel = LogLevel.INFO;
+    const originalEnv = process.env;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        process.env.SKYFLOW_CREDENTIALS = undefined; // Reset environment variable before each test
+        process.env = { ...originalEnv };
+        delete process.env.SKYFLOW_CREDENTIALS;
     });
 
-    test('should use environment variable if no credentials passed but environment variable exists', async () => {
-        try {
-            process.env.SKYFLOW_CREDENTIALS = 'someEnvCredentials';
-            const mockToken = { accessToken: 'token456' };
-            const getToken = jest.fn();
-            getToken.mockResolvedValue(mockToken);
-
-            const result = await getBearerToken(undefined, logLevel);
-
-            expect(getToken).toHaveBeenCalledWith({
-                credentialsString: 'someEnvCredentials'
-            }, logLevel);
-            expect(result).toEqual({ type: AuthType.TOKEN, key: mockToken.accessToken });
-        } catch (err) {
-            expect(err).toBeDefined();
-        }
+    afterEach(() => {
+        process.env = originalEnv;
     });
 
-    test('should return API key immediately if apiKey is provided in credentials', async () => {
-        try {
-            const credentials = { apiKey: 'someApiKey' };
-
-            const result = await getBearerToken(credentials, logLevel);
-
-            expect(result).toEqual({ type: AuthType.API_KEY, key: 'someApiKey' });
-            expect(getToken).not.toHaveBeenCalled();
-        } catch (err) {
-            expect(err).toBeDefined();
-        }
+    test('should throw error if no credentials and no env variable', async () => {
+        await expect(getBearerToken(undefined, logLevel))
+            .rejects
+            .toThrow(errorMessages.CREDENTIALS_REQUIRED);
     });
 
-    test('should return token immediately after validating token if token is provided', async () => {
-        try {
-            const credentials = { token: 'someToken' };
-            validateToken.mockReturnValue('validatedToken');
+    test('should use environment variable when credentials not provided', async () => {
+        process.env.SKYFLOW_CREDENTIALS = 'someEnvCredentials';
+        const mockToken = { accessToken: 'token456' };
+        generateBearerTokenFromCreds.mockResolvedValue(mockToken);
 
-            const result = await getBearerToken(credentials, logLevel);
+        const result = await getBearerToken(undefined, logLevel);
 
-            expect(validateToken).toHaveBeenCalledWith('someToken');
-            expect(result).toEqual({ type: AuthType.TOKEN, key: 'validatedToken' });
-            expect(getToken).not.toHaveBeenCalled();
-        } catch (err) {
-            expect(err).toBeDefined();
-        }
+        expect(result).toEqual({"key": "token456", "type": "TOKEN"});
     });
 
-    test('should generate token if valid credentials are provided for token generation', async () => {
-        try {
-            const credentials = { credentialsString: 'someCreds' };
-            const mockToken = { accessToken: 'generatedToken' };
-            const getToken = jest.fn();
-            getToken.mockResolvedValue(mockToken);
+    test('should handle ApiKeyCredentials correctly', async () => {
+        const credentials = {
+            apiKey: 'sky-valid-api-key'
+        };
 
-            const result = await getBearerToken(credentials, logLevel);
+        const result = await getBearerToken(credentials, logLevel);
 
-            expect(printLog).toHaveBeenCalledWith(logs.infoLogs.BEARER_TOKEN_LISTENER, 'LOG', logLevel);
-            expect(getToken).toHaveBeenCalledWith(credentials, logLevel);
-            expect(result).toEqual({ type: AuthType.TOKEN, key: mockToken.accessToken });
-        } catch (err) {
-            expect(err).toBeDefined();
-        }
+        expect(result).toEqual({"key": "sky-valid-api-key", "type": "API_KEY"});
     });
 
+    test('should handle TokenCredentials correctly', async () => {
+        const credentials = {
+            token: 'validToken'
+        };
+        jwt_decode.mockReturnValue({ exp: Date.now() / 1000 + 3600 }); // Valid for 1 hour
+
+        const result = await getBearerToken(credentials, logLevel);
+
+        expect(result).toEqual({"key": "validToken", "type": "TOKEN"});
+    });
+
+    test('should handle StringCredentials correctly', async () => {
+        const credentials = {
+            credentialsString: 'validCredString',
+            roles: ['role1'],
+            context: 'test'
+        };
+        const mockToken = { accessToken: 'generatedToken' };
+        generateBearerTokenFromCreds.mockResolvedValue(mockToken);
+
+        const result = await getBearerToken(credentials, logLevel);
+
+        expect(result).toEqual({"key": "generatedToken", "type": "TOKEN"});
+    });
+
+    test('should handle PathCredentials correctly', async () => {
+        const credentials = {
+            path: '/valid/path',
+            roles: ['role1'],
+            context: 'test'
+        };
+        const mockToken = { accessToken: 'generatedToken' };
+        generateBearerToken.mockResolvedValue(mockToken);
+
+        const result = await getBearerToken(credentials, logLevel);
+
+        expect(result).toEqual({"key": "generatedToken", "type": "TOKEN"});
+    });
 });
 

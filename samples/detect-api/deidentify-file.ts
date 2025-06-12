@@ -15,7 +15,7 @@ import {
   Transformations,
   Bleep,
   VaultConfig,
-} from 'skyflow-node';
+} from 'skyflow-node'; 
 import fs from 'fs';
 
 /**
