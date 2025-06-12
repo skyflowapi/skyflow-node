@@ -2218,7 +2218,7 @@ try {
 
   // options.setOutputOcrText(true);               // Include OCR text in response
 
-  // options.setMaskingMethod(MaskingMethod.Blackout);  // Masking method for image entities
+  // options.setMaskingMethod(MaskingMethod.Blackbox);  // Masking method for image entities
 
   // ===== PDF Options (apply when file is a PDF) =====
 
