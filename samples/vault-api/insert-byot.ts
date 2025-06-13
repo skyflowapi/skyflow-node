@@ -25,11 +25,9 @@ import {
 async function performSecureDataInsertionWithBYOT() {
     try {
         // Step 1: Configure Credentials
-        const tokenCredentials: TokenCredentials = {
+        const credentials: Credentials = {
             token: 'bearer', // Bearer token authentication
         };
-
-        const credentials: Credentials = tokenCredentials;
 
         // Step 2: Configure Vault
         const primaryVaultConfig: VaultConfig = {
