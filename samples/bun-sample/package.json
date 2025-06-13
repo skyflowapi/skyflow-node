@@ -1,0 +1,15 @@
+{
+  "name": "bun-sample",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "skyflow-node": "2.1.0-beta.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
