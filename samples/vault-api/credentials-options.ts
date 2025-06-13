@@ -7,7 +7,8 @@ import {
     VaultConfig, 
     SkyflowConfig,
     SkyflowError, 
-    DeleteResponse
+    DeleteResponse,
+    StringCredentials
 } from 'skyflow-node';
 
 /**
@@ -30,9 +31,11 @@ async function performSecureDataDeletion() {
             privateKey: '<your-pem-private-key>' // Private key for authentication
         };
 
-        const skyflowCredentials: Credentials = {
-            credentialsString: JSON.stringify(cred), // Token credentials
-        };
+        const stringCredentials: StringCredentials = {
+            credentialsString: JSON.stringify(cred), // Credentials string
+        }
+
+        const skyflowCredentials: Credentials = stringCredentials;
 
         const credentials: Credentials = {
             token: '<your_bearer_token>', // Bearer token

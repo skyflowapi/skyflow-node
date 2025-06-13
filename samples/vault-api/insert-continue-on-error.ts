@@ -25,12 +25,10 @@ import {
 async function performSecureDataInsertion() {
     try {
         // Step 1: Configure Credentials
-        const apiCredentials: ApiKeyCredentials = {
+        const credentials: Credentials = {
             // Using API Key authentication
             apiKey: 'your-skyflow-api-key',
         };
-
-        const credentials: Credentials = apiCredentials;
 
 
         // Step 2: Configure Vault 
