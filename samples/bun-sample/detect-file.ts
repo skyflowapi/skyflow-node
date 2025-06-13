@@ -1,14 +1,15 @@
 import {
+    Credentials,
     DeidentifyFileOptions,
     DeidentifyFileRequest,
+    DeidentifyFileResponse,
     Env,
     LogLevel,
     MaskingMethod,
     Skyflow,
+    SkyflowConfig,
     SkyflowError,
-    type Credentials,
-    type SkyflowConfig,
-    type VaultConfig,
+    VaultConfig,
 } from "skyflow-node";
 import fs from "fs";
 
@@ -47,7 +48,7 @@ async function performDeidentifyFile() {
 
         // Step 4: Prepare Deidentify File Request
         // Replace with your file object (e.g., from fs.readFileSync or browser File API)
-        const buffer = fs.readFileSync("<FILE_PATH>"); // Replace with the path to your file
+        const buffer: NonSharedBuffer = fs.readFileSync("<FILE_PATH>"); // Replace with the path to your file
         const file = new File(
             [buffer],
             "<FILE_PATH>", // Replace with the name of your file
@@ -110,7 +111,7 @@ async function performDeidentifyFile() {
         // options.setBleep(bleep);
 
         // Step 6: Call deidentifyFile API
-        const response = await skyflowClient
+        const response: DeidentifyFileResponse = await skyflowClient
             .detect(primaryVaultConfig.vaultId)
             .deidentifyFile(deidentifyFile, options);
 

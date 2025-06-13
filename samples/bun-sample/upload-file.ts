@@ -1,14 +1,14 @@
 import {
+    Credentials,
     Env,
     FileUploadOptions,
     FileUploadRequest,
     FileUploadResponse,
     LogLevel,
     Skyflow,
+    SkyflowConfig,
     SkyflowError,
-    type Credentials,
-    type SkyflowConfig,
-    type VaultConfig,
+    VaultConfig,
 } from "skyflow-node";
 import * as fs from "fs";
 
@@ -48,10 +48,10 @@ async function performFileUpload() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare File Upload Data
-        const tableName = "<TABLE_NAME>"; // Table name
-        const skyflowId = "<SKYFLOW_ID>"; // Skyflow ID of the record
-        const columnName = "<COLUMN_NAME>"; // Column name to store file
-        const filePath = "<FILE_PATH>"; // Path to the file for upload
+        const tableName: string = "<TABLE_NAME>"; // Table name
+        const skyflowId: string = "<SKYFLOW_ID>"; // Skyflow ID of the record
+        const columnName: string = "<COLUMN_NAME>"; // Column name to store file
+        const filePath: string = "<FILE_PATH>"; // Path to the file for upload
 
         // Step 5: Create File Upload Request
         const uploadReq: FileUploadRequest = new FileUploadRequest(
@@ -67,7 +67,7 @@ async function performFileUpload() {
         // uploadOptions.setFilePath(filePath);      // Set the file path
         // uploadOptions.setBase64('base64-string'); // Set base64 string
         // uploadOptions.setFileName('file-name');   // Set the file name when using base64
-        const buffer = fs.readFileSync(filePath);
+        const buffer: NonSharedBuffer = fs.readFileSync(filePath);
         uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
 
         // Step 6: Perform File Upload

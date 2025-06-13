@@ -1,17 +1,18 @@
 import {
+    Credentials,
     DeidentifyTextOptions,
     DeidentifyTextRequest,
+    DeidentifyTextResponse,
     DetectEntities,
     Env,
     LogLevel,
     Skyflow,
+    SkyflowConfig,
     SkyflowError,
     TokenFormat,
     TokenType,
     Transformations,
-    type Credentials,
-    type SkyflowConfig,
-    type VaultConfig,
+    VaultConfig,
 } from "skyflow-node";
 
 /**
@@ -81,7 +82,7 @@ async function performDeidentifyText() {
         optionsText.setTransformations(transformations);
 
         // Step 6: Call deidentifyText API
-        const response = await skyflowClient
+        const response: DeidentifyTextResponse = await skyflowClient
             .detect(primaryVaultConfig.vaultId)
             .deidentifyText(deidentifyTextRequest, optionsText);
 
