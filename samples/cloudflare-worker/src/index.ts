@@ -15,15 +15,10 @@ import {
     FileUploadRequest,
     FileUploadOptions,
     DeidentifyTextRequest,
+    DeidentifyFileResponse,
 } from 'skyflow-node';
 
-/**
- * Performs deidentification of sensitive information in files
- * @param file - The file to process
- * @param skyflowClient - Initialized Skyflow client
- * @param vaultId - Target vault identifier
- * @returns Object containing base64 encoded file and format, or Error
- */
+// Performs deidentification of sensitive information in files
 async function performDeidentifyFile(file: File, skyflowClient: Skyflow, vaultId: string) {
     try {
         // 1. Create deidentify file request with input file
@@ -47,7 +42,7 @@ async function performDeidentifyFile(file: File, skyflowClient: Skyflow, vaultId
         options.setTransformations(transformations);
 
         // 5. Execute deidentification
-        const response = await skyflowClient
+        const response: DeidentifyFileResponse = await skyflowClient
             .detect(vaultId)
             .deidentifyFile(deidentifyFile, options);
         
@@ -67,38 +62,33 @@ async function performDeidentifyFile(file: File, skyflowClient: Skyflow, vaultId
     }
 }
 
-/**
- * Uploads a file to Skyflow vault
- * @param file - The file to upload
- * @param skyflowClient - Initialized Skyflow client
- * @param vaultId - Target vault identifier
- */
+// Uploads a file to Skyflow vault
 async function performFileUpload(file: File, skyflowClient: Skyflow, vaultId: string) {
     try {
+        
         // 1. Create file upload request with table and column details
-        const request = new FileUploadRequest(
-            "<TABLE_NAME", 
-            "<SKYFLOW_ID>", 
-            "<COLUMN_NAME>"
+        const tableName: string = 'table-name';      // Table name
+        const skyflowId: string = 'skyflow-id';      // Skyflow ID of the record
+        const columnName: string = 'column-name';    // Column name to store file
+        
+        // Step 5: Create File Upload Request
+        const uploadReq: FileUploadRequest = new FileUploadRequest(
+            tableName,
+            skyflowId,
+            columnName,
         );
-
         // 2. Configure upload options
         const options = new FileUploadOptions();
         options.setFileObject(file);
 
         // 3. Execute file upload
-        return await skyflowClient.vault(vaultId).uploadFile(request, options);
+        return await skyflowClient.vault(vaultId).uploadFile(uploadReq, options);
     } catch (error) {
         return error;
     }
 }
 
-/**
- * Deidentifies sensitive information in text
- * @param text - The text to process
- * @param skyflowClient - Initialized Skyflow client
- * @param vaultId - Target vault identifier
- */
+// Deidentifies sensitive information in text
 async function performDeidentifyText(text: string, skyflowClient: Skyflow, vaultId: string) {
     try {
         // 1. Create text deidentification request
@@ -126,11 +116,13 @@ export default {
             credentials: credentials        // Authentication method
         };
 
-        // 3. Initialize Skyflow client
+        // Step 3: Configure Skyflow Client
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig],
-            logLevel: LogLevel.INFO,
+            logLevel: LogLevel.ERROR,               // Logging verbosity
         };
+
+        // Initialize Skyflow Client
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // 4. Route requests based on path
