@@ -41,20 +41,6 @@ class DetectController {
         return { [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
     }
 
-    private async getFileFromRequest(request: DeidentifyFileRequest): Promise<File> {
-        const fileType = request.getFile();
-    
-        if ('file' in fileType && fileType.file) {
-            // Already a File or Buffer
-            return fileType.file as File;
-        } else if ('filePath' in fileType && fileType.filePath) {
-            const filePath = fileType.filePath;
-            const buffer = fs.readFileSync(filePath);
-            return new File([buffer], filePath);
-        }
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
-    }
-
     private async getBase64FileContent(file: File){
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
@@ -73,8 +59,8 @@ class DetectController {
         };
     }
 
-    private async buildAudioRequest(baseRequest: File, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyAudioRequest> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildAudioRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyAudioRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var audioRequest : DeidentifyAudioRequest = {
             file: {
                 base64: base64String as string,
@@ -99,8 +85,8 @@ class DetectController {
         }
         return audioRequest;
     }
-    private async buildTextFileRequest(baseRequest: File, options?: DeidentifyFileOptions): Promise<DeidentifyTextRequest2> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildTextFileRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyTextRequest2> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         
         var textFileRequest: DeidentifyTextRequest2 = {
             vault_id: this.client.vaultId,
@@ -120,8 +106,8 @@ class DetectController {
         }
         return textFileRequest;
     }
-    private async buildPdfRequest(baseRequest: File, options?: DeidentifyFileOptions): Promise<DeidentifyPdfRequest> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildPdfRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyPdfRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var pdfRequest: DeidentifyPdfRequest = {
             file: {
                 base64: base64String as string,
@@ -142,8 +128,8 @@ class DetectController {
         return pdfRequest; 
     }
 
-    private async buildImageRequest(baseRequest: File, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyImageRequest> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildImageRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyImageRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var imageRequest: DeidentifyImageRequest = {
             vault_id: this.client.vaultId,
             file: {
@@ -166,8 +152,8 @@ class DetectController {
         return imageRequest; 
     }
 
-    private async buildPptRequest(baseRequest: File, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyPresentationRequest> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildPptRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyPresentationRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var pptRequest: DeidentifyPresentationRequest = {
             vault_id: this.client.vaultId,
             file: {
@@ -186,8 +172,8 @@ class DetectController {
         return pptRequest;
     }
 
-    private async buildSpreadsheetRequest(baseRequest: File, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifySpreadsheetRequest> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildSpreadsheetRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifySpreadsheetRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var spreadsheetRequest: DeidentifySpreadsheetRequest = {
             vault_id: this.client.vaultId,
             file: {
@@ -207,8 +193,8 @@ class DetectController {
         return spreadsheetRequest;
     }
 
-    private async buildStructuredTextRequest(baseRequest: File, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyStructuredTextRequest> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildStructuredTextRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyStructuredTextRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var structuredTextRequest: DeidentifyStructuredTextRequest = {
             vault_id: this.client.vaultId,
             file: {
@@ -228,8 +214,8 @@ class DetectController {
         return structuredTextRequest; 
     }
 
-    private async buildDocumentRequest(baseRequest: File, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyDocumentRequest> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildDocumentRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyDocumentRequest> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var documentRequest: DeidentifyDocumentRequest = {
             vault_id: this.client.vaultId,
             file: {
@@ -248,8 +234,8 @@ class DetectController {
         return documentRequest;
     }
 
-    private async buildGenericFileRequest(baseRequest: File, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyFileRequest2> {
-        const base64String = await this.getBase64FileContent(baseRequest);
+    private async buildGenericFileRequest(baseRequest: DeidentifyFileRequest, options?: DeidentifyFileOptions, fileExtension?: string): Promise<DeidentifyFileRequest2> {
+        const base64String = await this.getBase64FileContent(baseRequest.getFile());
         var genericRequest: DeidentifyFileRequest2 = {
                 vault_id: this.client.vaultId,
                 file: {
@@ -460,22 +446,10 @@ class DetectController {
     }
 
     private parseDeidentifyFileResponse(data: DeidentifyFileDetectRunResponse, runId?: string, status?: string): DeidentifyFileResponse {
-        const base64String = data.output?.[0]?.processedFile ?? '';
-        const extension = data.output?.[0]?.processedFileExtension ?? '';
-        
-        let file: File | undefined = undefined;
-
-        if (base64String && extension) {
-            const buffer = Buffer.from(base64String, 'base64');
-            const fileName = `deidentified.${extension}`;
-            file = new File([buffer], fileName);
-        }
-
         return new DeidentifyFileResponse({
-            fileBase64: base64String,
-            file: file,
+            file: data.output?.[0]?.processedFile ?? '',
             type: data.output?.[0]?.processedFileType ?? '',
-            extension: extension,
+            extension: data.output?.[0]?.processedFileExtension ?? '',
             wordCount: data.wordCharacterCount?.wordCount ?? 0,
             charCount: data.wordCharacterCount?.characterCount ?? 0,
             sizeInKb: data.size ?? 0,
@@ -590,16 +564,14 @@ class DetectController {
     }
 
     deidentifyFile(request: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyFileResponse> {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             try {
                 printLog(logs.infoLogs.DETECT_FILE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_DETECT_FILE_INPUT, MessageType.LOG, this.client.getLogLevel());
-                // validateDeidentifyFileRequest(request, options, this.client.getLogLevel());
+                validateDeidentifyFileRequest(request, options, this.client.getLogLevel());
 
-                const fileObj = await this.getFileFromRequest(request);
-
-                const fileName = fileObj.name;
-                const fileBaseName = path.parse(fileName).name;
+                const fileName = request.getFile().name;
+                const fileBaseName = path.parse(request.getFile().name).name;
                 const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1); 
 
                 this.waitTime = options?.getWaitTime() ?? this.waitTime; 
@@ -608,7 +580,7 @@ class DetectController {
                 var promiseReq: Promise<DeidentifyFileDetectRunResponse>;
                 switch (reqType){
                     case DeidenitfyFileRequestTypes.AUDIO:
-                        promiseReq = this.buildAudioRequest(fileObj, options, fileExtension)
+                        promiseReq = this.buildAudioRequest(request, options, fileExtension)
                             .then((audioReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifyAudio(
@@ -619,7 +591,7 @@ class DetectController {
                             });
                         break;
                     case DeidenitfyFileRequestTypes.TEXT:
-                        promiseReq = this.buildTextFileRequest(fileObj, options)
+                        promiseReq = this.buildTextFileRequest(request, options)
                             .then((textFileReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifyText(
@@ -630,7 +602,7 @@ class DetectController {
                             });
                         break;  
                     case DeidenitfyFileRequestTypes.PDF:
-                        promiseReq = this.buildPdfRequest(fileObj, options)
+                        promiseReq = this.buildPdfRequest(request, options)
                             .then((pdfReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifyPdf(
@@ -641,7 +613,7 @@ class DetectController {
                             });
                         break;
                     case DeidenitfyFileRequestTypes.IMAGE:
-                        promiseReq = this.buildImageRequest(fileObj, options, fileExtension)
+                        promiseReq = this.buildImageRequest(request, options, fileExtension)
                             .then((imageReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifyImage(
@@ -652,7 +624,7 @@ class DetectController {
                             });
                         break;
                     case DeidenitfyFileRequestTypes.PPT:
-                        promiseReq = this.buildPptRequest(fileObj, options, fileExtension)
+                        promiseReq = this.buildPptRequest(request, options, fileExtension)
                             .then((pptReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifyPresentation(
@@ -663,7 +635,7 @@ class DetectController {
                             });
                         break;
                     case DeidenitfyFileRequestTypes.SPREADSHEET:
-                        promiseReq = this.buildSpreadsheetRequest(fileObj, options, fileExtension)
+                        promiseReq = this.buildSpreadsheetRequest(request, options, fileExtension)
                             .then((spreadsheetReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifySpreadsheet(
@@ -674,7 +646,7 @@ class DetectController {
                             });
                         break;
                     case DeidenitfyFileRequestTypes.STRUCTURED_TEXT:
-                        promiseReq = this.buildStructuredTextRequest(fileObj, options, fileExtension)
+                        promiseReq = this.buildStructuredTextRequest(request, options, fileExtension)
                             .then((structuredTextReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifyStructuredText(
@@ -685,7 +657,7 @@ class DetectController {
                             });
                         break;
                     case DeidenitfyFileRequestTypes.DOCUMENT:
-                        promiseReq = this.buildDocumentRequest(fileObj, options, fileExtension)
+                        promiseReq = this.buildDocumentRequest(request, options, fileExtension)
                             .then((documentReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifyDocument(
@@ -696,7 +668,7 @@ class DetectController {
                             });
                         break;
                     default:
-                        promiseReq = this.buildGenericFileRequest(fileObj, options, fileExtension)
+                        promiseReq = this.buildGenericFileRequest(request, options, fileExtension)
                             .then((defaultReq) => {
                                 return this.handleRequest(
                                     () => this.client.filesAPI.deidentifyFile(

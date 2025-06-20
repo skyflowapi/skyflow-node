@@ -1,11 +1,10 @@
 class DeidentifyFileResponse {
     // fields
-    fileBase64?: string;
+    file?: string;
     entities?: Array<{
         file: string;
         extension: string;
     }> = [];
-    file?: File;
     type?: string;
     extension?: string;
     wordCount?: number;
@@ -18,7 +17,6 @@ class DeidentifyFileResponse {
     status?: string;
 
     constructor({        
-        fileBase64,
         file,
         type,
         extension,
@@ -32,8 +30,7 @@ class DeidentifyFileResponse {
         runId,
         status
     } :{
-        fileBase64?: string;
-        file?: File;
+        file?: string;
         type?: string;
         extension?: string;
         wordCount?: number;
@@ -49,8 +46,7 @@ class DeidentifyFileResponse {
         runId?: string;
         status?: string;
     }) {
-        this.fileBase64 = fileBase64;
-        this.file =  file;
+        this.file = file;
         this.type = type;
         this.extension = extension;
         this.wordCount = wordCount;
