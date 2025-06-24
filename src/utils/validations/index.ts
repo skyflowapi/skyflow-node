@@ -290,7 +290,7 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         const pathCred = credentials as PathCredentials;
         if (typeof pathCred.path !== 'string' || !isValidPath(pathCred.path)) {
             printLog(logs.errorLogs.EMPTY_CREDENTIALS_PATH, MessageType.ERROR, logLevel);
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_FILE_PATH);
         }
         if (pathCred.roles !== undefined && !Array.isArray(pathCred.roles)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE);
@@ -1057,25 +1057,37 @@ export const validateDeidentifyFileRequest = (deidentifyFileRequest: DeidentifyF
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
     }
 
-    // Validate file object
-    const file = deidentifyFileRequest.getFile();
+    const fileType = deidentifyFileRequest.getFile();
 
-    // Check if the file is a valid File (browser) or Buffer (Node.js)
-    if (!(file instanceof File)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+    const hasFile = 'file' in fileType && fileType.file;
+    const hasFilePath = 'filePath' in fileType && fileType.filePath;
+
+    // Must provide exactly one of file or filePath
+    if ((hasFile && hasFilePath) || (!hasFile && !hasFilePath)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
     }
 
-    // Additional validation for File
-    if (file instanceof File) {
+    if (hasFile) {
+        const file = fileType.file;
+        if (!(file instanceof File)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+        }
         if (!file.name || typeof file.name !== 'string' || file.name.trim().length === 0) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
         }
-        // Validate fileBaseName
         const fileBaseName = path.parse(file.name).name;
         if (!fileBaseName || typeof fileBaseName !== 'string' || fileBaseName.trim().length === 0) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
         }
-  }
+    } else if (hasFilePath) {
+        const filePath = fileType.filePath;
+        if (typeof filePath !== 'string' || filePath.trim().length === 0) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_PATH);
+        }
+        if (!fs.existsSync(filePath) || !fs.lstatSync(filePath).isFile()) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_PATH);
+        }
+    }
 
     // Validate options if provided
     if (deidentifyFileOptions) {

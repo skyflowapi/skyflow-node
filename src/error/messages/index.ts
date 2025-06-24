@@ -21,7 +21,7 @@ const errorMessages = {
     EMPTY_CREDENTIAL_FILE_PATH: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid file path.`,
     INVALID_CREDENTIAL_FILE_PATH: `${errorPrefix} Initialization failed. Invalid credentials. Expected file path to be a string.`,
     
-    INVALID_FILE_PATH: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Expected file path to exists.`,
+    INVALID_CREDENTIALS_FILE_PATH: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Expected file path to exists.`,
     INVALID_API_KEY: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid api key.`,
     INVALID_PARSED_CREDENTIALS_STRING: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid credentials string.`,
     INVALID_BEARER_TOKEN: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid token.`,
@@ -232,6 +232,7 @@ const errorMessages = {
     INVALID_BLEEP: `${errorPrefix} Validation error. Invalid bleep. Specify valid bleep as object.`,
     INVALID_FILE_OR_ENCODED_FILE: `${errorPrefix} . Error while decoding base64 and saving file`,
     INVALID_FILE_TYPE : `${errorPrefix} Validation error. Invalid file type. Specify a valid file type.`,
+    INVALID_DEIDENTIFY_FILE_PATH: `${errorPrefix} Validation error. Invalid file path. Specify a valid file path.`,
     INVALID_FILE_NAME: `${errorPrefix} Validation error. Invalid file name. Specify a valid file name.`,
     FILE_READ_ERROR: `${errorPrefix} Validation error. Unable to read file. Verify the file path.`, 
     INVALID_BASE64_HEADER: `${errorPrefix} Validation error. Invalid base64 header. Specify a valid base64 header.`,
