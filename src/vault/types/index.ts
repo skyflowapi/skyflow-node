@@ -15,6 +15,18 @@ export interface SkyflowConfig {
     logLevel?: LogLevel;
 }
 
+export type FileInput = 
+  | Filepath
+  | FileObject
+
+export interface Filepath {
+    filePath: string;
+}
+
+export interface FileObject {
+    file: File;
+}
+
 export interface ClientConfig {
     config: VaultConfig | ConnectionConfig;
     vaultController?: VaultController;

@@ -16,7 +16,7 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_BEARER_TOKEN: { http_code: 400, message: errorMessages.INVALID_BEARER_TOKEN },
     INVALID_PARSED_CREDENTIALS_STRING: { http_code: 400, message: errorMessages.INVALID_PARSED_CREDENTIALS_STRING },
     INVALID_API_KEY: { http_code: 400, message: errorMessages.INVALID_API_KEY },
-    INVALID_FILE_PATH: { http_code: 400, message: errorMessages.INVALID_FILE_PATH },
+    INVALID_CREDENTIALS_FILE_PATH: { http_code: 400, message: errorMessages.INVALID_CREDENTIALS_FILE_PATH },
 
     INVALID_BEARER_TOKEN_WITH_ID: { http_code: 400, message: errorMessages.INVALID_BEARER_TOKEN_WITH_ID },
     INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: { http_code: 400, message: errorMessages.INVALID_PARSED_CREDENTIALS_STRING_WITH_ID },
@@ -204,6 +204,7 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY },
 
     INVALID_DEIDENTIFY_FILE_REQUEST: { http_code: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_REQUEST },
+    INVALID_DEIDENTIFY_FILE_INPUT: { http_code: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_INPUT },
     EMPTY_FILE_OBJECT:{ http_code: 400, message: errorMessages.EMPTY_FILE_OBJECT },
     INVALID_FILE_FORMAT: { http_code: 400, message: errorMessages.INVALID_FILE_FORMAT },
     MISSING_FILE_SOURCE: { http_code: 400, message: errorMessages.MISSING_FILE_SOURCE },
@@ -220,6 +221,7 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_BLEEP:{ http_code: 400, message: errorMessages.INVALID_BLEEP },
     INVALID_FILE_OR_ENCODED_FILE:{ http_code: 400, message: errorMessages.INVALID_FILE_OR_ENCODED_FILE },
     INVALID_FILE_TYPE:{ http_code: 400, message: errorMessages.INVALID_FILE_TYPE },
+    INVALID_DEIDENTIFY_FILE_PATH:{ http_code: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_PATH },
     FILE_READ_ERROR:{ http_code: 400, message: errorMessages.FILE_READ_ERROR },
     INVALID_BASE64_HEADER:{ http_code: 400, message: errorMessages.INVALID_BASE64_HEADER },
     INVALID_WAIT_TIME:{ http_code: 400, message: errorMessages.INVALID_WAIT_TIME },
