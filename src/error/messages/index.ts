@@ -210,6 +210,7 @@ const errorMessages = {
     INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY: `${errorPrefix} Validation error. The plainTextEntities field must be an array of DetectEntities enums. Specify a valid plainTextEntities.`,
 
     INVALID_DEIDENTIFY_FILE_REQUEST: `${errorPrefix} Validation error. Invalid deidentify file request. Specify a valid deidentify file request.`,
+    INVALID_DEIDENTIFY_FILE_INPUT: `${errorPrefix} Validation error. Invalid deidentify file input. Please provide either a file or a file path.`,
     EMPTY_FILE_OBJECT: `${errorPrefix} Validation error. File object cannot be empty. Specify a valid file object.`,
     INVALID_FILE_FORMAT: `${errorPrefix} Validation error. Invalid file format. Specify a valid file format.`,
     MISSING_FILE_SOURCE: `${errorPrefix} Validation error. Provide exactly one of filePath, base64, or fileObject.`,

@@ -204,6 +204,7 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY },
 
     INVALID_DEIDENTIFY_FILE_REQUEST: { http_code: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_REQUEST },
+    INVALID_DEIDENTIFY_FILE_INPUT: { http_code: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_INPUT },
     EMPTY_FILE_OBJECT:{ http_code: 400, message: errorMessages.EMPTY_FILE_OBJECT },
     INVALID_FILE_FORMAT: { http_code: 400, message: errorMessages.INVALID_FILE_FORMAT },
     MISSING_FILE_SOURCE: { http_code: 400, message: errorMessages.MISSING_FILE_SOURCE },

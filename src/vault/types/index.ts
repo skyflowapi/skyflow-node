@@ -15,7 +15,7 @@ export interface SkyflowConfig {
     logLevel?: LogLevel;
 }
 
-export type FileType = 
+export type FileInput = 
   | Filepath
   | FileObject
 

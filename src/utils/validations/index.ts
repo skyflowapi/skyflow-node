@@ -1064,7 +1064,7 @@ export const validateDeidentifyFileRequest = (deidentifyFileRequest: DeidentifyF
 
     // Must provide exactly one of file or filePath
     if ((hasFile && hasFilePath) || (!hasFile && !hasFilePath)) {
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_INPUT);
     }
 
     if (hasFile) {

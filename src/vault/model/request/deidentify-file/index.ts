@@ -1,17 +1,17 @@
-import { FileType } from "../../../types";
+import { FileInput } from "../../../types";
 
 class DeidentifyFileRequest {
-    private _file: FileType ; // Accepts a native file object (File for browser, Buffer for Node.js)
+    private _file: FileInput ; // Accepts a native file object (File for browser, Buffer for Node.js)
 
-    constructor(file: FileType ) {
+    constructor(file: FileInput ) {
         this._file = file;
     }
 
-    public getFile(): FileType  {
+    public getFile(): FileInput  {
         return this._file;
     }
 
-    public setFile(file: FileType ): void {
+    public setFile(file: FileInput ): void {
         this._file = file;
     }
 }

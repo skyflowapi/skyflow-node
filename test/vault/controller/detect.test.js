@@ -517,6 +517,70 @@ describe('deidentifyFile', () => {
         expect(result.status).toBe('SUCCESS');
     });
 
+    test('should successfully deidentify a PDF file using file path', async () => {
+        const filePath = 'test/mockData/pii.pdf';
+        const deidentifyFileReq = new DeidentifyFileRequest({filePath});
+        const options = new DeidentifyFileOptions();
+        options.setPixelDensity(300);
+        options.setMaxResolution(2000);
+
+        // Mock PDF deidentify API to return a run_id
+        mockVaultClient.filesAPI.deidentifyPdf.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: { run_id: 'run123' },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } },
+            }),
+        }));
+
+        // Polling: IN_PROGRESS twice, then SUCCESS
+        mockVaultClient.filesAPI.getRun
+            .mockResolvedValueOnce({ status: 'IN_PROGRESS' })
+            .mockResolvedValueOnce({ status: 'IN_PROGRESS' })
+            .mockResolvedValueOnce({
+                status: 'SUCCESS',
+                output: [
+                    {
+                        processedFile: 'mockProcessedFile',
+                        processedFileType: 'pdf',
+                        processedFileExtension: 'pdf',
+                    },
+                ],
+                wordCharacterCount: {
+                    wordCount: 10,
+                    characterCount: 100,
+                },
+                size: 2048,
+                duration: 0,
+                pages: 2,
+                slides: 0,
+                run_id: 'run123',
+            });
+
+        // Act
+        const promise = detectController.deidentifyFile(deidentifyFileReq, options);
+
+        // Fast-forward all timers and flush all microtasks
+        await jest.runAllTimersAsync();
+
+        const result = await promise;
+
+        // Assert
+        expect(mockVaultClient.filesAPI.deidentifyPdf).toHaveBeenCalled();
+        expect(mockVaultClient.filesAPI.getRun).toHaveBeenCalledTimes(3);
+        expect(result.fileBase64).toBe('mockProcessedFile');
+        expect(result.type).toBe('pdf');
+        expect(result.extension).toBe('pdf');
+        expect(result.wordCount).toBe(10);
+        expect(result.charCount).toBe(100);
+        expect(result.sizeInKb).toBe(2048);
+        expect(result.pageCount).toBe(2);
+        expect(result.status).toBe('SUCCESS');
+
+        // Assert file object
+        expect(result.file).toBeInstanceOf(File);
+        expect(result.file.name).toBe('deidentified.pdf');
+    });
+
     test('should reject for PDF if polling returns FAILED', async () => {
         const file = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' });
         const deidentifyFileReq = new DeidentifyFileRequest(file);
