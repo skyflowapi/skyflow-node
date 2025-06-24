@@ -594,7 +594,7 @@ class DetectController {
             try {
                 printLog(logs.infoLogs.DETECT_FILE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_DETECT_FILE_INPUT, MessageType.LOG, this.client.getLogLevel());
-                // validateDeidentifyFileRequest(request, options, this.client.getLogLevel());
+                validateDeidentifyFileRequest(request, options, this.client.getLogLevel());
 
                 const fileObj = await this.getFileFromRequest(request);
 
