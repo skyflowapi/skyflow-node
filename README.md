@@ -2186,11 +2186,16 @@ import {
 
 try {
   // Step 1: Prepare the file to be deidentified
-  const buffer = fs.readFileSync('<FILE_PATH>');
-  const file = new File([buffer], '<FILE_PATH>');
-  const fileReq = new DeidentifyFileRequest(file);
+  const filePath: string = '<FILE_PATH>';
+  const buffer = fs.readFileSync(filePath);
+  const file = new File([buffer], filePath);
 
-  // Step 2: Configure DeidentifyFileOptions
+  //Step 2: Construct the file input by providing either file or filePath but not both
+  const fileInput: FileInput = { file: file }
+  // const fileInput: FileInput = { filePath: filePath }
+  const fileReq = new DeidentifyFileRequest(fileInput);
+
+  // Step 3: Configure DeidentifyFileOptions
   const options = new DeidentifyFileOptions();
   options.setEntities([DetectEntities.SSN, DetectEntities.ACCOUNT_NUMBER]);
   options.setAllowRegexList(['<YOUR_REGEX_PATTERN>']);
@@ -2208,7 +2213,7 @@ try {
   });
   options.setTransformations(transformations);
 
-  options.setOutputDirectory('<OUTPUT_DIRECTORY_PATH>');  // Output directory for saving the deidentified file
+  options.setOutputDirectory('<OUTPUT_DIRECTORY_PATH>');  // Output directory for saving the deidentified file. This is not supported in Cloudflare workers
 
   options.setWaitTime(15);   // Wait time for response (max 64 seconds; throws error if more)
 
@@ -2239,7 +2244,7 @@ try {
   // bleep.setStopPadding(0.2);  // Padding at end in seconds
   // options.setBleep(bleep);
 
-  // Step 3: Call deidentifyFile
+  // Step 4: Call deidentifyFile
   const response: DeidentifyFileResponse = await skyflowClient
     .detect(primaryVaultConfig.vaultId)
     .deidentifyFile(fileReq, options);
@@ -2284,13 +2289,20 @@ import fs from 'fs';
 
 async function performDeidentifyFile() {
   try {
-    // Step 4: Prepare Deidentify File Request
+    // Step 1: Prepare Deidentify File Request
     // Replace with your file object (e.g., from fs.readFileSync or browser File API)
-    const buffer = fs.readFileSync('/detect/sample.txt');
-    const file = new File([buffer], '/detect/sample.txt');
-    const fileReq = new DeidentifyFileRequest(file);
+    const filePath: string = '/detect/sample.txt';
+    const buffer = fs.readFileSync(filePath);
+    const file = new File([buffer], filePath);
 
-    // Step 5: Configure DeidentifyFileOptions
+
+    //Step 2: Construct the file input by providing either file or filePath but not both
+    const fileInput: FileInput = { file: file }
+    // const fileInput: FileInput = { filePath: filePath }
+
+    const fileReq = new DeidentifyFileRequest(fileInput);
+
+    // Step 3: Configure DeidentifyFileOptions
     const options = new DeidentifyFileOptions();
 
     // Entities to detect and deidentify
@@ -2311,13 +2323,13 @@ async function performDeidentifyFile() {
     options.setTransformations(transformations);
 
     // Output directory for saving the deidentified file
-    options.setOutputDirectory('/home/user/output'); // Replace with your desired output directory
+    options.setOutputDirectory('/home/user/output'); // Replace with your desired output directory. This is not supported in Cloudflare workers
 
     // Wait time for response (max 64 seconds)
     options.setWaitTime(15);
 
 
-    // Step 6: Call deidentifyFile API
+    // Step 4: Call deidentifyFile API
     const response: DeidentifyFileResponse = await skyflowClient
       .detect(primaryVaultConfig.vaultId)
       .deidentifyFile(fileReq, options);
@@ -2354,7 +2366,13 @@ Sample Response:
       extension: 'json'
     }
   ],
-  file: 'TXkgU1NOIGlzIFtTU0==',
+  fileBase64: 'TXkgU1NOIGlzIFtTU0==',
+  file: File {
+    size: 15075,
+    type: '',
+    name: 'deidentified.jpeg',
+    lastModified: 1750791985426
+  },
   type: 'redacted_file',
   extension: 'txt',
   wordCount: 12,
