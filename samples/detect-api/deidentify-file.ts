@@ -16,6 +16,7 @@ import {
   Bleep,
   VaultConfig,
   DeidentifyFileResponse,
+  FileInput,
 } from 'skyflow-node'; 
 import fs from 'fs';
 
@@ -54,9 +55,16 @@ async function performDeidentifyFile() {
 
     // Step 4: Prepare Deidentify File Request
     // Replace with your file object (e.g., from fs.readFileSync or browser File API)
-    const buffer = fs.readFileSync('<FILE_PATH>'); // Replace with the path to your file
-    const file = new File([buffer], '<FILE_PATH>');
-    const deidentifyFile = new DeidentifyFileRequest(file);
+    const filePath = '<FILE_PATH>'; // Replace with the path to your file
+    const buffer = fs.readFileSync(filePath);
+    const file = new File([buffer], filePath);
+
+    // Pass wither file object or file path, but not both.
+    const fileInput: FileInput = {
+      file
+    }
+
+    const deidentifyFile = new DeidentifyFileRequest(fileInput);
 
     // Step 5: Configure DeidentifyFileOptions
     const options = new DeidentifyFileOptions();
@@ -119,6 +127,8 @@ async function performDeidentifyFile() {
 
     // Handle Successful Response
     console.log('Deidentify File Response:', response);
+    console.log('Deidentified File:', response.file);
+    console.log('Deidentified File base64:', response.fileBase64);
 
   } catch (error) {
       // Comprehensive Error Handling
