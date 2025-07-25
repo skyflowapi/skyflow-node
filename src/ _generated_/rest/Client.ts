@@ -10,7 +10,7 @@ import { Records } from "./api/resources/records/client/Client";
 import { Tokens } from "./api/resources/tokens/client/Client";
 import { Query } from "./api/resources/query/client/Client";
 import { Authentication } from "./api/resources/authentication/client/Client";
-import { Deprecated } from "./api/resources/deprecated/client/Client";
+import { Guardrails } from "./api/resources/guardrails/client/Client";
 import { Strings } from "./api/resources/strings/client/Client";
 import { Files } from "./api/resources/files/client/Client";
 
@@ -42,7 +42,7 @@ export class SkyflowClient {
     protected _tokens: Tokens | undefined;
     protected _query: Query | undefined;
     protected _authentication: Authentication | undefined;
-    protected _deprecated: Deprecated | undefined;
+    protected _guardrails: Guardrails | undefined;
     protected _strings: Strings | undefined;
     protected _files: Files | undefined;
 
@@ -72,8 +72,8 @@ export class SkyflowClient {
         return (this._authentication ??= new Authentication(this._options));
     }
 
-    public get deprecated(): Deprecated {
-        return (this._deprecated ??= new Deprecated(this._options));
+    public get guardrails(): Guardrails {
+        return (this._guardrails ??= new Guardrails(this._options));
     }
 
     public get strings(): Strings {

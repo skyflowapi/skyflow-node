@@ -1094,6 +1094,102 @@ export class Files {
         }
     }
 
+    /**
+     * Re-identifies tokens in a file.
+     *
+     * @param {Skyflow.ReidentifyFileRequest} request
+     * @param {Files.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Skyflow.BadRequestError}
+     * @throws {@link Skyflow.UnauthorizedError}
+     * @throws {@link Skyflow.InternalServerError}
+     *
+     * @example
+     *     await client.files.reidentifyFile({
+     *         vault_id: "f4b3b3b33b3b3b3b3b3b3b3b3b3b3b3b",
+     *         file: {
+     *             base64: "Zm9vYmFy",
+     *             data_format: "txt"
+     *         }
+     *     })
+     */
+    public reidentifyFile(
+        request: Skyflow.ReidentifyFileRequest,
+        requestOptions?: Files.RequestOptions,
+    ): core.HttpResponsePromise<Skyflow.ReidentifyFileResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__reidentifyFile(request, requestOptions));
+    }
+
+    private async __reidentifyFile(
+        request: Skyflow.ReidentifyFileRequest,
+        requestOptions?: Files.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.ReidentifyFileResponse>> {
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SkyflowEnvironment.Production,
+                "v1/detect/reidentify/file",
+            ),
+            method: "POST",
+            headers: {
+                Authorization: await this._getAuthorizationHeader(),
+                "X-Fern-Language": "JavaScript",
+                "X-Fern-SDK-Name": "skyflow",
+                "X-Fern-SDK-Version": "1.0.21",
+                "User-Agent": "skyflow/1.0.21",
+                "X-Fern-Runtime": core.RUNTIME.type,
+                "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...requestOptions?.headers,
+            },
+            contentType: "application/json",
+            requestType: "json",
+            body: request,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Skyflow.ReidentifyFileResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Skyflow.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 401:
+                    throw new Skyflow.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Skyflow.InternalServerError(
+                        _response.error.body as Skyflow.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.SkyflowError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.SkyflowError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.SkyflowTimeoutError("Timeout exceeded when calling POST /v1/detect/reidentify/file.");
+            case "unknown":
+                throw new errors.SkyflowError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
     protected async _getAuthorizationHeader(): Promise<string> {
         return `Bearer ${await core.Supplier.get(this._options.token)}`;
     }

@@ -64,6 +64,7 @@ export interface DeidentifyStringRequest {
     vault_id: Skyflow.VaultId;
     /** String to de-identify. */
     text: string;
+    configuration_id?: Skyflow.ConfigurationId;
     entity_types?: Skyflow.EntityTypes;
     token_type?: Skyflow.TokenType;
     allow_regex?: Skyflow.AllowRegex;
