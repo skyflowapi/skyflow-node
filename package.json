@@ -34,11 +34,11 @@
   "dependencies": {
     "@babel/generator": "^7.17.9",
     "@babel/parser": "^7.17.9",
-    "axios": "1.7.4",
+    "axios": "1.8.2",
     "Base64": "^1.0.1",
     "core-js": "^3.19.0",
     "esm": "^3.2.25",
-    "form-data": "^4.0.0",
+    "form-data": "^4.0.4",
     "jsonwebtoken": "^9.0.0",
     "jwt-decode": "^2.2.0",
     "promise.allsettled": "^1.0.5",
