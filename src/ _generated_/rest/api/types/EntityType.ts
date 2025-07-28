@@ -17,17 +17,19 @@ export type EntityType =
     | "credit_card_expiration"
     | "cvv"
     | "date"
+    | "day"
     | "date_interval"
     | "dob"
     | "dose"
     | "driver_license"
     | "drug"
     | "duration"
+    | "effect"
     | "email_address"
     | "event"
     | "filename"
     | "financial_metric"
-    | "gender_sexuality"
+    | "gender"
     | "healthcare_number"
     | "injury"
     | "ip_address"
@@ -44,6 +46,7 @@ export type EntityType =
     | "medical_code"
     | "medical_process"
     | "money"
+    | "month"
     | "name"
     | "name_family"
     | "name_given"
@@ -51,16 +54,19 @@ export type EntityType =
     | "numerical_pii"
     | "occupation"
     | "organization"
+    | "organization_id"
     | "organization_medical_facility"
     | "origin"
     | "passport_number"
     | "password"
     | "phone_number"
+    | "project"
     | "physical_attribute"
     | "political_affiliation"
     | "product"
     | "religion"
     | "routing_number"
+    | "sexuality"
     | "ssn"
     | "statistics"
     | "time"
@@ -68,6 +74,7 @@ export type EntityType =
     | "url"
     | "username"
     | "vehicle_id"
+    | "year"
     | "zodiac_sign";
 export const EntityType = {
     AccountNumber: "account_number",
@@ -81,17 +88,19 @@ export const EntityType = {
     CreditCardExpiration: "credit_card_expiration",
     Cvv: "cvv",
     Date: "date",
+    Day: "day",
     DateInterval: "date_interval",
     Dob: "dob",
     Dose: "dose",
     DriverLicense: "driver_license",
     Drug: "drug",
     Duration: "duration",
+    Effect: "effect",
     EmailAddress: "email_address",
     Event: "event",
     Filename: "filename",
     FinancialMetric: "financial_metric",
-    GenderSexuality: "gender_sexuality",
+    Gender: "gender",
     HealthcareNumber: "healthcare_number",
     Injury: "injury",
     IpAddress: "ip_address",
@@ -108,6 +117,7 @@ export const EntityType = {
     MedicalCode: "medical_code",
     MedicalProcess: "medical_process",
     Money: "money",
+    Month: "month",
     Name: "name",
     NameFamily: "name_family",
     NameGiven: "name_given",
@@ -115,16 +125,19 @@ export const EntityType = {
     NumericalPii: "numerical_pii",
     Occupation: "occupation",
     Organization: "organization",
+    OrganizationId: "organization_id",
     OrganizationMedicalFacility: "organization_medical_facility",
     Origin: "origin",
     PassportNumber: "passport_number",
     Password: "password",
     PhoneNumber: "phone_number",
+    Project: "project",
     PhysicalAttribute: "physical_attribute",
     PoliticalAffiliation: "political_affiliation",
     Product: "product",
     Religion: "religion",
     RoutingNumber: "routing_number",
+    Sexuality: "sexuality",
     Ssn: "ssn",
     Statistics: "statistics",
     Time: "time",
@@ -132,5 +145,6 @@ export const EntityType = {
     Url: "url",
     Username: "username",
     VehicleId: "vehicle_id",
+    Year: "year",
     ZodiacSign: "zodiac_sign",
 } as const;

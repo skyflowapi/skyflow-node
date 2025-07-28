@@ -13,7 +13,7 @@ export interface DeidentifyStatusResponse {
     /** How the input file was specified. */
     output: Skyflow.DeidentifyFileOutput[];
     /** How the output file is specified. */
-    output_type: Skyflow.DeidentifyStatusResponseOutputType;
+    output_type?: Skyflow.DeidentifyStatusResponseOutputType;
     /** Status details about the detect run. */
     message: string;
     /** Number of words in the processed text. */

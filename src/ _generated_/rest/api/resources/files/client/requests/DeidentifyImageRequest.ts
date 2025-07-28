@@ -27,6 +27,7 @@ export interface DeidentifyImageRequest {
     vault_id: Skyflow.VaultId;
     /** File to de-identify. Files are specified as Base64-encoded data. */
     file: Skyflow.DeidentifyImageRequestFile;
+    configuration_id?: Skyflow.ConfigurationId;
     /** If `true`, includes processed image in the output. */
     output_processed_image?: boolean;
     /** If `true`, includes OCR text output in the response. */

@@ -5,9 +5,8 @@
 /**
  * How the output file is specified.
  */
-export type DeidentifyStatusResponseOutputType = "BASE64" | "EFS_PATH" | "UNKNOWN";
+export type DeidentifyStatusResponseOutputType = "base64" | "efs_path";
 export const DeidentifyStatusResponseOutputType = {
-    Base64: "BASE64",
-    EfsPath: "EFS_PATH",
-    Unknown: "UNKNOWN",
+    Base64: "base64",
+    EfsPath: "efs_path",
 } as const;

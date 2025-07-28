@@ -1,7 +1,7 @@
 //imports
 
 import path from "path";
-import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest, DeidentifyAudioRequestFileDataFormat, DeidentifyDocumentRequest, DeidentifyDocumentRequestFileDataFormat, DeidentifyFileRequestFileDataFormat, DeidentifyImageRequest, DeidentifyImageRequestFileDataFormat, DeidentifyImageRequestMaskingMethod, DeidentifyPdfRequest, DeidentifyPresentationRequest, DeidentifyPresentationRequestFileDataFormat, DeidentifySpreadsheetRequest, DeidentifySpreadsheetRequestFileDataFormat, DeidentifyStructuredTextRequest, DeidentifyStructuredTextRequestFileDataFormat, DetectedEntity, EntityType, GetRunRequest, Transformations as GeneratedTransformations, TokenTypeWithoutVault, DeidentifyStringResponse, DeidentifyStatusResponse } from "../../../ _generated_/rest/api";
+import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest, DeidentifyDocumentRequest, DeidentifyDocumentRequestFileDataFormat, DeidentifyFileRequestFileDataFormat, DeidentifyImageRequest, DeidentifyImageRequestFileDataFormat, DeidentifyImageRequestMaskingMethod, DeidentifyPdfRequest, DeidentifyPresentationRequest, DeidentifyPresentationRequestFileDataFormat, DeidentifySpreadsheetRequest, DeidentifySpreadsheetRequestFileDataFormat, DeidentifyStructuredTextRequest, DeidentifyStructuredTextRequestFileDataFormat, DetectedEntity, EntityType, GetRunRequest, Transformations as GeneratedTransformations, TokenTypeWithoutVault, DeidentifyStringResponse, DeidentifyStatusResponse, DeidentifyAudioRequestFileDataFormat } from "../../../ _generated_/rest/api";
 import { DeidentifyFileRequest as  DeidentifyFileRequest2} from "../../../ _generated_/rest/api";
 
 import { TokenType } from "../../../ _generated_/rest/api";
@@ -350,7 +350,8 @@ class DetectController {
         const poll = () => {
             this.client.filesAPI.getRun(runId, req)
                 .then((response: DeidentifyStatusResponse) => {
-                    if (response.status === 'IN_PROGRESS') {
+                    if (response.status?.toUpperCase() === 'IN_PROGRESS'
+) {
                         if (currentWaitTime >= maxWaitTime) {
                             resolve({ runId }); // Resolve with runId if max wait time is exceeded
                         } else {
@@ -367,10 +368,10 @@ class DetectController {
                                 poll();
                             }, waitTime * 1000);
                         }
-                    } else if (response.status === 'SUCCESS') {
+                    } else if (response.status?.toUpperCase() === 'SUCCESS') {
                         resolve(response); // Resolve with the processed file response
                     }
-                    else if (response.status === 'FAILED') {
+                    else if (response.status?.toUpperCase() === 'FAILED') {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     }
                 })

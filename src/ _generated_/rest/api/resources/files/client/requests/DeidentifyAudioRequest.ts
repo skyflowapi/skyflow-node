@@ -27,6 +27,7 @@ export interface DeidentifyAudioRequest {
     vault_id: Skyflow.VaultId;
     /** File to de-identify. Files are specified as Base64-encoded data. */
     file: Skyflow.DeidentifyAudioRequestFile;
+    configuration_id?: Skyflow.ConfigurationId;
     /** If `true`, includes processed audio file in the response. */
     output_processed_audio?: boolean;
     /** Type of transcription to output. */

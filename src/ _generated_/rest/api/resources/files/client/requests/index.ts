@@ -8,3 +8,4 @@ export { type DeidentifySpreadsheetRequest } from "./DeidentifySpreadsheetReques
 export { type DeidentifyPresentationRequest } from "./DeidentifyPresentationRequest";
 export { type DeidentifyAudioRequest } from "./DeidentifyAudioRequest";
 export { type GetRunRequest } from "./GetRunRequest";
+export { type ReidentifyFileRequest } from "./ReidentifyFileRequest";
