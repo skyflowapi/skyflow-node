@@ -8,6 +8,7 @@
 export type DeidentifyFileRequestFileDataFormat =
     | "bmp"
     | "csv"
+    | "dcm"
     | "doc"
     | "docx"
     | "jpeg"
@@ -28,6 +29,7 @@ export type DeidentifyFileRequestFileDataFormat =
 export const DeidentifyFileRequestFileDataFormat = {
     Bmp: "bmp",
     Csv: "csv",
+    Dcm: "dcm",
     Doc: "doc",
     Docx: "docx",
     Jpeg: "jpeg",
