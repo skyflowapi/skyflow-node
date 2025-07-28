@@ -850,12 +850,9 @@ export class Records {
         requestOptions?: Records.RequestOptions,
     ): Promise<core.WithRawResponse<Skyflow.V1UpdateRecordResponse>> {
         const _request = await core.newFormData();
-        if (file != null) {
-            await _request.appendFile("file", file);
-        }
-
-        if (request.columnName != null) {
-            _request.append("columnName", request.columnName);
+        if (file != null && request.columnName != null) {
+            await _request.appendFile(request.columnName, file);
+        
         }
 
         const _maybeEncodedRequest = await _request.getRequest();
