@@ -17,8 +17,8 @@ export type EntityType =
     | "credit_card_expiration"
     | "cvv"
     | "date"
-    | "day"
     | "date_interval"
+    | "day"
     | "dob"
     | "dose"
     | "driver_license"
@@ -60,10 +60,10 @@ export type EntityType =
     | "passport_number"
     | "password"
     | "phone_number"
-    | "project"
     | "physical_attribute"
     | "political_affiliation"
     | "product"
+    | "project"
     | "religion"
     | "routing_number"
     | "sexuality"
@@ -88,8 +88,8 @@ export const EntityType = {
     CreditCardExpiration: "credit_card_expiration",
     Cvv: "cvv",
     Date: "date",
-    Day: "day",
     DateInterval: "date_interval",
+    Day: "day",
     Dob: "dob",
     Dose: "dose",
     DriverLicense: "driver_license",
@@ -131,10 +131,10 @@ export const EntityType = {
     PassportNumber: "passport_number",
     Password: "password",
     PhoneNumber: "phone_number",
-    Project: "project",
     PhysicalAttribute: "physical_attribute",
     PoliticalAffiliation: "political_affiliation",
     Product: "product",
+    Project: "project",
     Religion: "religion",
     RoutingNumber: "routing_number",
     Sexuality: "sexuality",
