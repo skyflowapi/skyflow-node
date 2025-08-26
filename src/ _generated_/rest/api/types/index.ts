@@ -1,3 +1,4 @@
+export * from "./UploadFileV2Response";
 export * from "./AuditEventAuditResourceType";
 export * from "./AuditEventContext";
 export * from "./AuditEventData";

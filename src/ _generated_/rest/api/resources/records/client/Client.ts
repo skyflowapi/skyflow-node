@@ -1107,6 +1107,124 @@ export class Records {
         }
     }
 
+    /**
+     * Uploads the specified file to a record. If an existing record isn't specified, creates a new record and uploads the file to that record.
+     *
+     * @param {File | fs.ReadStream | Blob} file
+     * @param {string} vaultId
+     * @param {Skyflow.UploadFileV2Request} request
+     * @param {Records.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Skyflow.BadRequestError}
+     * @throws {@link Skyflow.UnauthorizedError}
+     * @throws {@link Skyflow.NotFoundError}
+     * @throws {@link Skyflow.InternalServerError}
+     *
+     * @example
+     *     await client.records.uploadFileV2(fs.createReadStream("/path/to/your/file"), "d4410ea01d83473ca09a24c6b03096d4", {
+     *         tableName: "tableName",
+     *         columnName: "columnName"
+     *     })
+     */
+    public uploadFileV2(
+        file: File | fs.ReadStream | Blob,
+        vaultId: string,
+        request: Skyflow.UploadFileV2Request,
+        requestOptions?: Records.RequestOptions,
+    ): core.HttpResponsePromise<Skyflow.UploadFileV2Response> {
+        return core.HttpResponsePromise.fromPromise(this.__uploadFileV2(file, vaultId, request, requestOptions));
+    }
+
+    private async __uploadFileV2(
+        file: File | fs.ReadStream | Blob,
+        vaultId: string,
+        request: Skyflow.UploadFileV2Request,
+        requestOptions?: Records.RequestOptions,
+    ): Promise<core.WithRawResponse<Skyflow.UploadFileV2Response>> {
+        const _request = await core.newFormData();
+        _request.append("tableName", request.tableName);
+        _request.append("columnName", request.columnName);
+        await _request.appendFile("file", file);
+        if (request.skyflowID != null) {
+            _request.append("skyflowID", request.skyflowID);
+        }
+
+        if (request.returnFileMetadata != null) {
+            _request.append("returnFileMetadata", request.returnFileMetadata.toString());
+        }
+
+        const _maybeEncodedRequest = await _request.getRequest();
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SkyflowEnvironment.Production,
+                `v2/vaults/${encodeURIComponent(vaultId)}/files/upload`,
+            ),
+            method: "POST",
+            headers: {
+                Authorization: await this._getAuthorizationHeader(),
+                "X-Fern-Language": "JavaScript",
+                "X-Fern-SDK-Name": "skyflow",
+                "X-Fern-SDK-Version": "1.0.21",
+                "User-Agent": "skyflow/1.0.21",
+                "X-Fern-Runtime": core.RUNTIME.type,
+                "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ..._maybeEncodedRequest.headers,
+                ...requestOptions?.headers,
+            },
+            requestType: "file",
+            duplex: _maybeEncodedRequest.duplex,
+            body: _maybeEncodedRequest.body,
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Skyflow.UploadFileV2Response, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Skyflow.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 401:
+                    throw new Skyflow.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Skyflow.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Skyflow.InternalServerError(
+                        _response.error.body as Skyflow.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.SkyflowError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.SkyflowError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.SkyflowTimeoutError(
+                    "Timeout exceeded when calling POST /v2/vaults/{vaultID}/files/upload.",
+                );
+            case "unknown":
+                throw new errors.SkyflowError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
     protected async _getAuthorizationHeader(): Promise<string> {
         return `Bearer ${await core.Supplier.get(this._options.token)}`;
     }

@@ -5,3 +5,4 @@ export { type RecordServiceBulkDeleteRecordBody } from "./RecordServiceBulkDelet
 export { type RecordServiceGetRecordRequest } from "./RecordServiceGetRecordRequest";
 export { type RecordServiceUpdateRecordBody } from "./RecordServiceUpdateRecordBody";
 export { type FileServiceUploadFileRequest } from "./FileServiceUploadFileRequest";
+export { type UploadFileV2Request } from "./UploadFileV2Request";
