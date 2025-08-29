@@ -1311,7 +1311,7 @@ describe('VaultController uploadFile method', () => {
         mockVaultClient = {
             getLogLevel: jest.fn().mockReturnValue('DEBUG'),
             vaultAPI: {
-                fileServiceUploadFile: jest.fn(),
+                uploadFileV2: jest.fn(),
             },
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
@@ -1341,9 +1341,9 @@ describe('VaultController uploadFile method', () => {
         jest.spyOn(mockFs, 'readFileSync').mockReturnValueOnce(mockFileBuffer);
         jest.spyOn(mockPath, 'basename').mockReturnValueOnce(mockFileName);
 
-        const mockResponseData = { skyflow_id: 'id123' };
+        const mockResponseData = { skyflowID: 'id123' };
 
-        mockVaultClient.vaultAPI.fileServiceUploadFile.mockImplementation(() => ({
+        mockVaultClient.vaultAPI.uploadFileV2.mockImplementation(() => ({
             withRawResponse: jest.fn().mockResolvedValueOnce({
                 data: mockResponseData,
                 rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
@@ -1352,7 +1352,7 @@ describe('VaultController uploadFile method', () => {
 
         const response = await vaultController.uploadFile(mockRequest, mockOptions);
 
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.uploadFileV2).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
         expect(response.errors).toBeNull();
@@ -1371,8 +1371,8 @@ describe('VaultController uploadFile method', () => {
             getFileName: jest.fn().mockReturnValue('file.json'),
         };
         const mockBuffer = Buffer.from('base64string', 'base64');
-        const mockResponseData = { skyflow_id: 'id123' };
-        mockVaultClient.vaultAPI.fileServiceUploadFile.mockImplementation(() => ({
+        const mockResponseData = { skyflowID: 'id123' };
+        mockVaultClient.vaultAPI.uploadFileV2.mockImplementation(() => ({
             withRawResponse: jest.fn().mockResolvedValueOnce({
                 data: mockResponseData,
                 rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
@@ -1381,7 +1381,7 @@ describe('VaultController uploadFile method', () => {
 
         const response = await vaultController.uploadFile(mockRequest, mockOptions);
 
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.uploadFileV2).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
         expect(response.errors).toBeNull();
@@ -1400,8 +1400,8 @@ describe('VaultController uploadFile method', () => {
             getFileObject: jest.fn().mockReturnValue(mockFileObject),
             getFileName: jest.fn(),
         };
-        const mockResponseData = { skyflow_id: 'id123' };
-        mockVaultClient.vaultAPI.fileServiceUploadFile.mockImplementation(() => ({
+        const mockResponseData = { skyflowID: 'id123' };
+        mockVaultClient.vaultAPI.uploadFileV2.mockImplementation(() => ({
             withRawResponse: jest.fn().mockResolvedValueOnce({
                 data: mockResponseData,
                 rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
@@ -1410,7 +1410,7 @@ describe('VaultController uploadFile method', () => {
 
         const response = await vaultController.uploadFile(mockRequest, mockOptions);
 
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.uploadFileV2).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
         expect(response.errors).toBeNull();
@@ -1435,7 +1435,7 @@ describe('VaultController uploadFile method', () => {
 
         await expect(vaultController.uploadFile(mockRequest, mockOptions)).rejects.toThrow('Validation error');
         expect(validateUploadFileRequest).toHaveBeenCalled();
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).not.toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.uploadFileV2).not.toHaveBeenCalled();
     });
 
     test('should handle API errors during file upload', async () => {
@@ -1452,7 +1452,7 @@ describe('VaultController uploadFile method', () => {
         };
         const mockFileBuffer = Buffer.from('file content');
         jest.spyOn(mockFs, 'readFileSync').mockReturnValueOnce(mockFileBuffer);
-        mockVaultClient.vaultAPI.fileServiceUploadFile.mockImplementation(() => {
+        mockVaultClient.vaultAPI.uploadFileV2.mockImplementation(() => {
             return {
                 withRawResponse: jest.fn().mockRejectedValue(new Error('API error')),
             };
