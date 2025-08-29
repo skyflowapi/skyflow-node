@@ -1,7 +1,7 @@
 //imports
 import * as fs from 'fs';
 import InsertRequest from "../../model/request/insert";
-import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, V1Byot, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest } from '../../../ _generated_/rest/api';
+import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, UploadFileV2Request, UploadFileV2Response, V1Byot, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest } from '../../../ _generated_/rest/api';
 import InsertOptions from "../../model/options/insert";
 import GetRequest from "../../model/request/get";
 import GetOptions from "../../model/options/get";
@@ -437,20 +437,23 @@ class VaultController {
                     fileBlob = options?.getFileObject();
                 }
 
-                this.handleRequest<SkyflowIdResponse>(
-                    (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.fileServiceUploadFile(
+                const uploadFileV2Request: UploadFileV2Request = {
+                    columnName:request.columnName,
+                    tableName: request.tableName,
+                    skyflowID: request.skyflowId,
+                    returnFileMetadata: false,
+                }
+
+                this.handleRequest<UploadFileV2Response>(
+                    (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.uploadFileV2(
                         fileBlob as unknown as import('buffer').Blob,
                         this.client.vaultId,
-                        request.tableName,
-                        request.skyflowId,
-                        {
-                            columnName: request.columnName
-                        }
+                        uploadFileV2Request,
                     ).withRawResponse(),
                     TYPES.FILE_UPLOAD
                 ).then(data => {
                     printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    resolve(new FileUploadResponse({ skyflowId: data.skyflow_id, errors: null }));
+                    resolve(new FileUploadResponse({ skyflowId: data.skyflowID ?? "", errors: null }));
                 })
                     .catch(error => {
                         reject(error);

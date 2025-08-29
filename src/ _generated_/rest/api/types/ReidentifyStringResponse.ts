@@ -7,5 +7,5 @@
  */
 export interface ReidentifyStringResponse {
     /** Re-identified text. */
-    processed_text?: string;
+    text?: string;
 }

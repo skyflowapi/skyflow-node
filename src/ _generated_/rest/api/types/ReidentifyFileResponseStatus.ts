@@ -5,9 +5,10 @@
 /**
  * Status of the re-identify operation.
  */
-export type ReidentifyFileResponseStatus = "failed" | "in_progress" | "success";
+export type ReidentifyFileResponseStatus = "FAILED" | "IN_PROGRESS" | "SUCCESS" | "UNKNOWN";
 export const ReidentifyFileResponseStatus = {
-    Failed: "failed",
-    InProgress: "in_progress",
-    Success: "success",
+    Failed: "FAILED",
+    InProgress: "IN_PROGRESS",
+    Success: "SUCCESS",
+    Unknown: "UNKNOWN",
 } as const;

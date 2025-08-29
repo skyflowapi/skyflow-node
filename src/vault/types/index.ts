@@ -198,15 +198,14 @@ export interface DeidentifyFileOutput {
     processedFileExtension?: string;
 }
 
-export type DeidentifyStatusResponseOutputType = "BASE64" | "EFS_PATH" | "UNKNOWN";
-
+export type DeidentifyStatusResponseOutputType = "BASE64" | "UNKNOWN";
 export type WordCharacterCount = {
     wordCount?: number;
     characterCount?: number;
 }
 
 export interface DeidentifyFileDetectRunResponse {
-    status: "FAILED" | "IN_PROGRESS" | "SUCCESS";
+    status: "FAILED" | "IN_PROGRESS" | "SUCCESS" | "UNKNOWN";
     output: DeidentifyFileOutput[];
     outputType: DeidentifyStatusResponseOutputType;
     message: string;

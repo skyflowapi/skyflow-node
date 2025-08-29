@@ -11,6 +11,6 @@ export interface ReidentifyFileResponse {
     /** Status of the re-identify operation. */
     status: Skyflow.ReidentifyFileResponseStatus;
     /** Format of the output file. */
-    output_type: "BASE64";
+    output_type: Skyflow.ReidentifyFileResponseOutputType;
     output: Skyflow.ReidentifyFileResponseOutput;
 }
