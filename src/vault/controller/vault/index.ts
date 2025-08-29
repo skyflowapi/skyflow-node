@@ -441,7 +441,7 @@ class VaultController {
                     columnName:request.columnName,
                     tableName: request.tableName,
                     skyflowID: request.skyflowId,
-                    returnFileMetadata: true,
+                    returnFileMetadata: false,
                 }
 
                 this.handleRequest<UploadFileV2Response>(
