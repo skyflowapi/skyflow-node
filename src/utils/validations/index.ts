@@ -539,12 +539,12 @@ export const validateTokensForInsertRequest = (
 
 export const validateInsertRequest = (insertRequest: InsertRequest, insertOptions?: InsertOptions, logLevel: LogLevel = LogLevel.ERROR) => { //
     if (insertRequest) {
-        if (!insertRequest?.tableName || !Object.prototype.hasOwnProperty.call(insertRequest, '_tableName')) {
+        if (!insertRequest?.table || !Object.prototype.hasOwnProperty.call(insertRequest, '_table')) {
             printLog(logs.errorLogs.EMPTY_TABLE_IN_INSERT, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
-        if (typeof insertRequest.tableName !== 'string' || insertRequest.tableName.trim().length === 0) {
+        if (typeof insertRequest.table !== 'string' || insertRequest.table.trim().length === 0) {
             printLog(logs.errorLogs.INVALID_TABLE_IN_INSERT, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
@@ -600,12 +600,12 @@ export const validateUpdateOptions = (updateOptions?: UpdateOptions) => {
 
 export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOptions?: UpdateOptions, logLevel: LogLevel = LogLevel.ERROR) => {
     if (updateRequest) {
-        if (!updateRequest?.tableName || !Object.prototype.hasOwnProperty.call(updateRequest, '_tableName')) {
+        if (!updateRequest?.table || !Object.prototype.hasOwnProperty.call(updateRequest, '_table')) {
             printLog(logs.errorLogs.EMPTY_TABLE_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
-        if (typeof updateRequest.tableName !== 'string' || updateRequest.tableName.trim().length === 0) {
+        if (typeof updateRequest.table !== 'string' || updateRequest.table.trim().length === 0) {
             printLog(logs.errorLogs.INVALID_TABLE_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
@@ -698,12 +698,12 @@ export const validateGetOptions = (getOptions?: GetOptions) => {
 
 export const validateGetRequest = (getRequest: GetRequest, getOptions?: GetOptions, logLevel: LogLevel = LogLevel.ERROR) => {
     if (getRequest) {
-        if (!getRequest?.tableName || !Object.prototype.hasOwnProperty.call(getRequest, '_tableName')) {
+        if (!getRequest?.table || !Object.prototype.hasOwnProperty.call(getRequest, '_table')) {
             printLog(logs.errorLogs.EMPTY_TABLE_IN_GET, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
-        if (typeof getRequest.tableName !== 'string' || getRequest.tableName.trim().length === 0) {
+        if (typeof getRequest.table !== 'string' || getRequest.table.trim().length === 0) {
             printLog(logs.errorLogs.INVALID_TABLE_IN_GET, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
@@ -738,12 +738,12 @@ export const validateGetRequest = (getRequest: GetRequest, getOptions?: GetOptio
 
 export const validateGetColumnRequest = (getRequest: GetColumnRequest, getOptions?: GetOptions, logLevel: LogLevel = LogLevel.ERROR) => {
     if (getRequest) {
-        if (!getRequest?.tableName || !Object.prototype.hasOwnProperty.call(getRequest, '_tableName')) {
+        if (!getRequest?.table || !Object.prototype.hasOwnProperty.call(getRequest, '_table')) {
             printLog(logs.errorLogs.EMPTY_TABLE_IN_GET_COLUMN, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
-        if (typeof getRequest.tableName !== 'string' || getRequest.tableName.trim().length === 0) {
+        if (typeof getRequest.table !== 'string' || getRequest.table.trim().length === 0) {
             printLog(logs.errorLogs.INVALID_TABLE_IN_GET_COLUMN, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
@@ -883,12 +883,12 @@ export const validateTokenizeRequest = (tokenizeRequest: TokenizeRequest, logLev
 
 export const validateDeleteRequest = (deleteRequest: DeleteRequest, logLevel: LogLevel = LogLevel.ERROR) => {
     if (deleteRequest) {
-        if (!deleteRequest?.tableName || !Object.prototype.hasOwnProperty.call(deleteRequest, '_tableName')) {
+        if (!deleteRequest?.table || !Object.prototype.hasOwnProperty.call(deleteRequest, '_table')) {
             printLog(logs.errorLogs.EMPTY_TABLE_IN_DELETE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME);
         }
 
-        if (typeof deleteRequest?.tableName !== 'string' || deleteRequest?.tableName.trim().length === 0) {
+        if (typeof deleteRequest?.table !== 'string' || deleteRequest?.table.trim().length === 0) {
             printLog(logs.errorLogs.INVALID_TABLE_IN_DELETE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_NAME);
         }
@@ -926,12 +926,12 @@ export const validateUploadFileRequest = (fileRequest: FileUploadRequest, option
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_FILE_UPLOAD_REQUEST);
     }
 
-    if (!fileRequest?.tableName || !Object.prototype.hasOwnProperty.call(fileRequest, '_tableName')) {
+    if (!fileRequest?.table || !Object.prototype.hasOwnProperty.call(fileRequest, '_table')) {
         printLog(logs.errorLogs.EMPTY_TABLE_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
         throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TABLE_IN_UPLOAD_FILE);
     }
 
-    if (typeof fileRequest?.tableName !== 'string' || fileRequest?.tableName.trim().length === 0) {
+    if (typeof fileRequest?.table !== 'string' || fileRequest?.table.trim().length === 0) {
         printLog(logs.errorLogs.INVALID_TABLE_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPLOAD_FILE);
     }

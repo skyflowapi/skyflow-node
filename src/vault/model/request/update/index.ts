@@ -3,23 +3,23 @@
 class UpdateRequest {
 
     //fields
-    private _tableName: string;
+    private _table: string;
     private _data: Record<string, unknown>;
 
     // Constructor
-    constructor(tableName: string, data: Record<string, unknown>) {
-        this._tableName = tableName;
+    constructor(table: string, data: Record<string, unknown>) {
+        this._table = table;
         this._data = data;
     }
 
-    // Getter for tableName
-    public get tableName(): string {
-        return this._tableName;
+    // Getter for table
+    public get table(): string {
+        return this._table;
     }
 
-    // Setter for tableName
-    public set tableName(value: string) {
-        this._tableName = value;
+    // Setter for table
+    public set table(value: string) {
+        this._table = value;
     }
 
     // Getter for updateData
