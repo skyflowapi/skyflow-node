@@ -202,7 +202,6 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: this.getTransformations(options) as GeneratedTransformations,
         };
         return spreadsheetRequest;
     }

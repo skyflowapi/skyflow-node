@@ -1152,6 +1152,11 @@ export const validateDeidentifyFileOptions = (deidentifyFileOptions: DeidentifyF
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
     }
 
+    const tokenFormat = deidentifyFileOptions.getTokenFormat();
+    if(tokenFormat != null && tokenFormat.getVaultToken() != null && tokenFormat.getVaultToken()!.length > 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.TOKEN_FORMAT_NOT_ALLOWED);
+    }
+
     // Validate transformations
     if (deidentifyFileOptions.getTransformations() && !(deidentifyFileOptions.getTransformations() instanceof Transformations)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TRANSFORMATIONS);
