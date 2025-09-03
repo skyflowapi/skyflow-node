@@ -203,6 +203,7 @@ const errorMessages = {
     INVALID_RESTRICT_REGEX_LIST: `${errorPrefix} Validation error. The restrictRegexList field must be an array of strings. Specify a valid restrictRegexList.`,
     INVALID_TOKEN_FORMAT: `${errorPrefix} Validation error. The tokenFormat key must be an instance of TokenFormat. Specify a valid token format.`,
     INVALID_TRANSFORMATIONS: `${errorPrefix} Validation error. The transformations key must be an instance of Transformations. Specify a valid transformations.`,
+    VAULT_TOKEN_FORMAT_NOT_ALLOWED_FOR_DEIDENTIFY_FILES: `${errorPrefix} Validation error. Vault token format is not allowed for deidentify file request.`,
 
     INVALID_TEXT_IN_REIDENTIFY: `${errorPrefix} Validation error. The text field is required and must be a non-empty string. Specify a valid text.`,
     INVALID_REDACTED_ENTITIES_IN_REIDENTIFY: `${errorPrefix} Validation error. The redactedEntities field must be an array of DetectEntities enums. Specify a valid redactedEntities.`,

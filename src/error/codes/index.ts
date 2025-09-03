@@ -196,6 +196,7 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_ALLOW_REGEX_LIST: { http_code: 400, message: errorMessages.INVALID_ALLOW_REGEX_LIST },
     INVALID_RESTRICT_REGEX_LIST: { http_code: 400, message: errorMessages.INVALID_RESTRICT_REGEX_LIST },
     INVALID_TOKEN_FORMAT: { http_code: 400, message: errorMessages.INVALID_TOKEN_FORMAT },
+    TOKEN_FORMAT_NOT_ALLOWED: { http_code: 400, message: errorMessages.VAULT_TOKEN_FORMAT_NOT_ALLOWED_FOR_DEIDENTIFY_FILES},
     INVALID_TRANSFORMATIONS: { http_code: 400, message: errorMessages.INVALID_TRANSFORMATIONS },
 
     INVALID_TEXT_IN_REIDENTIFY: { http_code: 400, message: errorMessages.INVALID_TEXT_IN_REIDENTIFY },

@@ -1,23 +1,23 @@
 // Imports
 
 class FileUploadRequest {
-    private _tableName: string;
+    private _table: string;
     private _skyflowId: string;
     private _columnName: string;
 
     // Constructor
-    constructor(tableName: string, skyflowId: string, columnName: string) {
-        this._tableName = tableName;
+    constructor(table: string, skyflowId: string, columnName: string) {
+        this._table = table;
         this._skyflowId = skyflowId;
         this._columnName = columnName;
     }    
 
     // Getters and Setters
-    public get tableName(): string {
-        return this._tableName;
+    public get table(): string {
+        return this._table;
     }
-    public set tableName(value: string) {
-        this._tableName = value;
+    public set table(value: string) {
+        this._table = value;
     }
 
     public get skyflowId(): string {

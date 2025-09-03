@@ -184,7 +184,7 @@ class VaultController {
     private buildBatchInsertBody(request: InsertRequest, options?: InsertOptions): RecordServiceBatchOperationBody {
         const records = request.data.map((record, index) => ({
             fields: record as Record<string, unknown> || {},
-            tableName: request.tableName,
+            tableName: request.table,
             tokenization: options?.getReturnTokens() || false,
             method: BatchRecordMethod.Post,
             tokens: this.getTokens(index, options?.getTokens()) as Record<string, unknown>,
@@ -235,7 +235,7 @@ class VaultController {
 
 
                 const operationType = isContinueOnError ? TYPES.INSERT_BATCH : TYPES.INSERT;
-                const tableName = request.tableName;
+                const tableName = request.table;
                 this.handleRequest<RecordsResponse>(
                     (headers: Records.RequestOptions | undefined) =>
                         isContinueOnError
@@ -281,7 +281,7 @@ class VaultController {
                 this.handleRequest<TokensResponse>(
                     (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceUpdateRecord(
                         this.client.vaultId,
-                        request.tableName,
+                        request.table,
                         skyflowId as string,
                         updateData,
                         headers
@@ -321,7 +321,7 @@ class VaultController {
                 this.handleRequest<DeleteResponse>(
                     (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceBulkDeleteRecord(
                         this.client.vaultId,
-                        request.tableName,
+                        request.table,
                         deleteRequest,
                         headers
                     ).withRawResponse(),
@@ -382,7 +382,7 @@ class VaultController {
                 this.handleRequest<RecordsResponse>(
                     (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceBulkGetRecord(
                         this.client.vaultId,
-                        request.tableName,
+                        request.table,
                         payload,
                         headers
                     ).withRawResponse(),
@@ -439,7 +439,7 @@ class VaultController {
 
                 const uploadFileV2Request: UploadFileV2Request = {
                     columnName:request.columnName,
-                    tableName: request.tableName,
+                    tableName: request.table,
                     skyflowID: request.skyflowId,
                     returnFileMetadata: false,
                 }
