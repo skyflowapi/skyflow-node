@@ -3,25 +3,25 @@
 class GetColumnRequest {
 
     //fields
-    private _tableName: string;
+    private _table: string;
     private _columnName: string;
     private _columnValues: Array<string>;
 
     // Constructor
-    constructor(tableName: string, _columnName: string, _columnValues: Array<string>) {
-        this._tableName = tableName;
+    constructor(table: string, _columnName: string, _columnValues: Array<string>) {
+        this._table = table;
         this._columnName = _columnName;
         this._columnValues = _columnValues;
     }
 
-    // Getter for tableName
-    public get tableName(): string {
-        return this._tableName;
+    // Getter for table
+    public get table(): string {
+        return this._table;
     }
 
-    // Setter for tableName
-    public set tableName(value: string) {
-        this._tableName = value;
+    // Setter for table
+    public set table(value: string) {
+        this._table = value;
     }
 
     // Getter for columnName

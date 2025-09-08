@@ -202,7 +202,6 @@ class DetectController {
             } as TokenTypeWithoutVault,
             allow_regex: options?.getAllowRegexList(),
             restrict_regex: options?.getRestrictRegexList(),
-            transformations: this.getTransformations(options) as GeneratedTransformations,
         };
         return spreadsheetRequest;
     }
@@ -369,7 +368,7 @@ class DetectController {
                             }, waitTime * 1000);
                         }
                     } else if (response.status?.toUpperCase() === 'SUCCESS') {
-                        resolve(response); // Resolve with the processed file response
+                        resolve([response, runId]); // Resolve with the processed file response and runId
                     }
                     else if (response.status?.toUpperCase() === 'FAILED') {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
@@ -475,7 +474,7 @@ class DetectController {
         return new DeidentifyFileResponse({
             fileBase64: base64String,
             file: file,
-            type: data.output?.[0]?.processedFileType ?? '',
+            type: data.output?.[0]?.processedFileType ?? data.outputType ?? "",
             extension: extension,
             wordCount: data.wordCharacterCount?.wordCount ?? 0,
             charCount: data.wordCharacterCount?.characterCount ?? 0,
@@ -606,7 +605,7 @@ class DetectController {
                 this.waitTime = options?.getWaitTime() ?? this.waitTime; 
 
                 var reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension); 
-                var promiseReq: Promise<DeidentifyFileDetectRunResponse>;
+                var promiseReq: Promise<[DeidentifyFileDetectRunResponse, string]>;
                 switch (reqType){
                     case DeidenitfyFileRequestTypes.AUDIO:
                         promiseReq = this.buildAudioRequest(fileObj, options, fileExtension)
@@ -709,17 +708,17 @@ class DetectController {
                         break;                    
                 }
 
-                promiseReq.then(data => {
-                    if(data.runId){
+                promiseReq.then(([data, runId])  => {
+                    if(runId && data.status === "IN_PROGRESS") {
                         resolve(new DeidentifyFileResponse({
-                            runId: data.runId,
-                            status: 'IN_PROGRESS',
+                            runId: runId,
+                            status: data.status,
                         }));
                     }
                     if (options?.getOutputDirectory() && data.status === "SUCCESS") {
                         this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
                     }
-                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, undefined, data.status);
+                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, runId, data.status);
                     resolve(deidentifiedFileResponse);
                 }).catch(error => {
                     reject(error)

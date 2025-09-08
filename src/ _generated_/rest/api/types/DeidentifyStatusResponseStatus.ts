@@ -5,9 +5,10 @@
 /**
  * Status of the detect run.
  */
-export type DeidentifyStatusResponseStatus = "failed" | "in_progress" | "success";
+export type DeidentifyStatusResponseStatus = "FAILED" | "IN_PROGRESS" | "SUCCESS" | "UNKNOWN";
 export const DeidentifyStatusResponseStatus = {
-    Failed: "failed",
-    InProgress: "in_progress",
-    Success: "success",
+    Failed: "FAILED",
+    InProgress: "IN_PROGRESS",
+    Success: "SUCCESS",
+    Unknown: "UNKNOWN",
 } as const;

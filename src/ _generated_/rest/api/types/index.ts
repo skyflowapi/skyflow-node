@@ -1,3 +1,4 @@
+export * from "./UploadFileV2Response";
 export * from "./AuditEventAuditResourceType";
 export * from "./AuditEventContext";
 export * from "./AuditEventData";
@@ -44,10 +45,10 @@ export * from "./V1VaultSchemaConfig";
 export * from "./CheckGuardrailsResponseValidation";
 export * from "./CheckGuardrailsResponse";
 export * from "./EntityType";
-export * from "./ErrorString";
 export * from "./ErrorResponseError";
 export * from "./ErrorResponse";
 export * from "./ReidentifyFileResponseStatus";
+export * from "./ReidentifyFileResponseOutputType";
 export * from "./ReidentifyFileResponseOutput";
 export * from "./ReidentifyFileResponse";
 export * from "./DeidentifyStatusResponseStatus";
