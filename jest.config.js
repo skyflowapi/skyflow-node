@@ -11,7 +11,6 @@ module.exports = {
       "src/.*/model/request",
       "src/.*/model/response",
       "src/.*/model/options",
-      "src/utils/validations",
     ],
     testEnvironmentOptions: {
       "url": "https://skyflow-test.com"

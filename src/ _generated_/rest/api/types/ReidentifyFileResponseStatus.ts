@@ -3,10 +3,10 @@
  */
 
 /**
- * Status of the detect run.
+ * Status of the re-identify operation.
  */
-export type DeidentifyStatusResponseStatus = "FAILED" | "IN_PROGRESS" | "SUCCESS" | "UNKNOWN";
-export const DeidentifyStatusResponseStatus = {
+export type ReidentifyFileResponseStatus = "FAILED" | "IN_PROGRESS" | "SUCCESS" | "UNKNOWN";
+export const ReidentifyFileResponseStatus = {
     Failed: "FAILED",
     InProgress: "IN_PROGRESS",
     Success: "SUCCESS",

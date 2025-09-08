@@ -27,6 +27,7 @@ export interface DeidentifyStructuredTextRequest {
     vault_id: Skyflow.VaultId;
     /** File to de-identify. Files are specified as Base64-encoded data. */
     file: Skyflow.DeidentifyStructuredTextRequestFile;
+    configuration_id?: Skyflow.ConfigurationId;
     entity_types?: Skyflow.EntityTypes;
     token_type?: Skyflow.TokenTypeWithoutVault;
     allow_regex?: Skyflow.AllowRegex;

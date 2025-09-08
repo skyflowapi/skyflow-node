@@ -156,7 +156,7 @@ describe('VaultController insert method', () => {
     test('should successfully insert records with bulk insert', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
@@ -180,7 +180,7 @@ describe('VaultController insert method', () => {
     
         expect(mockVaultClient.vaultAPI.recordServiceInsertRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
-            mockRequest.tableName,
+            mockRequest.table,
             expect.any(Object), // Request body
             expect.any(Object) // Headers
         );
@@ -191,7 +191,7 @@ describe('VaultController insert method', () => {
     test('should reject insert records with bulk insert', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
@@ -213,7 +213,7 @@ describe('VaultController insert method', () => {
 
         expect(mockVaultClient.vaultAPI.recordServiceInsertRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
-            mockRequest.tableName,
+            mockRequest.table,
             expect.any(Object), // Request body
             expect.any(Object) // Headers
         );
@@ -224,7 +224,7 @@ describe('VaultController insert method', () => {
     test('should successfully insert records with batch insert', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
@@ -253,7 +253,7 @@ describe('VaultController insert method', () => {
     test('should successfully insert records with batch insert with null record', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
@@ -282,7 +282,7 @@ describe('VaultController insert method', () => {
     test('should successfully insert records with batch insert with null response', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
@@ -308,7 +308,7 @@ describe('VaultController insert method', () => {
     test('should reject insert records with batch insert', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(true),
@@ -336,7 +336,7 @@ describe('VaultController insert method', () => {
     test('should handle validation errors', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
@@ -358,7 +358,7 @@ describe('VaultController insert method', () => {
     test('should handle errors in the insert second Promise chain', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
@@ -380,7 +380,7 @@ describe('VaultController insert method', () => {
     test('should log and reject on API error', async () => {
         const mockRequest = {
             data: [{ field1: 'value1' }],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getContinueOnError: jest.fn().mockReturnValue(false),
@@ -732,7 +732,7 @@ describe('VaultController delete method', () => {
     test('should successfully delete records', async () => {
         const mockRequest = {
             deleteIds: ['id123'],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockResponseData = { RecordIDResponse: ['id123'] };
 
@@ -747,7 +747,7 @@ describe('VaultController delete method', () => {
 
         expect(mockVaultClient.vaultAPI.recordServiceBulkDeleteRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
-            mockRequest.tableName,
+            mockRequest.table,
             expect.any(Object), // Request body
             expect.any(Object) // Headers
         );
@@ -759,7 +759,7 @@ describe('VaultController delete method', () => {
     test('should handle delete validation errors', async () => {
         const mockRequest = {
             deleteIds: ['id123'],
-            tableName: 'testTable',
+            table: 'testTable',
         };
 
         validateDeleteRequest.mockImplementation(() => {
@@ -774,7 +774,7 @@ describe('VaultController delete method', () => {
     test('should handle API errors during delete', async () => {
         const mockRequest = {
             deleteIds: ['id123'],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const errorResponse = new Error('Invalid');
         validateDeleteRequest.mockImplementation(() => {
@@ -793,7 +793,7 @@ describe('VaultController delete method', () => {
     test('should reject when API returns no deleted records', async () => {
         const mockRequest = {
             deleteIds: ['id123'],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockResponseData = { RecordIDResponse: [] }; // Simulate no records deleted
         validateDeleteRequest.mockImplementation(() => {
@@ -815,7 +815,7 @@ describe('VaultController delete method', () => {
     test('should log and reject when API returns errors during delete', async () => {
         const mockRequest = {
             deleteIds: ['id123'],
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const errorResponse = new Error('Validation error');
         validateDeleteRequest.mockImplementation(() => {
@@ -1112,7 +1112,7 @@ describe('VaultController update method', () => {
         const skyflowId = 'id123';
         const mockRequest = {
             data: { field1: 'value1', skyflowId },
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -1132,7 +1132,7 @@ describe('VaultController update method', () => {
 
         expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
-            mockRequest.tableName,
+            mockRequest.table,
             skyflowId,
             expect.any(Object), // Update data
             expect.any(Object)  // Headers
@@ -1147,7 +1147,7 @@ describe('VaultController update method', () => {
         const skyflowId = 'id123';
         const mockRequest = {
             data: { field1: 'value1', skyflowId },
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = null;
         const mockResponseData = { skyflow_id: 'id123', tokens: { field1: 'token123' } };
@@ -1163,7 +1163,7 @@ describe('VaultController update method', () => {
 
         expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
-            mockRequest.tableName,
+            mockRequest.table,
             skyflowId,
             expect.any(Object), // Update data
             expect.any(Object)  // Headers
@@ -1177,7 +1177,7 @@ describe('VaultController update method', () => {
         const skyflowId = 'id123';
         const mockRequest = {
             data: { field1: 'value1', skyflowId },
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -1197,7 +1197,7 @@ describe('VaultController update method', () => {
 
         expect(mockVaultClient.vaultAPI.recordServiceUpdateRecord).toHaveBeenCalledWith(
             mockVaultClient.vaultId,
-            mockRequest.tableName,
+            mockRequest.table,
             skyflowId,
             expect.any(Object), // Update data
             expect.any(Object)  // Headers
@@ -1211,7 +1211,7 @@ describe('VaultController update method', () => {
     test('should handle validation errors', async () => {
         const mockRequest = {
             data: { field1: 'value1', skyflowId: 'id123' },
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -1231,7 +1231,7 @@ describe('VaultController update method', () => {
     test('should handle API errors during record update', async () => {
         const mockRequest = {
             data: { field1: 'value1', skyflowId: 'id123' },
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -1254,7 +1254,7 @@ describe('VaultController update method', () => {
     test('should return updated record without tokens when token mode is disabled', async () => {
         const mockRequest = {
             data: { field1: 'value1', skyflowId: 'id123' },
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(false),
@@ -1280,7 +1280,7 @@ describe('VaultController update method', () => {
     test('should reject and log when API returns error during update', async () => {
         const mockRequest = {
             data: { field1: 'value1', skyflowId: 'id123' },
-            tableName: 'testTable',
+            table: 'testTable',
         };
         const mockOptions = {
             getReturnTokens: jest.fn().mockReturnValue(true),
@@ -1311,7 +1311,7 @@ describe('VaultController uploadFile method', () => {
         mockVaultClient = {
             getLogLevel: jest.fn().mockReturnValue('DEBUG'),
             vaultAPI: {
-                fileServiceUploadFile: jest.fn(),
+                uploadFileV2: jest.fn(),
             },
             initAPI: jest.fn(),
             getCredentials: jest.fn().mockReturnValue({}),
@@ -1326,7 +1326,7 @@ describe('VaultController uploadFile method', () => {
 
     test('should successfully upload file using filePath', async () => {
         const mockRequest = {
-            tableName: 'testTable',
+            table: 'testTable',
             skyflowId: 'id123',
             columnName: 'testColumn',
         };
@@ -1341,9 +1341,9 @@ describe('VaultController uploadFile method', () => {
         jest.spyOn(mockFs, 'readFileSync').mockReturnValueOnce(mockFileBuffer);
         jest.spyOn(mockPath, 'basename').mockReturnValueOnce(mockFileName);
 
-        const mockResponseData = { skyflow_id: 'id123' };
+        const mockResponseData = { skyflowID: 'id123' };
 
-        mockVaultClient.vaultAPI.fileServiceUploadFile.mockImplementation(() => ({
+        mockVaultClient.vaultAPI.uploadFileV2.mockImplementation(() => ({
             withRawResponse: jest.fn().mockResolvedValueOnce({
                 data: mockResponseData,
                 rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
@@ -1352,7 +1352,7 @@ describe('VaultController uploadFile method', () => {
 
         const response = await vaultController.uploadFile(mockRequest, mockOptions);
 
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.uploadFileV2).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
         expect(response.errors).toBeNull();
@@ -1360,7 +1360,7 @@ describe('VaultController uploadFile method', () => {
 
     test('should successfully upload file using base64', async () => {
         const mockRequest = {
-            tableName: 'testTable',
+            table: 'testTable',
             skyflowId: 'id123',
             columnName: 'testColumn',
         };
@@ -1371,8 +1371,8 @@ describe('VaultController uploadFile method', () => {
             getFileName: jest.fn().mockReturnValue('file.json'),
         };
         const mockBuffer = Buffer.from('base64string', 'base64');
-        const mockResponseData = { skyflow_id: 'id123' };
-        mockVaultClient.vaultAPI.fileServiceUploadFile.mockImplementation(() => ({
+        const mockResponseData = { skyflowID: 'id123' };
+        mockVaultClient.vaultAPI.uploadFileV2.mockImplementation(() => ({
             withRawResponse: jest.fn().mockResolvedValueOnce({
                 data: mockResponseData,
                 rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
@@ -1381,7 +1381,7 @@ describe('VaultController uploadFile method', () => {
 
         const response = await vaultController.uploadFile(mockRequest, mockOptions);
 
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.uploadFileV2).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
         expect(response.errors).toBeNull();
@@ -1389,7 +1389,7 @@ describe('VaultController uploadFile method', () => {
 
     test('should successfully upload file using fileObject', async () => {
         const mockRequest = {
-            tableName: 'testTable',
+            table: 'testTable',
             skyflowId: 'id123',
             columnName: 'testColumn',
         };
@@ -1400,8 +1400,8 @@ describe('VaultController uploadFile method', () => {
             getFileObject: jest.fn().mockReturnValue(mockFileObject),
             getFileName: jest.fn(),
         };
-        const mockResponseData = { skyflow_id: 'id123' };
-        mockVaultClient.vaultAPI.fileServiceUploadFile.mockImplementation(() => ({
+        const mockResponseData = { skyflowID: 'id123' };
+        mockVaultClient.vaultAPI.uploadFileV2.mockImplementation(() => ({
             withRawResponse: jest.fn().mockResolvedValueOnce({
                 data: mockResponseData,
                 rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
@@ -1410,7 +1410,7 @@ describe('VaultController uploadFile method', () => {
 
         const response = await vaultController.uploadFile(mockRequest, mockOptions);
 
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.uploadFileV2).toHaveBeenCalled();
         expect(response).toBeInstanceOf(FileUploadResponse);
         expect(response.skyflowId).toBe('id123');
         expect(response.errors).toBeNull();
@@ -1418,7 +1418,7 @@ describe('VaultController uploadFile method', () => {
 
     test('should handle validation errors during upload', async () => {
         const mockRequest = {
-            tableName: 'testTable',
+            table: 'testTable',
             skyflowId: 'id123',
             columnName: 'testColumn',
         };
@@ -1435,12 +1435,12 @@ describe('VaultController uploadFile method', () => {
 
         await expect(vaultController.uploadFile(mockRequest, mockOptions)).rejects.toThrow('Validation error');
         expect(validateUploadFileRequest).toHaveBeenCalled();
-        expect(mockVaultClient.vaultAPI.fileServiceUploadFile).not.toHaveBeenCalled();
+        expect(mockVaultClient.vaultAPI.uploadFileV2).not.toHaveBeenCalled();
     });
 
     test('should handle API errors during file upload', async () => {
         const mockRequest = {
-            tableName: 'testTable',
+            table: 'testTable',
             skyflowId: 'id123',
             columnName: 'testColumn',
         };
@@ -1452,7 +1452,7 @@ describe('VaultController uploadFile method', () => {
         };
         const mockFileBuffer = Buffer.from('file content');
         jest.spyOn(mockFs, 'readFileSync').mockReturnValueOnce(mockFileBuffer);
-        mockVaultClient.vaultAPI.fileServiceUploadFile.mockImplementation(() => {
+        mockVaultClient.vaultAPI.uploadFileV2.mockImplementation(() => {
             return {
                 withRawResponse: jest.fn().mockRejectedValue(new Error('API error')),
             };
@@ -1689,12 +1689,12 @@ describe('VaultController Error Handling', () => {
             };
         });
 
-        await expect(vaultController.insert({ tableName: 'users', data: [{}] })).rejects.toThrow(SkyflowError);
+        await expect(vaultController.insert({ table: 'users', data: [{}] })).rejects.toThrow(SkyflowError);
 
 
         // You can check if the error contains the right message
         try {
-            await vaultController.insert({ tableName: 'users', data: [{}] });
+            await vaultController.insert({ table: 'users', data: [{}] });
         } catch (e) {
             expect(e).toBeDefined();
         }
@@ -1722,11 +1722,11 @@ describe('VaultController Error Handling', () => {
             };
         });
 
-        await expect(vaultController.insert({ tableName: 'users', data: [{}] })).rejects.toThrow(SkyflowError);
+        await expect(vaultController.insert({ table: 'users', data: [{}] })).rejects.toThrow(SkyflowError);
 
         // Check that the error message is as expected
         try {
-            await vaultController.insert({ tableName: 'users', data: [{}] });
+            await vaultController.insert({ table: 'users', data: [{}] });
         } catch (e) {
             expect(e).toBeDefined();
         }
@@ -1751,11 +1751,11 @@ describe('VaultController Error Handling', () => {
             };
         });
 
-        await expect(vaultController.insert({ tableName: 'users', data: [{}] })).rejects.toThrow(SkyflowError);
+        await expect(vaultController.insert({ table: 'users', data: [{}] })).rejects.toThrow(SkyflowError);
 
         // Check that the error message is as expected
         try {
-            await vaultController.insert({ tableName: 'users', data: [{}] });
+            await vaultController.insert({ table: 'users', data: [{}] });
         } catch (e) {
             expect(e).toBeDefined();
         }
@@ -1774,11 +1774,11 @@ describe('VaultController Error Handling', () => {
             };
         });
 
-        await expect(vaultController.insert({ tableName: 'users', data: [{}] })).rejects.toThrow(SkyflowError);
+        await expect(vaultController.insert({ table: 'users', data: [{}] })).rejects.toThrow(SkyflowError);
 
         // Check that the error message is as expected
         try {
-            await vaultController.insert({ tableName: 'users', data: [{}] });
+            await vaultController.insert({ table: 'users', data: [{}] });
         } catch (e) {
             expect(e).toBeDefined();
         }

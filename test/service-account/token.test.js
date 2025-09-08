@@ -14,6 +14,25 @@ import errorMessages from '../../src/error/messages';
 import jwt from 'jsonwebtoken';
 import { LogLevel } from "../../src";
 
+jest.mock('../../src/service-account/client', () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => ({
+      authApi: {
+        authenticationServiceGetAuthToken: jest.fn(() => ({
+          withRawResponse: jest.fn().mockResolvedValueOnce({
+            data: {
+              accessToken: 'mocked_access_token',
+              tokenType: 'Bearer',
+            },
+            rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
+          })
+        }))
+      }
+    }))
+  };
+});
+
 describe("File Validity Tests", () => {
     const testCases = [
         { description: "invalid JSON", filePath: "test/demo-credentials/invalidJson.json" },

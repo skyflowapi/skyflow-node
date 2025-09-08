@@ -16,3 +16,6 @@ export * from "./DeidentifyPresentationRequestFile";
 export * from "./DeidentifyAudioRequestFileDataFormat";
 export * from "./DeidentifyAudioRequestFile";
 export * from "./DeidentifyAudioRequestOutputTranscription";
+export * from "./ReidentifyFileRequestFileDataFormat";
+export * from "./ReidentifyFileRequestFile";
+export * from "./ReidentifyFileRequestFormat";

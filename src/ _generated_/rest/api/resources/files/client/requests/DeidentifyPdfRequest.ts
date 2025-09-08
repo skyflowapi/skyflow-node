@@ -27,6 +27,7 @@ export interface DeidentifyPdfRequest {
     vault_id: Skyflow.VaultId;
     /** File to de-identify. Files are specified as Base64-encoded data. */
     file: Skyflow.DeidentifyPdfRequestFile;
+    configuration_id?: Skyflow.ConfigurationId;
     /** Pixel density at which to process the PDF file. */
     density?: number;
     /** Max resolution at which to process the PDF file. */
