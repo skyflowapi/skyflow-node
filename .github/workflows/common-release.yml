@@ -81,7 +81,7 @@ jobs:
         run: |
           if [[ "${{ inputs.tag }}" == "beta" ]]; then
             npm publish --tag beta
-          if [[ "${{ inputs.tag }}" == "public" ]]; then
+          elif [[ "${{ inputs.tag }}" == "public" ]]; then
             npm publish
           elif [[ "${{ inputs.tag }}" == "internal" ]]; then
             curl -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_PASSWORD }} https://prekarilabs.jfrog.io/prekarilabs/api/npm/auth/ > ~/.npmrc
