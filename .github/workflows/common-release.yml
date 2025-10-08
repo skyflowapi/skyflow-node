@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14.17.6
-          registry-url: ${{ inputs.registry-url }}
+          # registry-url: ${{ inputs.registry-url }}
 
       - name: Install Packages
         run: npm install
