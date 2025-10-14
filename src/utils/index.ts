@@ -326,7 +326,7 @@ export async function getBearerToken(credentials?: Credentials, logLevel?: LogLe
                 printLog(logs.infoLogs.USING_API_KEY, MessageType.LOG, logLevel);
                 return { type: AuthType.API_KEY, key: apiKeyCred.apiKey };
             }
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_KEY);
         }
 
         // Handle TokenCredentials

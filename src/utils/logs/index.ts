@@ -99,7 +99,7 @@ const logs = {
         EMPTY_CREDENTIALS_STRING: "Invalid credentials. Credentials string can not be empty.",
         EMPTY_TOKEN_VALUE: "Invalid credentials. Token can not be empty.",
         EMPTY_API_KEY_VALUE: "Invalid credentials. Api key can not be empty.",
-        INVALID_API_KEY: "Invalid credentials. Api key is invalid.",
+        INVALID_KEY: "Invalid credentials. Api key is invalid.",
 
         CLIENT_ID_NOT_FOUND: "Invalid credentials. Client ID cannot be empty.",
         TOKEN_URI_NOT_FOUND: "Invalid credentials. Token URI cannot be empty.",

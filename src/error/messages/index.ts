@@ -22,12 +22,12 @@ const errorMessages = {
     INVALID_CREDENTIAL_FILE_PATH: `${errorPrefix} Initialization failed. Invalid credentials. Expected file path to be a string.`,
     
     INVALID_CREDENTIALS_FILE_PATH: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Expected file path to exists.`,
-    INVALID_API_KEY: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid api key.`,
+    INVALID_KEY: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid api key.`,
     INVALID_PARSED_CREDENTIALS_STRING: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid credentials string.`,
     INVALID_BEARER_TOKEN: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid token.`,
 
     INVALID_FILE_PATH_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Expected file path to exists for %s1 with %s2 %s3.`,
-    INVALID_API_KEY_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid api key for %s1 with %s2 %s3.`,
+    INVALID_KEY_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid api key for %s1 with %s2 %s3.`,
     INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid credentials string for %s1 with %s2 %s3.`,
     INVALID_BEARER_TOKEN_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid token for %s1 with %s2 %s3.`,
 

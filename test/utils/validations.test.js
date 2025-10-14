@@ -564,7 +564,7 @@ describe('validateUpdateVaultConfig', () => {
         apiKey: 'invalid-key'  // Invalid API key format
       }
     };
-    expect(() => validateUpdateVaultConfig(config)).toThrow(SKYFLOW_ERROR_CODE.INVALID_API_KEY_WITH_ID);
+    expect(() => validateUpdateVaultConfig(config)).toThrow(SKYFLOW_ERROR_CODE.INVALID_KEY_WITH_ID);
   });
 
   // Test for valid partial update with only vaultId
@@ -738,7 +738,7 @@ describe('validateSkyflowCredentials', () => {
       const credentials = {
         apiKey: 'invalid-key'
       };
-      expect(() => validateSkyflowCredentials(credentials)).toThrow(SKYFLOW_ERROR_CODE.INVALID_API_KEY);
+      expect(() => validateSkyflowCredentials(credentials)).toThrow(SKYFLOW_ERROR_CODE.INVALID_KEY);
     });
   });
 
@@ -826,7 +826,7 @@ describe('validateConnectionConfig', () => {
         apiKey: 'invalid-key'  // Invalid API key format
       }
     };
-    expect(() => validateConnectionConfig(config)).toThrow(SKYFLOW_ERROR_CODE.INVALID_API_KEY_WITH_ID);
+    expect(() => validateConnectionConfig(config)).toThrow(SKYFLOW_ERROR_CODE.INVALID_KEY_WITH_ID);
   });
 
   // Test for valid configuration
@@ -948,7 +948,7 @@ describe('validateUpdateConnectionConfig', () => {
         apiKey: 'invalid-key'  // Invalid API key format
       }
     };
-    expect(() => validateUpdateConnectionConfig(config)).toThrow(SKYFLOW_ERROR_CODE.INVALID_API_KEY_WITH_ID);
+    expect(() => validateUpdateConnectionConfig(config)).toThrow(SKYFLOW_ERROR_CODE.INVALID_KEY_WITH_ID);
   });
 
   // Test different log levels

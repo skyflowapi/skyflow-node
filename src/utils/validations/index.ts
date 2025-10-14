@@ -193,8 +193,8 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
     if (isApiKeyCred) {
         const apiKeyCred = credentials as ApiKeyCredentials;
         if (typeof apiKeyCred.apiKey !== 'string' || !isValidAPIKey(apiKeyCred.apiKey)) {
-            printLog(logs.errorLogs.INVALID_API_KEY, MessageType.ERROR, logLevel);
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY_WITH_ID, [type, typeId, id]);
+            printLog(logs.errorLogs.INVALID_KEY, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_KEY_WITH_ID, [type, typeId, id]);
         }
     }
 };
@@ -319,8 +319,8 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
     if (isApiKeyCred) {
         const apiKeyCred = credentials as ApiKeyCredentials;
         if (typeof apiKeyCred.apiKey !== 'string' || !isValidAPIKey(apiKeyCred.apiKey)) {
-            printLog(logs.errorLogs.INVALID_API_KEY, MessageType.ERROR, logLevel);
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_API_KEY);
+            printLog(logs.errorLogs.INVALID_KEY, MessageType.ERROR, logLevel);
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_KEY);
         }
     }
 };
