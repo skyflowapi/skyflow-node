@@ -323,7 +323,7 @@ export async function getBearerToken(credentials?: Credentials, logLevel?: LogLe
         if ('apiKey' in credentials!) {
             const apiKeyCred = credentials as ApiKeyCredentials;
             if (apiKeyCred.apiKey.trim().length > 0 && isValidAPIKey(apiKeyCred.apiKey)) {
-                printLog(logs.infoLogs.USING_API_KEY, MessageType.LOG, logLevel);
+                printLog(logs.infoLogs.USING_KEY, MessageType.LOG, logLevel);
                 return { type: AuthType.API_KEY, key: apiKeyCred.apiKey };
             }
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_KEY);

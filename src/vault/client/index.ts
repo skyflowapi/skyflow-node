@@ -102,7 +102,7 @@ class VaultClient {
         if (this.authInfo?.key && !this.updateTriggered) {
             switch (this.authInfo.type) {
                 case AuthType.API_KEY:
-                    printLog(logs.infoLogs.REUSE_API_KEY, MessageType.LOG, this.logLevel);
+                    printLog(logs.infoLogs.REUSE_KEY, MessageType.LOG, this.logLevel);
                     return { apiKey: this.authInfo.key } as Credentials;
                 case AuthType.TOKEN:
                     if (!isExpired(this.authInfo.key)) {
