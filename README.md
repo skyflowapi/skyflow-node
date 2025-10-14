@@ -152,7 +152,7 @@ const credentials = { token: "<YOUR_BEARER_TOKEN>" };
 ```
 
 ### Notes:
-- Use only ONLY authentication method.
+- Use only ONE authentication method.
 - API Key or Environment Variables are recommended for production use.
 - Secure storage of credentials is essential.
 - For overriding behavior and priority order of credentials, please refer to [Initialize the client](#initialize-the-client) section in [Quickstart](#quickstart).
@@ -411,10 +411,10 @@ const primaryCredentials: Credentials = { /////////////////
 // VaultConfig stores all necessary details to connect to a specific Skyflow vault.
 
 const primaryVaultConfig: VaultConfig = {
-    vaultId: '<PRIMARY_VAULT_ID>',    // Replace with your primary vaulID
-    clusterId: '<CLUSTER_ID>',    // Replace with the cluster ID (partthe vault URL, e.g., https://{clusterId}.vault.skyflowapis.com).
-    env: Env.PROD,    // Set the environment (PRSANDBOX, STAGE, DEV).
-    credentials: primaryCredentials   // Attach the primcredentials to this vault configuration.
+    vaultId: '<PRIMARY_VAULT_ID>',    // Replace with your primary vault ID
+    clusterId: '<CLUSTER_ID>',    // Replace with the cluster ID (part of the vault URL, e.g., https://{clusterId}.vault.skyflowapis.com).
+    env: Env.PROD,    // Set the environment (PROD, SANDBOX, STAGE, DEV).
+    credentials: primaryCredentials   // Attach the primary credentials to this vault configuration.
 };
 
 // Step 3: Create credentials as a JSON object (if a Bearer Token is not provided).
@@ -498,10 +498,10 @@ import {
 } from 'skyflow-node';
 
 /*
-* This example demonstrates how to insert sensitive data (e.g., cardinformation) into a Skyflow vault using the Skyflow client.
+* This example demonstrates how to insert sensitive data (e.g., card information) into a Skyflow vault using the Skyflow client.
 *
 * 1. Initializes the Skyflow client.
-* 2. Prepares a record with sensitive data (e.g., card number and cardholdername).
+* 2. Prepares a record with sensitive data (e.g., card number and cardholder name).
 * 3. Creates an insert request for inserting the data into the Skyflow vault.
 * 4. Prints the response of the insert operation.
 */
@@ -517,7 +517,7 @@ try{
 
   // Step 2: Create Insert Request
   const insertReq: InsertRequest = new InsertRequest(
-      'table1',  // Specify the table in the vault where the data will inserted
+      'table1',  // Specify the table in the vault where the data should be inserted
       insertData,  // Attach the data (records) to be inserted
       
   );
@@ -588,12 +588,12 @@ try {
   // Step 1: Prepare the data to be inserted into the Skyflow vault
   const insertData: Record<string, unknown>[] = [
     {
-        <FIELD_NAME_1>: '<VALUE_1>',  // Replace with actual fielname and value
-        <FIELD_NAME_2>: '<VALUE_2>',  // Replace with actual fielname and value
+        <FIELD_NAME_1>: '<VALUE_1>',  // Replace with actual field name and value
+        <FIELD_NAME_2>: '<VALUE_2>',  // Replace with actual field name and value
     },
     {
-        <FIELD_NAME_1>: '<VALUE_1>',  // Replace with actual fielname and value
-        <FIELD_NAME_2>: '<VALUE_2>',  // Replace with actual fielname and value
+        <FIELD_NAME_1>: '<VALUE_1>',  // Replace with actual field name and value
+        <FIELD_NAME_2>: '<VALUE_2>',  // Replace with actual field name and value
     },
   ]
 
@@ -664,7 +664,7 @@ try {
 
   // Step 4: Create Insert Request
   const insertReq: InsertRequest = new InsertRequest(
-      'table1',  // Specify the table in the vault where the data will inserted
+      'table1',  // Specify the table in the vault where the data should be inserted
       insertData,  // Attach the data (records) to be inserted
   );
 
@@ -859,7 +859,7 @@ try {
 Notes:
 
 - `redactionType` defaults to `RedactionType.PLAIN_TEXT`.
-- `continueOnError` default valus is `False`.
+- `continueOnError` default value is `False`.
 
 #### An [example](https://github.com/skyflowapi/skyflow-node/blob/v2/samples/vault-api/detokenzie-records.ts) of a detokenize call
 
@@ -1266,7 +1266,7 @@ try {
 
   // Step 4: Send the request to the Skyflow vault and retrieve the records
   const getResponse: GetResponse = await skyflowClient
-      .vault(primaryVaultConfif.vaultId)
+      .vault(primaryVaultConfig.vaultId)
       .get(getRequest, getOptions);
   // Replace <VAULT_ID> with your actual Skyflow vault ID
 
@@ -1346,7 +1346,7 @@ try {
 
   // Step 4: Send the request to the Skyflow vault and retrieve the records
   const getResponse: GetResponse = await skyflowClient
-      .vault(primaryVaultConfif.vaultId)
+      .vault(primaryVaultConfig.vaultId)
       .get(getRequest, getOptions);
   // Replace <VAULT_ID> with your actual Skyflow vault ID
 
@@ -1529,7 +1529,7 @@ try {
   // Step 4: Configure Update Options
   const updateOptions: UpdateOptions = new UpdateOptions();
   updateOptions.setReturnTokens(true);      // Specify whether to return tokens in the response
-  updatedOptions.setTokens(tokens);   // The tokens associated with specific columns
+  updateOptions.setTokens(tokens);   // The tokens associated with specific columns
   updateOptions.setTokenMode(TokenMode.ENABLE); // Specifies the tokenization mode (ENABLE means tokenization is applied)
 
   // Step 5: Send the request to the Skyflow vault and update the record
@@ -1596,7 +1596,7 @@ try {
 
   // Step 4: Configure Update Options
   const updateOptions: UpdateOptions = new UpdateOptions();
-  updatedOptions.setTokens(tokens);   // The tokens associated with specific columns
+  updateOptions.setTokens(tokens);   // The tokens associated with specific columns
   updateOptions.setTokenMode(TokenMode.ENABLE); // Specifies the tokenization mode (ENABLE means tokenization is applied)
 
   // Step 5: Send the request to the Skyflow vault and update the record
