@@ -2,7 +2,7 @@ name: Public Release
 
 on:
   push:
-    tags: '*.*.\d+'
+    tags: '[0-9]+.[0-9]+.[0-9]+'
     paths-ignore:
       - "package.json"
       - "package-lock.json"
@@ -12,6 +12,5 @@ jobs:
   call-common-workflow:
     uses: ./.github/workflows/common-release.yml
     with:
-      registry-url: 'https://registry.npmjs.org'
       tag: public
     secrets: inherit

@@ -1,0 +1,11 @@
+export { type DeidentifyFileRequest } from "./DeidentifyFileRequest";
+export { type DeidentifyDocumentRequest } from "./DeidentifyDocumentRequest";
+export { type DeidentifyPdfRequest } from "./DeidentifyPdfRequest";
+export { type DeidentifyImageRequest } from "./DeidentifyImageRequest";
+export { type DeidentifyTextRequest } from "./DeidentifyTextRequest";
+export { type DeidentifyStructuredTextRequest } from "./DeidentifyStructuredTextRequest";
+export { type DeidentifySpreadsheetRequest } from "./DeidentifySpreadsheetRequest";
+export { type DeidentifyPresentationRequest } from "./DeidentifyPresentationRequest";
+export { type DeidentifyAudioRequest } from "./DeidentifyAudioRequest";
+export { type GetRunRequest } from "./GetRunRequest";
+export { type ReidentifyFileRequest } from "./ReidentifyFileRequest";
