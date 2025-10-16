@@ -1871,6 +1871,140 @@ QueryResponse {
 }
 ```
 
+### Upload File
+
+To upload files to a Skyflow vault, use the `uploadFile` method. The `FileUploadRequest` class accepts parameters such as the table name, column name and skyflow ID. And `FileUploadOptions` class accepts the file object as shown below:
+
+```typescript
+// Please use Node version 20 & above to run file upload
+import { 
+    FileUploadRequest, 
+    FileUploadResponse,
+    FileUploadOptions,
+    SkyflowError
+} from 'skyflow-node';
+import * as fs from 'fs';
+
+/*
+This example demonstrates how to upload file to Skyflow vault with FileUploadRequest and FileUploadOptions schema.
+*/
+
+try {
+  // Initialize Skyflow client
+  // Step 1: Prepare File Upload Data
+  const tableName: string = 'table-name';      // Table name
+  const skyflowId: string = 'skyflow-id';      // Skyflow ID of the record
+  const columnName: string = 'column-name';    // Column name to store file
+  const filePath: string = 'file-path';        // Path to the file for upload
+
+  // Step 2: Create File Upload Request
+  const uploadReq: FileUploadRequest = new FileUploadRequest(
+      tableName,
+      skyflowId,
+      columnName,
+  );
+
+  // Step 3: Configure FileUpload Options
+  const uploadOptions: FileUploadOptions = new FileUploadOptions();
+  // Set any one of FilePath, Base64 or FileObject in FileUploadOptions
+
+  const buffer = fs.readFileSync(filePath);
+  uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
+
+  // Step 4: Perform File Upload
+  const response: FileUploadResponse = await skyflowClient
+      .vault(primaryVaultConfig.vaultId)
+      .uploadFile(uploadReq, uploadOptions);
+
+  // Handle Successful Response
+  console.log('File upload successful:', response);
+} catch(error) {
+  // Step 5: Handle any exceptions that occur during the query execution
+  if (error instanceof SkyflowError) {
+      console.error('Skyflow Specific Error:', {
+          code: error.error?.http_code,
+          message: error.message,
+          details: error.error?.details,
+      });
+  } else {
+      console.error('Unexpected Error:', error);
+  }
+}
+
+```
+
+### An [example](https://github.com/skyflowapi/skyflow-node/blob/main/samples/vault-api/file-upload.ts) of file upload call
+```typescript
+// Please use Node version 20 & above to run file upload
+import { 
+    FileUploadRequest, 
+    FileUploadResponse,
+    FileUploadOptions,
+    SkyflowError
+} from 'skyflow-node';
+import * as fs from 'fs';
+
+/*
+This example demonstrates how to upload file to Skyflow vault with FileUploadRequest and FileUploadOptions schema.
+
+1. Initializes the Skyflow client with the Vault ID.
+2. Constructs a file upload request and file upload options with specified filepath or file object
+3. Uploads the file to the Skyflow vault.
+4. Prints the response from the file upload operation
+*/
+
+try {
+  // Initialize Skyflow client
+  // Step 1: Prepare File Upload Data
+  const tableName: string = 'cards';
+  const skyflowId: string = 'c9312531-2087-439a-bd26-74c41f24db83';      // Skyflow ID of the record
+  const columnName: string = 'licence';    // Column name to store file
+  const filePath: string = '/images/licence.png';        // Path to the file for upload
+
+  // Step 2: Create File Upload Request
+  const uploadReq: FileUploadRequest = new FileUploadRequest(
+      tableName,
+      skyflowId,
+      columnName,
+  );
+
+  // Step 3: Configure FileUpload Options
+  const uploadOptions: FileUploadOptions = new FileUploadOptions();
+  // Set any one of FilePath, Base64 or FileObject in FileUploadOptions
+
+  const buffer = fs.readFileSync(filePath);
+  uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
+
+  // Step 4: Perform File Upload
+  const response: FileUploadResponse = await skyflowClient
+      .vault(primaryVaultConfig.vaultId)
+      .uploadFile(uploadReq, uploadOptions);
+
+  // Handle Successful Response
+  console.log('File upload successful:', response);
+} catch(error) {
+  // Step 5: Handle any exceptions that occur during the query execution
+  if (error instanceof SkyflowError) {
+      console.error('Skyflow Specific Error:', {
+          code: error.error?.http_code,
+          message: error.message,
+          details: error.error?.details,
+      });
+  } else {
+      console.error('Unexpected Error:', error);
+  }
+}
+```
+
+Sample Response:
+
+```typescript
+FileUploadResponse {
+  skyflowId: 'c9312531-2087-439a-bd26-74c41f24db83',
+  errors: null
+}
+```
+
 ## Detect
 Skyflow Detect enables you to deidentify and reidentify sensitive data in text and files, supporting advanced privacy-preserving workflows. The Detect API supports the following operations:
 

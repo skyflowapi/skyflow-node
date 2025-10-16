@@ -1,4 +1,4 @@
-// Please use Node.js version 18 & above to run file upload
+// Please use Node version 20 & above to run file upload
 import { 
     Credentials, 
     Env, 
