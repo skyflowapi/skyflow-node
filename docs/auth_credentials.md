@@ -1,6 +1,7 @@
 # Authentication credentials options
 
-Note: Only one type of credential can be used at a time. If multiple credentials are provided, the last one added will take precedence.
+> [!NOTE]
+> Only one type of credential can be used at a time. If multiple credentials are provided, the last one added will take precedence.
 
 1. **API keys**
    A unique identifier used to authenticate and authorize requests to an API.
