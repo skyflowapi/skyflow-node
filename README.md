@@ -23,12 +23,12 @@ The Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
     - [Insert data into the vault, get tokens back](#insert-data-into-the-vault-get-tokens-back)
   - [Upgrade from v1 to v2](#upgrade-from-v1-to-v2)
   - [Vault](#vault)
-    - [Insert and tokenize data](#insert-and-tokenize-data)
-      - [Construct an insert request](#construct-an-insert-request)
+    - [Insert and tokenize data: `.insert(request)`](#insert-and-tokenize-data-insertrequest)
       - [Insert example with `continueOnError` option](#insert-example-with-continueonerror-option)
-    - [Detokenize](#detokenize)
+      - [Upsert request](#upsert-request)
+    - [Detokenize: `.detokenize(request, options)`](#detokenize-detokenizerequest-options)
       - [Construct a detokenize request](#construct-a-detokenize-request)
-    - [Get Record(s)](#get-records)
+    - [Get Record(s): `.get(request, options)`](#get-records-getrequest-options)
       - [Construct a get request](#construct-a-get-request)
       - [Get by Skyflow IDs](#get-by-skyflow-ids)
       - [Get tokens for records](#get-tokens-for-records)
@@ -199,11 +199,9 @@ For those upgrading from `skyflow-node` v1, we have a dedicated guide in [docs/m
 
 The [Vault](https://docs.skyflow.com/docs/vaults) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
 
-### Insert and tokenize data
+### Insert and tokenize data: `.insert(request)`
 
 Apart from using the `insert` method to insert data into your vault covered in [Quickstart](#quickstart), you can also pass options to `insert` method to enable additional functionality such as returning tokenized data, upserting records, or allowing bulk operations to continue despite errors.
-
-#### Construct an insert request
 
 ```typescript
 import { InsertRequest, InsertResponse } from 'skyflow-node';
@@ -233,40 +231,19 @@ The `continueOnError` flag is a boolean that determines whether insert operation
 > [!TIP]
 > See the full example in the samples directory: [insert-continue-on-error.ts](samples/vault-api/insert-continue-on-error.ts)
 
-**Insert call example with `upsert` option**  
-An upsert operation checks for a record based on a unique column's value. If a match exists, the record is updated; otherwise, a new record is inserted.
+#### Upsert request
+
+The upsert option turns an insert into an 'update-or-insert' operation. When enabling this option, the vault checks for an existing record with the same value in the specified column. If a match exists, the record is updated; otherwise, a new record is inserted.
 
 ```typescript
-import {
-  InsertOptions,
-  InsertRequest,
-  SkyflowError,
-  InsertResponse,
-} from "skyflow-node";
-
-const insertData: Record<string, unknown>[] = [
-  {
-    cardholder_name: "John Doe",
-  },
-];
-
-const insertReq: InsertRequest = new InsertRequest(
-  "table1", // Specify the table in the vault where the data will be inserted
-  insertData, // Attach the data (records) to be inserted
-);
-
-const insertOptions: InsertOptions = new InsertOptions();
-insertOptions.setReturnTokens(true); // Optional: Specify if tokens should be returned upon successful insertion
+// ...
+// Specify the column to use as the index for the upsert. 
+// Note: The column must have the `unique` constraint configured in the vault.
 insertOptions.setUpsertColumn("cardholder_name");
-
-const insertResponse: InsertResponse = await skyflowClient
-  .vault(primaryVaultConfig.vaultId)
-  .insert(insertReq, insertOptions);
-
-console.log("Insert response: ", insertResponse);
+// ...
 ```
 
-### Detokenize
+### Detokenize: `.detokenize(request, options)`
 
 To convert tokens back into the plaintext values (or masked values), use the `.detokenize()` method. Detokenization accepts tokens and returns values.
 
@@ -302,7 +279,7 @@ console.log("Detokenization response:", response);
 > [!TIP]
 > See the full example in the samples directory: [detokenzie-records.ts](samples/vault-api/detokenzie-records.ts)
 
-### Get Record(s)
+### Get Record(s): `.get(request, options)`
 
 To retrieve data using Skyflow IDs or unique column values, use the get method. The `GetRequest` class creates a get request, where you specify parameters such as the table name, redaction type, Skyflow IDs, column names, column values. If you specify Skyflow IDs, you can't use column names and column values, and the inverse is true—if you specify column names and column values, you can't use Skyflow IDs. And `GetOptions` class creates a get options object through which you specify whether to return tokens or not.
 
