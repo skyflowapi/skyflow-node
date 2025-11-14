@@ -56,7 +56,6 @@ The `Skyflow` class (in `src/vault/skyflow/index.ts`) manages multiple vaults an
 const skyflowConfig: SkyflowConfig = {
   vaultConfigs: [vaultConfig1, vaultConfig2],
   connectionConfigs: [connectionConfig],
-  skyflowCredentials: credentials, // Optional common credentials
   logLevel: LogLevel.ERROR // Default: LogLevel.ERROR
 };
 
