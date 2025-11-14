@@ -247,9 +247,6 @@ insertOptions.setUpsertColumn("cardholder_name");
 // ...
 ```
 
-> [!TIP]
-> See the full example in the samples directory: [insert-byot.ts](samples/vault-api/insert-byot.ts)
-
 ### Detokenize: `.detokenize(request, options)`
 
 Convert tokens back into plaintext values (or masked values) using the `.detokenize()` method. Detokenization accepts tokens and returns values.
