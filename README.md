@@ -17,8 +17,11 @@ The Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
     - [All imports](#all-imports)
   - [Quickstart](#quickstart)
     - [Authenticate](#authenticate)
+    - [API Key](#api-key)
+    - [Bearer Token (static)](#bearer-token-static)
     - [Initialize the client](#initialize-the-client)
     - [Insert data into the vault, get tokens back](#insert-data-into-the-vault-get-tokens-back)
+  - [Upgrade from v1 to v2](#upgrade-from-v1-to-v2)
   - [Vault](#vault)
     - [Insert and tokenize data](#insert-and-tokenize-data)
       - [Construct an insert request](#construct-an-insert-request)
@@ -53,7 +56,7 @@ The Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
         - [`generateBearerToken(filepath)`](#generatebearertokenfilepath)
         - [`generateBearerTokenFromCreds(credentials)`](#generatebearertokenfromcredscredentials)
       - [Generate bearer tokens scoped to certain roles](#generate-bearer-tokens-scoped-to-certain-roles)
-      - [Generate a bearer tokens with `ctx`](#generate-a-bearer-tokens-with-ctx)
+      - [Generate a bearer tokens with `ctx` for context-aware authorization](#generate-a-bearer-tokens-with-ctx-for-context-aware-authorization)
       - [Generate signed data tokens: `generateSignedDataTokens(filepath, options)`](#generate-signed-data-tokens-generatesigneddatatokensfilepath-options)
   - [Logging](#logging)
     - [Example `skyflowConfig.logLevel: LogLevel.INFO`](#example-skyflowconfigloglevel-loglevelinfo)
@@ -110,12 +113,25 @@ Get started quickly with the essential steps: authenticate, initialize the clien
 
 ### Authenticate
 
-You can use an API key to authenticate and authorize requests to an API. For authenticating via bearer tokens and different supported bearer token types, refer to the [Authenticate with bearer tokens](#authenticate-with-bearer-tokens) section.
+You can use an API key or a personal bearer token to directly authenticate and authorize requests with the SDK.
 
-```javascript
-// create a new credentials object
-const credentials = { apiKey: "<YOUR_API_KEY>" }; //add your API key in credentials
+### API Key
+
+```typescript
+const credentials: Credentials = {
+  apiKey: "<API_KEY>",
+};
 ```
+
+### Bearer Token (static)
+
+```typescript
+const credentials: Credentials = {
+  token: "<BEARER_TOKEN>",
+};
+```
+
+For authenticating via generated bearer tokens including support for scoped tokens, context-aware access tokens, and more refer to the [Authentication & Authorization](#authentication--authorization) section.
 
 ### Initialize the client
 
@@ -146,13 +162,7 @@ const skyflowConfig: SkyflowConfig = {
 const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 ```
 
-For advanced initialization examples including multiple vaults and different credential types, see [docs/advanced_initialization.md](docs/advanced_initialization.md).
-
-Notes
-
-- If both Skyflow common credentials and individual credentials at the configuration level are specified, the individual credentials at the configuration level will take precedence.
-- If neither Skyflow common credentials nor individual configuration-level credentials are provided, the SDK attempts to retrieve credentials from the `SKYFLOW_CREDENTIALS` environment variable.
-- All Vault operations require a client instance.
+For advanced initialization examples including examples using multiple vaults and different credential types, see [docs/advanced_initialization.md](docs/advanced_initialization.md).
 
 ### Insert data into the vault, get tokens back
 
@@ -180,6 +190,10 @@ const insertResponse = await skyflowClient
 
 console.log("Insert response:", insertResponse);
 ```
+
+## Upgrade from v1 to v2
+
+For those upgrading from `skyflow-node` v1, we have a dedicated guide in [docs/migrate_to_v2](docs/migrate_to_v2.md).
 
 ## Vault
 
@@ -778,8 +792,8 @@ The method of `RequestMethod.POST` must be one of:
 
 ## Authentication & authorization
 
-
 ### Types of `credentials`
+
 Skyflow allows four different kinds of authentication and authorization through the API and SDKs:
 
 1. **API keys**  
@@ -801,16 +815,7 @@ Skyflow allows four different kinds of authentication and authorization through 
 
 ### Generate bearer tokens for authentication & authorization
 
-This section covers methods for generating and managing bearer tokens to authenticate API calls:
-
-- **Generate a bearer token:**  
-  Enable the creation of bearer tokens using service account credentials. These tokens, valid for 60 minutes, provide secure access to Vault services and management APIs based on the service account's permissions. Use this for general API calls when you only need basic authentication without additional context or role-based restrictions. See: [token-generation-example.ts](http://github.com/skyflowapi/skyflow-node/blob/v2/samples/service-account/token-generation-example.ts)
-- **Generate a bearer token with context:**  
-  Support embedding context values into bearer tokens, enabling dynamic access control and the ability to track end-user identity. These tokens include context claims and allow flexible authorization for Vault services. Use this when policies depend on specific contextual attributes or when tracking end-user identity is required.
-- **Generate a scoped bearer token:**  
-  Facilitate the creation of bearer tokens with role-specific access, ensuring permissions are limited to the operations allowed by the designated role. This is particularly useful for service accounts with multiple roles. Use this to enforce fine-grained role-based access control, ensuring tokens only grant permissions for a specific role.
-- **Generate signed data tokens:**  
-  Add an extra layer of security by digitally signing data tokens with the service account's private key. These signed tokens can be securely detokenized, provided the necessary bearer token and permissions are available. Use this to add cryptographic protection to sensitive data, enabling secure detokenization with verified integrity and authenticity.
+This section covers methods for generating and managing bearer tokens to authenticate API calls, including options for scoping to certain roles, passing context, and signing data tokens.
 
 #### Generate a bearer token
 
@@ -855,26 +860,11 @@ const options = {
 > See the full example in the samples directory: [scoped-token-generation-example.ts](samples/service-account/scoped-token-generation-example.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
-#### Generate a bearer tokens with `ctx`
+#### Generate a bearer tokens with `ctx` for context-aware authorization
 
 **Context-aware authorization** embeds context values into a bearer token during its generation and so you can reference those values in your policies. This enables more flexible access controls, such as helping you track end-user identity when making API calls using service accounts, and facilitates using signed data tokens during detokenization.
 
 A service account with the context_id identifier generates bearer tokens containing context information, represented as a JWT claim in a Skyflow-generated bearer token. Tokens generated from such service accounts include a context_identifier claim, are valid for 60 minutes, and can be used to make API calls to the Data and Management APIs, depending on the service account's permissions.
-
-```ts
-generateBearerTokenFromCreds(
-  JSON.stringify({
-    clientID: "<YOUR_CLIENT_ID>",
-    clientName: "<YOUR_CLIENT_NAME>",
-    keyID: "<YOUR_KEY_ID>",
-    tokenURI: "<YOUR_TOKEN_URI>",
-    privateKey: "<YOUR_PEM_PRIVATE_KEY>",
-  }),
-  {
-    ctx: "context_id", // the user's context identifier
-  },
-);
-```
 
 > [!TIP]
 > See the full example in the samples directory: [token-generation-with-context-example.ts](samples/service-account/token-generation-with-context-example.ts)  

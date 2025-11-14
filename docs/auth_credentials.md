@@ -6,7 +6,7 @@ Note: Only one type of credential can be used at a time. If multiple credentials
    A unique identifier used to authenticate and authorize requests to an API.
 
    ```ts
-   const credentials = {
+   const credentials: Credentials = {
      apiKey: "<YOUR_API_KEY>"
    };
    ```
@@ -16,7 +16,7 @@ Note: Only one type of credential can be used at a time. If multiple credentials
    Authorization header.
 
    ```ts
-   const credentials = {
+   const credentials: Credentials = {
      token: "<YOUR_BEARER_TOKEN>"
    };
    ```
@@ -26,7 +26,7 @@ Note: Only one type of credential can be used at a time. If multiple credentials
    for secure API access.
 
    ```ts
-   const credentials = {
+   const credentials: Credentials = {
      path: "<YOUR_CREDENTIALS_FILE_PATH>"
    };
    ```
@@ -35,7 +35,7 @@ Note: Only one type of credential can be used at a time. If multiple credentials
    JSON-formatted string containing service account credentials, often used as an alternative to a file for programmatic authentication.
 
    ```ts
-   const credentials = {
+   const credentials: Credentials = {
      credentialsString: JSON.stringify(process.env.SKYFLOW_CREDENTIALS)
    };
    ```
