@@ -20,11 +20,11 @@ npm install skyflow-node
 1. Navigate to Skyflow Studio in your browser.
 2. Click **Create Vault** > **Start With a Template** > **Quickstart vault**.
 3. When the vault is ready, click the gear icon and select **Edit Vault Details**.
-4. Copy your **Vault ID** and **Cluster ID** from the URL (format: `https://{clusterId}.vault.skyflowapis.com`), then click **Cancel**.
+4. Copy your **Vault URL** and **Vault ID**, then click **Cancel**.
 
 ### Create a service account
 
-1. Click **IAM** > **Service Accounts** > **New Service Account** in the side navigation.
+1. In the side navigation, click **Access** > **Service Accounts** > **New Service Account**.
 2. Enter "SDK Samples" for **Name** and choose **Vault Editor** for **Roles**.
 3. Click **Create**. Your browser downloads a **credentials.json** file. Store this file securely.
 
@@ -39,44 +39,54 @@ Sample files are organized by API type:
 
 1. Open the sample file you want to run (for example, `vault-api/insert-records.ts`)
 2. Update placeholder values:
-   - Replace `<VAULT_ID>` with your Vault ID from Skyflow Studio
-   - Replace `<CLUSTER_ID>` with your Cluster ID from the vault URL
-   - Replace credential placeholders with your actual credentials
+
+   | Placeholder | Replace With |
+   |-------------|--------------|
+   | `<VAULT_ID>` | Your Vault ID from Skyflow Studio |
+   | `<CLUSTER_ID>` | Your Cluster ID from the vault URL |
+   | `<YOUR_CREDENTIAL_FILE>` | Relative path to your actual credentials file |
+   | `<TABLE_NAME>` | The name of a table in your vault (for example, `users`) |
+   | `<COLUMN_NAME>` | The name of a column in your table (for example, `name`) |
+   | `<ID1>`, `<ID2>`, etc. | Actual record IDs from your vault |
+   | `<VALUE>` | Actual values to insert into your vault |
+   | `<TOKEN1>`, `<TOKEN2>`, etc. | Actual tokens from your vault |
+   | `<CONNECTION_URL>` | Your connection URL |
+
 3. Run the sample:
 
-```bash
-cd samples
-npm install
-ts-node vault-api/insert-records.ts
-```
+   ```bash
+   cd samples
+   npm install
+   ts-node vault-api/insert-records.ts
+   ```
 
 ### Sample files overview
 
-**Vault API samples** (`vault-api/`):
-- `insert-records.ts` - Insert data and get tokens
-- `insert-continue-on-error.ts` - Bulk insert with error handling
-- `insert-byot.ts` - Upsert operations
-- `get-records.ts` - Retrieve records by Skyflow IDs
-- `get-column-values.ts` - Query by column values
-- `detokenzie-records.ts` - Convert tokens to values
-- `tokenize-records.ts` - Get tokens for existing values
-- `update-record.ts` - Update existing records
-- `delete-records.ts` - Delete records by ID
-- `query-records.ts` - SQL query operations
-- `file-upload.ts` - Upload files to vault
-- `invoke-connection.ts` - Call external integrations
+**Vault API samples** ([`vault-api/`](vault-api/)):
+- [`insert-records.ts`](vault-api/insert-records.ts) - Insert data and get tokens
+- [`insert-continue-on-error.ts`](vault-api/insert-continue-on-error.ts) - Bulk insert with error handling
+- [`insert-byot.ts`](vault-api/insert-byot.ts) - Upsert operations
+- [`get-records.ts`](vault-api/get-records.ts) - Retrieve records by Skyflow IDs
+- [`get-column-values.ts`](vault-api/get-column-values.ts) - Query by column values
+- [`detokenzie-records.ts`](vault-api/detokenzie-records.ts) - Convert tokens to values
+- [`tokenize-records.ts`](vault-api/tokenize-records.ts) - Get tokens for existing values
+- [`update-record.ts`](vault-api/update-record.ts) - Update existing records
+- [`delete-records.ts`](vault-api/delete-records.ts) - Delete records by ID
+- [`query-records.ts`](vault-api/query-records.ts) - SQL query operations
+- [`file-upload.ts`](vault-api/file-upload.ts) - Upload files to vault
+- [`invoke-connection.ts`](vault-api/invoke-connection.ts) - Call external integrations
 
-**Detect API samples** (`detect-api/`):
-- `deidentify-text.ts` - Anonymize text data
-- `deidentify-file.ts` - Anonymize file data
-- `reidentify-text.ts` - Restore original values
-- `get-detect-run.ts` - Check operation status
+**Detect API samples** ([`detect-api/`](detect-api/)):
+- [`deidentify-text.ts`](detect-api/deidentify-text.ts) - Anonymize text data
+- [`deidentify-file.ts`](detect-api/deidentify-file.ts) - Anonymize file data
+- [`reidentify-text.ts`](detect-api/reidentify-text.ts) - Restore original values
+- [`get-detect-run.ts`](detect-api/get-detect-run.ts) - Check operation status
 
-**Service Account samples** (`service-account/`):
-- `token-generation-example.ts` - Generate bearer tokens
-- `scoped-token-generation-example.ts` - Role-scoped tokens
-- `token-generation-with-context-example.ts` - Context-aware tokens
-- `signed-token-generation-example.ts` - Signed data tokens
-- `bearer-token-expiry-example.ts` - Handle token expiration
+**Service Account samples** ([`service-account/`](service-account/)):
+- [`token-generation-example.ts`](service-account/token-generation-example.ts) - Generate bearer tokens
+- [`scoped-token-generation-example.ts`](service-account/scoped-token-generation-example.ts) - Role-scoped tokens
+- [`token-generation-with-context-example.ts`](service-account/token-generation-with-context-example.ts) - Context-aware tokens
+- [`signed-token-generation-example.ts`](service-account/signed-token-generation-example.ts) - Signed data tokens
+- [`bearer-token-expiry-example.ts`](service-account/bearer-token-expiry-example.ts) - Handle token expiration
 
 For detailed API documentation, see the main [README](../README.md).
