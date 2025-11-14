@@ -16,7 +16,7 @@ These options allow you to choose the authentication method that best suits your
 
 ### v1 Authentication: Pass the auth function below as a parameter to the getBearerToken key
 
-```javascript
+```typescript
 // sample function to retrieve a bearer token from an environment variable
 // customize this according to your environment and security posture
 const auth = function () {
@@ -28,10 +28,12 @@ const auth = function () {
 
 #### v2 Authentication: Credentials object
 
-```javascript
-{ 
+```typescript
+import { Credentials } from 'skyflow-node';
+
+const credentials: Credentials = { 
     apiKey: "<YOUR_SKYFLOW_API_KEY>"
-}
+};
 ```
 
 // Option 2: Environment Variables (Recommended)
@@ -39,22 +41,28 @@ const auth = function () {
 
 // Option 3: Credentials File
 
-```js
-const credentials = { path: "<YOUR_CREDENTIALS_FILE_PATH>" }; // Replace with the path to credentials file
+```typescript
+import { Credentials } from 'skyflow-node';
+
+const credentials: Credentials = { path: "<YOUR_CREDENTIALS_FILE_PATH>" };
 ```
 
 // Option 4: Stringified JSON
 
-```js
-const credentials = {
+```typescript
+import { Credentials } from 'skyflow-node';
+
+const credentials: Credentials = {
   credentialsString: JSON.stringify(process.env.SKYFLOW_CREDENTIALS),
 };
 ```
 
 // Option 5: Bearer Token
 
-```js
-const credentials = { token: "<YOUR_BEARER_TOKEN>" };
+```typescript
+import { Credentials } from 'skyflow-node';
+
+const credentials: Credentials = { token: "<YOUR_BEARER_TOKEN>" };
 ```
 
 ## Initializing the client
@@ -78,7 +86,6 @@ const vault = Skyflow.init({
   // Id of the vault that the client should connect to.
   vaultID: "string",
   // URL of the vault that the client should connect to.
-
   vaultURL: "string",
   // Helper function generates a Skyflow bearer token.
   getBearerToken: auth,
@@ -87,8 +94,10 @@ const vault = Skyflow.init({
 
 #### V2 (New)
 
-```javascript
-// Step 1: Configure Bearer Token Credentials
+```typescript
+import { Credentials, VaultConfig, SkyflowConfig, Env, LogLevel, Skyflow } from 'skyflow-node';
+
+// Step 1: Configure API Key Credentials
 const credentials: Credentials = { apiKey: '<YOUR_API_KEY>' };
 
 // Step 2: Configure Vault
@@ -119,13 +128,16 @@ const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
 ---
 
-### Request & Response Structure
+### Request and Response Structure
 
-In V2, with the introduction of TypeScript support, you can now pass an **InsertRequest** of type **InsertRequest**. This request need
+In v2, with the introduction of TypeScript support, you can now pass an **InsertRequest** of type **InsertRequest**. This request requires:
 
 - **`tableName`**: The name of the table.
 - **`insertData`**: An array of objects containing the data to be inserted
-  The response will be of type InsertResponse, which contains insertedFields and errors.
+
+The response will be of type InsertResponse, which contains insertedFields and errors.
+
+**Note:** Similar patterns apply to other operations like Get, Update, Delete. See the [README](../README.md) for complete examples.
 
 #### V1 (Old) - Request Building
 
@@ -217,7 +229,9 @@ const options = {
 
 #### V2 (New)
 
-```javascript
+```typescript
+import { InsertOptions } from 'skyflow-node';
+
 const insertOptions: InsertOptions = new InsertOptions();
 insertOptions.setReturnTokens(true); // Optional: Get tokens for inserted data
 insertOptions.setContinueOnError(true); // Optional: Continue on partial errors
@@ -246,7 +260,7 @@ The error response now includes:
 
 #### V2 (New) - Error Structure
 
-```javascript
+```typescript
 {
     http_status?: string | number | null,
     grpc_code?: string | number | null,

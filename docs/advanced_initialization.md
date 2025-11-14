@@ -2,6 +2,8 @@
 
 This guide demonstrates advanced initialization patterns for the Skyflow Node SDK, including multiple vault configurations and different credential types.
 
+Use multiple vault configurations when your application needs to access data across different Skyflow vaults, such as separating production and staging data, or managing data across different geographic regions.
+
 ## Multiple Vault Configuration Example
 
 ```typescript

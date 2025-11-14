@@ -1,6 +1,14 @@
 # Authentication credentials options
 
-Note: Only one type of credential can be used at a time. If multiple credentials are provided, the last one added will take precedence.
+> [!NOTE]
+> Only one type of credential can be used at a time. If multiple credentials are provided, the last one added will take precedence.
+
+**Choosing the right credential type:**
+- Use **API keys** for long-term service authentication
+- Use **Bearer tokens** for optimal security
+- Use **Service account file paths** when credentials are managed externally
+- Use **Credential strings** when integrating with secret management systems
+- Use **Environment variables** to avoid hardcoding credentials in source code (recommended)
 
 1. **API keys**
    A unique identifier used to authenticate and authorize requests to an API.
