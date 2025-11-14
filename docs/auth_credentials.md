@@ -41,4 +41,4 @@ Note: Only one type of credential can be used at a time. If multiple credentials
    ```
 
 5. **Environment variables**
-   Automatically uses the SKYFLOW_CREDENTIALS environment variable when no credentials are explicitly provided. This variable must return an object like one of the examples above.
+   If no credentials are explicitly provided the SDK automatically looks for the SKYFLOW_CREDENTIALS environment variable. This variable must return an object like one of the examples above.

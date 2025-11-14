@@ -771,22 +771,47 @@ The method of `RequestMethod.POST` must be one of:
 
 ### Types of `credentials`
 
-Skyflow allows four different kinds of authentication and authorization through the API and SDKs:
+The SDK accepts one of several types of credentials object.
 
-1. **API keys**  
-   A unique identifier used to authenticate and authorize requests to an API.
+1. **API keys**
+   A unique identifier used to authenticate and authorize requests to an API. To create an API key you must first create a 'Service Account' in Skyflow and choose the 'API key' option during creation.
 
-2. **Bearer tokens**  
-   A temporary access token used to authenticate API requests, typically included in the
-   Authorization header. This can be generated with a signed JWT for production use (see below) or passed in directly. 
-   Developers can also copy a personal bearer token from the Skyflow Studio UI to get started quickly.
+   ```ts
+   const credentials: Credentials = {
+     apiKey: "<YOUR_API_KEY>"
+   };
+   ```
 
-3. **Service account credentials file path**  
+2. **Bearer tokens**
+   A temporary access token used to authenticate API requests. As a developer with the right access you can generate a temporary personal bearer token in Skyflow in the user menu.
+
+   ```ts
+   const credentials: Credentials = {
+     token: "<YOUR_BEARER_TOKEN>"
+   };
+   ```
+
+3. **Service account credentials file path**
    The file path pointing to a JSON file containing credentials for a service account, used
-   for secure API access by generating bearer tokens on-demand.
+   for secure API access.
 
-4. **Service account credentials string**  
-   JSON-formatted string containing service account credentials, often used as an alternative to a file for secure API access by generating bearer tokens on-demand.
+   ```ts
+   const credentials: Credentials = {
+     path: "<YOUR_CREDENTIALS_FILE_PATH>"
+   };
+   ```
+
+4. **Service account credentials string**
+   JSON-formatted string containing service account credentials, often used as an alternative to a file for programmatic authentication.
+
+   ```ts
+   const credentials: Credentials = {
+     credentialsString: JSON.stringify(process.env.SKYFLOW_CREDENTIALS)
+   };
+   ```
+
+5. **Environment variables**
+   If no credentials are explicitly provided the SDK automatically looks for the SKYFLOW_CREDENTIALS environment variable. This variable must return an object like one of the examples above.
 
 **Note: Only one type of credential can be used at a time. If multiple credentials are provided, the last one added will take precedence.**
 
