@@ -22,7 +22,7 @@ import {
  * 1. Configure credentials
  * 2. Set up vault configuration
  * 3. Create a deidentify text request
- * 4. Use all available options for deidentification
+ * 4. Use all available options for de-identification
  * 5. Handle response and errors
  */
 
@@ -64,7 +64,7 @@ async function performDeidentifyText() {
         // setAllowRegexList: Allowlist regex patterns (entities matching these will not be deidentified)
         // optionsText.setAllowRegexList(['<YOUR_REGEX_PATTERN>']);
 
-        // setRestrictRegexList: Restrict deidentification to entities matching these regex patterns
+        // setRestrictRegexList: Restrict de-identification to entities matching these regex patterns
         // optionsText.setRestrictRegexList(['<YOUR_REGEX_PATTERN>']);
 
         // setTokenFormat: Specify the token format for deidentified entities
