@@ -42,16 +42,12 @@ const credentials: Credentials = {
 // Option 3: Credentials File
 
 ```typescript
-import { Credentials } from 'skyflow-node';
-
 const credentials: Credentials = { path: "<YOUR_CREDENTIALS_FILE_PATH>" };
 ```
 
 // Option 4: Stringified JSON
 
 ```typescript
-import { Credentials } from 'skyflow-node';
-
 const credentials: Credentials = {
   credentialsString: JSON.stringify(process.env.SKYFLOW_CREDENTIALS),
 };
@@ -60,8 +56,6 @@ const credentials: Credentials = {
 // Option 5: Bearer Token
 
 ```typescript
-import { Credentials } from 'skyflow-node';
-
 const credentials: Credentials = { token: "<YOUR_BEARER_TOKEN>" };
 ```
 
