@@ -10,7 +10,7 @@ import { ServiceAccountResponseError } from '../vault/types';
 import { WithRawResponse } from '../ _generated_/rest/core';
 
 export type BearerTokenOptions = {
-    ctx?: string,
+    ctx?: string | Record<string, any>,
     roleIDs?: string[],
     logLevel?: LogLevel,
 }
@@ -27,7 +27,7 @@ export type SignedDataTokensResponse = {
 export type SignedDataTokensOptions = {
     dataTokens: string[],
     timeToLive?: number,
-    ctx?: string,
+    ctx?: string | Record<string, any>,
     logLevel?: LogLevel,
 }
 
