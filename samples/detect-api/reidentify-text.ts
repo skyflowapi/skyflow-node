@@ -19,7 +19,7 @@ import {
  * 1. Configure credentials
  * 2. Set up vault configuration
  * 3. Create a reidentify text request
- * 4. Use all available options for reidentification
+ * 4. Use all available options for re-identification
  * 5. Handle response and errors
  */
 
@@ -66,7 +66,7 @@ async function performReidentifyText() {
         .reidentifyText(reidentifyRequest, options);
 
     // Step 7: Handle response
-    console.log('Reidentified Text Response:', response);
+    console.log('Re-identified Text Response:', response);
 
   } catch (error) {
     // Comprehensive Error Handling

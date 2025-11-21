@@ -51,7 +51,7 @@ async function performSecureDataInsertion() {
         // Step 4: Prepare Insertion Data
         const insertData: Record<string, unknown>[] = [
             { card_number: "41111111111111111", cvv: "111" }, // Example sensitive data
-            { card_numbe: "41111111111111111", cvv: "132" },  // Example incorrect data
+            { card_number: "41111111111111111", cvv: "132" },  // Example incorrect data
           ];
 
         // Step 5: Create Insert Request
