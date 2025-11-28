@@ -169,7 +169,7 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         if (pathCred.roles !== undefined && !Array.isArray(pathCred.roles)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE, [type, typeId, id]);
         }
-        if (pathCred.context !== undefined && typeof pathCred.context !== 'string') {
+        if (pathCred.context !== undefined && (typeof pathCred.context !== 'string' && typeof pathCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT, [type, typeId, id]);
         }
     }
@@ -184,7 +184,7 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         if (stringCred.roles !== undefined && !Array.isArray(stringCred.roles)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE, [type, typeId, id]);
         }
-        if (stringCred.context !== undefined && typeof stringCred.context !== 'string') {
+        if (stringCred.context !== undefined && (typeof stringCred.context !== 'string' && typeof stringCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT, [type, typeId, id]);
         }
     }
@@ -295,7 +295,7 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         if (pathCred.roles !== undefined && !Array.isArray(pathCred.roles)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE);
         }
-        if (pathCred.context !== undefined && typeof pathCred.context !== 'string') {
+        if (pathCred.context !== undefined && (typeof pathCred.context !== 'string' && typeof pathCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
         }
     }
@@ -310,7 +310,8 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         if (stringCred.roles !== undefined && !Array.isArray(stringCred.roles)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE);
         }
-        if (stringCred.context !== undefined && typeof stringCred.context !== 'string') {
+        // validate both string | Record<string, any>
+        if (stringCred.context !== undefined && (typeof stringCred.context !== 'string' && typeof stringCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
         }
     }

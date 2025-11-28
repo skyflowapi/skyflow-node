@@ -11,13 +11,13 @@ export interface TokenCredentials {
 export interface PathCredentials {
   path: string;
   roles?: Array<string>;
-  context?: string;
+  context?: string | Record<string, any>;
 }
 
 export interface StringCredentials {
   credentialsString: string;
   roles?: Array<string>;
-  context?: string;
+  context?: string | Record<string, any>
 }
 
 export interface ApiKeyCredentials {

@@ -691,6 +691,15 @@ describe('validateSkyflowCredentials', () => {
       jest.spyOn(require('fs'), 'existsSync').mockReturnValue(true);
       expect(() => validateSkyflowCredentials(credentials)).toThrow(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
     });
+    // validate string | Record<string, any>;
+    test('should accept valid context as object', () => {
+      const credentials = {
+        path: '/valid/path',
+        context: { env: 'production' } // valid object
+      };
+      jest.spyOn(require('fs'), 'existsSync').mockReturnValue(true);
+      expect(() => validateSkyflowCredentials(credentials)).not.toThrow();
+    });
   });
 
   // Test StringCredentials validation
@@ -3930,6 +3939,7 @@ describe('validateCredentialsWithId', () => {
       };
       expect(() => validateCredentialsWithId(credentials, type, typeId, id)).not.toThrow();
     });
+    // validate 
   });
 
   // Test TokenCredentials validation
