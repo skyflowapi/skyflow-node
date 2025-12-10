@@ -22,11 +22,11 @@ import fs from 'fs';
 
 /**
  * Skyflow Deidentify File Example
- * 
- * This sample demonstrates how to use all available options for deidentifying files.
+ *
+ * This sample demonstrates how to use all available options for de-identifying files.
  * Supported file types: images (jpg, png, etc.), pdf, audio (mp3, wav), documents, spreadsheets, presentations, structured text.
- * 
- * Note: File deidentification requires Node.js version 20 or above.
+ *
+ * Note: File de-identification requires Node.js version 20 or above.
  */
 
 async function performDeidentifyFile() {
@@ -75,7 +75,7 @@ async function performDeidentifyFile() {
     // Allowlist regex patterns (entities matching these will NOT be deidentified)
     options.setAllowRegexList(['<YOUR_REGEX_PATTERN>']);
 
-    // Restrict deidentification to entities matching these regex patterns
+    // Restrict de-identification to entities matching these regex patterns
     options.setRestrictRegexList(['<YOUR_REGEX_PATTERN>']);
 
     // Token format for deidentified entities

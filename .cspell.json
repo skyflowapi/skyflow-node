@@ -1,0 +1,50 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "Skyflow",
+    "de-identify",
+    "re-identify",
+    "deidentify",
+    "reidentify",
+    "De-identify",
+    "Re-identify",
+    "Deidentify",
+    "Reidentify",
+    "detokenize",
+    "skyflow",
+    "upserting",
+    "de-identified",
+    "DEIDENTIFIED",
+    "de-identification",
+    "de-identifying",
+    "re-identified",
+    "Re-identified",
+    "re-identification",
+    "Blackbox",
+    "binlookup",
+    "BYOT",
+    "ILIKE",
+    "Creds",
+    "QWPA",
+    "Ijoi",
+    "XVCJ"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    "*.log",
+    "package-lock.json",
+    ".git/**",
+    "src/_generated_/**",
+    "src/ _generated_/**",
+    "test/vault/controller/detect.test.js"
+  ],
+  "ignoreRegExpList": [
+    "/\\b[A-Z0-9]{20,}\\b/g",
+    "/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi",
+    "/\\b[A-Za-z0-9_]{7,}\\b(?=])/g"
+  ]
+}
