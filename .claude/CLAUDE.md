@@ -1,1 +1,0 @@
-See @../AGENTS.md for documentation on how to configure and use Claude agents in this workspace.

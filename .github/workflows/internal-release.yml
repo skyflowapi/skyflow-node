@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - 'package.json'
       - 'package-lock.json'
+      - 'yarn.lock'
       - '*.md'
     branches:
       - release/*
