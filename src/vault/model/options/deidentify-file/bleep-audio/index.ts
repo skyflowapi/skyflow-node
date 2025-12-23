@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 export class Bleep {
     private _gain?: number;
     private _frequency?: number;
