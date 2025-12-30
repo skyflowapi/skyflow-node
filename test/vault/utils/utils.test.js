@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import errorMessages from "../../../src/error/messages";
 import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, MessageType, LogLevel } from "../../../src/utils";
 import jwt_decode from 'jwt-decode';
