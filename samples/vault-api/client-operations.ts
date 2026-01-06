@@ -97,6 +97,7 @@ async function performSecureDataDeletion() {
                 details: error.error?.details
             });
         } else {
+            
             console.error('Unexpected Error:', error);
         }
     }
