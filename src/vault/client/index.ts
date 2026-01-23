@@ -6,7 +6,7 @@ import { Strings } from "../../ _generated_/rest/api/resources/strings/client/Cl
 import { Tokens } from "../../ _generated_/rest/api/resources/tokens/client/Client";
 import SkyflowError from "../../error";
 import errorMessages from "../../error/messages";
-import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES } from "../../utils/index";
+import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES, HTTP_HEADER, CONTENT_TYPE, BOOLEAN_STRING, HTTP_STATUS_CODE } from "../../utils/index";
 import { isExpired } from "../../utils/jwt-utils";
 import logs from "../../utils/logs";
 import Credentials from "../config/credentials";
@@ -132,11 +132,11 @@ class VaultClient {
         const isNewFormat = (err as SkyflowApiErrorNewFormat).rawResponse !== undefined;
         if (isNewFormat) {
             const headers = (err as SkyflowApiErrorNewFormat).rawResponse?.headers;
-            const contentType = headers?.get('content-type');
-            const requestId = headers?.get('x-request-id') || '';
-            const errorFromClientHeader = headers?.get('error-from-client');
+            const contentType = headers?.get(HTTP_HEADER.CONTENT_TYPE_LOWER);
+            const requestId = headers?.get(HTTP_HEADER.X_REQUEST_ID) || '';
+            const errorFromClientHeader = headers?.get(HTTP_HEADER.ERROR_FROM_CLIENT);
             const errorFromClient = errorFromClientHeader
-                ? String(errorFromClientHeader).toLowerCase() === 'true'
+                ? String(errorFromClientHeader).toLowerCase() === BOOLEAN_STRING.TRUE
                 : undefined;
     
             return {
@@ -147,14 +147,14 @@ class VaultClient {
             };
         } else {
             const headers = (err as SkyflowApiErrorLegacy).headers || {};
-            const contentType = headers.get('content-type');
-            const requestId = headers.get('x-request-id') || '';
+            const contentType = headers.get(HTTP_HEADER.CONTENT_TYPE_LOWER);
+            const requestId = headers.get(HTTP_HEADER.X_REQUEST_ID) || '';
 
             
             
-            const errorFromClientHeader = headers.get('error-from-client');
+            const errorFromClientHeader = headers.get(HTTP_HEADER.ERROR_FROM_CLIENT);
             const errorFromClient = errorFromClientHeader
-                ? String(errorFromClientHeader).toLowerCase() === 'true'
+                ? String(errorFromClientHeader).toLowerCase() === BOOLEAN_STRING.TRUE
                 : undefined;
     
             return {
@@ -175,9 +175,9 @@ class VaultClient {
         : (err as SkyflowApiErrorLegacy).body?.error;
 
         if (contentType) {
-            if (contentType.includes('application/json')) {
+            if (contentType.includes(CONTENT_TYPE.APPLICATION_JSON)) {
                 this.handleJsonError(err as SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy, data, requestId, reject, errorFromClient);
-            } else if (contentType.includes('text/plain')) {
+            } else if (contentType.includes(CONTENT_TYPE.TEXT_PLAIN)) {
                 this.handleTextError(err as SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy, data, requestId, reject, errorFromClient);
             } else {
                 this.handleGenericError(err as SkyflowApiErrorNewFormat | SkyflowApiErrorLegacy, requestId, reject, errorFromClient);
@@ -353,7 +353,7 @@ class VaultClient {
     ) {
         printLog(description, MessageType.ERROR, this.getLogLevel());
         reject(new SkyflowError({
-            http_code: isNewError ? (err?.statusCode ?? err?.body?.error?.http_code ?? 400) : err?.body?.error?.http_code ?? 400,
+            http_code: isNewError ? (err?.statusCode ?? err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST) : err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST,
             message: description,
             request_ID: requestId,
             grpc_code: grpcCode,

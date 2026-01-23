@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import jwt from "jsonwebtoken";
 import { V1GetAuthTokenRequest, V1GetAuthTokenResponse } from '../ _generated_/rest/api';
-import { getBaseUrl, LogLevel, MessageType, parameterizedString, printLog } from '../utils';
+import { getBaseUrl, LogLevel, MessageType, parameterizedString, printLog, HTTP_HEADER, CONTENT_TYPE, HTTP_STATUS_CODE, JWT, ENCODING_TYPE } from '../utils';
 import Client from './client';
 import logs from '../utils/logs';
 import SkyflowError from '../error';
@@ -44,7 +44,7 @@ function generateBearerToken(credentialsFilePath: string, options?: BearerTokenO
             printLog(parameterizedString(logs.errorLogs.FILE_NOT_FOUND, [credentialsFilePath]), MessageType.ERROR, options?.logLevel);
             reject(new SkyflowError(SKYFLOW_ERROR_CODE.FILE_NOT_FOUND, [credentialsFilePath]));
         }
-        credentials = fs.readFileSync(credentialsFilePath, "utf8");
+        credentials = fs.readFileSync(credentialsFilePath, ENCODING_TYPE.UTF8);
 
         if (credentials === '') {
             printLog(logs.errorLogs.EMPTY_FILE, MessageType.ERROR, options?.logLevel);
@@ -124,8 +124,8 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
             }
             else {
-                const privateKey = credentialsObj.privateKey.toString("utf8");
-                const signedJwt = jwt.sign(claims, privateKey, { algorithm: "RS256" });
+                const privateKey = credentialsObj.privateKey.toString(ENCODING_TYPE.UTF8);
+                const signedJwt = jwt.sign(claims, privateKey, { algorithm: JWT.ALGORITHM_RS256 });
 
                 const scopedRoles = options?.roleIDs && getRolesForScopedToken(options.roleIDs);
 
@@ -139,13 +139,13 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 const client = new Client(url);
 
                 const req: V1GetAuthTokenRequest = {
-                    grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                    grant_type: JWT.GRANT_TYPE_JWT_BEARER,
                     assertion: signedJwt,
                     scope: scopedRoles,
                 };
                 client.authApi.authenticationServiceGetAuthToken(
                     req,
-                    { headers: { "Content-Type": "application/json", } }
+                    { headers: { "Content-Type": CONTENT_TYPE.APPLICATION_JSON, } }
                 ).withRawResponse().then((res: WithRawResponse<V1GetAuthTokenResponse>) => {
                     successResponse(res.data, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
                 })
@@ -168,7 +168,7 @@ function generateSignedDataTokens(credentialsFilePath: string, options: SignedDa
             printLog(parameterizedString(logs.errorLogs.FILE_NOT_FOUND, [credentialsFilePath]), MessageType.ERROR, options?.logLevel);
             reject(new SkyflowError(SKYFLOW_ERROR_CODE.FILE_NOT_FOUND, [credentialsFilePath]));
         }
-        credentials = fs.readFileSync(credentialsFilePath, "utf8");
+        credentials = fs.readFileSync(credentialsFilePath, ENCODING_TYPE.UTF8);
 
         if (credentials === '') {
             printLog(logs.errorLogs.EMPTY_FILE, MessageType.ERROR, options?.logLevel);
@@ -237,13 +237,13 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
             } else {
                 expiryTime = Math.floor(Date.now() / 1000) + 60;
             }
-            const prefix = "signed_token_";
+            const prefix = JWT.SIGNED_TOKEN_PREFIX;
 
             let responseArray: SignedDataTokensResponse[] = [];
             if (options && options?.dataTokens) {
                 options.dataTokens.forEach((token) => {
                     const claims = {
-                        iss: "sdk",
+                        iss: JWT.ISSUER_SDK,
                         key: credentialsObj.keyID,
                         aud: credentialsObj.tokenURI,
                         exp: expiryTime,
@@ -265,8 +265,8 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
                     }
                     else {
-                        const privateKey = credentialsObj.privateKey.toString("utf8");
-                        const signedJwt = jwt.sign(claims, privateKey, { algorithm: "RS256" });
+                        const privateKey = credentialsObj.privateKey.toString(ENCODING_TYPE.UTF8);
+                        const signedJwt = jwt.sign(claims, privateKey, { algorithm: JWT.ALGORITHM_RS256 });
                         const responseObject = getSignedDataTokenResponseObject(prefix + signedJwt, token);
                         responseArray.push(responseObject)
                     }
@@ -287,9 +287,9 @@ function generateSignedDataTokensFromCreds(credentials, options: SignedDataToken
 function failureResponse(err: ServiceAccountResponseError, options?: BearerTokenOptions) {
     return new Promise((_, reject) => {
         if (err.rawResponse) {
-            const requestId = err?.rawResponse?.headers?.get('x-request-id');
-            const contentType = err?.rawResponse?.headers?.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
+            const requestId = err?.rawResponse?.headers?.get(HTTP_HEADER.X_REQUEST_ID);
+            const contentType = err?.rawResponse?.headers?.get(HTTP_HEADER.CONTENT_TYPE_LOWER);
+            if (contentType && contentType.includes(CONTENT_TYPE.APPLICATION_JSON)) {
                 let description = err?.body?.error?.message ?? err?.body;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
@@ -297,7 +297,7 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
                     message: description,
                     request_ID: requestId,
                 }));
-            } else if (contentType && contentType.includes('text/plain')) {
+            } else if (contentType && contentType.includes(CONTENT_TYPE.TEXT_PLAIN)) {
                 let description = err?.body;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
@@ -317,7 +317,7 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
         } else {
             printLog(err.message, MessageType.ERROR, options?.logLevel);
             reject(new SkyflowError({
-                http_code: "500",
+                http_code: String(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR),
                 message: err.message,
             }))
         }
@@ -352,7 +352,7 @@ function signedDataTokenSuccessResponse(res: SignedDataTokensResponse[], logLeve
 export function getRolesForScopedToken(roleIDs: string[]) {
     let str = ''
     roleIDs?.forEach((role) => {
-        str = str + "role:" + role + " "
+        str = str + JWT.ROLE_PREFIX + role + " "
     })
     return str;
 }

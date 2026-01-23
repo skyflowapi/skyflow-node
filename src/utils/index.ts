@@ -13,27 +13,29 @@ import { StringKeyValueMapType } from "../vault/types";
 
 dotenv.config();
 
-export const SDK_METRICS_HEADER_KEY = "sky-metadata";
+export const SDK = {
+    METRICS_HEADER_KEY: "sky-metadata",
+} as const;
 
-export const SKYFLOW_ID = "skyflowId";
+export const SKYFLOW = {
+    ID: "skyflowId",
+    AUTH_HEADER_KEY: "x-skyflow-authorization",
+};
 
 export const BAD_REQUEST = "Bad Request";
 
-export const SKYFLOW_AUTH_HEADER_KEY = "x-skyflow-authorization";
+export const REQUEST = {
+    ID_KEY: "x-request-id",
+};
 
-export const REQUEST_ID_KEY = "x-request-id";
-
-export const LOGLEVEL = "loglevel";
-
-export const CREDENTIALS = "credentials";
-
-export const VAULT_ID = "vaultId";
-
-export const CONNECTION_ID = "connectionId";
-
-export const VAULT = "vault";
-
-export const CONNECTION = "connection";
+export const CONFIG = {
+    LOGLEVEL: "loglevel",
+    CREDENTIALS: "credentials",
+    VAULT_ID: "vaultId",
+    CONNECTION_ID: "connectionId",
+    VAULT: "vault",
+    CONNECTION: "connection",
+} as const;
 
 export enum TokenMode {
     DISABLE = 'DISABLE',
@@ -122,6 +124,7 @@ export const CONTROLLER_TYPES = {
     VAULT: 'VAULT',
     CONNECTION: 'CONNECTION',
 }
+
 
 export enum DetectOutputTranscription {
     DIARIZED_TRANSCRIPTION = "diarized_transcription",
@@ -213,6 +216,89 @@ export enum TokenType {
     ENTITY_ONLY = 'entity_only',
     VAULT_TOKEN = 'vault_token'
 }
+
+
+// HTTP Status Codes
+export const HTTP_STATUS_CODE = {
+    OK: 200,
+    BAD_REQUEST: 400,
+    INTERNAL_SERVER_ERROR: 500,
+} as const;
+
+// Content Types
+export const CONTENT_TYPE = {
+    APPLICATION_JSON: 'application/json',
+    APPLICATION_X_WWW_FORM_URLENCODED: 'application/x-www-form-urlencoded',
+    TEXT_PLAIN: 'text/plain',
+}   as const;
+
+// HTTP Headers
+export const HTTP_HEADER = {
+    CONTENT_TYPE: 'Content-Type',
+    CONTENT_TYPE_LOWER: 'content-type',
+    X_REQUEST_ID: 'x-request-id',
+    ERROR_FROM_CLIENT: 'error-from-client',
+} as const;
+
+// Detect API Status Values
+export const DETECT_STATUS = {
+    IN_PROGRESS: 'IN_PROGRESS',
+    SUCCESS: 'SUCCESS',
+    FAILED: 'FAILED',
+}   as const;
+
+// File Extensions
+export const FILE_EXTENSION = {
+    JSON: 'json',
+    MP3: 'mp3',
+    WAV: 'wav',
+} as const;
+
+// File Format Types
+export const FILE_FORMAT_TYPE = {
+    TXT: 'txt',
+    PDF: 'pdf',
+} as const;
+
+// File Processing
+export const FILE_PROCESSING = {
+    PROCESSED_PREFIX: 'processed-',
+    DEIDENTIFIED_PREFIX: 'deidentified.',
+    ENTITIES: 'entities',
+} as const;
+
+// Encoding Types
+export const ENCODING_TYPE = {
+    UTF8: 'utf8',
+    BASE64: 'base64',
+    BINARY: 'binary',
+    UTF_8: 'utf-8',
+} as const;
+
+// JWT Constants
+export const JWT = {
+    ALGORITHM_RS256: 'RS256',
+    GRANT_TYPE_JWT_BEARER: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+    ISSUER_SDK: 'sdk',
+    SIGNED_TOKEN_PREFIX: 'signed_token_',
+    ROLE_PREFIX: 'role:',
+} as const;
+
+// API Key Prefix
+export const API_KEY = {
+    PREFIX: 'sky-',
+}as const ;
+
+// URL Protocol
+export const URL_PROTOCOL = {
+    HTTPS: 'https',
+} as const;
+
+// Boolean String Values
+export const BOOLEAN_STRING = {
+    TRUE: 'true',
+} as const;
+
 
 export interface ISkyflowError {
     http_status?: string | number | null,
@@ -486,7 +572,7 @@ export const generateSDKMetrics = (logLevel?: LogLevel) => {
 };
 
 export const isValidURL = (url: string) => {
-    if (url && url.substring(0, 5).toLowerCase() !== 'https') {
+    if (url && url.substring(0, 5).toLowerCase() !== URL_PROTOCOL.HTTPS) {
         return false;
     }
     try {
