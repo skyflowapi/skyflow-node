@@ -172,6 +172,11 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         if (pathCred.context !== undefined && (typeof pathCred.context !== 'string' && typeof pathCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT, [type, typeId, id]);
         }
+        if(Object.prototype.hasOwnProperty.call(pathCred, 'tokenUri')) {
+            if (pathCred.tokenUri === undefined || typeof pathCred.tokenUri !== 'string' || !isValidURL(pathCred.tokenUri)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI, [type, typeId, id]);
+            }
+        }
     }
 
     // Validate StringCredentials
@@ -186,6 +191,11 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         }
         if (stringCred.context !== undefined && (typeof stringCred.context !== 'string' && typeof stringCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT, [type, typeId, id]);
+        }
+        if (Object.prototype.hasOwnProperty.call(stringCred, 'tokenUri')) {
+            if (stringCred.tokenUri === undefined || typeof stringCred.tokenUri !== 'string' || !isValidURL(stringCred.tokenUri)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI, [type, typeId, id]);
+            }
         }
     }
 
@@ -298,6 +308,12 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         if (pathCred.context !== undefined && (typeof pathCred.context !== 'string' && typeof pathCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
         }
+
+        if(Object.prototype.hasOwnProperty.call(pathCred, 'tokenUri')) {
+            if (pathCred.tokenUri === undefined || typeof pathCred.tokenUri !== 'string' || !isValidURL(pathCred.tokenUri)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+            }
+        }
     }
 
     // Validate StringCredentials
@@ -313,6 +329,11 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         // validate both string | Record<string, any>
         if (stringCred.context !== undefined && (typeof stringCred.context !== 'string' && typeof stringCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
+        }
+        if (Object.prototype.hasOwnProperty.call(stringCred, 'tokenUri')) {
+            if (stringCred.tokenUri === undefined || typeof stringCred.tokenUri !== 'string' || !isValidURL(stringCred.tokenUri)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+            }
         }
     }
 

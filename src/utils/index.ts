@@ -288,6 +288,7 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
             roleIDs: stringCred.roles,
             ctx: stringCred.context,
             logLevel,
+            tokenUri: stringCred.tokenUri,
         });
     }
 
@@ -298,6 +299,7 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
             roleIDs: pathCred.roles,
             ctx: pathCred.context,
             logLevel,
+            tokenUri: pathCred.tokenUri,
         });
     }
 
