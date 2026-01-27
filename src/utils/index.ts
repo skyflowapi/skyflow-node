@@ -230,7 +230,7 @@ export const CONTENT_TYPE = {
     APPLICATION_JSON: 'application/json',
     APPLICATION_X_WWW_FORM_URLENCODED: 'application/x-www-form-urlencoded',
     TEXT_PLAIN: 'text/plain',
-}   as const;
+} as const;
 
 // HTTP Headers
 export const HTTP_HEADER = {
@@ -245,7 +245,7 @@ export const DETECT_STATUS = {
     IN_PROGRESS: 'IN_PROGRESS',
     SUCCESS: 'SUCCESS',
     FAILED: 'FAILED',
-}   as const;
+} as const;
 
 // File Extensions
 export const FILE_EXTENSION = {
@@ -287,7 +287,7 @@ export const JWT = {
 // API Key Prefix
 export const API_KEY = {
     PREFIX: 'sky-',
-}as const ;
+} as const;
 
 // URL Protocol
 export const URL_PROTOCOL = {

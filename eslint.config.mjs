@@ -7,7 +7,7 @@ export default tseslint.config(
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        projectSouce: true,
+        projectSource: true,
         tsconfigRootDir: import.meta.dirname,
         sourceType: "module",
       },

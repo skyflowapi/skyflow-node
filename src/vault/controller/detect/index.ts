@@ -30,9 +30,6 @@ import { DeidentifyFileDetectRunResponse, DeidentifyFileOutput, DetectTextRespon
 class DetectController {
 
     private client: VaultClient;
-    success=DETECT_STATUS.SUCCESS;
-    inProgress=DETECT_STATUS.IN_PROGRESS;
-    failed=DETECT_STATUS.FAILED;
     
     private waitTime: number = 64;
 
@@ -352,7 +349,7 @@ class DetectController {
         const poll = () => {
             this.client.filesAPI.getRun(runId, req)
                     .then((response: DeidentifyStatusResponse) => {
-                    if (response.status?.toUpperCase() === this.inProgress
+                    if (response.status?.toUpperCase() === DETECT_STATUS.IN_PROGRESS
 ) {
                         if (currentWaitTime >= maxWaitTime) {
                             resolve({ runId }); // Resolve with runId if max wait time is exceeded
@@ -370,10 +367,10 @@ class DetectController {
                                 poll();
                             }, waitTime * 1000);
                         }
-                    } else if (response.status?.toUpperCase() === this.success) {
+                    } else if (response.status?.toUpperCase() === DETECT_STATUS.SUCCESS) {
                         resolve([response, runId]); // Resolve with the processed file response and runId
                     }
-                    else if (response.status?.toUpperCase() === this.failed) {
+                    else if (response.status?.toUpperCase() === DETECT_STATUS.FAILED) {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     }
                 })
@@ -712,13 +709,13 @@ class DetectController {
                 }
 
                 promiseReq.then(([data, runId])  => {
-                    if(runId && data.status === this.inProgress) {
+                    if(runId && data.status === DETECT_STATUS.IN_PROGRESS) {
                         resolve(new DeidentifyFileResponse({
                             runId: runId,
                             status: data.status,
                         }));
                     }
-                    if (options?.getOutputDirectory() && data.status === this.success) {
+                    if (options?.getOutputDirectory() && data.status === DETECT_STATUS.SUCCESS) {
                         this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
                     }
                     const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, runId, data.status);
