@@ -10,7 +10,7 @@
     "eslint": "eslint '**/*.{js,ts}' --max-warnings 0",
     "prettier": "prettier --list-different '**/*.{js,ts}'",
     "lint": "npm run eslint",
-    "lint-fix": "prettier --write '**/*.{js,ts}' && eslint --fix '**/*.js'",
+    "lint-fix": "prettier --write '**/*.{js,ts}' && eslint --fix '**/*.{js,ts}'",
     "spellcheck": "cspell '**/*.{ts,js,md}'",
     "docs-gen": "typedoc && node scripts/docs-script/markdown-gen.js && npx ts-node scripts/docs-script/processMarkdown.ts"
   },
