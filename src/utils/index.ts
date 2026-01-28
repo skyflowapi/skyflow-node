@@ -365,9 +365,9 @@ export function fillUrlWithPathAndQueryParams(url: string,
     let filledUrl = url;
     if (pathParams) {
         Object.entries(pathParams).forEach(([key, value]) => {
-            filledUrl = url.replace(`{${key}}`, String(value));
+            filledUrl = filledUrl.replace(`{${key}}`, String(value));
         });
-    }
+        }
     if (queryParams) {
         filledUrl += '?';
         Object.entries(queryParams).forEach(([key, value]) => {

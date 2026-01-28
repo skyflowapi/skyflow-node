@@ -62,7 +62,21 @@ class ConnectionController {
                     })
                         .then(async (response) => {
                             if(!response.ok){
-                                const errorBody = await response.json().catch(() => null);
+                                let errorBody: any = null;
+                                try {
+                                    errorBody = await response.json();
+                                } catch (jsonError) {
+                                    // If JSON parsing fails, consume as text to close connection
+                                    try {
+                                        const text = await response.text();
+                                        errorBody = text ? { message: text } : null;
+                                    } catch (textError) {
+                                        // If text consumption also fails, ensure body is consumed
+                                        if (response.body) {
+                                            await response.body.cancel().catch(() => {});
+                                        }
+                                    }
+                                }
 
                                 const error = {
                                     body: errorBody,
@@ -73,6 +87,7 @@ class ConnectionController {
                                 throw error;
                             }
                             const headers = response.headers;
+                            // Consume response body - this will close the connection
                             return response.json().then((body) => ({ headers, body }));
                         })
                         .then(({headers, body}) => {
