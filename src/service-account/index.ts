@@ -101,8 +101,8 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
             }
 
-            if (Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
-                if (options?.tokenUri === undefined || typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
+            if (options && Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
+                if (typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
                     throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
                 }
             }
@@ -244,8 +244,8 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
                 reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
             }
 
-            if (Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {  
-                if (options?.tokenUri === undefined || typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {  
+            if (options && Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
+                if (typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
                     throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
                 }
             }
