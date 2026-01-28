@@ -4,8 +4,8 @@ import {
     getBearerToken,
     LogLevel,
     RequestMethod,
-    SDK_METRICS_HEADER_KEY,
-    SKYFLOW_AUTH_HEADER_KEY,
+    SDK,
+    SKYFLOW,
 } from "../../../src/utils";
 import { validateInvokeConnectionRequest } from "../../../src/utils/validations";
 import VaultClient from "../../../src/vault/client";
@@ -69,8 +69,8 @@ describe("ConnectionController Tests", () => {
             body: JSON.stringify(request.body),
             headers: {
                 ...request.headers,
-                [SKYFLOW_AUTH_HEADER_KEY]: token.key,
-                [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()),
+                [SKYFLOW.AUTH_HEADER_KEY]: token.key,
+                [SDK.METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()),
             },
         });
     });

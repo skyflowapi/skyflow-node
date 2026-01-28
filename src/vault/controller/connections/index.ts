@@ -1,5 +1,5 @@
 //imports
-import { fillUrlWithPathAndQueryParams, generateSDKMetrics, getBearerToken, LogLevel, MessageType, RequestMethod, parameterizedString, printLog, SDK_METRICS_HEADER_KEY, SKYFLOW_AUTH_HEADER_KEY, REQUEST_ID_KEY, TYPES } from "../../../utils";
+import { fillUrlWithPathAndQueryParams, generateSDKMetrics, getBearerToken, LogLevel, MessageType, RequestMethod, parameterizedString, printLog, SDK, SKYFLOW, REQUEST, TYPES, HTTP_HEADER, CONTENT_TYPE } from "../../../utils";
 import InvokeConnectionRequest from "../../model/request/inkove";
 import logs from "../../../utils/logs";
 import { validateInvokeConnectionRequest } from "../../../utils/validations";
@@ -19,10 +19,10 @@ class ConnectionController {
 
     private buildInvokeConnectionBody(invokeRequest: InvokeConnectionRequest){
         let requestBody;
-        const contentType = invokeRequest.headers?.['Content-Type'] || 'application/json';
-        if (contentType === 'application/json') {
+        const contentType = invokeRequest.headers?.[HTTP_HEADER.CONTENT_TYPE] || CONTENT_TYPE.APPLICATION_JSON;
+        if (contentType === CONTENT_TYPE.APPLICATION_JSON) {
             requestBody = JSON.stringify(invokeRequest.body);
-        } else if (contentType === 'application/x-www-form-urlencoded') {
+        } else if (contentType === CONTENT_TYPE.APPLICATION_X_WWW_FORM_URLENCODED) {
             const urlSearchParams = new URLSearchParams();
             Object.entries(invokeRequest.body || {}).forEach(([key, value]) => {
                 if (typeof value === 'object' && value !== null) {
@@ -52,8 +52,8 @@ class ConnectionController {
                 getBearerToken(this.client.getCredentials(), this.logLevel).then((token) => {
                     printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES.INVOKE_CONNECTION), MessageType.LOG, this.logLevel);
                     const sdkHeaders = {};
-                    sdkHeaders[SKYFLOW_AUTH_HEADER_KEY] = token.key;
-                    sdkHeaders[SDK_METRICS_HEADER_KEY] = JSON.stringify(generateSDKMetrics());
+                    sdkHeaders[SKYFLOW.AUTH_HEADER_KEY] = token.key;
+                    sdkHeaders[SDK.METRICS_HEADER_KEY] = JSON.stringify(generateSDKMetrics());
                     
                     fetch(filledUrl, {
                         method: invokeRequest.method || RequestMethod.POST,
@@ -77,7 +77,7 @@ class ConnectionController {
                         })
                         .then(({headers, body}) => {
                             printLog(logs.infoLogs.INVOKE_CONNECTION_REQUEST_RESOLVED, MessageType.LOG, this.logLevel);
-                            const requestId = headers?.get(REQUEST_ID_KEY) || '';
+                            const requestId = headers?.get(REQUEST.ID_KEY) || '';
                             const invokeConnectionResponse = new InvokeConnectionResponse({
                                 data: body,
                                 metadata: { requestId },

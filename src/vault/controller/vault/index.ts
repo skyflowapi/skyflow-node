@@ -22,7 +22,7 @@ import FileUploadResponse from '../../model/response/file-upload';
 import TokenizeResponse from '../../model/response/tokenize';
 import TokenizeRequest from '../../model/request/tokenize';
 import { InsertResponseType, ParsedDetokenizeResponse, ParsedInsertBatchResponse, RecordsResponse, SkyflowIdResponse, StringKeyValueMapType, TokenizeRequestType, TokensResponse } from '../../types';
-import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK_METRICS_HEADER_KEY, removeSDKVersion, RedactionType, SKYFLOW_ID, SkyflowRecordError } from '../../../utils';
+import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK, removeSDKVersion, RedactionType, SKYFLOW, SkyflowRecordError, HTTP_STATUS_CODE, HTTP_HEADER, CONTENT_TYPE, ENCODING_TYPE } from '../../../utils';
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
 import VaultClient from '../../client';
@@ -40,7 +40,7 @@ class VaultController {
     }
 
     private createSdkHeaders() {
-        return { [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
+        return { [SDK.METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
     }
 
     private handleRecordsResponse(records?: Record<string, unknown>[]): Record<string, unknown>[] {
@@ -268,8 +268,8 @@ class VaultController {
                 // Validation checks
                 validateUpdateRequest(request, options, this.client.getLogLevel());
 
-                const skyflowId = request.data[SKYFLOW_ID];
-                delete request.data[SKYFLOW_ID];
+                const skyflowId = request.data[SKYFLOW.ID];
+                delete request.data[SKYFLOW.ID];
                 const record = { fields: request.data, tokens: options?.getTokens() };
                 const strictMode = options?.getTokenMode() ? options?.getTokenMode() : V1Byot.Disable;
                 const updateData: RecordServiceUpdateRecordBody = {
@@ -422,14 +422,14 @@ class VaultController {
                     const fileBuffer = fs.readFileSync(options.getFilePath()!);
                     fileName = path.basename(options.getFilePath()!);
                     fileBlob = new File([fileBuffer], fileName, {
-                        type: 'application/json'
+                        type: CONTENT_TYPE.APPLICATION_JSON
                     });
                 } 
                 else if (options?.getBase64()) { 
-                    const buffer = Buffer.from(options.getBase64()!, 'base64');
+                    const buffer = Buffer.from(options.getBase64()!, ENCODING_TYPE.BASE64);
                     fileName = options.getFileName()!;
                     fileBlob = new File([buffer], fileName, {
-                        type: 'application/json'
+                        type: CONTENT_TYPE.APPLICATION_JSON
                     });
                 }
                 

@@ -42,7 +42,23 @@ jest.mock('../../../src/utils', () => ({
         MASKED: 'MASKED',
         REDACTED: 'REDACTED',
     },
-    SKYFLOW_ID: 'skyflowId',
+    SDK: {
+        METRICS_HEADER_KEY: 'sky-metadata',
+    },
+    SKYFLOW: {
+        ID: 'skyflowId',
+    },
+    CONTENT_TYPE: {
+        APPLICATION_JSON: 'application/json',
+        APPLICATION_X_WWW_FORM_URLENCODED: 'application/x-www-form-urlencoded',
+        TEXT_PLAIN: 'text/plain',
+    },
+    ENCODING_TYPE: {
+        UTF8: 'utf8',
+        BASE64: 'base64',
+        BINARY: 'binary',
+        UTF_8: 'utf-8',
+    },
     TYPES: {
         INSERT: 'INSERT',
         INSERT_BATCH: 'INSERT_BATCH',
