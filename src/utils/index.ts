@@ -284,23 +284,35 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
     if ('credentialsString' in credentials) {
         const stringCred = credentials as StringCredentials;
         printLog(logs.infoLogs.USING_CREDENTIALS_STRING, MessageType.LOG, logLevel);
-        return generateBearerTokenFromCreds(stringCred.credentialsString, {
+        
+        const options: any = {
             roleIDs: stringCred.roles,
             ctx: stringCred.context,
             logLevel,
-            tokenUri: stringCred.tokenUri,
-        });
+        };
+        
+        if (stringCred.tokenUri !== undefined) {
+            options.tokenUri = stringCred.tokenUri;
+        }
+        
+        return generateBearerTokenFromCreds(stringCred.credentialsString, options);
     }
 
     if ('path' in credentials) {
         const pathCred = credentials as PathCredentials;
         printLog(logs.infoLogs.USING_PATH, MessageType.LOG, logLevel);
-        return generateBearerToken(pathCred.path, {
+        
+        const options: any = {
             roleIDs: pathCred.roles,
             ctx: pathCred.context,
             logLevel,
-            tokenUri: pathCred.tokenUri,
-        });
+        };
+        
+        if (pathCred.tokenUri !== undefined) {
+            options.tokenUri = pathCred.tokenUri;
+        }
+        
+        return generateBearerToken(pathCred.path, options);
     }
 
     throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS);
