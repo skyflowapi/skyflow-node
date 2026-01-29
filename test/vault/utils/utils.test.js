@@ -163,7 +163,7 @@ describe('fillUrlWithPathAndQueryParams', () => {
         const url = '/api/resource/{category}/{id}';
         const pathParams = { category: 'books', id: '456' };
         const result = fillUrlWithPathAndQueryParams(url, pathParams);
-        expect(result).toBe('/api/resource/{category}/456');
+        expect(result).toBe('/api/resource/books/456');
     });
 
     test('should handle query parameters with special characters', () => {

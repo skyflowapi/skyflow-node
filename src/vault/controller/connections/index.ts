@@ -61,25 +61,38 @@ class ConnectionController {
                         headers: { ...invokeRequest.headers, ...sdkHeaders },
                     })
                         .then(async (response) => {
-                            if(!response.ok){
-                                const errorBody = await response.json().catch(() => null);
+                            if (!response.ok) {
+                                let errorBody:unknown = null ;
 
-                                const error = {
+                                try {
+                                    errorBody = await response.json();
+                                } catch {
+                                    try {
+                                        const text = await response.text();
+                                        errorBody = text ? { message: text } : null;
+                                    } catch {
+                                        response.body?.cancel().catch(() => { });
+                                    }
+                                }
+
+                                throw {
                                     body: errorBody,
                                     statusCode: response.status,
                                     message: response.statusText,
                                     headers: response.headers
                                 };
-                                throw error;
                             }
+
                             const headers = response.headers;
-                            return response.json().then((body) => ({ headers, body }));
+                            const body = await response.json();
+                            return { headers, body };
                         })
+
                         .then(({headers, body}) => {
                             printLog(logs.infoLogs.INVOKE_CONNECTION_REQUEST_RESOLVED, MessageType.LOG, this.logLevel);
                             const requestId = headers?.get(REQUEST.ID_KEY) || '';
                             const invokeConnectionResponse = new InvokeConnectionResponse({
-                                data: body,
+                                data:body,
                                 metadata: { requestId },
                                 errors: null
                             });
