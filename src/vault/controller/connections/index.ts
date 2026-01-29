@@ -61,33 +61,38 @@ class ConnectionController {
                         headers: { ...invokeRequest.headers, ...sdkHeaders },
                     })
                         .then(async (response) => {
-                            const text = await response.text().catch(() => "");
-                            let body: unknown = null;
-                            if (text) {
-                                try {
-                                    body = JSON.parse(text);
-                                } catch {
-                                    body = text;
-                                }
-                            }
                             if (!response.ok) {
+                                let errorBody:unknown = null ;
+
+                                try {
+                                    errorBody = await response.json();
+                                } catch {
+                                    try {
+                                        const text = await response.text();
+                                        errorBody = text ? { message: text } : null;
+                                    } catch {
+                                        response.body?.cancel().catch(() => { });
+                                    }
+                                }
+
                                 throw {
-                                    body,
+                                    body: errorBody,
                                     statusCode: response.status,
+                                    message: response.statusText,
                                     headers: response.headers
                                 };
                             }
-                            return {
-                                headers: response.headers,
-                                body
-                            };
+
+                            const headers = response.headers;
+                            const body = await response.json();
+                            return { headers, body };
                         })
+
                         .then(({headers, body}) => {
                             printLog(logs.infoLogs.INVOKE_CONNECTION_REQUEST_RESOLVED, MessageType.LOG, this.logLevel);
                             const requestId = headers?.get(REQUEST_ID_KEY) || '';
-                             const data = typeof body === 'object' && body !== null ? body : {};
                             const invokeConnectionResponse = new InvokeConnectionResponse({
-                                data,
+                                data:body,
                                 metadata: { requestId },
                                 errors: null
                             });
