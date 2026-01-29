@@ -61,40 +61,33 @@ class ConnectionController {
                         headers: { ...invokeRequest.headers, ...sdkHeaders },
                     })
                         .then(async (response) => {
-                            if(!response.ok){
-                                let errorBody: any = null;
+                            const text = await response.text().catch(() => "");
+                            let body: unknown = null;
+                            if (text) {
                                 try {
-                                    errorBody = await response.json();
-                                } catch (jsonError) {
-                                    // If JSON parsing fails, consume as text to close connection
-                                    try {
-                                        const text = await response.text();
-                                        errorBody = text ? { message: text } : null;
-                                    } catch (textError) {
-                                        // If text consumption also fails, ensure body is consumed
-                                        if (response.body) {
-                                            await response.body.cancel().catch(() => {});
-                                        }
-                                    }
+                                    body = JSON.parse(text);
+                                } catch {
+                                    body = text;
                                 }
-
-                                const error = {
-                                    body: errorBody,
+                            }
+                            if (!response.ok) {
+                                throw {
+                                    body,
                                     statusCode: response.status,
-                                    message: response.statusText,
                                     headers: response.headers
                                 };
-                                throw error;
                             }
-                            const headers = response.headers;
-                            // Consume response body - this will close the connection
-                            return response.json().then((body) => ({ headers, body }));
+                            return {
+                                headers: response.headers,
+                                body
+                            };
                         })
                         .then(({headers, body}) => {
                             printLog(logs.infoLogs.INVOKE_CONNECTION_REQUEST_RESOLVED, MessageType.LOG, this.logLevel);
                             const requestId = headers?.get(REQUEST_ID_KEY) || '';
+                             const data = typeof body === 'object' && body !== null ? body : {};
                             const invokeConnectionResponse = new InvokeConnectionResponse({
-                                data: body,
+                                data,
                                 metadata: { requestId },
                                 errors: null
                             });
