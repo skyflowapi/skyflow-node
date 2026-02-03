@@ -222,7 +222,7 @@ class ConnectionController {
             if (invokeRequest.headers) {
               Object.entries(invokeRequest.headers).forEach(([key, value]) => {
                 const lowerKey = key.toLowerCase();
-                if (shouldRemoveContentType && lowerKey === "content-type") {
+                if (shouldRemoveContentType && lowerKey === HTTP_HEADER.CONTENT_TYPE.toLowerCase()) {
                   return;
                 }
                 requestHeaders[key] =
