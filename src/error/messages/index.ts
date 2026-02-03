@@ -244,6 +244,7 @@ const errorMessages = {
     EMPTY_RUN_ID: `${errorPrefix} Validation error. Run id cannot be empty. Specify a valid run id.`,
     INVALID_RUN_ID: `${errorPrefix} Validation error. Invalid run id. Specify a valid run id as string.`,
     INTERNAL_SERVER_ERROR: `${errorPrefix}. Internal server error.  %s1.`,
+    INVALID_XML_FORMAT: `${errorPrefix} Validation error. Invalid XML format. Specify a valid XML format as string.`,
 };
 
 export default errorMessages;

@@ -230,6 +230,10 @@ export const CONTENT_TYPE = {
     APPLICATION_JSON: 'application/json',
     APPLICATION_X_WWW_FORM_URLENCODED: 'application/x-www-form-urlencoded',
     TEXT_PLAIN: 'text/plain',
+    MULTIPART_FORM_DATA: 'multipart/form-data',
+    TEXT_XML: 'text/xml',
+    APPLICATION_XML: 'application/xml',
+    TEXT_HTML: 'text/html',
 } as const;
 
 // HTTP Headers
@@ -582,3 +586,41 @@ export const isValidURL = (url: string) => {
         return false;
     }
 };
+
+
+export function objectToXML(obj: any, rootName: string = "root"): string {
+  function convertToXML(data: any, nodeName: string): string {
+    if (data === null || data === undefined) {
+      return `<${nodeName}/>`;
+    }
+
+    if (typeof data === "object" && !Array.isArray(data)) {
+      let xml = `<${nodeName}>`;
+      for (const [key, value] of Object.entries(data)) {
+        xml += convertToXML(value, key);
+      }
+      xml += `</${nodeName}>`;
+      return xml;
+    }
+
+    if (Array.isArray(data)) {
+      return data.map((item) => convertToXML(item, nodeName)).join("");
+    }
+
+    // Escape special XML characters
+    const escapedValue = String(data)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+
+    return `<${nodeName}>${escapedValue}</${nodeName}>`;
+  }
+
+  const xmlContent = Object.entries(obj)
+    .map(([key, value]) => convertToXML(value, key))
+    .join("");
+
+  return `<?xml version="1.0" encoding="UTF-8"?><${rootName}>${xmlContent}</${rootName}>`;
+}
