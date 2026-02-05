@@ -116,6 +116,46 @@ describe("ConnectionController Tests", () => {
         );
     });
 
+    it("should handle arrays in URL encoded request body", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+        
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: {
+                get: jest.fn().mockImplementation((key) => {
+                    if (key === "x-request-id") return "request_id";
+                    if (key === "content-type") return "text/plain";
+                    return null;
+                }),
+            },
+            text: jest.fn().mockResolvedValue("success"),
+        });
+
+        const request = {
+            body: { 
+                tags: ["tag1", "tag2", "tag3"],
+                name: "test" 
+            },
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        };
+
+        await connectionController.invoke(request);
+
+        const fetchCall = global.fetch.mock.calls[0][1];
+        const bodyString = fetchCall.body;
+        
+        expect(bodyString).toContain("tags=tag1");
+        expect(bodyString).toContain("tags=tag2");
+        expect(bodyString).toContain("tags=tag3");
+        expect(bodyString).toContain("name=test");
+    });
+
     // Test buildInvokeConnectionBody - multipart/form-data
     it("should build request body for multipart/form-data and remove content-type header", async () => {
         const token = { key: "bearer_token" };
@@ -149,6 +189,53 @@ describe("ConnectionController Tests", () => {
         expect(callArgs.body).toBeInstanceOf(FormData);
         // Content-Type should be removed for multipart
         expect(callArgs.headers["Content-Type"]).toBeUndefined();
+    });
+
+    // Test buildInvokeConnectionBody - multipart/form-data with File/Blob
+    it("should handle File and Blob objects in multipart/form-data", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+        
+        // Create mock File and Blob
+        const mockFile = new File(["file content"], "test.txt", { type: "text/plain" });
+        const mockBlob = new Blob(["blob content"], { type: "application/octet-stream" });
+        
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: {
+                get: jest.fn().mockImplementation((key) => {
+                    if (key === "x-request-id") return "request_id";
+                    if (key === "content-type") return "text/plain";
+                    return null;
+                }),
+            },
+            text: jest.fn().mockResolvedValue("success"),
+        });
+
+        const request = {
+            body: { 
+                file: mockFile,
+                data: mockBlob,
+                name: "test" 
+            },
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "multipart/form-data" },
+        };
+
+        await connectionController.invoke(request);
+
+        const callArgs = fetch.mock.calls[0][1];
+        expect(callArgs.body).toBeInstanceOf(FormData);
+        
+        // Verify FormData was created and File/Blob were appended (covers lines 97-98)
+        const formData = callArgs.body;
+        expect(formData.has('file')).toBe(true);
+        expect(formData.has('data')).toBe(true);
+        expect(formData.has('name')).toBe(true);
     });
 
     // Test buildInvokeConnectionBody - XML content type
