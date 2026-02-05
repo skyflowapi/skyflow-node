@@ -231,6 +231,7 @@ const SKYFLOW_ERROR_CODE = {
     EMPTY_RUN_ID:{ http_code: 400, message: errorMessages.EMPTY_RUN_ID },
     INVALID_RUN_ID:{ http_code: 400, message: errorMessages.INVALID_RUN_ID },
     INTERNAL_SERVER_ERROR: { http_code: 500, message: errorMessages.INTERNAL_SERVER_ERROR },
+    INVALID_XML_FORMAT: { http_code: 400, message: errorMessages.INVALID_XML_FORMAT },
 };
 
 export default SKYFLOW_ERROR_CODE;
