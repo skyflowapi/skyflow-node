@@ -1,4 +1,4 @@
-import { JwtPayload, jwtDecode } from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
 import { MessageType, printLog } from '..';
 import logs from '../logs';
 
@@ -9,7 +9,7 @@ function isExpired(token: string) {
             return true;
         }
         let isJwtExpired = false;
-        const decoded: JwtPayload = jwtDecode(token);
+        const decoded: any = jwt_decode(token);
         const currentTime = (new Date().getTime() / 1000);
         const expiryTime = decoded.exp;
         if (expiryTime && currentTime > expiryTime) {
@@ -26,7 +26,7 @@ function isTokenValid(token: string) {
     try {
         if (token === "") return false
         let isJwtExpired = false;
-        const decoded: JwtPayload = jwtDecode(token);
+        const decoded: any = jwt_decode(token);
         const currentTime = (new Date().getTime() / 1000);
         const expiryTime = decoded.exp;
         if (expiryTime && currentTime > expiryTime) {

@@ -1,4 +1,4 @@
-import { jwtDecode } from 'jwt-decode'; 
+import jwt_decode from 'jwt-decode'; 
 import { isTokenValid, isExpired } from '../../../../src/utils/jwt-utils';
 
 jest.mock('jwt-decode');
@@ -7,7 +7,7 @@ describe('isTokenValid Tests', () => {
     const mockDecodedPayload = { sub: '12345', name: 'John Doe', exp: 1609459200 };
 
     beforeEach(() => {
-        jwtDecode.mockReturnValue(mockDecodedPayload);
+        jwt_decode.mockReturnValue(mockDecodedPayload);
     });
 
     test('should return false for an invalid token', () => {
@@ -21,7 +21,7 @@ describe('isTokenValid Tests', () => {
     });
 
     test('should return false in catch', () => {
-        jwtDecode.mockImplementation(() => {
+        jwt_decode.mockImplementation(() => {
             throw new Error("Invalid Token");
         });
         const isValid = isTokenValid("TOKEN");
@@ -29,7 +29,7 @@ describe('isTokenValid Tests', () => {
     });
 
     test('should return false in catch for isExpired', () => {
-        jwtDecode.mockImplementation(() => {
+        jwt_decode.mockImplementation(() => {
             throw new Error("Invalid Token");
         });
         const isValid = isExpired("TOKEN");

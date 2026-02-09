@@ -1,6 +1,6 @@
 import errorMessages from "../../../src/error/messages";
 import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, MessageType, LogLevel } from "../../../src/utils";
-import { jwtDecode } from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
 import os from 'os';
 import { generateBearerTokenFromCreds, generateBearerToken } from '../../../src/service-account';
 import sdkDetails from '../../../package.json';
@@ -69,7 +69,7 @@ describe('Validate Token Helper', () => {
     
     beforeEach(() => {
         jest.clearAllMocks();
-        jwtDecode.mockReturnValue(mockPrevDecodedPayload);
+        jwt_decode.mockReturnValue(mockPrevDecodedPayload);
     });
 
     test('should throw an error for invalid token', () => {
@@ -78,13 +78,13 @@ describe('Validate Token Helper', () => {
     });
 
     test('should throw an error for invalid token', () => {
-        jwtDecode.mockReturnValue(mockFutureDecodedPayload);
+        jwt_decode.mockReturnValue(mockFutureDecodedPayload);
         expect(validateToken("connectionId"))
             .toBeTruthy();
     });
 
     test('should throw an error for invalid token', () => {
-        jwtDecode.mockReturnValue(mockDecodedPayload);
+        jwt_decode.mockReturnValue(mockDecodedPayload);
         expect(validateToken("connectionId"))
             .toBeTruthy();
     });
@@ -493,7 +493,7 @@ describe('getBearerToken', () => {
         const credentials = {
             token: 'validToken'
         };
-        jwtDecode.mockReturnValue({ exp: Date.now() / 1000 + 3600 }); // Valid for 1 hour
+        jwt_decode.mockReturnValue({ exp: Date.now() / 1000 + 3600 }); // Valid for 1 hour
 
         const result = await getBearerToken(credentials, logLevel);
 
