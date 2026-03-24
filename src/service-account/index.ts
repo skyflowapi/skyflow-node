@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import jwt from "jsonwebtoken";
 import { V1GetAuthTokenRequest, V1GetAuthTokenResponse } from '../ _generated_/rest/api';
-import { getBaseUrl, LogLevel, MessageType, parameterizedString, printLog, HTTP_HEADER, CONTENT_TYPE, HTTP_STATUS_CODE, JWT, ENCODING_TYPE } from '../utils';
+import { getBaseUrl, LogLevel, isValidURL, MessageType, parameterizedString, printLog, HTTP_HEADER, CONTENT_TYPE, HTTP_STATUS_CODE, JWT, ENCODING_TYPE } from '../utils';
 import Client from './client';
 import logs from '../utils/logs';
 import SkyflowError from '../error';
@@ -13,6 +13,7 @@ export type BearerTokenOptions = {
     ctx?: string | Record<string, any>,
     roleIDs?: string[],
     logLevel?: LogLevel,
+    tokenUri?: string,
 }
 
 export type GenerateTokenOptions = {
@@ -29,6 +30,7 @@ export type SignedDataTokensOptions = {
     timeToLive?: number,
     ctx?: string | Record<string, any>,
     logLevel?: LogLevel,
+    tokenUri?: string
 }
 
 export type TokenResponse = {
@@ -98,6 +100,17 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
             }
+
+            if (options && Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
+                if (typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
+                    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+                }
+            }
+
+            if (options?.tokenUri) {
+                credentialsObj.tokenURI = options.tokenUri;
+            }
+
             const expiryTime = Math.floor(Date.now() / 1000) + 3600;
             const claims = {
                 iss: credentialsObj.clientID,
@@ -229,6 +242,16 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
             catch (e) {
                 printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
+            }
+
+            if (options && Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
+                if (typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
+                    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+                }
+            }
+
+            if (options?.tokenUri) {
+                credentialsObj.tokenURI = options.tokenUri;
             }
 
             let expiryTime;

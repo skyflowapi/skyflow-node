@@ -4047,3 +4047,139 @@ describe('validateCredentialsWithId', () => {
       .toThrow(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_WITH_ID);
   });
 });
+
+describe('validateCredentialsWithId and validateSkyflowCredentials - tokenUri validation', () => {
+  const type = 'vault';
+  const typeId = 'vault_id';
+  const id = 'test-id';
+
+  const validUrl = 'https://valid.url/token';
+
+  test('validateCredentialsWithId: should throw error if tokenUri is present but not a string (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: 123
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateCredentialsWithId: should throw error if tokenUri is present but not a valid URL (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: 'not-a-url'
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateCredentialsWithId: should accept valid tokenUri (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: validUrl
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id)).not.toThrow();
+  });
+
+  test('validateCredentialsWithId: should throw error if tokenUri is present but not a string (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: 123
+    };
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateCredentialsWithId: should throw error if tokenUri is present but not a valid URL (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: 'not-a-url'
+    };
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateCredentialsWithId: should accept valid tokenUri (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: validUrl
+    };
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id)).not.toThrow();
+  });
+
+  test('validateCredentialsWithId: should accept valid tokenUri (TokenCredentials)', () => {
+    jest.spyOn(require('../../src/utils/jwt-utils'), 'isExpired').mockReturnValue(false);
+    const credentials = {
+      token: 'valid-token',
+      tokenUri: validUrl
+    };
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id)).not.toThrow();
+  });
+
+  test('validateSkyflowCredentials: should throw error if tokenUri is present but not a string (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: 123
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateSkyflowCredentials: should throw error if tokenUri is present but not a valid URL (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: 'not-a-url'
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateSkyflowCredentials: should accept valid tokenUri (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: validUrl
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateSkyflowCredentials(credentials)).not.toThrow();
+  });
+
+  test('validateSkyflowCredentials: should throw error if tokenUri is present but not a string (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: 123
+    };
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateSkyflowCredentials: should throw error if tokenUri is present but not a valid URL (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: 'not-a-url'
+    };
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateSkyflowCredentials: should accept valid tokenUri (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: validUrl
+    };
+    expect(() => validateSkyflowCredentials(credentials)).not.toThrow();
+  });
+
+  test('validateSkyflowCredentials: should accept valid tokenUri (TokenCredentials)', () => {
+    jest.spyOn(require('../../src/utils/jwt-utils'), 'isExpired').mockReturnValue(false);
+    const credentials = {
+      token: 'valid-token',
+      tokenUri: validUrl
+    };
+    expect(() => validateSkyflowCredentials(credentials)).not.toThrow();
+  });
+});
