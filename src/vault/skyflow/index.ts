@@ -186,6 +186,15 @@ class Skyflow {
         this.updateClients(CONFIG.LOGLEVEL);
     }
 
+    updateLogLevel(logLevel: LogLevel): Skyflow {
+        if (logLevel && !isLogLevel(logLevel)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_LOG_LEVEL);
+        }
+        this.logLevel = logLevel;
+        this.updateClients(CONFIG.LOGLEVEL);
+        return this;
+    }
+
     getLogLevel() {
         return this.logLevel;
     }

@@ -190,6 +190,68 @@ describe('Skyflow initialization', () => {
             expect(() => skyflow.setLogLevel("DUMMY"))
                 .toThrowError(invalidLogLevelError);
         });
+
+        test('should update log level using updateLogLevel and return Skyflow instance', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: validVaultConfig,
+                logLevel: LogLevel.ERROR
+            });
+            const result = skyflow.updateLogLevel(LogLevel.DEBUG);
+            expect(skyflow.getLogLevel()).toBe(LogLevel.DEBUG);
+            expect(result).toBeInstanceOf(Skyflow);
+        });
+
+        test('should support method chaining with updateLogLevel', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: validVaultConfig,
+                logLevel: LogLevel.ERROR
+            });
+            const result = skyflow.updateLogLevel(LogLevel.INFO);
+            expect(result).toBe(skyflow);
+        });
+
+        test('should throw error when updateLogLevel is called with invalid logLevel', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: validVaultConfig,
+                logLevel: LogLevel.ERROR
+            });
+            expect(() => skyflow.updateLogLevel("INVALID"))
+                .toThrowError(invalidLogLevelError);
+        });
+
+        test('should propagate updated log level to all vault clients via updateLogLevel', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [
+                    { vaultId: "VAULT_ID_1", clusterId: "CLUSTER_ID" },
+                    { vaultId: "VAULT_ID_2", clusterId: "CLUSTER_ID" }
+                ],
+                logLevel: LogLevel.ERROR
+            });
+            skyflow.updateLogLevel(LogLevel.WARN);
+            expect(skyflow.getLogLevel()).toBe(LogLevel.WARN);
+        });
+
+        test('should propagate updated log level to vault and connection clients via updateLogLevel', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: [{ vaultId: "VAULT_ID", clusterId: "CLUSTER_ID" }],
+                connectionConfigs: [{ connectionId: "CONN_ID", connectionUrl: "https://conn.com" }],
+                logLevel: LogLevel.ERROR
+            });
+            skyflow.updateLogLevel(LogLevel.OFF);
+            expect(skyflow.getLogLevel()).toBe(LogLevel.OFF);
+        });
+
+        test('should update log level to all valid LogLevel values via updateLogLevel', () => {
+            const skyflow = new Skyflow({
+                vaultConfigs: validVaultConfig,
+                logLevel: LogLevel.ERROR
+            });
+            const levels = [LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR, LogLevel.OFF];
+            levels.forEach(level => {
+                skyflow.updateLogLevel(level);
+                expect(skyflow.getLogLevel()).toBe(level);
+            });
+        });
     });    
 
     describe('Skyflow Credentials Tests', () => {
