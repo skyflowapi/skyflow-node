@@ -42,7 +42,23 @@ jest.mock('../../../src/utils', () => ({
         MASKED: 'MASKED',
         REDACTED: 'REDACTED',
     },
-    SKYFLOW_ID: 'skyflowId',
+    SDK: {
+        METRICS_HEADER_KEY: 'sky-metadata',
+    },
+    SKYFLOW: {
+        ID: 'skyflowId',
+    },
+    CONTENT_TYPE: {
+        APPLICATION_JSON: 'application/json',
+        APPLICATION_X_WWW_FORM_URLENCODED: 'application/x-www-form-urlencoded',
+        TEXT_PLAIN: 'text/plain',
+    },
+    ENCODING_TYPE: {
+        UTF8: 'utf8',
+        BASE64: 'base64',
+        BINARY: 'binary',
+        UTF_8: 'utf-8',
+    },
     TYPES: {
         INSERT: 'INSERT',
         INSERT_BATCH: 'INSERT_BATCH',
@@ -991,7 +1007,7 @@ describe('VaultController query method', () => {
         expect(response).toBeInstanceOf(QueryResponse);
         expect(response.fields).toHaveLength(1);
         expect(response.fields[0].id).toBe('1');
-        expect(response.fields[0].tokenizedData.id).toBe('token123');
+        expect(response.fields[0].tokenized_data.id).toBe('token123');
         expect(response.errors).toBe(null);
     });
 
@@ -1138,7 +1154,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflowId).toBe('id123');
+        expect(response.updatedField.skyflow_id).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toBeNull();
     });
@@ -1169,7 +1185,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflowId).toBe('id123');
+        expect(response.updatedField.skyflow_id).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toBeNull();
     });
@@ -1203,7 +1219,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflowId).toBe('id123');
+        expect(response.updatedField.skyflow_id).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toBeNull();
     });

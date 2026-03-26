@@ -1,4 +1,4 @@
-import { CONNECTION, CONNECTION_ID, Env, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW_ID, VAULT, VAULT_ID, TokenMode } from "..";
+import { CONFIG, Env, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW, TokenMode, API_KEY } from "..";
 import { V1Byot } from "../../ _generated_/rest/api";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
@@ -64,7 +64,7 @@ export function isValidAPIKey(apiKey: string) {
     if (!apiKey || apiKey === null || apiKey === undefined) {
         return false;
     }
-    if (apiKey && typeof apiKey === 'string' && apiKey.startsWith("sky-")) {
+    if (apiKey && typeof apiKey === 'string' && apiKey.startsWith(API_KEY.PREFIX)) {
         return true;
     }
     return false;
@@ -116,11 +116,11 @@ export const validateSkyflowConfig = (config: SkyflowConfig, logLevel: LogLevel 
         }
 
         if (config?.vaultConfigs && !Array.isArray(config.vaultConfigs)) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_FOR_CONFIG, [VAULT])
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_FOR_CONFIG, [CONFIG.VAULT])
         }
 
         if (config?.connectionConfigs && !Array.isArray(config?.connectionConfigs)) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_FOR_CONFIG, [CONNECTION])
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_FOR_CONFIG, [CONFIG.CONNECTION])
         }
 
     } else {
@@ -172,6 +172,11 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         if (pathCred.context !== undefined && (typeof pathCred.context !== 'string' && typeof pathCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT, [type, typeId, id]);
         }
+        if(Object.prototype.hasOwnProperty.call(pathCred, 'tokenUri')) {
+            if (pathCred.tokenUri === undefined || typeof pathCred.tokenUri !== 'string' || !isValidURL(pathCred.tokenUri)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI, [type, typeId, id]);
+            }
+        }
     }
 
     // Validate StringCredentials
@@ -186,6 +191,11 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         }
         if (stringCred.context !== undefined && (typeof stringCred.context !== 'string' && typeof stringCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT, [type, typeId, id]);
+        }
+        if (Object.prototype.hasOwnProperty.call(stringCred, 'tokenUri')) {
+            if (stringCred.tokenUri === undefined || typeof stringCred.tokenUri !== 'string' || !isValidURL(stringCred.tokenUri)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI, [type, typeId, id]);
+            }
         }
     }
 
@@ -222,7 +232,7 @@ export const validateVaultConfig = (vaultConfig: VaultConfig, logLevel: LogLevel
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENV, [vaultConfig?.vaultId]);
         }
         if (vaultConfig?.credentials) {
-            validateCredentialsWithId(vaultConfig.credentials, VAULT, VAULT_ID, vaultConfig.vaultId, logLevel);
+            validateCredentialsWithId(vaultConfig.credentials, CONFIG.VAULT, CONFIG.VAULT_ID, vaultConfig.vaultId, logLevel);
         }
     } else {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_CONFIG);
@@ -248,7 +258,7 @@ export const validateUpdateVaultConfig = (vaultConfig: VaultConfig, logLevel: Lo
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ENV, [vaultConfig?.vaultId]);
         }
         if (vaultConfig?.credentials) {
-            validateCredentialsWithId(vaultConfig.credentials, VAULT, VAULT_ID, vaultConfig.vaultId, logLevel);
+            validateCredentialsWithId(vaultConfig.credentials, CONFIG.VAULT, CONFIG.VAULT_ID, vaultConfig.vaultId, logLevel);
         }
     } else {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VAULT_CONFIG);
@@ -298,6 +308,12 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         if (pathCred.context !== undefined && (typeof pathCred.context !== 'string' && typeof pathCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
         }
+
+        if(Object.prototype.hasOwnProperty.call(pathCred, 'tokenUri')) {
+            if (pathCred.tokenUri === undefined || typeof pathCred.tokenUri !== 'string' || !isValidURL(pathCred.tokenUri)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+            }
+        }
     }
 
     // Validate StringCredentials
@@ -313,6 +329,11 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         // validate both string | Record<string, any>
         if (stringCred.context !== undefined && (typeof stringCred.context !== 'string' && typeof stringCred.context !== 'object')) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
+        }
+        if (Object.prototype.hasOwnProperty.call(stringCred, 'tokenUri')) {
+            if (stringCred.tokenUri === undefined || typeof stringCred.tokenUri !== 'string' || !isValidURL(stringCred.tokenUri)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+            }
         }
     }
 
@@ -354,7 +375,7 @@ export const validateConnectionConfig = (connectionConfig: ConnectionConfig, log
         }
 
         if (connectionConfig?.credentials) {
-            validateCredentialsWithId(connectionConfig.credentials, CONNECTION, CONNECTION_ID, connectionConfig.connectionId, logLevel);
+            validateCredentialsWithId(connectionConfig.credentials, CONFIG.CONNECTION, CONFIG.CONNECTION_ID, connectionConfig.connectionId, logLevel);
         }
     } else {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_CONFIG)
@@ -384,7 +405,7 @@ export const validateUpdateConnectionConfig = (connectionConfig: ConnectionConfi
         }
 
         if (connectionConfig?.credentials) {
-            validateCredentialsWithId(connectionConfig.credentials, CONNECTION, CONNECTION_ID, connectionConfig.connectionId, logLevel);
+            validateCredentialsWithId(connectionConfig.credentials, CONFIG.CONNECTION, CONFIG.CONNECTION_ID, connectionConfig.connectionId, logLevel);
         }
     } else {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CONNECTION_CONFIG)
@@ -392,49 +413,43 @@ export const validateUpdateConnectionConfig = (connectionConfig: ConnectionConfi
 };
 
 function validateInsertInput(input: unknown, index: number): void {
-    try {
-        const inputObject = input as { [key: string]: unknown };
-
-        // Check if the object is empty
-        const entries = Object.entries(inputObject);
-
-        if (entries.length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
-        }
-
-        for (const [key] of entries) {
-            if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
-            }
-        }
-
-    } catch (error) {
+    if (typeof input !== 'object' || input === null || Array.isArray(input)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
     }
 
+    const inputObject = input as { [key: string]: unknown };
+    const entries = Object.entries(inputObject);
+
+    if (entries.length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
+    }
+
+    for (const [key] of entries) {
+        if (!key || typeof key !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
+        }
+    }
 }
 
 function validateUpdateInput(input: unknown): void {
-    try {
-        const inputObject = input as { [key: string]: unknown };
-
-        // Check if the object is empty
-        const entries = Object.entries(inputObject);
-
-        if (entries.length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
-        }
-
-        for (const [key] of entries) {
-            if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
-            }
-        }
-
-    } catch (error) {
+    if (typeof input !== 'object' || input === null || Array.isArray(input)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
     }
 
+    const inputObject = input as { [key: string]: unknown };
+
+    // Exclude skyflow_id — it is the record identifier, not a data field to update
+    const entries = Object.entries(inputObject).filter(([key]) => key !== SKYFLOW.ID);
+
+    if (entries.length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+    }
+
+    for (const [key] of entries) {
+        if (!key || typeof key !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+        }
+    }
 }
 
 function validateUpdateToken(input: unknown): void {
@@ -618,12 +633,12 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_UPDATE_DATA);
         }
 
-        if (updateRequest?.data && !Object.prototype.hasOwnProperty.call(updateRequest.data, SKYFLOW_ID)) {
+        if (updateRequest?.data && !Object.prototype.hasOwnProperty.call(updateRequest.data, SKYFLOW.ID)) {
             printLog(logs.errorLogs.EMPTY_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
         }
 
-        if (updateRequest?.data[SKYFLOW_ID]  && typeof updateRequest.data[SKYFLOW_ID] !== 'string' || (updateRequest.data[SKYFLOW_ID] as string).trim().length === 0) {
+        if (updateRequest?.data[SKYFLOW.ID]  && typeof updateRequest.data[SKYFLOW.ID] !== 'string' || (updateRequest.data[SKYFLOW.ID] as string).trim().length === 0) {
             printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
         }

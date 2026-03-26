@@ -22,14 +22,15 @@ const errorMessages = {
     INVALID_CREDENTIAL_FILE_PATH: `${errorPrefix} Initialization failed. Invalid credentials. Expected file path to be a string.`,
     
     INVALID_CREDENTIALS_FILE_PATH: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Expected file path to exists.`,
+    INVALID_TOKEN_URI: `${errorPrefix} Initialization failed. Invalid Skyflow credentials. The token URI must be a string and a valid URL.`,
     INVALID_KEY: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid api key.`,
     INVALID_PARSED_CREDENTIALS_STRING: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid credentials string.`,
-    INVALID_BEARER_TOKEN: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid token.`,
+    INVALID_BEARER_TOKEN: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Bearer token is invalid or expired. Specify a valid token.`,
 
     INVALID_FILE_PATH_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Expected file path to exists for %s1 with %s2 %s3.`,
     INVALID_KEY_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid api key for %s1 with %s2 %s3.`,
     INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid credentials string for %s1 with %s2 %s3.`,
-    INVALID_BEARER_TOKEN_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Specify a valid token for %s1 with %s2 %s3.`,
+    INVALID_BEARER_TOKEN_WITH_ID: `${errorPrefix} Initialization failed. Invalid credentials. Bearer token is invalid or expired. Specify a valid token for %s1 with %s2 %s3.`,
 
     EMPTY_CONNECTION_ID_VALIDATION: `${errorPrefix} Validation error. Invalid connection ID. Specify a valid connection Id.`,
     EMPTY_CONNECTION_ID: `${errorPrefix} Initialization failed. Invalid connection ID. Specify a valid connection Id.`,
@@ -244,6 +245,7 @@ const errorMessages = {
     EMPTY_RUN_ID: `${errorPrefix} Validation error. Run id cannot be empty. Specify a valid run id.`,
     INVALID_RUN_ID: `${errorPrefix} Validation error. Invalid run id. Specify a valid run id as string.`,
     INTERNAL_SERVER_ERROR: `${errorPrefix}. Internal server error.  %s1.`,
+    INVALID_XML_FORMAT: `${errorPrefix} Validation error. Invalid XML format. Specify a valid XML format as string.`,
 };
 
 export default errorMessages;

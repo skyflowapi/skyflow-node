@@ -5,7 +5,7 @@ import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest,
 import { DeidentifyFileRequest as  DeidentifyFileRequest2} from "../../../ _generated_/rest/api";
 
 import { TokenType } from "../../../ _generated_/rest/api";
-import { DeidenitfyFileRequestTypes, generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, removeSDKVersion, SDK_METRICS_HEADER_KEY, TYPES } from "../../../utils";
+import { DeidenitfyFileRequestTypes, generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, removeSDKVersion, SDK, TYPES, HTTP_HEADER, DETECT_STATUS, FILE_EXTENSION, FILE_FORMAT_TYPE, FILE_PROCESSING, ENCODING_TYPE } from "../../../utils";
 import logs from "../../../utils/logs";
 import { validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateDeidentifyFileRequest, validateGetDetectRunRequest } from "../../../utils/validations";
 import VaultClient from "../../client";
@@ -38,7 +38,7 @@ class DetectController {
     }
 
     private createSdkHeaders() {
-        return { [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
+        return { [SDK.METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
     }
 
     private async getFileFromRequest(request: DeidentifyFileRequest): Promise<File> {
@@ -58,7 +58,7 @@ class DetectController {
     private async getBase64FileContent(file: File){
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        const base64String = buffer.toString('base64');
+        const base64String = buffer.toString(ENCODING_TYPE.BASE64);
         return base64String;
     }
 
@@ -106,7 +106,7 @@ class DetectController {
             vault_id: this.client.vaultId,
             file: {
                 base64: base64String,
-                data_format: "txt",
+                data_format: FILE_FORMAT_TYPE.TXT,
             },
             entity_types: options?.getEntities() as EntityType[],
             token_type: {
@@ -125,7 +125,7 @@ class DetectController {
         var pdfRequest: DeidentifyPdfRequest = {
             file: {
                 base64: base64String as string,
-                data_format: "pdf",
+                data_format: FILE_FORMAT_TYPE.PDF,
             },
             vault_id: this.client.vaultId,
             entity_types: options?.getEntities() as EntityType[],
@@ -271,7 +271,7 @@ class DetectController {
     private decodeBase64AndSaveToFile(base64Data: string, outputFilePath: string) {
         try {
             // Decode the base64 string
-            const buffer = Buffer.from(base64Data, 'base64');
+            const buffer = Buffer.from(base64Data, ENCODING_TYPE.BASE64);
 
             // Write the decoded data to the specified file
             fs.writeFileSync(outputFilePath, buffer);
@@ -301,12 +301,12 @@ class DetectController {
                 const outputFilePath = path.join(outputDirectory, outputFileName);
 
                 // Handle JSON files
-                if (processedFileExtension === 'json') {
-                    const jsonData = Buffer.from(processedFile, 'base64').toString('utf-8');
+                if (processedFileExtension === FILE_EXTENSION.JSON) {
+                    const jsonData = Buffer.from(processedFile, ENCODING_TYPE.BASE64).toString(ENCODING_TYPE.UTF_8);
                     fs.writeFileSync(outputFilePath, jsonData);
-                } else if ( processedFileExtension === 'mp3' || processedFileExtension === 'wav') {
-                    const mp3Data = Buffer.from(processedFile, 'base64');
-                    fs.writeFileSync(outputFilePath, mp3Data, { encoding: 'binary' });
+                } else if ( processedFileExtension === FILE_EXTENSION.MP3 || processedFileExtension === FILE_EXTENSION.WAV) {
+                    const mp3Data = Buffer.from(processedFile, ENCODING_TYPE.BASE64);
+                    fs.writeFileSync(outputFilePath, mp3Data, { encoding: ENCODING_TYPE.BINARY });
                 } else {
                     // Handle other file types (e.g., images, PDFs, etc.)
                     this.decodeBase64AndSaveToFile(processedFile, outputFilePath);
@@ -321,9 +321,9 @@ class DetectController {
         var reqType: DeidenitfyFileRequestTypes
         if (Object.values(DeidentifyAudioRequestFileDataFormat).includes(format as DeidentifyAudioRequestFileDataFormat)){
             reqType = DeidenitfyFileRequestTypes.AUDIO;
-        } else if (format.includes('pdf')){
+        } else if (format.includes(DeidenitfyFileRequestTypes.PDF.toLowerCase())){
             reqType = DeidenitfyFileRequestTypes.PDF
-        } else if (format.includes('txt')){
+        } else if (format.includes(DeidenitfyFileRequestTypes.TEXT.toLowerCase())){
             reqType = DeidenitfyFileRequestTypes.TEXT
         } else if (Object.values(DeidentifyImageRequestFileDataFormat).includes(format as DeidentifyImageRequestFileDataFormat)){
             reqType = DeidenitfyFileRequestTypes.IMAGE;
@@ -348,8 +348,8 @@ class DetectController {
     
         const poll = () => {
             this.client.filesAPI.getRun(runId, req)
-                .then((response: DeidentifyStatusResponse) => {
-                    if (response.status?.toUpperCase() === 'IN_PROGRESS'
+                    .then((response: DeidentifyStatusResponse) => {
+                    if (response.status?.toUpperCase() === DETECT_STATUS.IN_PROGRESS
 ) {
                         if (currentWaitTime >= maxWaitTime) {
                             resolve({ runId }); // Resolve with runId if max wait time is exceeded
@@ -367,10 +367,10 @@ class DetectController {
                                 poll();
                             }, waitTime * 1000);
                         }
-                    } else if (response.status?.toUpperCase() === 'SUCCESS') {
+                    } else if (response.status?.toUpperCase() === DETECT_STATUS.SUCCESS) {
                         resolve([response, runId]); // Resolve with the processed file response and runId
                     }
-                    else if (response.status?.toUpperCase() === 'FAILED') {
+                    else if (response.status?.toUpperCase() === DETECT_STATUS.FAILED) {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     }
                 })
@@ -466,10 +466,10 @@ class DetectController {
         let file: File | undefined = undefined;
 
         if (base64String && extension) {
-            const buffer = Buffer.from(base64String, 'base64');
+            const buffer = Buffer.from(base64String, ENCODING_TYPE.BASE64);
             const fileName = `deidentified.${extension}`;
-            file = new File([buffer], fileName);
-        }
+    file = new File([buffer], fileName);
+}
 
         return new DeidentifyFileResponse({
             fileBase64: base64String,
@@ -483,7 +483,7 @@ class DetectController {
             pageCount: data.pages ?? 0,
             slideCount: data.slides ?? 0,
             entities: (data.output || [])
-                .filter((fileObject: DeidentifyFileOutput) => fileObject.processedFileType === 'entities')
+                .filter((fileObject: DeidentifyFileOutput) => fileObject.processedFileType === FILE_PROCESSING.ENTITIES)
                 .map((fileObject: DeidentifyFileOutput) => ({
                     file: fileObject.processedFile as string,
                     extension: fileObject.processedFileExtension as string,
@@ -709,13 +709,13 @@ class DetectController {
                 }
 
                 promiseReq.then(([data, runId])  => {
-                    if(runId && data.status === "IN_PROGRESS") {
+                    if(runId && data.status === DETECT_STATUS.IN_PROGRESS) {
                         resolve(new DeidentifyFileResponse({
                             runId: runId,
                             status: data.status,
                         }));
                     }
-                    if (options?.getOutputDirectory() && data.status === "SUCCESS") {
+                    if (options?.getOutputDirectory() && data.status === DETECT_STATUS.SUCCESS) {
                         this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
                     }
                     const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, runId, data.status);
