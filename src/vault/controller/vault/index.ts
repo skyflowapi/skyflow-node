@@ -115,8 +115,8 @@ class VaultController {
         if (body && Array.isArray(body.records)) {
             body.records.forEach((field: StringKeyValueMapType) => {
                 response.success.push({
-                    skyflowId: String(field?.skyflow_id),
-                    requestIndex: index,
+                    skyflow_id: String(field?.skyflow_id),
+                    request_index: index,
                     ...(typeof field?.tokens === 'object' && field?.tokens !== null ? field.tokens : {})
                 });
             });
@@ -213,7 +213,7 @@ class VaultController {
 
     private parseBulkInsertResponse(records: Record<string, unknown>[]): InsertResponse {
         const insertedFields: InsertResponseType[] = records.map(record => ({
-            skyflowId: String(record.skyflow_id),
+            skyflow_id: String(record.skyflow_id),
             ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {})
         }));
         return new InsertResponse({ insertedFields, errors: null });
@@ -290,7 +290,7 @@ class VaultController {
                 ).then(data => {
                     printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const updatedRecord = {
-                        skyflowId: data.skyflow_id,
+                        skyflow_id: data.skyflow_id,
                         ...data?.tokens
                     };
                     resolve(new UpdateResponse({ updatedField: updatedRecord, errors: null }));
@@ -490,7 +490,7 @@ class VaultController {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const processedRecords = response.records.map(record => ({
                         ...(typeof record.fields === 'object' && record.fields !== null ? record.fields : {}),
-                        tokenizedData: {
+                        tokenized_data: {
                             ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
                         },
                     }));

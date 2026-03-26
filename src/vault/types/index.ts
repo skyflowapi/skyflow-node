@@ -40,7 +40,7 @@ export interface ClientObj {
 }
 
 export interface InsertResponseType {
-    skyflowId: string;
+    skyflow_id: string;
     [key: string]: unknown;
 }
 

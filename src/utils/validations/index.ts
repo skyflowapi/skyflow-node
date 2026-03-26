@@ -413,49 +413,43 @@ export const validateUpdateConnectionConfig = (connectionConfig: ConnectionConfi
 };
 
 function validateInsertInput(input: unknown, index: number): void {
-    try {
-        const inputObject = input as { [key: string]: unknown };
-
-        // Check if the object is empty
-        const entries = Object.entries(inputObject);
-
-        if (entries.length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
-        }
-
-        for (const [key] of entries) {
-            if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
-            }
-        }
-
-    } catch (error) {
+    if (typeof input !== 'object' || input === null || Array.isArray(input)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
     }
 
+    const inputObject = input as { [key: string]: unknown };
+    const entries = Object.entries(inputObject);
+
+    if (entries.length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
+    }
+
+    for (const [key] of entries) {
+        if (!key || typeof key !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
+        }
+    }
 }
 
 function validateUpdateInput(input: unknown): void {
-    try {
-        const inputObject = input as { [key: string]: unknown };
-
-        // Check if the object is empty
-        const entries = Object.entries(inputObject);
-
-        if (entries.length === 0) {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
-        }
-
-        for (const [key] of entries) {
-            if (key && typeof key !== 'string') {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
-            }
-        }
-
-    } catch (error) {
+    if (typeof input !== 'object' || input === null || Array.isArray(input)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
     }
 
+    const inputObject = input as { [key: string]: unknown };
+
+    // Exclude skyflow_id — it is the record identifier, not a data field to update
+    const entries = Object.entries(inputObject).filter(([key]) => key !== SKYFLOW.ID);
+
+    if (entries.length === 0) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+    }
+
+    for (const [key] of entries) {
+        if (!key || typeof key !== 'string') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+        }
+    }
 }
 
 function validateUpdateToken(input: unknown): void {
