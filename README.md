@@ -873,18 +873,84 @@ const options = {
 
 Embed context values into a bearer token during generation so you can reference those values in your policies. This enables more flexible access controls, such as tracking end-user identity when making API calls using service accounts, and facilitates using signed data tokens during detokenization.
 
-Generate bearer tokens containing context information using a service account with the context_id identifier. Context information is represented as a JWT claim in a Skyflow-generated bearer token. Tokens generated from such service accounts include a context_identifier claim, are valid for 60 minutes, and can be used to make API calls to the Data and Management APIs, depending on the service account's permissions.
+Generate bearer tokens containing context information using a service account with the `context_id` identifier. Context information is represented as a JWT claim in a Skyflow-generated bearer token. Tokens generated from such service accounts include a `context_identifier` claim, are valid for 60 minutes, and can be used to make API calls to the Data and Management APIs, depending on the service account's permissions.
+
+The `ctx` parameter accepts either a **string** or a **JSON object**:
+
+**String context** — use when your policy references a single context value:
+
+```typescript
+const options = {
+  ctx: 'user_12345',
+};
+const response = await generateBearerToken(filepath, options);
+```
+
+**JSON object context** — use when your policy needs multiple context values for conditional data access. Each key in the `ctx` object maps to a Skyflow CEL policy variable under `request.context.*`:
+
+```typescript
+const options = {
+  ctx: {
+    role: 'admin',
+    department: 'finance',
+    user_id: 'user_12345',
+  },
+};
+const response = await generateBearerToken(filepath, options);
+```
+
+With the object above, your Skyflow policies can reference `request.context.role`, `request.context.department`, and `request.context.user_id` to make conditional access decisions.
+
+You can also set the `context` field on credentials for automatic token generation:
+
+```typescript
+// String context on credentials
+const credentials: PathCredentials = {
+  path: 'path/to/credentials.json',
+  context: 'user_12345',
+};
+
+// JSON object context on credentials
+const credentials: PathCredentials = {
+  path: 'path/to/credentials.json',
+  context: {
+    role: 'admin',
+    department: 'finance',
+  },
+};
+```
 
 > [!TIP]
-> See the full example in the samples directory: [token-generation-with-context-example.ts](samples/service-account/token-generation-with-context-example.ts)  
-> See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
+> See the full example in the samples directory: [token-generation-with-context-example.ts](samples/service-account/token-generation-with-context-example.ts)
+> See Skyflow's [context-aware authorization](https://docs.skyflow.com) and [conditional data access](https://docs.skyflow.com) docs for policy variable syntax like `request.context.*`.
 
 #### Generate signed data tokens: `generateSignedDataTokens(filepath, options)`
 
 Digitally sign data tokens with a service account's private key to add an extra layer of protection. Skyflow generates data tokens when sensitive data is inserted into the vault. Detokenize signed tokens only by providing the signed data token along with a bearer token generated from the service account's credentials. The service account must have the necessary permissions and context to successfully detokenize the signed data tokens.
 
+The `ctx` parameter on signed data tokens also accepts either a **string** or a **JSON object**, using the same format as bearer tokens:
+
+```typescript
+// String context
+const options = {
+  ctx: 'user_12345',
+  dataTokens: ['dataToken1', 'dataToken2'],
+  timeToLive: 90,
+};
+
+// JSON object context
+const options = {
+  ctx: {
+    role: 'analyst',
+    department: 'research',
+  },
+  dataTokens: ['dataToken1', 'dataToken2'],
+  timeToLive: 90,
+};
+```
+
 > [!TIP]
-> See the full example in the samples directory: [signed-token-generation-example.ts](samples/service-account/signed-token-generation-example.ts)  
+> See the full example in the samples directory: [signed-token-generation-example.ts](samples/service-account/signed-token-generation-example.ts)
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
 ## Logging
