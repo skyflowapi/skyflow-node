@@ -6,7 +6,6 @@ on:
       - '*.*'
     paths-ignore:
       - 'package.json'
-      - 'package-lock.json'
       - '*.md'
     branches:
       - release/*
