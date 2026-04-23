@@ -352,7 +352,7 @@ class DetectController {
                     if (response.status?.toUpperCase() === 'IN_PROGRESS'
 ) {
                         if (currentWaitTime >= maxWaitTime) {
-                            resolve({ data: { runId, status: 'IN_PROGRESS' }, runId });
+                            resolve({ data: { status: 'IN_PROGRESS' }, runId });
                         } else {
                             const nextWaitTime = currentWaitTime * 2;
                             let waitTime = 0;
@@ -605,7 +605,10 @@ class DetectController {
                 this.waitTime = options?.getWaitTime() ?? this.waitTime; 
 
                 var reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension); 
-                var promiseReq: Promise<{ data: DeidentifyFileDetectRunResponse & { runId?: string; status?: string }, runId: string }>;
+                type PollResult =
+                    | { data: DeidentifyFileDetectRunResponse; runId: string }
+                    | { data: { status: string }; runId: string };
+                var promiseReq: Promise<PollResult>;
                 switch (reqType){
                     case DeidenitfyFileRequestTypes.AUDIO:
                         promiseReq = this.buildAudioRequest(fileObj, options, fileExtension)
@@ -716,10 +719,11 @@ class DetectController {
                         }));
                         return;
                     }
-                    if (options?.getOutputDirectory() && data.status === "SUCCESS") {
-                        this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
+                    const fullResponse = data as DeidentifyFileDetectRunResponse;
+                    if (options?.getOutputDirectory() && fullResponse.status === "SUCCESS") {
+                        this.processDeidentifyFileResponse(fullResponse, options.getOutputDirectory() as string, fileBaseName);
                     }
-                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, runId, data.status);
+                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(fullResponse, runId, fullResponse.status);
                     resolve(deidentifiedFileResponse);
                 }).catch(error => {
                     reject(error)
