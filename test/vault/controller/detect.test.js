@@ -1059,4 +1059,54 @@ describe('deidentifyFile', () => {
             expect.any(Buffer)
         );
     });
+
+    test('should return runId and IN_PROGRESS status when waitTime is exceeded before processing completes', async () => {
+        const file = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' });
+        const request = new DeidentifyFileRequest({ file });
+        const options = new DeidentifyFileOptions();
+        options.setWaitTime(1); // very small waitTime — will expire immediately
+
+        mockVaultClient.filesAPI.deidentifyPdf.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: { run_id: 'run123' },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        // Always IN_PROGRESS — never finishes within waitTime
+        mockVaultClient.filesAPI.getRun.mockResolvedValue({ status: 'IN_PROGRESS' });
+
+        const promise = detectController.deidentifyFile(request, options);
+        await jest.runAllTimersAsync();
+        const result = await promise;
+
+        expect(result.runId).toBe('run123');
+        expect(result.status).toBe('IN_PROGRESS');
+    });
+
+    test('should not call parseDeidentifyFileResponse when waitTime is exceeded (IN_PROGRESS early return)', async () => {
+        const file = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' });
+        const request = new DeidentifyFileRequest({ file });
+        const options = new DeidentifyFileOptions();
+        options.setWaitTime(1);
+
+        mockVaultClient.filesAPI.deidentifyPdf.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: { run_id: 'run456' },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        mockVaultClient.filesAPI.getRun.mockResolvedValue({ status: 'IN_PROGRESS' });
+
+        const promise = detectController.deidentifyFile(request, options);
+        await jest.runAllTimersAsync();
+        const result = await promise;
+
+        // Only runId and status should be set — no file data
+        expect(result.runId).toBe('run456');
+        expect(result.status).toBe('IN_PROGRESS');
+        expect(result.fileBase64).toBeUndefined();
+        expect(result.extension).toBeUndefined();
+    });
 });
