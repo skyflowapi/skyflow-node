@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT_ACTIONS }}
           fetch-depth: 0
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           registry-url: "https://registry.npmjs.org"
@@ -79,7 +79,12 @@ jobs:
           if [[ "${{ inputs.tag }}" == "beta" ]]; then
             npm publish --tag beta
           elif [[ "${{ inputs.tag }}" == "public" ]]; then
-            npm publish
+            MAJOR_VERSION=$(node -p "require('./package.json').version.split('.')[0]")
+            if [[ "$MAJOR_VERSION" == "1" ]]; then
+              npm publish --tag v1
+            else
+              npm publish
+            fi
           elif [[ "${{ inputs.tag }}" == "internal" ]]; then
             curl -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_PASSWORD }} https://prekarilabs.jfrog.io/prekarilabs/api/npm/auth/ > ~/.npmrc
             npm config set registry https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/
