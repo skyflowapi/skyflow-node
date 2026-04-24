@@ -17,11 +17,12 @@ let cred = {
   privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
 
-function getSignedTokenFromFilePath() {
+// Approach 1: Signed data tokens with string context
+function getSignedTokenWithStringContext() {
   return new Promise(async (resolve, reject) => {
     try {
       const options = {
-        ctx: 'ctx',
+        ctx: 'user_12345',
         dataTokens: ['dataToken1', 'dataToken2'],
         timeToLive: 90 // In seconds.
       };
@@ -33,6 +34,30 @@ function getSignedTokenFromFilePath() {
   });
 }
 
+// Approach 2: Signed data tokens with JSON object context
+// Each key in the ctx object maps to a Skyflow CEL policy variable under request.context.*
+// For example: request.context.role == "analyst" && request.context.department == "research"
+function getSignedTokenWithObjectContext() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const options = {
+        ctx: {
+          role: 'analyst',
+          department: 'research',
+          user_id: 'user_67890',
+        },
+        dataTokens: ['dataToken1', 'dataToken2'],
+        timeToLive: 90, // In seconds.
+      };
+      let response = await generateSignedDataTokens(filepath, options);
+      resolve(response);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+// Approach 3: Signed data tokens from credentials string
 function getSignedTokenFromCreds() {
   return new Promise(async (resolve, reject) => {
     try {
@@ -54,16 +79,25 @@ function getSignedTokenFromCreds() {
 
 const tokens = async () => {
   try {
-    const tokenResponseFromFilePath: any = await getSignedTokenFromFilePath();
-    tokenResponseFromFilePath.forEach((response) => {
-      console.log(`Data Token: ${response.token}`);
-      console.log(`Signed Data Token: ${response.signedToken}`);
+    const tokenResponseString: any = await getSignedTokenWithStringContext();
+    console.log('Signed tokens (string context):');
+    tokenResponseString.forEach((response) => {
+      console.log(`  Data Token: ${response.token}`);
+      console.log(`  Signed Data Token: ${response.signedToken}`);
+    });
+
+    const tokenResponseObject: any = await getSignedTokenWithObjectContext();
+    console.log('Signed tokens (object context):');
+    tokenResponseObject.forEach((response) => {
+      console.log(`  Data Token: ${response.token}`);
+      console.log(`  Signed Data Token: ${response.signedToken}`);
     });
 
     const tokenResponseFromCreds: any = await getSignedTokenFromCreds();
+    console.log('Signed tokens (from creds):');
     tokenResponseFromCreds.forEach((response) => {
-      console.log(`Data Token: ${response.token}`);
-      console.log(`Signed Data Token: ${response.signedToken}`);
+      console.log(`  Data Token: ${response.token}`);
+      console.log(`  Signed Data Token: ${response.signedToken}`);
     });
   } catch (error) {
     console.log(error);
