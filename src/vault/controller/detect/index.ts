@@ -352,7 +352,7 @@ class DetectController {
                     if (response.status?.toUpperCase() === 'IN_PROGRESS'
 ) {
                         if (currentWaitTime >= maxWaitTime) {
-                            resolve({ runId }); // Resolve with runId if max wait time is exceeded
+                            resolve({ data: { status: 'IN_PROGRESS' }, runId });
                         } else {
                             const nextWaitTime = currentWaitTime * 2;
                             let waitTime = 0;
@@ -368,7 +368,7 @@ class DetectController {
                             }, waitTime * 1000);
                         }
                     } else if (response.status?.toUpperCase() === 'SUCCESS') {
-                        resolve([response, runId]); // Resolve with the processed file response and runId
+                        resolve({ data: response, runId });
                     }
                     else if (response.status?.toUpperCase() === 'FAILED') {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
@@ -605,7 +605,10 @@ class DetectController {
                 this.waitTime = options?.getWaitTime() ?? this.waitTime; 
 
                 var reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension); 
-                var promiseReq: Promise<[DeidentifyFileDetectRunResponse, string]>;
+                type PollResult =
+                    | { data: DeidentifyFileDetectRunResponse; runId: string }
+                    | { data: { status: string }; runId: string };
+                var promiseReq: Promise<PollResult>;
                 switch (reqType){
                     case DeidenitfyFileRequestTypes.AUDIO:
                         promiseReq = this.buildAudioRequest(fileObj, options, fileExtension)
@@ -708,17 +711,19 @@ class DetectController {
                         break;                    
                 }
 
-                promiseReq.then(([data, runId])  => {
+                promiseReq.then(({ data, runId })  => {
                     if(runId && data.status === "IN_PROGRESS") {
                         resolve(new DeidentifyFileResponse({
                             runId: runId,
                             status: data.status,
                         }));
+                        return;
                     }
-                    if (options?.getOutputDirectory() && data.status === "SUCCESS") {
-                        this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
+                    const fullResponse = data as DeidentifyFileDetectRunResponse;
+                    if (options?.getOutputDirectory() && fullResponse.status === "SUCCESS") {
+                        this.processDeidentifyFileResponse(fullResponse, options.getOutputDirectory() as string, fileBaseName);
                     }
-                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, runId, data.status);
+                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(fullResponse, runId, fullResponse.status);
                     resolve(deidentifiedFileResponse);
                 }).catch(error => {
                     reject(error)

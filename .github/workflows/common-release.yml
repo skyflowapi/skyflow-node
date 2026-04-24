@@ -32,10 +32,10 @@ jobs:
         uses: WyriHaximus/github-action-get-previous-tag@v1
         with:
           fallback: 1.0.0
-      
+
       - name: Resolve Branch Name
         id: resolve-branch
-        if: ${{ inputs.tag == 'beta' || inputs.tag == 'public' }} 
+        if: ${{ inputs.tag == 'beta' || inputs.tag == 'public' }}
         run: |
           TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref_name }})
 
@@ -86,10 +86,12 @@ jobs:
               npm publish
             fi
           elif [[ "${{ inputs.tag }}" == "internal" ]]; then
-            curl -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_PASSWORD }} https://prekarilabs.jfrog.io/prekarilabs/api/npm/auth/ > ~/.npmrc
+            JFROG_AUTH=$(echo -n "$JFROG_USERNAME:$JFROG_PASSWORD" | base64 -w 0)
             npm config set registry https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/
-            npm config fix
+            npm config set //prekarilabs.jfrog.io/prekarilabs/api/npm/npm/:_auth "$JFROG_AUTH"
             npm publish
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          JFROG_USERNAME: ${{ secrets.JFROG_USERNAME }}
+          JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
