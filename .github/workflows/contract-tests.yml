@@ -24,18 +24,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Builds the project, extracts every exported type/interface/class/method
-      # signature from the compiled .d.ts files, and compares against the
-      # committed snapshot in temp/skyflow-node.api.md.
-      # Fails if anything in the public API surface has changed — renamed class,
-      # renamed method, changed parameter type, removed export, etc.
       - name: Verify API surface snapshot
         run: npm run contract-snapshot-verify
 
-      - name: Upload API surface report on failure
+      - name: Upload API surface diff on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: api-surface-report
-          path: api-report/skyflow-node.api.md
+          name: api-surface-diff
+          path: temp/skyflow-node.api.md
           retention-days: 7

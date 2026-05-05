@@ -18,7 +18,6 @@ export type BearerTokenOptions = {
     ctx?: string | Record<string, any>;
     roleIDs?: string[];
     logLevel?: LogLevel;
-    tokenUri?: string;
 };
 
 // @public (undocumented)
@@ -708,7 +707,7 @@ export interface InsertResponseType {
     // (undocumented)
     [key: string]: unknown;
     // (undocumented)
-    skyflow_id: string;
+    skyflowId: string;
 }
 
 // @public (undocumented)
@@ -784,8 +783,6 @@ export interface PathCredentials {
     path: string;
     // (undocumented)
     roles?: Array<string>;
-    // (undocumented)
-    tokenUri?: string;
 }
 
 // @public (undocumented)
@@ -877,7 +874,6 @@ export type SignedDataTokensOptions = {
     timeToLive?: number;
     ctx?: string | Record<string, any>;
     logLevel?: LogLevel;
-    tokenUri?: string;
 };
 
 // @public (undocumented)
@@ -964,8 +960,6 @@ export interface StringCredentials {
     credentialsString: string;
     // (undocumented)
     roles?: Array<string>;
-    // (undocumented)
-    tokenUri?: string;
 }
 
 // @public (undocumented)
