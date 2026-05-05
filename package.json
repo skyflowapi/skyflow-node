@@ -6,6 +6,8 @@
   "module": "./lib/index.js",
   "scripts": {
     "test": "jest --coverage",
+    "contract-snapshot": "npm run build && api-extractor run --local",
+    "contract-snapshot-verify": "npm run build && api-extractor run",
     "build": "tsc",
     "eslint": "eslint '**/*.js' --max-warnings 0",
     "prettier": "prettier --list-different '**/*.{js,ts}'",
