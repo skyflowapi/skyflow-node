@@ -937,12 +937,8 @@ export const validateUploadFileRequest = (fileRequest: FileUploadRequest, option
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPLOAD_FILE);
     }
 
-    if (!fileRequest?.skyflowId || !Object.prototype.hasOwnProperty.call(fileRequest, '_skyflowId')) {
-        printLog(logs.errorLogs.EMPTY_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPLOAD_FILE);
-    }
 
-    if (typeof fileRequest?.skyflowId !== 'string' || fileRequest.skyflowId.trim().length === 0) {
+    if (typeof fileRequest?.skyflowId !== 'string') {
         printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPLOAD_FILE);
     }

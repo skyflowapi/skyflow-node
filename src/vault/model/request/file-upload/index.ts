@@ -6,11 +6,11 @@ class FileUploadRequest {
     private _columnName: string;
 
     // Constructor
-    constructor(table: string, skyflowId: string, columnName: string) {
+    constructor(table: string, columnName: string, skyflowId: string = "") {
         this._table = table;
         this._skyflowId = skyflowId;
         this._columnName = columnName;
-    }    
+    } 
 
     // Getters and Setters
     public get table(): string {
