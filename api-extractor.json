@@ -9,7 +9,7 @@
   "apiReport": {
     "enabled": true,
     "reportFolder": "<projectFolder>/api-report/",
-    "reportTempFolder": "<projectFolder>/api-report/",
+    "reportTempFolder": "<projectFolder>/temp/",
     "reportFileName": "<unscopedPackageName>.api.md"
   },
   "docModel": {
