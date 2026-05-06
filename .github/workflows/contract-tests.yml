@@ -34,7 +34,7 @@ jobs:
           echo "Lines prefixed with '-' were REMOVED from the public API."
           echo "Lines prefixed with '+' were ADDED to the public API."
           echo ""
-          diff api-report/skyflow-node.api.md temp/skyflow-node.api.md || true
+          diff -u api-report/skyflow-node.api.md temp/skyflow-node.api.md || true
 
       - name: Upload API surface diff on failure
         if: failure()
