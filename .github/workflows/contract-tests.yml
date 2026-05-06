@@ -27,6 +27,15 @@ jobs:
       - name: Verify API surface snapshot
         run: npm run contract-snapshot-verify
 
+      - name: Show API surface diff
+        if: failure()
+        run: |
+          echo "### API surface changes detected ###"
+          echo "Lines prefixed with '-' were REMOVED from the public API."
+          echo "Lines prefixed with '+' were ADDED to the public API."
+          echo ""
+          diff api-report/skyflow-node.api.md temp/skyflow-node.api.md || true
+
       - name: Upload API surface diff on failure
         if: failure()
         uses: actions/upload-artifact@v4
