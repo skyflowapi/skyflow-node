@@ -1062,6 +1062,34 @@ describe('VaultController query method', () => {
         expect(response.errors).toBe(null);
     });
 
+    test('should normalize skyflow_id to skyflowId in query response', async () => {
+        const mockRequest = {
+            query: 'SELECT * FROM table WHERE id=1',
+        };
+        const mockResponseData = {
+            records: [{
+                fields: { skyflow_id: 'id123', id: '1' },
+                tokens: { id: 'token123' },
+            }]
+        };
+
+        mockVaultClient.queryAPI.queryServiceExecuteQuery.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: mockResponseData,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
+            })
+        }));
+
+        const response = await vaultController.query(mockRequest);
+
+        expect(response).toBeInstanceOf(QueryResponse);
+        expect(response.fields[0].skyflowId).toBe('id123');
+        expect(response.fields[0].skyflow_id).toBeUndefined();
+        expect(response.fields[0].id).toBe('1');
+        expect(response.fields[0].tokenizedData.id).toBe('token123');
+        expect(response.errors).toBe(null);
+    });
+
     test('should successfully query records as null', async () => {
         const mockRequest = {
             query: 'SELECT * FROM table WHERE id=1',
@@ -1685,6 +1713,26 @@ describe('VaultController get method', () => {
         });
 
         await expect(vaultController.get(mockRequest)).rejects.toEqual(errorResponse);
+    });
+
+    test('should normalize skyflow_id to skyflowId in response', async () => {
+        const mockRequest = createGetRequest(['id1']);
+        const mockResponseData = { records: [{ fields: { skyflow_id: 'id123', field1: 'value1' } }] };
+
+        mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: mockResponseData,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
+            })
+        }));
+
+        const response = await vaultController.get(mockRequest);
+
+        expect(response).toBeInstanceOf(GetResponse);
+        expect(response.data[0].skyflowId).toBe('id123');
+        expect(response.data[0].skyflow_id).toBeUndefined();
+        expect(response.data[0].field1).toBe('value1');
+        expect(response.errors).toBeNull();
     });
 
     test('should handle undefined parameters correctly', async () => {

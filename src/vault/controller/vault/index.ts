@@ -389,9 +389,11 @@ class VaultController {
                     TYPES.GET
                 ).then(response => {
                     printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = response.records.map(record => ({
-                        ...(typeof record.fields === 'object' && record.fields !== null ? record.fields : {}),
-                    }));
+                    const processedRecords = response.records.map(record => {
+                        const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
+                        const { skyflow_id, ...rest } = fields;
+                        return { ...(skyflow_id !== undefined ? { skyflowId: skyflow_id } : {}), ...rest };
+                    });
                     resolve(new GetResponse({ data: processedRecords, errors: null }));
                 })
                     .catch(error => {
@@ -488,12 +490,17 @@ class VaultController {
                     TYPES.QUERY
                 ).then(response => {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = response.records.map(record => ({
-                        ...(typeof record.fields === 'object' && record.fields !== null ? record.fields : {}),
-                        tokenizedData: {
-                            ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
-                        },
-                    }));
+                    const processedRecords = response.records.map(record => {
+                        const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
+                        const { skyflow_id, ...rest } = fields;
+                        return {
+                            ...(skyflow_id !== undefined ? { skyflowId: skyflow_id } : {}),
+                            ...rest,
+                            tokenizedData: {
+                                ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
+                            },
+                        };
+                    });
                     resolve(new QueryResponse({ fields: processedRecords, errors: null }));
                 })
                     .catch(error => {
