@@ -50,6 +50,14 @@ The credentials JSON object now uses camelCase keys. The old ALL_CAPS variants a
 + options.setDownloadUrl(true)
 ```
 
+#### `Bleep` — `start_padding` / `stop_padding` → `startPadding` / `stopPadding`
+```diff
+- bleep.setStartPadding(start_padding)
+- bleep.setStopPadding(stop_padding)
++ bleep.setStartPadding(startPadding)
++ bleep.setStopPadding(stopPadding)
+```
+
 ### Behavior Changes
 
 - **`insertedFields` always array**: `InsertResponse.insertedFields` is now `Array<InsertResponseType>` (never `null`). An empty array is returned when there are no successful records.
