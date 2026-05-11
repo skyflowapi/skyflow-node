@@ -138,7 +138,7 @@ describe("Context and Scoped Token Options Tests", () => {
             message: errorMessages.INVALID_CREDENTIALS_STRING,
         });
         try {
-            await generateBearerTokenFromCreds(credentials, { roleIDs: [] });
+            await generateBearerTokenFromCreds(credentials, { roleIds: [] });
         } catch (err) {
             expect(err.message).toBe(expectedError.message);
         }
@@ -150,14 +150,14 @@ describe("Context and Scoped Token Options Tests", () => {
             message: errorMessages.INVALID_CREDENTIALS_STRING,
         });
         try {
-            await generateBearerTokenFromCreds(credentials, { roleIDs: true });
+            await generateBearerTokenFromCreds(credentials, { roleIds: true });
         } catch (err) {
             expect(err.message).toBe(expectedError.message);
         }
     });
 
     test("Empty roleID array passed to generate scoped token (without context)", async () => {
-        const options = { roleIDs: [] };
+        const options = { roleIds: [] };
         try {
             await generateBearerTokenFromCreds(credsWithoutContext, options);
         } catch (err) {
@@ -166,7 +166,7 @@ describe("Context and Scoped Token Options Tests", () => {
     });
 
     test("Invalid type passed to generate scoped token (without context)", async () => {
-        const options = { roleIDs: true };
+        const options = { roleIds: true };
         try {
             await generateBearerTokenFromCreds(credsWithoutContext, options);
         } catch (err) {
@@ -412,5 +412,116 @@ describe('getToken Tests', () => {
         } catch (err) {
             expect(err).toBeDefined();
         }
+    });
+
+    test("outer catch triggered when jwt.sign throws", async () => {
+        jest.spyOn(jwt, 'sign').mockImplementationOnce(() => { throw new Error('jwt sign failed'); });
+        const validCreds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'some-key',
+        });
+        await expect(getToken(validCreds)).rejects.toBeDefined();
+    });
+
+    test("withRawResponse rejection triggers lines 152-154", async () => {
+        const Client = jest.requireMock('../../src/service-account/client').default;
+        Client.mockImplementationOnce(() => ({
+            authApi: {
+                authenticationServiceGetAuthToken: jest.fn(() => ({
+                    withRawResponse: jest.fn().mockRejectedValueOnce(new Error('API rejection'))
+                }))
+            }
+        }));
+        const validCreds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'some-key',
+        });
+        await expect(getToken(validCreds)).rejects.toBeDefined();
+    });
+
+    test("ctx option provided covers line 108 truthy branch", async () => {
+        const Client = jest.requireMock('../../src/service-account/client').default;
+        Client.mockImplementationOnce(() => ({
+            authApi: {
+                authenticationServiceGetAuthToken: jest.fn(() => ({
+                    withRawResponse: jest.fn().mockResolvedValueOnce({
+                        data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
+                        rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } }
+                    })
+                }))
+            }
+        }));
+        const validCreds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'some-key',
+        });
+        const result = await getToken(validCreds, { logLevel: LogLevel.OFF, ctx: 'test-context' });
+        expect(result).toBeDefined();
+    });
+
+    test("roleIds option provided covers line 130 binary-expr right side", async () => {
+        const Client = jest.requireMock('../../src/service-account/client').default;
+        Client.mockImplementationOnce(() => ({
+            authApi: {
+                authenticationServiceGetAuthToken: jest.fn(() => ({
+                    withRawResponse: jest.fn().mockResolvedValueOnce({
+                        data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
+                        rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } }
+                    })
+                }))
+            }
+        }));
+        const validCreds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'some-key',
+        });
+        const result = await getToken(validCreds, { logLevel: LogLevel.OFF, roleIds: ['role1', 'role2'] });
+        expect(result).toBeDefined();
+    });
+});
+
+describe('failureResponse with rawResponse', () => {
+    const makeHeaders = (contentType) => ({
+        get: (key) => key === 'content-type' ? contentType : 'request-id-123'
+    });
+
+    test("handles application/json content type", async () => {
+        const err = {
+            rawResponse: { headers: makeHeaders('application/json') },
+            body: { error: { message: 'Server Error', http_code: 500 } },
+        };
+        await expect(failureResponse(err)).rejects.toBeDefined();
+    });
+
+    test("handles application/json with null body (fallback to body)", async () => {
+        const err = {
+            rawResponse: { headers: makeHeaders('application/json') },
+            body: 'raw body string',
+        };
+        await expect(failureResponse(err)).rejects.toBeDefined();
+    });
+
+    test("handles text/plain content type", async () => {
+        const err = {
+            rawResponse: { headers: makeHeaders('text/plain') },
+            body: 'plain text error message',
+        };
+        await expect(failureResponse(err)).rejects.toBeDefined();
+    });
+
+    test("handles unknown content type", async () => {
+        const err = {
+            rawResponse: { headers: makeHeaders('application/xml') },
+            response: { status: 503 },
+        };
+        await expect(failureResponse(err)).rejects.toBeDefined();
     });
 });

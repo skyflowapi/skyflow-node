@@ -11,7 +11,7 @@ import { WithRawResponse } from '../ _generated_/rest/core';
 
 export type BearerTokenOptions = {
     ctx?: string | Record<string, any>,
-    roleIDs?: string[],
+    roleIds?: string[],
     logLevel?: LogLevel,
 }
 
@@ -81,18 +81,18 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_STRING));
             }
 
-            if (options?.roleIDs && options.roleIDs?.length == 0) {
+            if (options?.roleIds && options.roleIds?.length == 0) {
                 printLog(logs.errorLogs.SCOPED_ROLES_EMPTY, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_ROLES));
             }
 
-            if (options?.roleIDs && !Array.isArray(options.roleIDs)) {
+            if (options?.roleIds && !Array.isArray(options.roleIds)) {
                 printLog(logs.errorLogs.EXPECTED_ROLE_ID_PARAMETER, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE));
             }
             let credentialsObj = JSON.parse("{}")
             try {
-                credentialsObj = JSON.parse(credentials);
+                credentialsObj = normalizeCredentials(JSON.parse(credentials));
             }
             catch (e) {
                 printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
@@ -100,11 +100,11 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
             }
             const expiryTime = Math.floor(Date.now() / 1000) + 3600;
             const claims = {
-                iss: credentialsObj.clientID,
-                key: credentialsObj.keyID,
-                aud: credentialsObj.tokenURI,
+                iss: credentialsObj.clientId,
+                key: credentialsObj.keyId,
+                aud: credentialsObj.tokenUri,
                 exp: expiryTime,
-                sub: credentialsObj.clientID,
+                sub: credentialsObj.clientId,
                 ...(options && options.ctx ? { ctx: options.ctx } : {}),
             };
             if (claims.iss == null) {
@@ -127,9 +127,9 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 const privateKey = credentialsObj.privateKey.toString("utf8");
                 const signedJwt = jwt.sign(claims, privateKey, { algorithm: "RS256" });
 
-                const scopedRoles = options?.roleIDs && getRolesForScopedToken(options.roleIDs);
+                const scopedRoles = options?.roleIds && getRolesForScopedToken(options.roleIds);
 
-                const url = getBaseUrl(credentialsObj?.tokenURI);
+                const url = getBaseUrl(credentialsObj.tokenUri);
 
                 if (url === '') {
                     printLog(logs.errorLogs.TOKEN_URI_NOT_FOUND, MessageType.ERROR, options?.logLevel);
@@ -224,7 +224,7 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
 
             let credentialsObj = JSON.parse("{}")
             try {
-                credentialsObj = JSON.parse(credentials);
+                credentialsObj = normalizeCredentials(JSON.parse(credentials));
             }
             catch (e) {
                 printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
@@ -244,10 +244,10 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
                 options.dataTokens.forEach((token) => {
                     const claims = {
                         iss: "sdk",
-                        key: credentialsObj.keyID,
-                        aud: credentialsObj.tokenURI,
+                        key: credentialsObj.keyId,
+                        aud: credentialsObj.tokenUri,
                         exp: expiryTime,
-                        sub: credentialsObj.clientID,
+                        sub: credentialsObj.clientId,
                         tok: token,
                         ...(options && options.ctx ? { ctx: options.ctx } : {}),
                     };
@@ -287,23 +287,23 @@ function generateSignedDataTokensFromCreds(credentials, options: SignedDataToken
 function failureResponse(err: ServiceAccountResponseError, options?: BearerTokenOptions) {
     return new Promise((_, reject) => {
         if (err.rawResponse) {
-            const requestId = err?.rawResponse?.headers?.get('x-request-id');
-            const contentType = err?.rawResponse?.headers?.get('content-type');
+            const requestId = err.rawResponse.headers?.get('x-request-id');
+            const contentType = err.rawResponse.headers?.get('content-type');
             if (contentType && contentType.includes('application/json')) {
-                let description = err?.body?.error?.message ?? err?.body;
+                let description = err.body?.error?.message ?? err.body;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err?.body?.error?.http_code,
+                    http_code: err.body?.error?.http_code,
                     message: description,
-                    request_ID: requestId,
+                    requestId: requestId,
                 }));
             } else if (contentType && contentType.includes('text/plain')) {
-                let description = err?.body;
+                let description = err.body;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err?.body?.error?.http_code,
+                    http_code: err.body?.error?.http_code,
                     message: description,
-                    request_ID: requestId
+                    requestId: requestId
                 }));
             } else {
                 let description = logs.errorLogs.ERROR_OCCURED;
@@ -311,7 +311,7 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
                 reject(new SkyflowError({
                     http_code: err.response?.status,
                     message: description,
-                    request_ID: requestId
+                    requestId: requestId
                 }));
             }
         } else {
@@ -349,13 +349,22 @@ function signedDataTokenSuccessResponse(res: SignedDataTokensResponse[], logLeve
     })
 }
 
-export function getRolesForScopedToken(roleIDs: string[]) {
+export function getRolesForScopedToken(roleIds: string[]) {
     let str = ''
-    roleIDs?.forEach((role) => {
+    roleIds?.forEach((role) => {
         str = str + "role:" + role + " "
     })
     return str;
 }
 
+
+function normalizeCredentials(obj: any): any {
+    return {
+        ...obj,
+        clientId: obj.clientId ?? obj.clientID,
+        keyId: obj.keyId ?? obj.keyID,
+        tokenUri: obj.tokenUri ?? obj.tokenURI,
+    };
+}
 
 export { generateBearerToken, generateBearerTokenFromCreds, generateSignedDataTokens, generateSignedDataTokensFromCreds, getToken, successResponse, failureResponse };

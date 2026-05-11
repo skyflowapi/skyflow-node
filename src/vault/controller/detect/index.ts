@@ -456,6 +456,7 @@ class DetectController {
             })),
             wordCount: records.word_count,
             charCount: records.character_count,
+            errors: null,
         };
     }
 

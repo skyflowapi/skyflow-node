@@ -1211,7 +1211,7 @@ test('should throw error when table name is invalid', () => {
   // Test different log levels
   test('should work with different log levels', () => {
     const request = {
-      _table: 'users', 
+      _table: 'users',
       table: 'users',
       data: [{ field: 'value' }]
     };
@@ -1219,6 +1219,46 @@ test('should throw error when table name is invalid', () => {
     expect(() => validateInsertRequest(request, undefined, LogLevel.INFO)).not.toThrow();
     expect(() => validateInsertRequest(request, undefined, LogLevel.WARN)).not.toThrow();
     expect(() => validateInsertRequest(request, undefined, LogLevel.ERROR)).not.toThrow();
+  });
+
+  describe('fail-fast validation: null/undefined/empty field values', () => {
+    const baseRequest = (data) => ({ _table: 'users', table: 'users', data });
+
+    test('throws EMPTY_FIELD for null field value', () => {
+      expect(() => validateInsertRequest(baseRequest([{ card: null }])))
+        .toThrow(SKYFLOW_ERROR_CODE.EMPTY_FIELD);
+    });
+
+    test('throws EMPTY_FIELD for undefined field value', () => {
+      expect(() => validateInsertRequest(baseRequest([{ card: undefined }])))
+        .toThrow(SKYFLOW_ERROR_CODE.EMPTY_FIELD);
+    });
+
+    test('throws EMPTY_FIELD for empty string field value', () => {
+      expect(() => validateInsertRequest(baseRequest([{ card: '' }])))
+        .toThrow(SKYFLOW_ERROR_CODE.EMPTY_FIELD);
+    });
+
+    test('throws EMPTY_FIELD when one of multiple fields is null', () => {
+      expect(() => validateInsertRequest(baseRequest([{ name: 'John', ssn: null }])))
+        .toThrow(SKYFLOW_ERROR_CODE.EMPTY_FIELD);
+    });
+
+    test('does not throw for 0 (valid falsy value)', () => {
+      expect(() => validateInsertRequest(baseRequest([{ amount: 0 }]))).not.toThrow();
+    });
+
+    test('does not throw for false (valid falsy value)', () => {
+      expect(() => validateInsertRequest(baseRequest([{ active: false }]))).not.toThrow();
+    });
+
+    test('does not throw for 0.0 (valid falsy value)', () => {
+      expect(() => validateInsertRequest(baseRequest([{ score: 0.0 }]))).not.toThrow();
+    });
+
+    test('does not throw for valid string fields', () => {
+      expect(() => validateInsertRequest(baseRequest([{ card: '4111111111111111', name: 'Alice' }]))).not.toThrow();
+    });
   });
 });
 
@@ -1934,7 +1974,7 @@ describe('validateDetokenizeRequest', () => {
 
     test('should validate downloadURL option', () => {
       const options = {
-        getDownloadURL: () => 'not-a-boolean'
+        getDownloadUrl: () => 'not-a-boolean'
       };
       expect(() => validateDetokenizeRequest(validRequest, options))
         .toThrow(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL);
@@ -1983,7 +2023,7 @@ describe('validateDetokenizeRequest', () => {
     };
     const options = {
       getContinueOnError: () => true,
-      getDownloadURL: () => false
+      getDownloadUrl: () => false
     };
     expect(() => validateDetokenizeRequest(request, options)).not.toThrow();
   });
@@ -2507,15 +2547,14 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
     const options = {
       getFilePath: () => '/valid/path/to/file.txt',
       getBase64: () => null,
-      getFileObject: () => null
+      getFileObject: () => null,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -2524,8 +2563,6 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
@@ -2533,7 +2570,8 @@ describe('validateUploadFileRequest', () => {
       getFilePath: () => null,
       getBase64: () => 'valid-base64',
       getFileName: () => 'file.txt',
-      getFileObject: () => null
+      getFileObject: () => null,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -2542,8 +2580,6 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
@@ -2551,7 +2587,8 @@ describe('validateUploadFileRequest', () => {
     const options = {
       getFilePath: () => null,
       getBase64: () => null,
-      getFileObject: () => mockFile
+      getFileObject: () => mockFile,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -3775,7 +3812,7 @@ describe('validateGetRequest/validateGetColumnRequest - validateGetOptions', () 
   // Test downloadURL validation
   test('should throw error when downloadURL is not boolean', () => {
     const options = {
-      getDownloadURL: () => 'not-a-boolean'
+      getDownloadUrl: () => 'not-a-boolean'
     };
     expect(() => validateGetRequest(validGetRequest, options))
       .toThrow(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL);
@@ -3866,7 +3903,7 @@ describe('validateGetRequest/validateGetColumnRequest - validateGetOptions', () 
       getRedactionType: () => 'REDACTED',
       getOffset: () => '0',
       getLimit: () => '10',
-      getDownloadURL: () => false,
+      getDownloadUrl: () => false,
       getColumnName: () => 'column1',
       getOrderBy: () => OrderByEnum.ASCENDING,
       getFields: () => ['field1', 'field2'],

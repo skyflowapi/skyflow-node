@@ -1,5 +1,5 @@
 import errorMessages from "../../../src/error/messages";
-import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, MessageType, LogLevel } from "../../../src/utils";
+import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, getBaseUrl, removeSDKVersion, parameterizedString, MessageType, LogLevel } from "../../../src/utils";
 import jwt_decode from 'jwt-decode';
 import os from 'os';
 import { generateBearerTokenFromCreds, generateBearerToken } from '../../../src/service-account';
@@ -402,7 +402,7 @@ describe('getToken', () => {
 
         expect(result).toEqual(mockToken);
         expect(generateBearerTokenFromCreds).toHaveBeenCalledWith('someCredentials', {
-            roleIDs: credentials.roles,
+            roleIds: credentials.roles,
             ctx: credentials.context,
             logLevel,
         });
@@ -422,7 +422,7 @@ describe('getToken', () => {
 
         expect(result).toEqual(mockToken);
         expect(generateBearerToken).toHaveBeenCalledWith('/some/path', {
-            roleIDs: credentials.roles,
+            roleIds: credentials.roles,
             ctx: credentials.context,
             logLevel,
         });
@@ -526,6 +526,101 @@ describe('getBearerToken', () => {
         const result = await getBearerToken(credentials, logLevel);
 
         expect(result).toEqual({"key": "generatedToken", "type": "TOKEN"});
+    });
+
+    test('should throw error for invalid API key (does not start with sky-)', async () => {
+        const credentials = {
+            apiKey: 'invalid-api-key'
+        };
+
+        await expect(getBearerToken(credentials, logLevel))
+            .rejects
+            .toThrow();
+    });
+});
+
+describe('getBaseUrl', () => {
+    test('should return base URL for valid https URL', () => {
+        expect(getBaseUrl('https://example.skyflowapis.com/vault/v1/vaults')).toBe('https://example.skyflowapis.com');
+    });
+
+    test('should return empty string for invalid URL', () => {
+        expect(getBaseUrl('not-a-valid-url')).toBe('');
+    });
+});
+
+describe('removeSDKVersion', () => {
+    test('should strip SDK version from message', () => {
+        const msg = 'Skyflow Node SDK v2.0.4 some error occurred';
+        expect(removeSDKVersion(msg)).toBe('some error occurred');
+    });
+
+    test('should return unchanged message when no SDK version present', () => {
+        const msg = 'plain error message';
+        expect(removeSDKVersion(msg)).toBe('plain error message');
+    });
+});
+
+describe('parameterizedString', () => {
+    test('returns empty string when message is falsy', () => {
+        expect(parameterizedString('')).toBe('');
+        expect(parameterizedString(null)).toBe('');
+    });
+
+    test('replaces %sN placeholders with args', () => {
+        expect(parameterizedString('value at %s1 is %s2', 'index0', 'hello')).toBe('value at index0 is hello');
+    });
+});
+
+describe('printLog version fallback', () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('uses empty version when sdkDetails.version is undefined', () => {
+        const origDescriptor = Object.getOwnPropertyDescriptor(sdkDetails, 'version');
+        Object.defineProperty(sdkDetails, 'version', { value: undefined, writable: true, configurable: true });
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+        printLog('test msg', MessageType.LOG, LogLevel.DEBUG);
+        expect(consoleSpy).toHaveBeenCalledWith('DEBUG: [Skyflow Node SDK ] test msg');
+        Object.defineProperty(sdkDetails, 'version', origDescriptor);
+    });
+});
+
+describe('generateSDKMetrics branch coverage', () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('uses empty strings when sdkDetails name and version are falsy', () => {
+        const origName = Object.getOwnPropertyDescriptor(sdkDetails, 'name');
+        const origVersion = Object.getOwnPropertyDescriptor(sdkDetails, 'version');
+        Object.defineProperty(sdkDetails, 'name', { value: '', writable: true, configurable: true });
+        Object.defineProperty(sdkDetails, 'version', { value: '', writable: true, configurable: true });
+        const metrics = generateSDKMetrics();
+        expect(metrics.sdk_name_version).toBe('');
+        Object.defineProperty(sdkDetails, 'name', origName);
+        Object.defineProperty(sdkDetails, 'version', origVersion);
+    });
+
+    test('uses empty string for clientDeviceModel when process.platform is undefined', () => {
+        const origPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
+        const origArch = Object.getOwnPropertyDescriptor(process, 'arch');
+        Object.defineProperty(process, 'platform', { value: undefined, writable: true, configurable: true });
+        Object.defineProperty(process, 'arch', { value: undefined, writable: true, configurable: true });
+        jest.spyOn(os, 'release').mockReturnValue('5.4.0');
+        jest.spyOn(os, 'platform').mockReturnValue('linux');
+        const metrics = generateSDKMetrics();
+        expect(metrics.sdk_client_device_model).toBe(' ');
+        Object.defineProperty(process, 'platform', origPlatform);
+        Object.defineProperty(process, 'arch', origArch);
+    });
+
+    test('uses empty string for clientOSDetails when os.platform returns empty', () => {
+        jest.spyOn(os, 'release').mockReturnValue('5.4.0');
+        jest.spyOn(os, 'platform').mockReturnValue('');
+        const metrics = generateSDKMetrics();
+        expect(metrics.sdk_client_os_details).toBe('');
     });
 });
 

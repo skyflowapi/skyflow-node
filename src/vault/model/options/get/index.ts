@@ -8,7 +8,7 @@ class GetOptions {
     private fields?: Array<string>; 
     private offset?: string;
     private limit?: string;
-    private downloadURL?: boolean;
+    private downloadUrl?: boolean;
     private columnName?: string;
     private columnValues?: Array<string>;
     private orderBy?: OrderByEnum;
@@ -37,8 +37,8 @@ class GetOptions {
         this.limit = limit;
     }
 
-    setDownloadURL(downloadURL: boolean) {
-        this.downloadURL = downloadURL;
+    setDownloadUrl(downloadUrl: boolean) {
+        this.downloadUrl = downloadUrl;
     }
 
     setColumnName(columnName: string) {
@@ -74,8 +74,8 @@ class GetOptions {
         return this.limit;
     }
 
-    getDownloadURL(): boolean | undefined {
-        return this.downloadURL;
+    getDownloadUrl(): boolean | undefined {
+        return this.downloadUrl;
     }
 
     getColumnName(): string | undefined {
