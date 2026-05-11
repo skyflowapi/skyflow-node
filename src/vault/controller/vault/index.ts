@@ -389,9 +389,11 @@ class VaultController {
                     TYPES.GET
                 ).then(response => {
                     printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = response.records.map(record => ({
-                        ...(typeof record.fields === 'object' && record.fields !== null ? record.fields : {}),
-                    }));
+                    const processedRecords = response.records.map(record => {
+                        const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
+                        const { skyflow_id, ...rest } = fields;
+                        return { ...(skyflow_id !== undefined ? { skyflowId: skyflow_id } : {}), ...rest };
+                    });
                     resolve(new GetResponse({ data: processedRecords, errors: null }));
                 })
                     .catch(error => {
@@ -490,7 +492,7 @@ class VaultController {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const processedRecords = response.records.map(record => ({
                         ...(typeof record.fields === 'object' && record.fields !== null ? record.fields : {}),
-                        tokenized_data: {
+                        tokenizedData: {
                             ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
                         },
                     }));
