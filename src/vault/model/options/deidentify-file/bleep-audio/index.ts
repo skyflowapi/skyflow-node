@@ -2,8 +2,8 @@
 export class Bleep {
     private _gain?: number;
     private _frequency?: number;
-    private _start_padding?: number;
-    private _stop_padding?: number;
+    private _startPadding?: number;
+    private _stopPadding?: number;
 
     getGain(): number | undefined {
         return this._gain;
@@ -18,15 +18,15 @@ export class Bleep {
         this._frequency = frequency;
     }       
     getStartPadding(): number | undefined {
-        return this._start_padding;
+        return this._startPadding;
     }
-    setStartPadding(start_padding: number) {
-        this._start_padding = start_padding;
+    setStartPadding(startPadding: number) {
+        this._startPadding = startPadding;
     }
     getStopPadding(): number | undefined {
-        return this._stop_padding;
+        return this._stopPadding;
     }
-    setStopPadding(stop_padding: number) {
-        this._stop_padding = stop_padding;
+    setStopPadding(stopPadding: number) {
+        this._stopPadding = stopPadding;
     }
 }

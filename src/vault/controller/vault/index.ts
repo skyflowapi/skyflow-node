@@ -91,19 +91,19 @@ class VaultController {
         };
 
         if (!records || !Array.isArray(records) || records.length === 0) {
-            return new InsertResponse({ insertedFields:null, errors: null });
+            return new InsertResponse({ insertedFields: [], errors: null });
         }
 
         records.forEach((record: Record<string, unknown>, index: number) => {
             if (this.isSuccess(record)) {
-                
+
                 this.processSuccess(record, index, response);
             } else {
                 this.processError(record, index, requestId, response);
             }
         });
 
-        return new InsertResponse({ insertedFields: response.success.length>0 ? response.success : null, errors: response.errors.length>0 ? response.errors : null });
+        return new InsertResponse({ insertedFields: response.success, errors: response.errors.length>0 ? response.errors : null });
     }
 
     private isSuccess(record: Record<string, unknown>): boolean {
@@ -166,7 +166,7 @@ class VaultController {
                                 resolve(data)
                                 break;
                             case TYPES.DELETE:
-                                resolve(new DeleteResponse({ deletedIds: data?.RecordIDResponse, errors: null }) as T);
+                                resolve(new DeleteResponse({ deletedIds: data?.RecordIDResponse ?? [], errors: null }) as T);
                                 break;
                         }
                     }).catch((error: any) => {
@@ -373,7 +373,7 @@ class VaultController {
                     fields: options?.getFields(),
                     offset: options?.getOffset(),
                     limit: options?.getLimit(),
-                    downloadURL: options?.getDownloadURL(),
+                    downloadURL: options?.getDownloadUrl(),
                     column_name: columnName,
                     column_values: columnValues,
                     order_by: options?.getOrderBy(),
@@ -440,7 +440,7 @@ class VaultController {
                 const uploadFileV2Request: UploadFileV2Request = {
                     columnName:request.columnName,
                     tableName: request.table,
-                    skyflowID: request.skyflowId,
+                    skyflowID: options?.getSkyflowId(),
                     returnFileMetadata: false,
                 }
 
@@ -517,7 +517,7 @@ class VaultController {
                 validateDetokenizeRequest(request, options, this.client.getLogLevel());
 
                 const fields = request.data.map(record => ({ token: record.token, redaction: record?.redactionType || RedactionType.DEFAULT })) as Array<V1DetokenizeRecordRequest>;
-                const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadURL() };
+                const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadUrl() };
 
                 this.handleRequest<RecordsResponse<Record<string, string>>>(
                     (headers: Records.RequestOptions | undefined) => this.client.tokensAPI.recordServiceDetokenize(this.client.vaultId, detokenizePayload, headers).withRawResponse(),

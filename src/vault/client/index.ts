@@ -52,9 +52,9 @@ class VaultClient {
         this.logLevel = logLevel || LogLevel.ERROR;
     }
 
-    updateClientConfig(clusterID: string, vaultId: string, individualCredentials?: Credentials, skyflowCredentials?: Credentials, logLevel?: LogLevel) {
+    updateClientConfig(clusterId: string, vaultId: string, individualCredentials?: Credentials, skyflowCredentials?: Credentials, logLevel?: LogLevel) {
         this.updateTriggered = true;
-        this.initializeClient(clusterID, vaultId, individualCredentials, skyflowCredentials, logLevel);
+        this.initializeClient(clusterId, vaultId, individualCredentials, skyflowCredentials, logLevel);
     }
 
     private initConfig(authInfo: AuthInfo) {
@@ -355,7 +355,7 @@ class VaultClient {
         reject(new SkyflowError({
             http_code: isNewError ? (err?.statusCode ?? err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST) : err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST,
             message: description,
-            request_ID: requestId,
+            requestId: requestId,
             grpc_code: grpcCode,
             http_status: httpStatus,
             details: details,

@@ -2,7 +2,7 @@
 class DetokenizeOptions {
     // Fields with default values
     private continueOnError?: boolean;
-    private downloadURL?: boolean;
+    private downloadUrl?: boolean;
 
     // Constructor
     constructor() { }
@@ -12,8 +12,8 @@ class DetokenizeOptions {
         this.continueOnError = continueOnError;
     }
 
-    setDownloadURL(downloadURL: boolean) {
-        this.downloadURL = downloadURL;
+    setDownloadUrl(downloadUrl: boolean) {
+        this.downloadUrl = downloadUrl;
     }
 
     // Getters
@@ -21,8 +21,8 @@ class DetokenizeOptions {
         return this.continueOnError;
     }
 
-    getDownloadURL(): boolean | undefined {
-        return this.downloadURL;
+    getDownloadUrl(): boolean | undefined {
+        return this.downloadUrl;
     }
 }
 
