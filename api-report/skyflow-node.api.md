@@ -16,7 +16,7 @@ export interface ApiKeyCredentials {
 // @public (undocumented)
 export type BearerTokenOptions = {
     ctx?: string | Record<string, any>;
-    roleIDs?: string[];
+    roleIds?: string[];
     logLevel?: LogLevel;
 };
 
@@ -35,9 +35,9 @@ export class Bleep {
     // (undocumented)
     setGain(gain: number): void;
     // (undocumented)
-    setStartPadding(start_padding: number): void;
+    setStartPadding(startPadding: number): void;
     // (undocumented)
-    setStopPadding(stop_padding: number): void;
+    setStopPadding(stopPadding: number): void;
 }
 
 // @public (undocumented)
@@ -146,6 +146,7 @@ export class DeidentifyFileResponse {
         }>;
         runId?: string;
         status?: string;
+        errors?: Array<SkyflowRecordError> | null;
     });
     // (undocumented)
     charCount?: number;
@@ -156,6 +157,8 @@ export class DeidentifyFileResponse {
         file: string;
         extension: string;
     }>;
+    // (undocumented)
+    errors: Array<SkyflowRecordError> | null;
     // (undocumented)
     extension?: string;
     // (undocumented)
@@ -224,6 +227,7 @@ export class DeidentifyTextResponse {
         }>;
         wordCount: number;
         charCount: number;
+        errors?: Array<SkyflowRecordError> | null;
     });
     // (undocumented)
     charCount: number;
@@ -236,6 +240,8 @@ export class DeidentifyTextResponse {
         entity?: string;
         scores?: Record<string, number>;
     }>;
+    // (undocumented)
+    errors: Array<SkyflowRecordError> | null;
     // (undocumented)
     processedText: string;
     // (undocumented)
@@ -260,7 +266,7 @@ export class DeleteResponse {
         errors: Array<SkyflowRecordError> | null;
     });
     // (undocumented)
-    deletedIds?: Array<string>;
+    deletedIds: Array<string>;
     // (undocumented)
     errors: Array<SkyflowRecordError> | null;
 }
@@ -435,11 +441,11 @@ export class DetokenizeOptions {
     // (undocumented)
     getContinueOnError(): boolean | undefined;
     // (undocumented)
-    getDownloadURL(): boolean | undefined;
+    getDownloadUrl(): boolean | undefined;
     // (undocumented)
     setContinueOnError(continueOnError: boolean): void;
     // (undocumented)
-    setDownloadURL(downloadURL: boolean): void;
+    setDownloadUrl(downloadUrl: boolean): void;
 }
 
 // @public (undocumented)
@@ -494,6 +500,8 @@ export class FileUploadOptions {
     // (undocumented)
     getFilePath(): string | undefined;
     // (undocumented)
+    getSkyflowId(): string | undefined;
+    // (undocumented)
     setBase64(base64: string): void;
     // (undocumented)
     setFileName(fileName: string): void;
@@ -501,17 +509,16 @@ export class FileUploadOptions {
     setFileObject(fileObject: File): void;
     // (undocumented)
     setFilePath(filePath: string): void;
+    // (undocumented)
+    setSkyflowId(skyflowId: string): void;
 }
 
 // @public (undocumented)
 export class FileUploadRequest {
-    constructor(table: string, skyflowId: string, columnName: string);
+    constructor(table: string, columnName: string);
     // (undocumented)
     get columnName(): string;
     set columnName(value: string);
-    // (undocumented)
-    get skyflowId(): string;
-    set skyflowId(value: string);
     // (undocumented)
     get table(): string;
     set table(value: string);
@@ -580,7 +587,7 @@ export class GetOptions {
     // (undocumented)
     getColumnValues(): Array<string> | undefined;
     // (undocumented)
-    getDownloadURL(): boolean | undefined;
+    getDownloadUrl(): boolean | undefined;
     // (undocumented)
     getFields(): Array<string> | undefined;
     // (undocumented)
@@ -598,7 +605,7 @@ export class GetOptions {
     // (undocumented)
     setColumnValues(columnValues: Array<string>): void;
     // (undocumented)
-    setDownloadURL(downloadURL: boolean): void;
+    setDownloadUrl(downloadUrl: boolean): void;
     // (undocumented)
     setFields(fields: Array<string>): void;
     // (undocumented)
@@ -693,13 +700,13 @@ export class InsertRequest {
 // @public (undocumented)
 export class InsertResponse {
     constructor(input: {
-        insertedFields: Array<InsertResponseType> | null;
+        insertedFields: Array<InsertResponseType>;
         errors: Array<SkyflowRecordError> | null;
     });
     // (undocumented)
     errors: Array<SkyflowRecordError> | null;
     // (undocumented)
-    insertedFields: Array<InsertResponseType> | null;
+    insertedFields: Array<InsertResponseType>;
 }
 
 // @public (undocumented)
