@@ -643,7 +643,7 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
         }
 
-        if (updateRequest?.data[SKYFLOW.ID]  && typeof updateRequest.data[SKYFLOW.ID] !== 'string' || (updateRequest.data[SKYFLOW.ID] as string).trim().length === 0) {
+        if (typeof updateRequest.data[SKYFLOW.ID] !== 'string' || (updateRequest.data[SKYFLOW.ID] as string).trim().length === 0) {
             printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
         }

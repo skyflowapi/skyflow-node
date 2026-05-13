@@ -229,8 +229,6 @@ class VaultController {
 
                 const isContinueOnError = options?.getContinueOnError();
 
-                console.log("in");
-                
                 const requestBody = isContinueOnError
                     ? this.buildBatchInsertBody(request, options)
                     : this.buildBulkInsertBody(request, options);
@@ -270,9 +268,10 @@ class VaultController {
                 // Validation checks
                 validateUpdateRequest(request, options, this.client.getLogLevel());
 
-                const skyflowId = request.data[SKYFLOW.ID];
-                delete request.data[SKYFLOW.ID];
-                const record = { fields: request.data, tokens: options?.getTokens() };
+                const data = { ...request.data };
+                const skyflowId = data[SKYFLOW.ID];
+                delete data[SKYFLOW.ID];
+                const record = { fields: data, tokens: options?.getTokens() };
                 const strictMode = options?.getTokenMode() ? options?.getTokenMode() : V1Byot.Disable;
                 const updateData: RecordServiceUpdateRecordBody = {
                     record: record,
