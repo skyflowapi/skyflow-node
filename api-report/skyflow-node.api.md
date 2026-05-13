@@ -18,6 +18,7 @@ export type BearerTokenOptions = {
     ctx?: string | Record<string, any>;
     roleIds?: string[];
     logLevel?: LogLevel;
+    tokenUri?: string;
 };
 
 // @public (undocumented)
@@ -790,6 +791,8 @@ export interface PathCredentials {
     path: string;
     // (undocumented)
     roles?: Array<string>;
+    // (undocumented)
+    tokenUri?: string;
 }
 
 // @public (undocumented)
@@ -881,6 +884,7 @@ export type SignedDataTokensOptions = {
     timeToLive?: number;
     ctx?: string | Record<string, any>;
     logLevel?: LogLevel;
+    tokenUri?: string;
 };
 
 // @public (undocumented)
@@ -914,6 +918,8 @@ export class Skyflow {
     setLogLevel(logLevel: LogLevel): void;
     // (undocumented)
     updateConnectionConfig(config: ConnectionConfig): void;
+    // (undocumented)
+    updateLogLevel(logLevel: LogLevel): Skyflow;
     // (undocumented)
     updateSkyflowCredentials(credentials: Credentials): void;
     // (undocumented)
@@ -967,6 +973,8 @@ export interface StringCredentials {
     credentialsString: string;
     // (undocumented)
     roles?: Array<string>;
+    // (undocumented)
+    tokenUri?: string;
 }
 
 // @public (undocumented)

@@ -392,8 +392,8 @@ class VaultController {
                     printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const processedRecords = response.records.map(record => {
                         const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
-                        const { skyflow_id, ...rest } = fields;
-                        return { ...(skyflow_id !== undefined ? { skyflowId: skyflow_id } : {}), ...rest };
+                        const { skyflow_id: skyflowIdValue, ...rest } = fields;
+                        return { ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}), ...rest };
                     });
                     resolve(new GetResponse({ data: processedRecords, errors: null }));
                 })
@@ -493,9 +493,9 @@ class VaultController {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const processedRecords = response.records.map(record => {
                         const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
-                        const { skyflow_id, ...rest } = fields;
+                        const { skyflow_id: skyflowIdValue, ...rest } = fields;
                         return {
-                            ...(skyflow_id !== undefined ? { skyflowId: skyflow_id } : {}),
+                            ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}),
                             ...rest,
                             tokenizedData: {
                                 ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
