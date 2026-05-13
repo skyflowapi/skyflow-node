@@ -24,10 +24,10 @@ async function performSecureDataDeletion() {
     try {
         // Step 1: Configure Skyflow client Credentials
         const cred:  Record<string, string> = {
-            clientID: '<your-client-id>',       // Client identifier
+            clientId: '<your-client-id>',       // Client identifier
             clientName: '<your-client-name>',   // Client name
-            keyID: '<your-key-id>',             // Key identifier
-            tokenURI: '<your-token-uri>',       // Token URI
+            keyId: '<your-key-id>',             // Key identifier
+            tokenUri: '<your-token-uri>',       // Token URI
             privateKey: '<your-pem-private-key>' // Private key for authentication
         };
 

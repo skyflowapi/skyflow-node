@@ -10,10 +10,10 @@ let filepath: string = 'CREDENTIALS_FILE_PATH';
 
 // To generate Bearer Token from credentials string.
 let cred = {
-  clientID: '<YOUR_CLIENT_ID>',
+  clientId: '<YOUR_CLIENT_ID>',
   clientName: '<YOUR_CLIENT_NAME>',
-  keyID: '<YOUR_KEY_ID>',
-  tokenURI: '<YOUR_TOKEN_URI>',
+  keyId: '<YOUR_KEY_ID>',
+  tokenUri: '<YOUR_TOKEN_URI>',
   privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
 

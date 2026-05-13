@@ -197,7 +197,7 @@ console.log("Insert response:", insertResponse);
 
 ## Upgrade from v1 to v2
 
-Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.md](docs/migrate_to_v2.md).
+Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.md](docs/migrate_to_v2.md). For a full list of breaking changes, see [CHANGELOG.md](CHANGELOG.md).
 
 ## Vault
 

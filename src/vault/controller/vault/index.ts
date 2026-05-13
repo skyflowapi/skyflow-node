@@ -229,6 +229,8 @@ class VaultController {
 
                 const isContinueOnError = options?.getContinueOnError();
 
+                console.log("in");
+                
                 const requestBody = isContinueOnError
                     ? this.buildBatchInsertBody(request, options)
                     : this.buildBulkInsertBody(request, options);
