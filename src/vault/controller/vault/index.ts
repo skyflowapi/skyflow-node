@@ -1,7 +1,7 @@
 //imports
 import * as fs from 'fs';
 import InsertRequest from "../../model/request/insert";
-import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, UploadFileV2Request, UploadFileV2Response, V1Byot, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest } from '../../../ _generated_/rest/api';
+import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, UploadFileV2Request, UploadFileV2Response, V1Byot, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest, V1UpdateRecordResponse } from '../../../ _generated_/rest/api';
 import InsertOptions from "../../model/options/insert";
 import GetRequest from "../../model/request/get";
 import GetOptions from "../../model/options/get";
@@ -21,7 +21,7 @@ import QueryResponse from '../../model/response/query';
 import FileUploadResponse from '../../model/response/file-upload';
 import TokenizeResponse from '../../model/response/tokenize';
 import TokenizeRequest from '../../model/request/tokenize';
-import { InsertResponseType, ParsedDetokenizeResponse, ParsedInsertBatchResponse, RecordsResponse, SkyflowIdResponse, StringKeyValueMapType, TokenizeRequestType, TokensResponse } from '../../types';
+import { InsertResponseType, ParsedDetokenizeResponse, ParsedInsertBatchResponse, RecordsResponse, StringKeyValueMapType, TokenizeRequestType } from '../../types';
 import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK, removeSDKVersion, RedactionType, SKYFLOW, SkyflowRecordError, HTTP_STATUS_CODE, HTTP_HEADER, CONTENT_TYPE, ENCODING_TYPE } from '../../../utils';
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
@@ -115,8 +115,8 @@ class VaultController {
         if (body && Array.isArray(body.records)) {
             body.records.forEach((field: StringKeyValueMapType) => {
                 response.success.push({
-                    skyflow_id: String(field?.skyflow_id),
-                    request_index: index,
+                    skyflowId: String(field?.skyflow_id),
+                    requestIndex: index,
                     ...(typeof field?.tokens === 'object' && field?.tokens !== null ? field.tokens : {})
                 });
             });
@@ -213,7 +213,7 @@ class VaultController {
 
     private parseBulkInsertResponse(records: Record<string, unknown>[]): InsertResponse {
         const insertedFields: InsertResponseType[] = records.map(record => ({
-            skyflow_id: String(record.skyflow_id),
+            skyflowId: String(record.skyflow_id),
             ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {})
         }));
         return new InsertResponse({ insertedFields, errors: null });
@@ -280,7 +280,7 @@ class VaultController {
                     byot: strictMode
                 };
 
-                this.handleRequest<TokensResponse>(
+                this.handleRequest<V1UpdateRecordResponse>(
                     (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceUpdateRecord(
                         this.client.vaultId,
                         request.table,
@@ -292,7 +292,7 @@ class VaultController {
                 ).then(data => {
                     printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const updatedRecord = {
-                        skyflow_id: data.skyflow_id,
+                        skyflowId: data.skyflow_id ?? '',
                         ...data?.tokens
                     };
                     resolve(new UpdateResponse({ updatedField: updatedRecord, errors: null }));

@@ -435,11 +435,7 @@ function validateInsertInput(input: unknown, index: number): void {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT, [index]);
     }
 
-    for (const [, value] of Object.entries(inputObject!)) {
-        if (value === null || value === undefined || value === '') {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_FIELD, [index]);
-        }
-    }
+}
 function validateUpdateInput(input: unknown): void {
     if (typeof input !== 'object' || input === null || Array.isArray(input)) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);

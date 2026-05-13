@@ -108,7 +108,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
             }
 
             if (options?.tokenUri) {
-                credentialsObj.tokenURI = options.tokenUri;
+                credentialsObj.tokenUri = options.tokenUri;
             }
 
             const expiryTime = Math.floor(Date.now() / 1000) + 3600;
@@ -251,7 +251,7 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
             }
 
             if (options?.tokenUri) {
-                credentialsObj.tokenURI = options.tokenUri;
+                credentialsObj.tokenUri = options.tokenUri;
             }
 
             let expiryTime;

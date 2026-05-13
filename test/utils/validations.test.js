@@ -1266,45 +1266,6 @@ test('should throw error when table name is invalid', () => {
     expect(() => validateInsertRequest(request, undefined, LogLevel.ERROR)).not.toThrow();
   });
 
-  describe('fail-fast validation: null/undefined/empty field values', () => {
-    const baseRequest = (data) => ({ _table: 'users', table: 'users', data });
-
-    test('throws EMPTY_FIELD for null field value', () => {
-      expect(() => validateInsertRequest(baseRequest([{ card: null }])))
-        .toThrow(SKYFLOW_ERROR_CODE.EMPTY_FIELD);
-    });
-
-    test('throws EMPTY_FIELD for undefined field value', () => {
-      expect(() => validateInsertRequest(baseRequest([{ card: undefined }])))
-        .toThrow(SKYFLOW_ERROR_CODE.EMPTY_FIELD);
-    });
-
-    test('throws EMPTY_FIELD for empty string field value', () => {
-      expect(() => validateInsertRequest(baseRequest([{ card: '' }])))
-        .toThrow(SKYFLOW_ERROR_CODE.EMPTY_FIELD);
-    });
-
-    test('throws EMPTY_FIELD when one of multiple fields is null', () => {
-      expect(() => validateInsertRequest(baseRequest([{ name: 'John', ssn: null }])))
-        .toThrow(SKYFLOW_ERROR_CODE.EMPTY_FIELD);
-    });
-
-    test('does not throw for 0 (valid falsy value)', () => {
-      expect(() => validateInsertRequest(baseRequest([{ amount: 0 }]))).not.toThrow();
-    });
-
-    test('does not throw for false (valid falsy value)', () => {
-      expect(() => validateInsertRequest(baseRequest([{ active: false }]))).not.toThrow();
-    });
-
-    test('does not throw for 0.0 (valid falsy value)', () => {
-      expect(() => validateInsertRequest(baseRequest([{ score: 0.0 }]))).not.toThrow();
-    });
-
-    test('does not throw for valid string fields', () => {
-      expect(() => validateInsertRequest(baseRequest([{ card: '4111111111111111', name: 'Alice' }]))).not.toThrow();
-    });
-  });
 });
 
 
