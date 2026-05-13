@@ -40,7 +40,7 @@ export interface ClientObj {
 }
 
 export interface InsertResponseType {
-    skyflow_id: string;
+    skyflowId: string;
     [key: string]: unknown;
 }
 
@@ -169,7 +169,7 @@ export interface DetectFileResponse<T = unknown> {
   requestId: string;
 }
 export interface SkyflowIdResponse {
-  skyflow_id: string;
+  skyflowId: string;
 }
   
 export interface TokensResponse extends SkyflowIdResponse {
