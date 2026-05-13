@@ -14,6 +14,14 @@ import errorMessages from '../../src/error/messages';
 import jwt from 'jsonwebtoken';
 import { LogLevel } from "../../src";
 
+const validCredentials = {
+    clientID: "test-client-id",
+    keyID: "test-key-id",
+    tokenURI: "https://test-token-uri.com",
+    privateKey: "KEY",
+    data: "DATA",
+};
+
 jest.mock('../../src/service-account/client', () => {
   return {
     __esModule: true,
@@ -121,7 +129,7 @@ describe("File Validity Tests", () => {
 });
 
 describe("Context and Scoped Token Options Tests", () => {
-    const credsWithoutContext = process.env.SA_WITHOUT_CONTEXT;
+    const credsWithoutContext = process.env.SA_WITHOUT_CONTEXT || JSON.stringify(validCredentials);
 
     const credentials = {
         clientID: "test-client-id",
@@ -336,13 +344,6 @@ describe('Signed Data Token Generation Test', () => {
 
 describe('getToken Tests', () => {
     let mockClient;
-    const validCredentials = {
-        clientID: "test-client-id",
-        keyID: "test-key-id",
-        tokenURI: "https://test-token-uri.com",
-        privateKey: "KEY",
-        data: "DATA",
-    };
     const credentials = {
         clientID: "test-client-id",
         keyID: "test-key-id",
@@ -600,5 +601,78 @@ describe('failureResponse with rawResponse', () => {
             response: { status: 503 },
         };
         await expect(failureResponse(err)).rejects.toBeDefined();
+    });
+
+    test("should use tokenUri from options if provided and valid", async () => {
+        const validCredsString = JSON.stringify(validCredentials);
+        const validTokenOptions = { tokenUri: "https://override-token-uri.com" };
+        const signSpy = jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+        const getBaseUrlSpy = jest.spyOn(require('../../src/utils'), 'getBaseUrl');
+        await getToken(validCredsString, validTokenOptions);
+        expect(getBaseUrlSpy).toHaveBeenCalledWith(validTokenOptions.tokenUri);
+        signSpy.mockRestore();
+        getBaseUrlSpy.mockRestore();
+    });
+
+    test("should throw error if tokenUri in options is invalid", async () => {
+        const validCredsString = JSON.stringify(validCredentials);
+        const invalidOptions = { tokenUri: "not-a-valid-url" };
+        await expect(getToken(validCredsString, invalidOptions)).rejects.toThrow();
+    });
+});
+
+
+describe('getToken and getSignedTokens tokenUri override tests', () => {
+    const validCreds = {
+        clientID: "test-client-id",
+        keyID: "test-key-id",
+        tokenURI: "https://original-token-uri.com",
+        privateKey: "KEY",
+        data: "DATA",
+    };
+
+    const validCredsString = JSON.stringify(validCreds);
+
+    const validSignedTokenOptions = {
+        dataTokens: ['datatoken1'],
+        tokenUri: "https://override-token-uri.com"
+    };
+
+    const validTokenOptions = {
+        tokenUri: "https://override-token-uri.com"
+    };
+
+    beforeEach(() => {
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('getToken uses tokenUri from options if provided', async () => {
+        const getBaseUrlSpy = jest.spyOn(require('../../src/utils'), 'getBaseUrl');
+        await getToken(validCredsString, validTokenOptions);
+        expect(getBaseUrlSpy).toHaveBeenCalledWith(validTokenOptions.tokenUri);
+    });
+
+    test('generateSignedDataTokensFromCreds uses tokenUri from options if provided', async () => {
+        let capturedClaims = null;
+        jest.spyOn(jwt, 'sign').mockImplementation((claims, key, opts) => {
+            capturedClaims = claims;
+            return 'mocked_token';
+        });
+        await generateSignedDataTokensFromCreds(validCredsString, validSignedTokenOptions);
+        expect(capturedClaims.aud).toBe(validSignedTokenOptions.tokenUri);
+    });
+
+    test('getToken throws error if tokenUri in options is invalid', async () => {
+        const invalidOptions = { tokenUri: "not-a-valid-url" };
+        await expect(getToken(validCredsString, invalidOptions)).rejects.toThrow();
+    });
+
+    test('generateSignedDataTokensFromCreds throws error if tokenUri in options is invalid', async () => {
+        const invalidOptions = { dataTokens: ['datatoken1'], tokenUri: "not-a-valid-url" };
+        await expect(generateSignedDataTokensFromCreds(validCredsString, invalidOptions)).rejects.toThrow();
     });
 });
