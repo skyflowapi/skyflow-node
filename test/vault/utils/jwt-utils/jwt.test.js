@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import jwt_decode from 'jwt-decode'; 
 import { isTokenValid, isExpired } from '../../../../src/utils/jwt-utils';
 

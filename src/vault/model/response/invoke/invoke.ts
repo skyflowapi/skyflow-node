@@ -1,7 +1,6 @@
 //imports
 
 import { SkyflowRecordError } from "../../../../utils";
-import { QueryResponseType } from "../../../types";
 
 class InvokeConnectionResponse {
     //fields

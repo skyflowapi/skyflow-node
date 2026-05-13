@@ -17,6 +17,7 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_PARSED_CREDENTIALS_STRING: { http_code: 400, message: errorMessages.INVALID_PARSED_CREDENTIALS_STRING },
     INVALID_KEY: { http_code: 400, message: errorMessages.INVALID_KEY },
     INVALID_CREDENTIALS_FILE_PATH: { http_code: 400, message: errorMessages.INVALID_CREDENTIALS_FILE_PATH },
+    INVALID_TOKEN_URI: { http_code: 400, message: errorMessages.INVALID_TOKEN_URI },
 
     INVALID_BEARER_TOKEN_WITH_ID: { http_code: 400, message: errorMessages.INVALID_BEARER_TOKEN_WITH_ID },
     INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: { http_code: 400, message: errorMessages.INVALID_PARSED_CREDENTIALS_STRING_WITH_ID },
@@ -231,6 +232,7 @@ const SKYFLOW_ERROR_CODE = {
     EMPTY_RUN_ID:{ http_code: 400, message: errorMessages.EMPTY_RUN_ID },
     INVALID_RUN_ID:{ http_code: 400, message: errorMessages.INVALID_RUN_ID },
     INTERNAL_SERVER_ERROR: { http_code: 500, message: errorMessages.INTERNAL_SERVER_ERROR },
+    INVALID_XML_FORMAT: { http_code: 400, message: errorMessages.INVALID_XML_FORMAT },
 };
 
 export default SKYFLOW_ERROR_CODE;
