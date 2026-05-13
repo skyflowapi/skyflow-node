@@ -44,6 +44,7 @@ export default tseslint.config(
       "node_modules/",
       "dist/",
       "coverage/",
+      "lib/",
       "src/ _generated_/",
       "test/**",
       "samples/**",
