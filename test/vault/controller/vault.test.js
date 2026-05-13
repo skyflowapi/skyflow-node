@@ -1249,7 +1249,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflow_id).toBe('id123');
+        expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toBeNull();
     });
@@ -1280,7 +1280,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflow_id).toBe('id123');
+        expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toBeNull();
     });
@@ -1314,7 +1314,7 @@ describe('VaultController update method', () => {
             expect.any(Object)  // Headers
         );
         expect(response).toBeInstanceOf(UpdateResponse);
-        expect(response.updatedField.skyflow_id).toBe('id123');
+        expect(response.updatedField.skyflowId).toBe('id123');
         expect(response.updatedField.field1).toBe('token123');
         expect(response.errors).toBeNull();
     });
