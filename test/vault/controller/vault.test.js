@@ -1074,7 +1074,7 @@ describe('VaultController query method', () => {
         expect(response).toBeInstanceOf(QueryResponse);
         expect(response.fields).toHaveLength(1);
         expect(response.fields[0].id).toBe('1');
-        expect(response.fields[0].tokenized_data.id).toBe('token123');
+        expect(response.fields[0].tokenizedData.id).toBe('token123');
         expect(response.errors).toBe(null);
     });
 
