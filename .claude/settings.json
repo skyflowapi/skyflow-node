@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd /Users/bhartisagar/Desktop/skyflow_work/skyflow-node && npx tsc --noEmit 2>&1 | tail -20"
+            "command": "npx tsc --noEmit 2>&1 | tail -20"
           }
         ]
       }
@@ -27,16 +27,6 @@
           {
             "type": "command",
             "command": "python3 -c \"import sys,json; d=json.load(sys.stdin); p=d.get('tool_input',{}).get('file_path',d.get('file_path','')); banned='_generated_'; (sys.stderr.write('BLOCKED: Fern-generated code — do not edit manually\\n'), sys.exit(2)) if banned in p else sys.exit(0)\""
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "osascript -e 'display notification \"Claude finished\" with title \"Claude Code\"' 2>/dev/null || true"
           }
         ]
       }
