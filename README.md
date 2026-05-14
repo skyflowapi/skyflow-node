@@ -201,7 +201,7 @@ Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.
 
 ## Vault
 
-The [Vault](https://docs.skyflow.com/docs/vaults) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
+The [Vault](https://docs.skyflow.com/docs/vaults) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflowId`s and to invoke the Connection.
 
 ### Insert and tokenize data: `.insert(request)`
 
@@ -271,7 +271,7 @@ const detokenizeRequest = new DetokenizeRequest([
 
 const detokenizeOptions = new DetokenizeOptions();
 detokenizeOptions.setContinueOnError(true);
-detokenizeOptions.setDownloadURL(false);
+detokenizeOptions.setDownloadUrl(false);
 
 const response: DetokenizeResponse = await skyflowClient
   .vault(primaryVaultConfig.vaultId)
@@ -857,11 +857,11 @@ Alternatively, you can also send the entire credentials as string by using `gene
 
 #### Generate bearer tokens scoped to certain roles
 
-Generate bearer tokens with access limited to a specific role by specifying the appropriate roleID when using a service account with multiple roles. Use this to limit access for services with multiple responsibilities, such as segregating access for billing and analytics. Generated bearer tokens are valid for 60 minutes and can only execute operations permitted by the permissions associated with the designated role.
+Generate bearer tokens with access limited to a specific role by specifying the appropriate roleId when using a service account with multiple roles. Use this to limit access for services with multiple responsibilities, such as segregating access for billing and analytics. Generated bearer tokens are valid for 60 minutes and can only execute operations permitted by the permissions associated with the designated role.
 
 ```ts
 const options = {
-  roleIDs: ['roleID1', 'roleID2'],
+  roleIds: ['roleId1', 'roleId2'],
 };
 ```
 
