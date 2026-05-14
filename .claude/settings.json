@@ -1,0 +1,44 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json, subprocess\nd = json.load(sys.stdin)\nf = d.get('tool_input', {}).get('file_path', d.get('file_path', ''))\nif f and f.endswith(('.ts', '.js')) and '_generated_' not in f:\n    subprocess.run(['npx', 'prettier', '--write', f], capture_output=True)\n    subprocess.run(['npx', 'eslint', '--fix', f], capture_output=True)\n\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx tsc --noEmit 2>&1 | tail -20"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json; d=json.load(sys.stdin); p=d.get('tool_input',{}).get('file_path',d.get('file_path','')); banned='_generated_'; (sys.stderr.write('BLOCKED: Fern-generated code — do not edit manually\\n'), sys.exit(2)) if banned in p else sys.exit(0)\""
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)"
+    ],
+    "deny": [
+      "Edit(src/_generated_/**)",
+      "Write(src/_generated_/**)"
+    ]
+  }
+}
