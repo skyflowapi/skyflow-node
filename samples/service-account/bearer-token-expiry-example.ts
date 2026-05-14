@@ -42,7 +42,7 @@ async function detokenizeData(skyflowClient: Skyflow, vaultId: string) {
         // Configuring detokenization options
         const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
         detokenizeOptions.setContinueOnError(false); // Stop on error
-        detokenizeOptions.setDownloadURL(false);    // Disable download URL generation
+        detokenizeOptions.setDownloadUrl(false);    // Disable download URL generation
 
         // Sending the detokenization request and receiving the response
         const response: DetokenizeResponse = await skyflowClient
