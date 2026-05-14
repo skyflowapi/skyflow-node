@@ -67,7 +67,7 @@ async function performDetokenization() {
         // Configure Detokenize Options
         const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
         detokenizeOptions.setContinueOnError(true); // Continue processing on errors
-        detokenizeOptions.setDownloadURL(false);   // Disable download URL generation
+        detokenizeOptions.setDownloadUrl(false);   // Disable download URL generation
 
         // Step 5: Perform Detokenization
         const response: DetokenizeResponse = await skyflowClient
