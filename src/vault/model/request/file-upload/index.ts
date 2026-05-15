@@ -4,7 +4,7 @@ import { warnOnce } from '../../../../utils/warn-once';
 class FileUploadRequest {
     private _table: string;
     private _columnName: string;
-    _legacySkyflowId?: string;
+    private _legacySkyflowId?: string;
 
     // Constructor
     constructor(table: string, columnNameOrSkyflowId: string, columnName?: string) {

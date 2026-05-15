@@ -451,7 +451,7 @@ class VaultController {
                 const uploadFileV2Request: UploadFileV2Request = {
                     columnName:request.columnName,
                     tableName: request.table,
-                    skyflowID: options?.getSkyflowId() ?? request._legacySkyflowId,
+                    skyflowID: options?.getSkyflowId() ?? (request as any)._legacySkyflowId,
                     returnFileMetadata: false,
                 }
 
