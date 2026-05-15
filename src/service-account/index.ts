@@ -8,9 +8,21 @@ import SkyflowError from '../error';
 import SKYFLOW_ERROR_CODE from '../error/codes';
 import { ServiceAccountResponseError } from '../vault/types';
 import { WithRawResponse } from '../ _generated_/rest/core';
+import { warnOnce } from '../utils/warn-once';
+
+function normalizeTokenOptions(options?: BearerTokenOptions): BearerTokenOptions | undefined {
+    if (!options) return options;
+    if (options.roleIDs !== undefined && options.roleIds === undefined) {
+        warnOnce('BearerTokenOptions.roleIDs is deprecated, use roleIds', options.logLevel);
+        return { ...options, roleIds: options.roleIDs };
+    }
+    return options;
+}
 
 export type BearerTokenOptions = {
     ctx?: string | Record<string, any>,
+    /** @deprecated Use roleIds instead. Will be removed in v3. */
+    roleIDs?: string[],
     roleIds?: string[],
     logLevel?: LogLevel,
     tokenUri?: string,
@@ -71,6 +83,7 @@ function generateBearerTokenFromCreds(credentials, options?: BearerTokenOptions)
 }
 
 function getToken(credentials, options?: BearerTokenOptions): Promise<TokenResponse> {
+    options = normalizeTokenOptions(options);
     return new Promise((resolve, reject) => {
         printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_TRIGGERED, MessageType.LOG, options?.logLevel);
         try {
