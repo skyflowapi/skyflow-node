@@ -16,6 +16,7 @@ export interface ApiKeyCredentials {
 // @public (undocumented)
 export type BearerTokenOptions = {
     ctx?: string | Record<string, any>;
+    roleIDs?: string[];
     roleIds?: string[];
     logLevel?: LogLevel;
     tokenUri?: string;
@@ -442,9 +443,13 @@ export class DetokenizeOptions {
     // (undocumented)
     getContinueOnError(): boolean | undefined;
     // (undocumented)
+    getDownloadURL(): boolean | undefined;
+    // (undocumented)
     getDownloadUrl(): boolean | undefined;
     // (undocumented)
     setContinueOnError(continueOnError: boolean): void;
+    // (undocumented)
+    setDownloadURL(downloadURL: boolean): void;
     // (undocumented)
     setDownloadUrl(downloadUrl: boolean): void;
 }
@@ -516,10 +521,13 @@ export class FileUploadOptions {
 
 // @public (undocumented)
 export class FileUploadRequest {
-    constructor(table: string, columnName: string);
+    constructor(table: string, columnNameOrSkyflowId: string, columnName?: string);
     // (undocumented)
     get columnName(): string;
     set columnName(value: string);
+    // (undocumented)
+    get skyflowId(): string;
+    set skyflowId(value: string);
     // (undocumented)
     get table(): string;
     set table(value: string);
@@ -588,6 +596,8 @@ export class GetOptions {
     // (undocumented)
     getColumnValues(): Array<string> | undefined;
     // (undocumented)
+    getDownloadURL(): boolean | undefined;
+    // (undocumented)
     getDownloadUrl(): boolean | undefined;
     // (undocumented)
     getFields(): Array<string> | undefined;
@@ -605,6 +615,8 @@ export class GetOptions {
     setColumnName(columnName: string): void;
     // (undocumented)
     setColumnValues(columnValues: Array<string>): void;
+    // (undocumented)
+    setDownloadURL(downloadURL: boolean): void;
     // (undocumented)
     setDownloadUrl(downloadUrl: boolean): void;
     // (undocumented)

@@ -1100,7 +1100,7 @@ describe('VaultController query method', () => {
 
         expect(response).toBeInstanceOf(QueryResponse);
         expect(response.fields[0].skyflowId).toBe('id123');
-        expect(response.fields[0].skyflow_id).toBeUndefined();
+        expect(response.fields[0].skyflow_id).toBe('id123'); // deprecated shim
         expect(response.fields[0].id).toBe('1');
         expect(response.fields[0].tokenizedData.id).toBe('token123');
         expect(response.errors).toBe(null);
@@ -1746,7 +1746,7 @@ describe('VaultController get method', () => {
 
         expect(response).toBeInstanceOf(GetResponse);
         expect(response.data[0].skyflowId).toBe('id123');
-        expect(response.data[0].skyflow_id).toBeUndefined();
+        expect(response.data[0].skyflow_id).toBe('id123'); // deprecated shim
         expect(response.data[0].field1).toBe('value1');
         expect(response.errors).toBeNull();
     });
