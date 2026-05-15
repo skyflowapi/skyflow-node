@@ -5,9 +5,9 @@ class Client {
 
     authApi: Authentication;
 
-    constructor(tokenURI: string) {
+    constructor(tokenUri: string) {
         this.authApi = new Authentication({
-            baseUrl: tokenURI,
+            baseUrl: tokenUri,
             token:''
         });
     }

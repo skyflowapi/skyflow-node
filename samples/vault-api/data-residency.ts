@@ -76,10 +76,9 @@ async function transferDataBetweenVaults() {
 
         const insertData: Array<Record<string, unknown>> = getResponseData.data!;
 
-        // Remove skyflow_id from the data (if needed for re-insertion)
+        // Remove skyflowId from the data (if needed for re-insertion)
         const sanitizedData = insertData.map((item: Record<string, unknown>) => {
-            // eslint-disable-next-line camelcase
-            const { skyflow_id, ...rest } = item;  // Exclude the skyflow_id field
+            const { skyflowId, ...rest } = item;  // Exclude the skyflowId field
             return rest;
         });
 

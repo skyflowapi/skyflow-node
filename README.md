@@ -197,11 +197,11 @@ console.log("Insert response:", insertResponse);
 
 ## Upgrade from v1 to v2
 
-Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.md](docs/migrate_to_v2.md).
+Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.md](docs/migrate_to_v2.md). For a full list of breaking changes, see [CHANGELOG.md](CHANGELOG.md).
 
 ## Vault
 
-The [Vault](https://docs.skyflow.com/docs/vaults) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
+The [Vault](https://docs.skyflow.com/docs/vaults) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflowId`s and to invoke the Connection.
 
 ### Insert and tokenize data: `.insert(request)`
 
@@ -271,7 +271,7 @@ const detokenizeRequest = new DetokenizeRequest([
 
 const detokenizeOptions = new DetokenizeOptions();
 detokenizeOptions.setContinueOnError(true);
-detokenizeOptions.setDownloadURL(false);
+detokenizeOptions.setDownloadUrl(false);
 
 const response: DetokenizeResponse = await skyflowClient
   .vault(primaryVaultConfig.vaultId)
@@ -465,7 +465,7 @@ Refer to [Query your data](https://docs.skyflow.com/query-data/) and [Execute Qu
 
 ### Upload File
 
-Upload files to a Skyflow vault using the `uploadFile` method. Create a file upload request with the `FileUploadRequest` class, which accepts parameters such as the table name, column name, and Skyflow ID. Configure upload options with the `FileUploadOptions` class, which accepts the file object as shown below:
+Upload files to a Skyflow vault using the `uploadFile` method. Create a file upload request with the `FileUploadRequest` class, which accepts the table name and column name. Set the Skyflow ID via `FileUploadOptions.setSkyflowId()`. Configure upload options with the `FileUploadOptions` class, which accepts the file object as shown below:
 
 ```typescript
 // Please use Node version 20 & above to run file upload
@@ -479,19 +479,19 @@ import * as fs from "fs";
 
 // Prepare File Upload Data
 const tableName: string = "table-name"; // Table name
-const skyflowId: string = "skyflow-id"; // Skyflow ID of the record
 const columnName: string = "column-name"; // Column name to store file
+const skyflowId: string = "skyflow-id"; // Skyflow ID of the record
 const filePath: string = "file-path"; // Path to the file for upload
 
 // Create File Upload Request
 const uploadReq: FileUploadRequest = new FileUploadRequest(
   tableName,
-  skyflowId,
   columnName,
 );
 
 // Configure FileUpload Options
 const uploadOptions: FileUploadOptions = new FileUploadOptions();
+uploadOptions.setSkyflowId(skyflowId); // Set the Skyflow ID via options
 const buffer = fs.readFileSync(filePath);
 // Set any one of FilePath, Base64 or FileObject in FileUploadOptions
 uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
@@ -857,11 +857,11 @@ Alternatively, you can also send the entire credentials as string by using `gene
 
 #### Generate bearer tokens scoped to certain roles
 
-Generate bearer tokens with access limited to a specific role by specifying the appropriate roleID when using a service account with multiple roles. Use this to limit access for services with multiple responsibilities, such as segregating access for billing and analytics. Generated bearer tokens are valid for 60 minutes and can only execute operations permitted by the permissions associated with the designated role.
+Generate bearer tokens with access limited to a specific role by specifying the appropriate roleId when using a service account with multiple roles. Use this to limit access for services with multiple responsibilities, such as segregating access for billing and analytics. Generated bearer tokens are valid for 60 minutes and can only execute operations permitted by the permissions associated with the designated role.
 
 ```ts
 const options = {
-  roleIDs: ['roleID1', 'roleID2'],
+  roleIds: ['roleId1', 'roleId2'],
 };
 ```
 
@@ -873,18 +873,84 @@ const options = {
 
 Embed context values into a bearer token during generation so you can reference those values in your policies. This enables more flexible access controls, such as tracking end-user identity when making API calls using service accounts, and facilitates using signed data tokens during detokenization.
 
-Generate bearer tokens containing context information using a service account with the context_id identifier. Context information is represented as a JWT claim in a Skyflow-generated bearer token. Tokens generated from such service accounts include a context_identifier claim, are valid for 60 minutes, and can be used to make API calls to the Data and Management APIs, depending on the service account's permissions.
+Generate bearer tokens containing context information using a service account with the `context_id` identifier. Context information is represented as a JWT claim in a Skyflow-generated bearer token. Tokens generated from such service accounts include a `context_identifier` claim, are valid for 60 minutes, and can be used to make API calls to the Data and Management APIs, depending on the service account's permissions.
+
+The `ctx` parameter accepts either a **string** or a **JSON object**:
+
+**String context** — use when your policy references a single context value:
+
+```typescript
+const options = {
+  ctx: 'user_12345',
+};
+const response = await generateBearerToken(filepath, options);
+```
+
+**JSON object context** — use when your policy needs multiple context values for conditional data access. Each key in the `ctx` object maps to a Skyflow CEL policy variable under `request.context.*`:
+
+```typescript
+const options = {
+  ctx: {
+    role: 'admin',
+    department: 'finance',
+    user_id: 'user_12345',
+  },
+};
+const response = await generateBearerToken(filepath, options);
+```
+
+With the object above, your Skyflow policies can reference `request.context.role`, `request.context.department`, and `request.context.user_id` to make conditional access decisions.
+
+You can also set the `context` field on credentials for automatic token generation:
+
+```typescript
+// String context on credentials
+const credentials: PathCredentials = {
+  path: 'path/to/credentials.json',
+  context: 'user_12345',
+};
+
+// JSON object context on credentials
+const credentials: PathCredentials = {
+  path: 'path/to/credentials.json',
+  context: {
+    role: 'admin',
+    department: 'finance',
+  },
+};
+```
 
 > [!TIP]
-> See the full example in the samples directory: [token-generation-with-context-example.ts](samples/service-account/token-generation-with-context-example.ts)  
-> See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
+> See the full example in the samples directory: [token-generation-with-context-example.ts](samples/service-account/token-generation-with-context-example.ts)
+> See Skyflow's [context-aware authorization](https://docs.skyflow.com) and [conditional data access](https://docs.skyflow.com) docs for policy variable syntax like `request.context.*`.
 
 #### Generate signed data tokens: `generateSignedDataTokens(filepath, options)`
 
 Digitally sign data tokens with a service account's private key to add an extra layer of protection. Skyflow generates data tokens when sensitive data is inserted into the vault. Detokenize signed tokens only by providing the signed data token along with a bearer token generated from the service account's credentials. The service account must have the necessary permissions and context to successfully detokenize the signed data tokens.
 
+The `ctx` parameter on signed data tokens also accepts either a **string** or a **JSON object**, using the same format as bearer tokens:
+
+```typescript
+// String context
+const options = {
+  ctx: 'user_12345',
+  dataTokens: ['dataToken1', 'dataToken2'],
+  timeToLive: 90,
+};
+
+// JSON object context
+const options = {
+  ctx: {
+    role: 'analyst',
+    department: 'research',
+  },
+  dataTokens: ['dataToken1', 'dataToken2'],
+  timeToLive: 90,
+};
+```
+
 > [!TIP]
-> See the full example in the samples directory: [signed-token-generation-example.ts](samples/service-account/signed-token-generation-example.ts)  
+> See the full example in the samples directory: [signed-token-generation-example.ts](samples/service-account/signed-token-generation-example.ts)
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
 ## Logging

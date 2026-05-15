@@ -1,11 +1,13 @@
 {
   "name": "skyflow-node",
-  "version": "2.0.2-dev.8a466d8",
+  "version": "2.0.4",
   "description": "Skyflow SDK for Node.js",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
   "scripts": {
     "test": "jest --coverage",
+    "contract-snapshot": "npm run build && npx api-extractor run --local",
+    "contract-snapshot-verify": "npm run build && npx api-extractor run",
     "build": "tsc",
     "eslint": "eslint '**/*.{js,ts}' --max-warnings 0",
     "prettier": "prettier --list-different '**/*.{js,ts}'",
@@ -47,6 +49,7 @@
     "url-join": "4.0.1"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.58.5",
     "@babel/plugin-proposal-decorators": "^7.25.7",
     "@babel/plugin-transform-object-assign": "^7.25.7",
     "@babel/plugin-transform-runtime": "^7.25.7",

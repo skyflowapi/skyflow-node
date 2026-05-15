@@ -309,7 +309,7 @@ export interface ISkyflowError {
     grpc_code?: string | number | null,
     http_code: string | number | null | undefined,
     message: string,
-    request_ID?: string | null,
+    requestId?: string | null,
     details?: Array<string> | null,
 }
 
@@ -326,33 +326,33 @@ export interface AuthInfo {
     type: AuthType
 }
 
-export function getVaultURL(clusterID: string, env: Env) {
+export function getVaultURL(clusterId: string, env: Env) {
     switch (env) {
         case Env.PROD:
-            return `https://${clusterID}.vault.skyflowapis.com`;
+            return `https://${clusterId}.vault.skyflowapis.com`;
         case Env.SANDBOX:
-            return `https://${clusterID}.vault.skyflowapis-preview.com`;
+            return `https://${clusterId}.vault.skyflowapis-preview.com`;
         case Env.DEV:
-            return `https://${clusterID}.vault.skyflowapis.dev`;
+            return `https://${clusterId}.vault.skyflowapis.dev`;
         case Env.STAGE:
-            return `https://${clusterID}.vault.skyflowapis.tech`;
+            return `https://${clusterId}.vault.skyflowapis.tech`;
         default:
-            return `https://${clusterID}.vault.skyflowapis.com`;
+            return `https://${clusterId}.vault.skyflowapis.com`;
     }
 }
 
-export function getConnectionBaseURL(clusterID: string, env: Env) {
+export function getConnectionBaseURL(clusterId: string, env: Env) {
     switch (env) {
         case Env.PROD:
-            return `https://${clusterID}.gateway.skyflowapis.com`;
+            return `https://${clusterId}.gateway.skyflowapis.com`;
         case Env.SANDBOX:
-            return `https://${clusterID}.gateway.skyflowapis-preview.com`;
+            return `https://${clusterId}.gateway.skyflowapis-preview.com`;
         case Env.DEV:
-            return `https://${clusterID}.gateway.skyflowapis.dev`;
+            return `https://${clusterId}.gateway.skyflowapis.dev`;
         case Env.STAGE:
-            return `https://${clusterID}.gateway.skyflowapis.tech`;
+            return `https://${clusterId}.gateway.skyflowapis.tech`;
         default:
-            return `https://${clusterID}.gateway.skyflowapis.com`;
+            return `https://${clusterId}.gateway.skyflowapis.com`;
     }
 }
 
@@ -376,7 +376,7 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
         printLog(logs.infoLogs.USING_CREDENTIALS_STRING, MessageType.LOG, logLevel);
         
         const options: any = {
-            roleIDs: stringCred.roles,
+            roleIds: stringCred.roles,
             ctx: stringCred.context,
             logLevel,
         };
@@ -393,7 +393,7 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
         printLog(logs.infoLogs.USING_PATH, MessageType.LOG, logLevel);
         
         const options: any = {
-            roleIDs: pathCred.roles,
+            roleIds: pathCred.roles,
             ctx: pathCred.context,
             logLevel,
         };
@@ -505,7 +505,7 @@ export const printLog = (message: string, messageType: MessageType, logLevel: Lo
     const {
         showDebugLogs, showInfoLogs, showWarnLogs, showErrorLogs,
     } = LogLevelOptions[logLevel];
-    const version = sdkDetails?.version ? `v${sdkDetails?.version}` : '';
+    const version = sdkDetails.version ? `v${sdkDetails.version}` : '';
     if (messageType === MessageType.LOG && showDebugLogs) {
         // eslint-disable-next-line no-console
         console.log(`DEBUG: [Skyflow Node SDK ${version}] ` + message);

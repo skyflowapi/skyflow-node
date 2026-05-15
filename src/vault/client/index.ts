@@ -18,7 +18,7 @@ class VaultClient {
 
     url!: string;
 
-    configuration!: Records.Options;
+    private currentToken: string = '';
 
     vaultAPI!: Records;
 
@@ -52,18 +52,21 @@ class VaultClient {
         this.logLevel = logLevel || LogLevel.ERROR;
     }
 
-    updateClientConfig(clusterID: string, vaultId: string, individualCredentials?: Credentials, skyflowCredentials?: Credentials, logLevel?: LogLevel) {
+    updateClientConfig(clusterId: string, vaultId: string, individualCredentials?: Credentials, skyflowCredentials?: Credentials, logLevel?: LogLevel) {
         this.updateTriggered = true;
-        this.initializeClient(clusterID, vaultId, individualCredentials, skyflowCredentials, logLevel);
+        this.initializeClient(clusterId, vaultId, individualCredentials, skyflowCredentials, logLevel);
     }
 
     private initConfig(authInfo: AuthInfo) {
         this.authInfo = authInfo;
-        this.configuration = {
-            baseUrl: this.url,
-            token: authInfo.key,
-        };
+        this.currentToken = authInfo.key;
+    }
 
+    private supplierOptions(): Records.Options {
+        return {
+            baseUrl: () => this.url,
+            token: () => this.currentToken,
+        };
     }
 
     initAPI(authInfo: AuthInfo, apiType: string) {
@@ -75,27 +78,36 @@ class VaultClient {
             case TYPES.INSERT:
             case TYPES.INSERT_BATCH:
             case TYPES.UPDATE:
-                this.vaultAPI = new Records(this.configuration);
+                if (!this.vaultAPI) {
+                    this.vaultAPI = new Records(this.supplierOptions());
+                } 
                 break;
             case TYPES.DETOKENIZE:
             case TYPES.TOKENIZE:
-                this.tokensAPI = new Tokens(this.configuration);
+                if (!this.tokensAPI) {
+                    this.tokensAPI = new Tokens(this.supplierOptions());
+                } 
                 break;
             case TYPES.QUERY:
-                this.queryAPI = new Query(this.configuration);
+                if (!this.queryAPI) {
+                    this.queryAPI = new Query(this.supplierOptions());
+                } 
                 break;
             case TYPES.DEIDENTIFY_TEXT:
             case TYPES.REIDENTIFY_TEXT:
-                this.stringsAPI = new Strings(this.configuration);
+                if (!this.stringsAPI) {
+                    this.stringsAPI = new Strings(this.supplierOptions());
+                }
                 break;
             case TYPES.DEIDENTIFY_FILE:
             case TYPES.DETECT_RUN:
-                this.filesAPI = new Files(this.configuration);  
-                break;  
+                if (!this.filesAPI) {
+                    this.filesAPI = new Files(this.supplierOptions());
+                }
+                break;
             default:
                 break;
         }
-
     }
 
     getCredentials(): Credentials | undefined {
@@ -355,7 +367,7 @@ class VaultClient {
         reject(new SkyflowError({
             http_code: isNewError ? (err?.statusCode ?? err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST) : err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST,
             message: description,
-            request_ID: requestId,
+            requestId: requestId,
             grpc_code: grpcCode,
             http_status: httpStatus,
             details: details,

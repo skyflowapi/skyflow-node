@@ -352,7 +352,7 @@ class DetectController {
                     if (response.status?.toUpperCase() === DETECT_STATUS.IN_PROGRESS
 ) {
                         if (currentWaitTime >= maxWaitTime) {
-                            resolve({ runId }); // Resolve with runId if max wait time is exceeded
+                            resolve({ data: { status: 'IN_PROGRESS' }, runId });
                         } else {
                             const nextWaitTime = currentWaitTime * 2;
                             let waitTime = 0;
@@ -368,9 +368,11 @@ class DetectController {
                             }, waitTime * 1000);
                         }
                     } else if (response.status?.toUpperCase() === DETECT_STATUS.SUCCESS) {
-                        resolve([response, runId]); // Resolve with the processed file response and runId
+                        resolve({ data: response, runId });
                     }
                     else if (response.status?.toUpperCase() === DETECT_STATUS.FAILED) {
+                        reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
+                    } else {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     }
                 })
@@ -456,6 +458,7 @@ class DetectController {
             })),
             wordCount: records.word_count,
             charCount: records.character_count,
+            errors: null,
         };
     }
 
@@ -589,9 +592,8 @@ class DetectController {
         });
     }
 
-    deidentifyFile(request: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyFileResponse> {
-        return new Promise(async (resolve, reject) => {
-            try {
+    async deidentifyFile(request: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyFileResponse> {
+        try {
                 printLog(logs.infoLogs.DETECT_FILE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_DETECT_FILE_INPUT, MessageType.LOG, this.client.getLogLevel());
                 validateDeidentifyFileRequest(request, options, this.client.getLogLevel());
@@ -605,7 +607,10 @@ class DetectController {
                 this.waitTime = options?.getWaitTime() ?? this.waitTime; 
 
                 var reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension); 
-                var promiseReq: Promise<[DeidentifyFileDetectRunResponse, string]>;
+                type PollResult =
+                    | { data: DeidentifyFileDetectRunResponse; runId: string }
+                    | { data: { status: string }; runId: string };
+                var promiseReq: Promise<PollResult>;
                 switch (reqType){
                     case DeidenitfyFileRequestTypes.AUDIO:
                         promiseReq = this.buildAudioRequest(fileObj, options, fileExtension)
@@ -708,27 +713,24 @@ class DetectController {
                         break;                    
                 }
 
-                promiseReq.then(([data, runId])  => {
-                    if(runId && data.status === DETECT_STATUS.IN_PROGRESS) {
-                        resolve(new DeidentifyFileResponse({
-                            runId: runId,
-                            status: data.status,
-                        }));
-                    }
-                    if (options?.getOutputDirectory() && data.status === DETECT_STATUS.SUCCESS) {
-                        this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
-                    }
-                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, runId, data.status);
-                    resolve(deidentifiedFileResponse);
-                }).catch(error => {
-                    reject(error)
-                });
-            } catch (error) {
-                if (error instanceof Error)
-                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
-                reject(error);
-            }
-        });
+                const { data, runId } = await promiseReq;
+                if(runId && data.status === DETECT_STATUS.IN_PROGRESS) {
+                    return new DeidentifyFileResponse({
+                        runId: runId,
+                        status: data.status,
+                    });
+                }
+                const fullResponse = data as DeidentifyFileDetectRunResponse;
+                if (options?.getOutputDirectory() && fullResponse.status === DETECT_STATUS.SUCCESS) {
+                    this.processDeidentifyFileResponse(fullResponse, options.getOutputDirectory() as string, fileBaseName);
+                }
+                const deidentifiedFileResponse = this.parseDeidentifyFileResponse(fullResponse, runId, fullResponse.status);
+                return deidentifiedFileResponse;
+        } catch (error) {
+            if (error instanceof Error)
+                printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
+            throw error;
+        }
     }
 }
 
