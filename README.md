@@ -465,7 +465,7 @@ Refer to [Query your data](https://docs.skyflow.com/query-data/) and [Execute Qu
 
 ### Upload File
 
-Upload files to a Skyflow vault using the `uploadFile` method. Create a file upload request with the `FileUploadRequest` class, which accepts parameters such as the table name, column name, and Skyflow ID. Configure upload options with the `FileUploadOptions` class, which accepts the file object as shown below:
+Upload files to a Skyflow vault using the `uploadFile` method. Create a file upload request with the `FileUploadRequest` class, which accepts the table name and column name. Set the Skyflow ID via `FileUploadOptions.setSkyflowId()`. Configure upload options with the `FileUploadOptions` class, which accepts the file object as shown below:
 
 ```typescript
 // Please use Node version 20 & above to run file upload
@@ -479,19 +479,19 @@ import * as fs from "fs";
 
 // Prepare File Upload Data
 const tableName: string = "table-name"; // Table name
-const skyflowId: string = "skyflow-id"; // Skyflow ID of the record
 const columnName: string = "column-name"; // Column name to store file
+const skyflowId: string = "skyflow-id"; // Skyflow ID of the record
 const filePath: string = "file-path"; // Path to the file for upload
 
 // Create File Upload Request
 const uploadReq: FileUploadRequest = new FileUploadRequest(
   tableName,
-  skyflowId,
   columnName,
 );
 
 // Configure FileUpload Options
 const uploadOptions: FileUploadOptions = new FileUploadOptions();
+uploadOptions.setSkyflowId(skyflowId); // Set the Skyflow ID via options
 const buffer = fs.readFileSync(filePath);
 // Set any one of FilePath, Base64 or FileObject in FileUploadOptions
 uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
