@@ -170,6 +170,8 @@ export interface DetectFileResponse<T = unknown> {
 }
 export interface SkyflowIdResponse {
   skyflowId: string;
+  /** @deprecated Renamed to skyflowId. Will be removed in v3. */
+  skyflow_id?: never;
 }
   
 export interface TokensResponse extends SkyflowIdResponse {

@@ -957,7 +957,7 @@ export const validateUploadFileRequest = (fileRequest: FileUploadRequest, option
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPLOAD_FILE);
     }
 
-    const effectiveSkyflowId = options?.getSkyflowId();
+    const effectiveSkyflowId = options?.getSkyflowId() ?? fileRequest._legacySkyflowId;
     if (!effectiveSkyflowId) {
         printLog(logs.errorLogs.EMPTY_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
         throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPLOAD_FILE);

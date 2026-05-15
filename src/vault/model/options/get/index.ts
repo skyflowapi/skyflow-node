@@ -1,5 +1,6 @@
 // Imports
 import { OrderByEnum, RedactionType } from "../../../../utils";
+import { warnOnce } from '../../../../utils/warn-once';
 
 class GetOptions {
     // Fields
@@ -41,6 +42,12 @@ class GetOptions {
         this.downloadUrl = downloadUrl;
     }
 
+    /** @deprecated Use setDownloadUrl() instead. Will be removed in v3. */
+    setDownloadURL(downloadURL: boolean) {
+        warnOnce('GetOptions.setDownloadURL() is deprecated, use setDownloadUrl()');
+        this.setDownloadUrl(downloadURL);
+    }
+
     setColumnName(columnName: string) {
         this.columnName = columnName;
     }
@@ -76,6 +83,12 @@ class GetOptions {
 
     getDownloadUrl(): boolean | undefined {
         return this.downloadUrl;
+    }
+
+    /** @deprecated Use getDownloadUrl() instead. Will be removed in v3. */
+    getDownloadURL(): boolean | undefined {
+        warnOnce('GetOptions.getDownloadURL() is deprecated, use getDownloadUrl()');
+        return this.getDownloadUrl();
     }
 
     getColumnName(): string | undefined {
