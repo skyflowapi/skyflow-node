@@ -25,6 +25,7 @@ import { InsertResponseType, ParsedDetokenizeResponse, ParsedInsertBatchResponse
 import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK, removeSDKVersion, RedactionType, SKYFLOW, SkyflowRecordError, HTTP_STATUS_CODE, HTTP_HEADER, CONTENT_TYPE, ENCODING_TYPE } from '../../../utils';
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
+import { warnOnce } from '../../../utils/warn-once';
 import VaultClient from '../../client';
 import { validateDeleteRequest, validateDetokenizeRequest, validateGetColumnRequest, validateGetRequest, validateInsertRequest, validateQueryRequest, validateTokenizeRequest, validateUpdateRequest, validateUploadFileRequest } from '../../../utils/validations';
 import path from 'path';
@@ -390,10 +391,17 @@ class VaultController {
                     TYPES.GET
                 ).then(response => {
                     printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
+                    const logLevel = this.client.getLogLevel();
                     const processedRecords = response.records.map(record => {
                         const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
                         const { skyflow_id: skyflowIdValue, ...rest } = fields;
-                        return { ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}), ...rest };
+                        const result: any = { ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}), ...rest };
+                        Object.defineProperty(result, 'skyflow_id', {
+                            get() { warnOnce('record.skyflow_id is deprecated, use record.skyflowId', logLevel); return this.skyflowId; },
+                            enumerable: false,
+                            configurable: true,
+                        });
+                        return result;
                     });
                     resolve(new GetResponse({ data: processedRecords, errors: null }));
                 })
@@ -443,7 +451,7 @@ class VaultController {
                 const uploadFileV2Request: UploadFileV2Request = {
                     columnName:request.columnName,
                     tableName: request.table,
-                    skyflowID: options?.getSkyflowId(),
+                    skyflowID: options?.getSkyflowId() ?? request._legacySkyflowId,
                     returnFileMetadata: false,
                 }
 
@@ -491,16 +499,23 @@ class VaultController {
                     TYPES.QUERY
                 ).then(response => {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
+                    const logLevel = this.client.getLogLevel();
                     const processedRecords = response.records.map(record => {
                         const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
                         const { skyflow_id: skyflowIdValue, ...rest } = fields;
-                        return {
+                        const result: any = {
                             ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}),
                             ...rest,
                             tokenizedData: {
                                 ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
                             },
                         };
+                        Object.defineProperty(result, 'skyflow_id', {
+                            get() { warnOnce('record.skyflow_id is deprecated, use record.skyflowId', logLevel); return this.skyflowId; },
+                            enumerable: false,
+                            configurable: true,
+                        });
+                        return result;
                     });
                     resolve(new QueryResponse({ fields: processedRecords, errors: null }));
                 })
