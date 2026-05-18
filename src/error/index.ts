@@ -1,5 +1,4 @@
-import { BAD_REQUEST, ISkyflowError, parameterizedString } from "../utils";
-import { warnOnce } from "../utils/warn-once";
+import { BAD_REQUEST, ISkyflowError, LogLevel, MessageType, parameterizedString, printLog } from "../utils";
 
 class SkyflowError extends Error {
 
@@ -20,7 +19,7 @@ class SkyflowError extends Error {
         // Deprecated alias — remove after v3
         Object.defineProperty(formattedError, 'request_ID', {
             get() {
-                warnOnce('SkyflowError.error.request_ID is deprecated, use requestId');
+                printLog("[DEPRECATED] Property 'request_ID' is deprecated and will be removed in an upcoming release. Use 'requestId' instead.", MessageType.WARN, LogLevel.WARN);
                 return this.requestId;
             },
             enumerable: false,
