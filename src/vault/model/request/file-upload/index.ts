@@ -1,5 +1,5 @@
 // Imports
-import { warnOnce } from '../../../../utils/warn-once';
+import { LogLevel, MessageType, printLog } from '../../../../utils';
 
 class FileUploadRequest {
     private _table: string;
@@ -12,7 +12,8 @@ class FileUploadRequest {
 
         if (columnName !== undefined) {
             // OLD: (table, skyflowId, columnName)
-            warnOnce('FileUploadRequest 3-arg constructor is deprecated. Use FileUploadOptions.setSkyflowId() instead.');
+            printLog("[DEPRECATED] FileUploadRequest(table, skyflowId, columnName) is deprecated and will be removed in a future release. " +
+                "Use FileUploadRequest(table, columnName) with FileUploadOptions.setSkyflowId(skyflowId) instead.", MessageType.WARN, LogLevel.WARN);
             this._legacySkyflowId = columnNameOrSkyflowId;
             this._columnName = columnName;
         } else {
@@ -38,13 +39,13 @@ class FileUploadRequest {
 
     /** @deprecated Use FileUploadOptions.setSkyflowId() instead. Will be removed in v3. */
     public get skyflowId(): string {
-        warnOnce('FileUploadRequest.skyflowId is deprecated. Use FileUploadOptions.setSkyflowId()');
+        printLog("[DEPRECATED] Property 'skyflowId' of FileUploadRequest is deprecated and will be removed in an upcoming release. Use FileUploadOptions.setSkyflowId() instead.", MessageType.WARN, LogLevel.WARN);
         return this._legacySkyflowId ?? '';
     }
 
     /** @deprecated Use FileUploadOptions.setSkyflowId() instead. Will be removed in v3. */
     public set skyflowId(value: string) {
-        warnOnce('FileUploadRequest.skyflowId is deprecated. Use FileUploadOptions.setSkyflowId()');
+        printLog("[DEPRECATED] Property 'skyflowId' of FileUploadRequest is deprecated and will be removed in an upcoming release. Use FileUploadOptions.setSkyflowId() instead.", MessageType.WARN, LogLevel.WARN);
         this._legacySkyflowId = value;
     }
 }
