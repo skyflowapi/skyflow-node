@@ -1,5 +1,7 @@
 # Skyflow Node.js SDK
 
+> **Node.js V2.1.x IS NOW AVAILABLE:** A new, improved version of the Skyflow SDK is ready with flexible authentication, multi-vault support, and richer error diagnostics. V1 is in maintenance mode (security patches only) and will reach End of Life on October 31, 2026. We recommend upgrading to v2 — see the **[Migration Guide](docs/migrate_to_v2.md)** for step-by-step instructions.
+
 Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
 
 [![CI](https://img.shields.io/static/v1?label=CI&message=passing&color=green?style=plastic&logo=github)](https://github.com/skyflowapi/skyflow-node/actions)
