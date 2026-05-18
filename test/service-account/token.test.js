@@ -12,7 +12,7 @@ import {
 import SkyflowError from '../../src/error';
 import errorMessages from '../../src/error/messages';
 import jwt from 'jsonwebtoken';
-import { LogLevel } from "../../src";
+import { LogLevel } from "../../src/utils";
 
 const validCredentials = {
     clientID: "test-client-id",
@@ -674,5 +674,104 @@ describe('getToken and getSignedTokens tokenUri override tests', () => {
     test('generateSignedDataTokensFromCreds throws error if tokenUri in options is invalid', async () => {
         const invalidOptions = { dataTokens: ['datatoken1'], tokenUri: "not-a-valid-url" };
         await expect(generateSignedDataTokensFromCreds(validCredsString, invalidOptions)).rejects.toThrow();
+    });
+});
+
+describe('deprecated BearerTokenOptions.roleIDs normalization', () => {
+    let warnSpy;
+
+    beforeEach(() => {
+        warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('roleIDs is normalized to roleIds and logs deprecation warning', async () => {
+        const Client = jest.requireMock('../../src/service-account/client').default;
+        Client.mockImplementationOnce(() => ({
+            authApi: {
+                authenticationServiceGetAuthToken: jest.fn(() => ({
+                    withRawResponse: jest.fn().mockResolvedValueOnce({
+                        data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
+                        rawResponse: {
+                            headers: { get: jest.fn().mockReturnValue('req-id') },
+                        },
+                    }),
+                })),
+            },
+        }));
+        const validCreds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'some-key',
+        });
+        const result = await getToken(validCreds, {
+            logLevel: LogLevel.WARN,
+            roleIDs: ['role1', 'role2'],
+        });
+        expect(result).toBeDefined();
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('roleIDs'));
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('roleIds'));
+    });
+
+    test('roleIDs is not normalized when roleIds is already set', async () => {
+        const Client = jest.requireMock('../../src/service-account/client').default;
+        Client.mockImplementationOnce(() => ({
+            authApi: {
+                authenticationServiceGetAuthToken: jest.fn(() => ({
+                    withRawResponse: jest.fn().mockResolvedValueOnce({
+                        data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
+                        rawResponse: {
+                            headers: { get: jest.fn().mockReturnValue('req-id') },
+                        },
+                    }),
+                })),
+            },
+        }));
+        const validCreds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'some-key',
+        });
+        const result = await getToken(validCreds, {
+            logLevel: LogLevel.WARN,
+            roleIDs: ['role1'],
+            roleIds: ['role2'],
+        });
+        expect(result).toBeDefined();
+        expect(warnSpy).not.toHaveBeenCalledWith(
+            expect.stringContaining('roleIDs'),
+        );
+    });
+
+    test('undefined options passes through without normalization', async () => {
+        const Client = jest.requireMock('../../src/service-account/client').default;
+        Client.mockImplementationOnce(() => ({
+            authApi: {
+                authenticationServiceGetAuthToken: jest.fn(() => ({
+                    withRawResponse: jest.fn().mockResolvedValueOnce({
+                        data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
+                        rawResponse: {
+                            headers: { get: jest.fn().mockReturnValue('req-id') },
+                        },
+                    }),
+                })),
+            },
+        }));
+        const validCreds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'some-key',
+        });
+        await getToken(validCreds);
+        expect(warnSpy).not.toHaveBeenCalledWith(
+            expect.stringContaining('roleIDs'),
+        );
     });
 });
