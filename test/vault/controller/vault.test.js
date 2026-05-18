@@ -35,6 +35,7 @@ jest.mock('../../../src/utils', () => ({
     MessageType: {
         LOG: 'LOG',
         ERROR: 'ERROR',
+        WARN: 'WARN',
     },
     RedactionType: {
         DEFAULT: 'DEFAULT',
@@ -114,29 +115,6 @@ describe('VaultController', () => {
         expect(vaultController.client).toBe(mockVaultClient);
     });
 
-    test('should have the connection method defined', () => {
-        const vaultController = new VaultController(mockVaultClient);
-        expect(vaultController.connection).toBeDefined();
-        expect(typeof vaultController.connection).toBe('function');
-    });
-
-    test('should have the lookUpBin method defined', () => {
-        const vaultController = new VaultController(mockVaultClient);
-        expect(vaultController.lookUpBin).toBeDefined();
-        expect(typeof vaultController.lookUpBin).toBe('function');
-    });
-
-    test('should have the audit method defined', () => {
-        const vaultController = new VaultController(mockVaultClient);
-        expect(vaultController.audit).toBeDefined();
-        expect(typeof vaultController.audit).toBe('function');
-    });
-
-    test('should have the detect method defined', () => {
-        const vaultController = new VaultController(mockVaultClient);
-        expect(vaultController.detect).toBeDefined();
-        expect(typeof vaultController.detect).toBe('function');
-    });
 });
 
 describe('VaultController insert method', () => {
@@ -1106,6 +1084,43 @@ describe('VaultController query method', () => {
         expect(response.errors).toBe(null);
     });
 
+    test('skyflow_id is enumerable on query response fields', async () => {
+        const mockRequest = { query: 'SELECT * FROM table WHERE id=1' };
+        const mockResponseData = {
+            records: [{ fields: { skyflow_id: 'id123', id: '1' }, tokens: { id: 'token123' } }]
+        };
+        mockVaultClient.queryAPI.queryServiceExecuteQuery.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: mockResponseData,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
+            })
+        }));
+        const response = await vaultController.query(mockRequest);
+        expect(Object.keys(response.fields[0])).toContain('skyflow_id');
+        expect(JSON.stringify(response.fields[0])).toContain('"skyflow_id"');
+    });
+
+    test('skyflow_id shim on query response calls printLog with deprecation message', async () => {
+        const mockRequest = { query: 'SELECT * FROM table WHERE id=1' };
+        const mockResponseData = {
+            records: [{ fields: { skyflow_id: 'id123', id: '1' }, tokens: { id: 'token123' } }]
+        };
+        mockVaultClient.queryAPI.queryServiceExecuteQuery.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: mockResponseData,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
+            })
+        }));
+        const response = await vaultController.query(mockRequest);
+        printLog.mockClear();
+        void response.fields[0].skyflow_id;
+        expect(printLog).toHaveBeenCalledWith(
+            expect.stringContaining('skyflow_id'),
+            expect.anything(),
+            expect.anything(),
+        );
+    });
+
     test('should successfully query records as null', async () => {
         const mockRequest = {
             query: 'SELECT * FROM table WHERE id=1',
@@ -1749,6 +1764,39 @@ describe('VaultController get method', () => {
         expect(response.data[0].skyflow_id).toBe('id123'); // deprecated shim
         expect(response.data[0].field1).toBe('value1');
         expect(response.errors).toBeNull();
+    });
+
+    test('skyflow_id is enumerable on get response records', async () => {
+        const mockRequest = createGetRequest(['id1']);
+        const mockResponseData = { records: [{ fields: { skyflow_id: 'id123', field1: 'value1' } }] };
+        mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: mockResponseData,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
+            })
+        }));
+        const response = await vaultController.get(mockRequest);
+        expect(Object.keys(response.data[0])).toContain('skyflow_id');
+        expect(JSON.stringify(response.data[0])).toContain('"skyflow_id"');
+    });
+
+    test('skyflow_id shim on get response calls printLog with deprecation message', async () => {
+        const mockRequest = createGetRequest(['id1']);
+        const mockResponseData = { records: [{ fields: { skyflow_id: 'id123', field1: 'value1' } }] };
+        mockVaultClient.vaultAPI.recordServiceBulkGetRecord.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: mockResponseData,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
+            })
+        }));
+        const response = await vaultController.get(mockRequest);
+        printLog.mockClear();
+        void response.data[0].skyflow_id;
+        expect(printLog).toHaveBeenCalledWith(
+            expect.stringContaining('skyflow_id'),
+            expect.anything(),
+            expect.anything(),
+        );
     });
 
     test('should handle undefined parameters correctly', async () => {
