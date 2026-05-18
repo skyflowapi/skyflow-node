@@ -1,4 +1,4 @@
-import { warnOnce } from '../../../../utils/warn-once';
+import { LogLevel, MessageType, printLog } from '../../../../utils';
 
 class DetokenizeOptions {
     // Fields with default values
@@ -19,7 +19,7 @@ class DetokenizeOptions {
 
     /** @deprecated Use setDownloadUrl() instead. Will be removed in v3. */
     setDownloadURL(downloadURL: boolean) {
-        warnOnce('DetokenizeOptions.setDownloadURL() is deprecated, use setDownloadUrl()');
+        printLog("[DEPRECATED] Method 'setDownloadURL()' is deprecated and will be removed in an upcoming release. Use 'setDownloadUrl()' instead.", MessageType.WARN, LogLevel.WARN);
         this.setDownloadUrl(downloadURL);
     }
 
@@ -34,7 +34,7 @@ class DetokenizeOptions {
 
     /** @deprecated Use getDownloadUrl() instead. Will be removed in v3. */
     getDownloadURL(): boolean | undefined {
-        warnOnce('DetokenizeOptions.getDownloadURL() is deprecated, use getDownloadUrl()');
+        printLog("[DEPRECATED] Method 'getDownloadURL()' is deprecated and will be removed in an upcoming release. Use 'getDownloadUrl()' instead.", MessageType.WARN, LogLevel.WARN);
         return this.getDownloadUrl();
     }
 }
