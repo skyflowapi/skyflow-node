@@ -25,7 +25,6 @@ import { InsertResponseType, ParsedDetokenizeResponse, ParsedInsertBatchResponse
 import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK, removeSDKVersion, RedactionType, SKYFLOW, SkyflowRecordError, HTTP_STATUS_CODE, HTTP_HEADER, CONTENT_TYPE, ENCODING_TYPE } from '../../../utils';
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
-import { warnOnce } from '../../../utils/warn-once';
 import VaultClient from '../../client';
 import { validateDeleteRequest, validateDetokenizeRequest, validateGetColumnRequest, validateGetRequest, validateInsertRequest, validateQueryRequest, validateTokenizeRequest, validateUpdateRequest, validateUploadFileRequest } from '../../../utils/validations';
 import path from 'path';
@@ -35,6 +34,7 @@ import FileUploadOptions from '../../model/options/fileUpload';
 class VaultController {
 
     private client: VaultClient;
+    private static readonly HTTP_OK = 200;
 
     constructor(client: VaultClient) {
         this.client = client;
@@ -108,7 +108,7 @@ class VaultController {
     }
 
     private isSuccess(record: Record<string, unknown>): boolean {
-        return record?.Status === 200;
+        return record?.Status === VaultController.HTTP_OK;
     }
 
     private processSuccess(record: Record<string, unknown>, index: number, response: ParsedInsertBatchResponse): void {
@@ -139,7 +139,7 @@ class VaultController {
         response.errors.push(errorObj);
     }
 
-    private handleRequest<T>(apiCall: Function, requestType: string): Promise<T> {
+    private handleRequest<T>(apiCall: (options: Records.RequestOptions) => Promise<{ data: any; rawResponse: any }>, requestType: string): Promise<T> {
         return new Promise((resolve, reject) => {
             printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES[requestType]), MessageType.LOG, this.client.getLogLevel());
             const sdkHeaders = this.createSdkHeaders();
@@ -395,10 +395,10 @@ class VaultController {
                     const processedRecords = response.records.map(record => {
                         const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
                         const { skyflow_id: skyflowIdValue, ...rest } = fields;
-                        const result: any = { ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}), ...rest };
+                        const result: Record<string, unknown> = { ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}), ...rest };
                         Object.defineProperty(result, 'skyflow_id', {
-                            get() { warnOnce('record.skyflow_id is deprecated, use record.skyflowId', logLevel); return this.skyflowId; },
-                            enumerable: false,
+                            get() { printLog("[DEPRECATED] Property 'skyflow_id' is deprecated and will be removed in an upcoming release. Use 'skyflowId' instead.", MessageType.WARN, logLevel); return this.skyflowId; },
+                            enumerable: true,
                             configurable: true,
                         });
                         return result;
@@ -503,7 +503,7 @@ class VaultController {
                     const processedRecords = response.records.map(record => {
                         const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
                         const { skyflow_id: skyflowIdValue, ...rest } = fields;
-                        const result: any = {
+                        const result: Record<string, unknown> = {
                             ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}),
                             ...rest,
                             tokenizedData: {
@@ -511,8 +511,8 @@ class VaultController {
                             },
                         };
                         Object.defineProperty(result, 'skyflow_id', {
-                            get() { warnOnce('record.skyflow_id is deprecated, use record.skyflowId', logLevel); return this.skyflowId; },
-                            enumerable: false,
+                            get() { printLog("[DEPRECATED] Property 'skyflow_id' is deprecated and will be removed in an upcoming release. Use 'skyflowId' instead.", MessageType.WARN, logLevel); return this.skyflowId; },
+                            enumerable: true,
                             configurable: true,
                         });
                         return result;
@@ -591,25 +591,6 @@ class VaultController {
         });
     }
 
-    connection() {
-        // cache detect object if created
-        // return detect object using static func
-    }
-
-    lookUpBin() {
-        // cache binlookup object if created
-        // return binlookup object using static func
-    }
-
-    audit() {
-        // cache audit object if created
-        // return audit object using static func
-    }
-
-    detect() {
-        // cache detect object if created
-        // return detect object using static func
-    }
 }
 
 export default VaultController;
