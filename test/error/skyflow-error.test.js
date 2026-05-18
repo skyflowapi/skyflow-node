@@ -1,3 +1,8 @@
+jest.mock('../../src/service-account/client', () => ({
+    __esModule: true,
+    default: jest.fn(),
+}));
+
 import SkyflowError from '../../src/error';
 
 describe('SkyflowError', () => {
@@ -45,4 +50,51 @@ describe('SkyflowError', () => {
     const err = new SkyflowError({ http_code: 400, message: 'null args message' }, null);
     expect(err.message).toBe('null args message');
   });
+});
+
+describe('SkyflowError deprecated request_ID alias', () => {
+    let warnSpy;
+
+    beforeEach(() => {
+        warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        warnSpy.mockRestore();
+    });
+
+    test('request_ID returns same value as requestId', () => {
+        const err = new SkyflowError({
+            http_code: 400,
+            message: 'test',
+            requestId: 'req-abc-123',
+        });
+        expect(err.error.request_ID).toBe('req-abc-123');
+        expect(err.error.request_ID).toBe(err.error.requestId);
+    });
+
+    test('request_ID returns null when requestId not set', () => {
+        const err = new SkyflowError({ http_code: 400, message: 'test' });
+        expect(err.error.request_ID).toBeNull();
+    });
+
+    test('request_ID logs deprecation warning', () => {
+        const err = new SkyflowError({
+            http_code: 400,
+            message: 'test',
+            requestId: 'req-xyz',
+        });
+        void err.error.request_ID;
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('request_ID'));
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('requestId'));
+    });
+
+    test('request_ID is not enumerable', () => {
+        const err = new SkyflowError({
+            http_code: 400,
+            message: 'test',
+            requestId: 'req-xyz',
+        });
+        expect(Object.keys(err.error)).not.toContain('request_ID');
+    });
 });
