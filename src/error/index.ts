@@ -1,4 +1,5 @@
 import { BAD_REQUEST, ISkyflowError, LogLevel, MessageType, parameterizedString, printLog } from "../utils";
+import logs from '../utils/logs';
 
 class SkyflowError extends Error {
 
@@ -19,7 +20,7 @@ class SkyflowError extends Error {
         // Deprecated alias — remove after v3
         Object.defineProperty(formattedError, 'request_ID', {
             get() {
-                printLog("[DEPRECATED] Property 'request_ID' is deprecated and will be removed in an upcoming release. Use 'requestId' instead.", MessageType.WARN, LogLevel.WARN);
+                printLog(logs.warnLogs.DEPRECATED_REQUEST_ID_PROPERTY, MessageType.WARN, LogLevel.WARN);
                 return this.requestId;
             },
             enumerable: true,

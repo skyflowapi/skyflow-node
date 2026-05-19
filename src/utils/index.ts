@@ -238,9 +238,10 @@ export const CONTENT_TYPE = {
 } as const;
 
 // HTTP Headers
+const _CONTENT_TYPE_HEADER = 'Content-Type';
 export const HTTP_HEADER = {
-    CONTENT_TYPE: 'Content-Type',
-    CONTENT_TYPE_LOWER: 'content-type',
+    CONTENT_TYPE: _CONTENT_TYPE_HEADER,
+    CONTENT_TYPE_LOWER: _CONTENT_TYPE_HEADER.toLowerCase(),
     X_REQUEST_ID: 'x-request-id',
     ERROR_FROM_CLIENT: 'error-from-client',
 } as const;
