@@ -277,37 +277,31 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
             const prefix = JWT.SIGNED_TOKEN_PREFIX;
 
             let responseArray: SignedDataTokensResponse[] = [];
-            if (options && options?.dataTokens) {
-                options.dataTokens.forEach((token) => {
-                    const claims = {
-                        iss: JWT.ISSUER_SDK,
-                        key: credentialsObj.keyId,
-                        aud: credentialsObj.tokenUri,
-                        exp: expiryTime,
-                        sub: credentialsObj.clientId,
-                        tok: token,
-                        ...(options && options.ctx ? { ctx: options.ctx } : {}),
-                    };
+            for (const token of (options?.dataTokens ?? [])) {
+                const claims = {
+                    iss: JWT.ISSUER_SDK,
+                    key: credentialsObj.keyId,
+                    aud: credentialsObj.tokenUri,
+                    exp: expiryTime,
+                    sub: credentialsObj.clientId,
+                    tok: token,
+                    ...(options?.ctx ? { ctx: options.ctx } : {}),
+                };
 
-                    if (claims.key == null) {
-                        printLog(logs.errorLogs.KEY_ID_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                        return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_KEY_ID));
-                    }
-                    else if (claims.aud == null) {
-                        printLog(logs.errorLogs.TOKEN_URI_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                        return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI));
-                    }
-                    else if (credentialsObj.privateKey == null) {
-                        printLog(logs.errorLogs.PRIVATE_KEY_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                        return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
-                    }
-                    else {
-                        const privateKey = credentialsObj.privateKey.toString(ENCODING_TYPE.UTF8);
-                        const signedJwt = jwt.sign(claims, privateKey, { algorithm: JWT.ALGORITHM_RS256 });
-                        const responseObject = getSignedDataTokenResponseObject(prefix + signedJwt, token);
-                        responseArray.push(responseObject)
-                    }
-                })
+                if (claims.key == null) {
+                    printLog(logs.errorLogs.KEY_ID_NOT_FOUND, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_KEY_ID));
+                } else if (claims.aud == null) {
+                    printLog(logs.errorLogs.TOKEN_URI_NOT_FOUND, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI));
+                } else if (credentialsObj.privateKey == null) {
+                    printLog(logs.errorLogs.PRIVATE_KEY_NOT_FOUND, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
+                } else {
+                    const privateKey = credentialsObj.privateKey.toString(ENCODING_TYPE.UTF8);
+                    const signedJwt = jwt.sign(claims, privateKey, { algorithm: JWT.ALGORITHM_RS256 });
+                    responseArray.push(getSignedDataTokenResponseObject(prefix + signedJwt, token));
+                }
             }
             signedDataTokenSuccessResponse(responseArray, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
         }
