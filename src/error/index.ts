@@ -1,4 +1,5 @@
 import { BAD_REQUEST, ISkyflowError, LogLevel, MessageType, parameterizedString, printLog } from "../utils";
+import logs from "../utils/logs";
 
 class SkyflowError extends Error {
 
