@@ -1,5 +1,6 @@
 // Imports
 import { LogLevel, MessageType, printLog } from '../../../../utils';
+import logs from '../../../../utils/logs';
 
 class FileUploadRequest {
     private _table: string;
@@ -12,8 +13,7 @@ class FileUploadRequest {
 
         if (columnName !== undefined) {
             // OLD: (table, skyflowId, columnName)
-            printLog("[DEPRECATED] FileUploadRequest(table, skyflowId, columnName) is deprecated and will be removed in a future release. " +
-                "Use FileUploadRequest(table, columnName) with FileUploadOptions.setSkyflowId(skyflowId) instead.", MessageType.WARN, LogLevel.WARN);
+            printLog(logs.warnLogs.DEPRECATED_FILE_UPLOAD_CONSTRUCTOR, MessageType.WARN, LogLevel.WARN);
             this._legacySkyflowId = columnNameOrSkyflowId;
             this._columnName = columnName;
         } else {
@@ -39,13 +39,13 @@ class FileUploadRequest {
 
     /** @deprecated Use FileUploadOptions.setSkyflowId() instead. Will be removed in v3. */
     public get skyflowId(): string {
-        printLog("[DEPRECATED] Property 'skyflowId' of FileUploadRequest is deprecated and will be removed in an upcoming release. Use FileUploadOptions.setSkyflowId() instead.", MessageType.WARN, LogLevel.WARN);
+        printLog(logs.warnLogs.DEPRECATED_FILE_UPLOAD_SKYFLOW_ID, MessageType.WARN, LogLevel.WARN);
         return this._legacySkyflowId ?? '';
     }
 
     /** @deprecated Use FileUploadOptions.setSkyflowId() instead. Will be removed in v3. */
     public set skyflowId(value: string) {
-        printLog("[DEPRECATED] Property 'skyflowId' of FileUploadRequest is deprecated and will be removed in an upcoming release. Use FileUploadOptions.setSkyflowId() instead.", MessageType.WARN, LogLevel.WARN);
+        printLog(logs.warnLogs.DEPRECATED_FILE_UPLOAD_SKYFLOW_ID, MessageType.WARN, LogLevel.WARN);
         this._legacySkyflowId = value;
     }
 }
