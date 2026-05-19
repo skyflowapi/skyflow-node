@@ -153,7 +153,10 @@ class ConnectionController {
         contentType.includes(CONTENT_TYPE.TEXT_XML)
       ) {
         return await response.text();
-      } else if (contentType.includes(CONTENT_TYPE.TEXT_HTML)) {
+      } else if (
+        contentType.includes(CONTENT_TYPE.TEXT_HTML) ||
+        contentType.includes(CONTENT_TYPE.TEXT_PLAIN)
+      ) {
         return await response.text();
       } else if (
         contentType.includes(CONTENT_TYPE.APPLICATION_X_WWW_FORM_URLENCODED)
@@ -161,8 +164,6 @@ class ConnectionController {
         const text = await response.text();
         return Object.fromEntries(new URLSearchParams(text));
       } else if (contentType.includes(CONTENT_TYPE.MULTIPART_FORM_DATA)) {
-        return await response.text();
-      } else if (contentType.includes(CONTENT_TYPE.TEXT_PLAIN)) {
         return await response.text();
       } else {
         try {
@@ -222,7 +223,10 @@ class ConnectionController {
             if (invokeRequest.headers) {
               Object.entries(invokeRequest.headers).forEach(([key, value]) => {
                 const lowerKey = key.toLowerCase();
-                if (shouldRemoveContentType && lowerKey === HTTP_HEADER.CONTENT_TYPE.toLowerCase()) {
+                if (
+                  shouldRemoveContentType &&
+                  lowerKey === HTTP_HEADER.CONTENT_TYPE.toLowerCase()
+                ) {
                   return;
                 }
                 requestHeaders[key] =

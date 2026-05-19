@@ -12,7 +12,7 @@ import { WithRawResponse } from '../ _generated_/rest/core';
 function normalizeTokenOptions(options?: BearerTokenOptions): BearerTokenOptions | undefined {
     if (!options) return options;
     if (options.roleIDs !== undefined && options.roleIds === undefined) {
-        printLog("[DEPRECATED] Property 'roleIDs' is deprecated and will be removed in an upcoming release. Use 'roleIds' instead.", MessageType.WARN, options.logLevel);
+        printLog(logs.warnLogs.DEPRECATED_ROLE_IDS_PROPERTY, MessageType.WARN, options.logLevel);
         return { ...options, roleIds: options.roleIDs };
     }
     return options;
