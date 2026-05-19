@@ -33,6 +33,14 @@
       },
       "ae-missing-release-tag": {
         "logLevel": "none"
+      },
+      "ae-setter-with-docs": {
+        "logLevel": "none"
+      }
+    },
+    "tsdocMessageReporting": {
+      "default": {
+        "logLevel": "none"
       }
     }
   }
