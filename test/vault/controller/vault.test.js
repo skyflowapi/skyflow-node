@@ -14,7 +14,10 @@ import GetColumnRequest from '../../../src/vault/model/request/get-column';
 import SkyflowError from '../../../src/error';
 import * as fs from 'fs';
 
-jest.mock('fs');
+jest.mock('fs', () => ({
+    promises: { readFile: jest.fn() },
+    readFileSync: jest.fn(),
+}));
 
 global.FormData = class {
     data = {};
@@ -73,7 +76,17 @@ jest.mock('../../../src/utils', () => ({
         INVOKE_CONNECTION: 'INVOKE_CONNECTION',
     },
     generateSDKMetrics: jest.fn(),
-    getBearerToken: jest.fn().mockResolvedValue(Promise.resolve('your-bearer-token'))
+    getBearerToken: jest.fn().mockResolvedValue(Promise.resolve('your-bearer-token')),
+    HTTP_STATUS_CODE: {
+        OK: 200,
+        BAD_REQUEST: 400,
+        INTERNAL_SERVER_ERROR: 500,
+    },
+    HTTP_HEADER: {
+        CONTENT_TYPE: 'Content-Type',
+        X_REQUEST_ID: 'x-request-id',
+    },
+    SkyflowRecordError: {},
 }));
 
 jest.mock('../../../src/utils/validations', () => ({
@@ -94,7 +107,10 @@ jest.mock('../../../src/utils/logs', () => ({
     },
     errorLogs: {
         INSERT_REQUEST_REJECTED: 'INSERT_REJECTED',
-    }
+    },
+    warnLogs: {
+        DEPRECATED_SKYFLOW_ID_PROPERTY: "[DEPRECATED] Property 'skyflow_id' is deprecated and will be removed in an upcoming release. Use 'skyflowId' instead.",
+    },
 }));
 
 describe('VaultController', () => {
@@ -1464,7 +1480,7 @@ describe('VaultController uploadFile method', () => {
         };
         const mockFileBuffer = Buffer.from('file content');
         const mockFileName = 'file.json';
-        jest.spyOn(mockFs, 'readFileSync').mockReturnValueOnce(mockFileBuffer);
+        mockFs.promises.readFile.mockResolvedValueOnce(mockFileBuffer);
         jest.spyOn(mockPath, 'basename').mockReturnValueOnce(mockFileName);
 
         const mockResponseData = { skyflowID: 'id123' };
