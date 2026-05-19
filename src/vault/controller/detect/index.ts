@@ -30,8 +30,6 @@ import { DeidentifyFileDetectRunResponse, DeidentifyFileOutput, DetectTextRespon
 class DetectController {
 
     private client: VaultClient;
-    
-    private waitTime: number = 64;
 
     constructor(client: VaultClient) {
         this.client = client;
@@ -49,8 +47,8 @@ class DetectController {
             return fileType.file as File;
         } else if ('filePath' in fileType && fileType.filePath) {
             const filePath = fileType.filePath;
-            const buffer = fs.readFileSync(filePath);
-            return new File([buffer], filePath);
+            const buffer = await fs.promises.readFile(filePath);
+            return new File([new Uint8Array(buffer)], filePath);
         }
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
     }
@@ -268,49 +266,38 @@ class DetectController {
         return genericRequest;
     }
 
-    private decodeBase64AndSaveToFile(base64Data: string, outputFilePath: string) {
+    private async decodeBase64AndSaveToFile(base64Data: string, outputFilePath: string) {
         try {
-            // Decode the base64 string
             const buffer = Buffer.from(base64Data, ENCODING_TYPE.BASE64);
-
-            // Write the decoded data to the specified file
-            fs.writeFileSync(outputFilePath, buffer);
+            await fs.promises.writeFile(outputFilePath, buffer);
         } catch (error) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
-
         }
     }
 
-    private processDeidentifyFileResponse(response: DeidentifyFileDetectRunResponse, outputDirectory: string, fileBaseName: string) {
-        // Ensure the output directory exists
-        if (!fs.existsSync(outputDirectory)) {
-            fs.mkdirSync(outputDirectory, { recursive: true });
-        }
+    private async processDeidentifyFileResponse(response: DeidentifyFileDetectRunResponse, outputDirectory: string, fileBaseName: string) {
+        await fs.promises.mkdir(outputDirectory, { recursive: true });
 
-        // Iterate over the output array in the response
-        response.output.forEach((fileObject: DeidentifyFileOutput) => {
-            const { processedFile, processedFileExtension } = fileObject;
+        for (const fileObject of response.output) {
+            const { processedFile, processedFileExtension } = fileObject as DeidentifyFileOutput;
 
             if (!processedFile || !processedFileExtension) {
-                return;
+                continue;
             }
 
-            // Determine the output file name and path
             const outputFileName = `processed-${fileBaseName}.${processedFileExtension}`;
             const outputFilePath = path.join(outputDirectory, outputFileName);
 
-            // Handle JSON files
             if (processedFileExtension === FILE_EXTENSION.JSON) {
                 const jsonData = Buffer.from(processedFile, ENCODING_TYPE.BASE64).toString(ENCODING_TYPE.UTF8);
-                fs.writeFileSync(outputFilePath, jsonData);
-            } else if ( processedFileExtension === FILE_EXTENSION.MP3 || processedFileExtension === FILE_EXTENSION.WAV) {
+                await fs.promises.writeFile(outputFilePath, jsonData);
+            } else if (processedFileExtension === FILE_EXTENSION.MP3 || processedFileExtension === FILE_EXTENSION.WAV) {
                 const mp3Data = Buffer.from(processedFile, ENCODING_TYPE.BASE64);
-                fs.writeFileSync(outputFilePath, mp3Data, { encoding: ENCODING_TYPE.BINARY });
+                await fs.promises.writeFile(outputFilePath, mp3Data, { encoding: ENCODING_TYPE.BINARY });
             } else {
-                // Handle other file types (e.g., images, PDFs, etc.)
-                this.decodeBase64AndSaveToFile(processedFile, outputFilePath);
+                await this.decodeBase64AndSaveToFile(processedFile, outputFilePath);
             }
-        });
+        }
     }
 
     private getReqType(format: string): DeidenitfyFileRequestTypes{
@@ -379,7 +366,7 @@ class DetectController {
     
         poll(); // Start polling
     }
-    private handleRequest<T>(apiCall: Function, requestType: string): Promise<T> {
+    private handleRequest<T>(apiCall: Function, requestType: string, waitTime: number = 64): Promise<T> {
         return new Promise((resolve, reject) => {
             printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES[requestType]), MessageType.LOG, this.client.getLogLevel());
             const sdkHeaders = this.createSdkHeaders();
@@ -401,7 +388,7 @@ class DetectController {
                                     vault_id: this.client.vaultId,
                                 }
 
-                                const maxWaitTime = this.waitTime;
+                                const maxWaitTime = waitTime;
 
                                 this.pollForProcessedFile(data?.run_id, req, maxWaitTime, resolve, reject); // Call the extracted polling function
                                 break; 
@@ -487,7 +474,7 @@ class DetectController {
                     file: fileObject.processedFile as string,
                     extension: fileObject.processedFileExtension as string,
                 })),
-            runId: data.runId ?? data.runId ?? runId,
+            runId: data.runId ?? runId,
             status: status,
         });
     }
@@ -600,7 +587,7 @@ class DetectController {
                 const fileBaseName = path.parse(fileName).name;
                 const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1); 
 
-                this.waitTime = options?.getWaitTime() ?? this.waitTime; 
+                const waitTime = options?.getWaitTime() ?? 64;
 
                 const reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension);
                 type PollResult =
@@ -615,7 +602,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyAudio(
                                         audioReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -626,7 +614,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyText(
                                         textFileReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;  
@@ -637,7 +626,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyPdf(
                                         pdfReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -648,7 +638,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyImage(
                                         imageReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -659,7 +650,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyPresentation(
                                         pptReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -670,7 +662,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifySpreadsheet(
                                         spreadsheetReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -681,7 +674,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyStructuredText(
                                         structuredTextReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -692,7 +686,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyDocument(
                                         documentReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -703,7 +698,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyFile(
                                         defaultReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;                    
@@ -718,7 +714,7 @@ class DetectController {
                 }
                 const fullResponse = data as DeidentifyFileDetectRunResponse;
                 if (options?.getOutputDirectory() && fullResponse.status === DETECT_STATUS.SUCCESS) {
-                    this.processDeidentifyFileResponse(fullResponse, options.getOutputDirectory() as string, fileBaseName);
+                    await this.processDeidentifyFileResponse(fullResponse, options.getOutputDirectory() as string, fileBaseName);
                 }
                 const deidentifiedFileResponse = this.parseDeidentifyFileResponse(fullResponse, runId, fullResponse.status);
                 return deidentifiedFileResponse;
