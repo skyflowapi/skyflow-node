@@ -5,7 +5,7 @@ class SkyflowError extends Error {
     error?: ISkyflowError;
 
     constructor(errorCode: ISkyflowError, args: Array<string | number> = []) {
-        const formattedError: any = {
+        const formattedError: ISkyflowError = {
             http_status: errorCode.http_status || BAD_REQUEST,
             details: errorCode.details || [],
             requestId: errorCode.requestId || null,
@@ -22,7 +22,7 @@ class SkyflowError extends Error {
                 printLog("[DEPRECATED] Property 'request_ID' is deprecated and will be removed in an upcoming release. Use 'requestId' instead.", MessageType.WARN, LogLevel.WARN);
                 return this.requestId;
             },
-            enumerable: false,
+            enumerable: true,
             configurable: true,
         });
 

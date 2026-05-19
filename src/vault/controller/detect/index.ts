@@ -282,43 +282,39 @@ class DetectController {
     }
 
     private processDeidentifyFileResponse(response: DeidentifyFileDetectRunResponse, outputDirectory: string, fileBaseName: string) {
-        try {
-            // Ensure the output directory exists
-            if (!fs.existsSync(outputDirectory)) {
-                fs.mkdirSync(outputDirectory, { recursive: true });
+        // Ensure the output directory exists
+        if (!fs.existsSync(outputDirectory)) {
+            fs.mkdirSync(outputDirectory, { recursive: true });
+        }
+
+        // Iterate over the output array in the response
+        response.output.forEach((fileObject: DeidentifyFileOutput) => {
+            const { processedFile, processedFileExtension } = fileObject;
+
+            if (!processedFile || !processedFileExtension) {
+                return;
             }
 
-            // Iterate over the output array in the response
-            response.output.forEach((fileObject: DeidentifyFileOutput, index: number) => {
-                const { processedFile, processedFileExtension } = fileObject;
+            // Determine the output file name and path
+            const outputFileName = `processed-${fileBaseName}.${processedFileExtension}`;
+            const outputFilePath = path.join(outputDirectory, outputFileName);
 
-                if (!processedFile || !processedFileExtension) {
-                    return;
-                }
-
-                // Determine the output file name and path
-                const outputFileName = `processed-${fileBaseName}.${processedFileExtension}`;
-                const outputFilePath = path.join(outputDirectory, outputFileName);
-
-                // Handle JSON files
-                if (processedFileExtension === FILE_EXTENSION.JSON) {
-                    const jsonData = Buffer.from(processedFile, ENCODING_TYPE.BASE64).toString(ENCODING_TYPE.UTF_8);
-                    fs.writeFileSync(outputFilePath, jsonData);
-                } else if ( processedFileExtension === FILE_EXTENSION.MP3 || processedFileExtension === FILE_EXTENSION.WAV) {
-                    const mp3Data = Buffer.from(processedFile, ENCODING_TYPE.BASE64);
-                    fs.writeFileSync(outputFilePath, mp3Data, { encoding: ENCODING_TYPE.BINARY });
-                } else {
-                    // Handle other file types (e.g., images, PDFs, etc.)
-                    this.decodeBase64AndSaveToFile(processedFile, outputFilePath);
-                }
-            });
-            } catch (error) {
-            throw error;
-        }
+            // Handle JSON files
+            if (processedFileExtension === FILE_EXTENSION.JSON) {
+                const jsonData = Buffer.from(processedFile, ENCODING_TYPE.BASE64).toString(ENCODING_TYPE.UTF8);
+                fs.writeFileSync(outputFilePath, jsonData);
+            } else if ( processedFileExtension === FILE_EXTENSION.MP3 || processedFileExtension === FILE_EXTENSION.WAV) {
+                const mp3Data = Buffer.from(processedFile, ENCODING_TYPE.BASE64);
+                fs.writeFileSync(outputFilePath, mp3Data, { encoding: ENCODING_TYPE.BINARY });
+            } else {
+                // Handle other file types (e.g., images, PDFs, etc.)
+                this.decodeBase64AndSaveToFile(processedFile, outputFilePath);
+            }
+        });
     }
 
     private getReqType(format: string): DeidenitfyFileRequestTypes{
-        var reqType: DeidenitfyFileRequestTypes
+        let reqType: DeidenitfyFileRequestTypes
         if (Object.values(DeidentifyAudioRequestFileDataFormat).includes(format as DeidentifyAudioRequestFileDataFormat)){
             reqType = DeidenitfyFileRequestTypes.AUDIO;
         } else if (format.includes(DeidenitfyFileRequestTypes.PDF.toLowerCase())){
@@ -352,7 +348,7 @@ class DetectController {
                     if (response.status?.toUpperCase() === DETECT_STATUS.IN_PROGRESS
 ) {
                         if (currentWaitTime >= maxWaitTime) {
-                            resolve({ runId }); // Resolve with runId if max wait time is exceeded
+                            resolve({ data: { status: 'IN_PROGRESS' }, runId });
                         } else {
                             const nextWaitTime = currentWaitTime * 2;
                             let waitTime = 0;
@@ -368,7 +364,7 @@ class DetectController {
                             }, waitTime * 1000);
                         }
                     } else if (response.status?.toUpperCase() === DETECT_STATUS.SUCCESS) {
-                        resolve([response, runId]); // Resolve with the processed file response and runId
+                        resolve({ data: response, runId });
                     }
                     else if (response.status?.toUpperCase() === DETECT_STATUS.FAILED) {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
@@ -606,8 +602,11 @@ class DetectController {
 
                 this.waitTime = options?.getWaitTime() ?? this.waitTime; 
 
-                var reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension); 
-                var promiseReq: Promise<[DeidentifyFileDetectRunResponse, string]>;
+                const reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension);
+                type PollResult =
+                    | { data: DeidentifyFileDetectRunResponse; runId: string }
+                    | { data: { status: string }; runId: string };
+                let promiseReq: Promise<PollResult>;
                 switch (reqType){
                     case DeidenitfyFileRequestTypes.AUDIO:
                         promiseReq = this.buildAudioRequest(fileObj, options, fileExtension)
@@ -710,27 +709,6 @@ class DetectController {
                         break;                    
                 }
 
-                promiseReq.then(([data, runId])  => {
-                    if(runId && data.status === DETECT_STATUS.IN_PROGRESS) {
-                        resolve(new DeidentifyFileResponse({
-                            runId: runId,
-                            status: data.status,
-                        }));
-                    }
-                    if (options?.getOutputDirectory() && data.status === DETECT_STATUS.SUCCESS) {
-                        this.processDeidentifyFileResponse(data, options.getOutputDirectory() as string, fileBaseName);
-                    }
-                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(data, runId, data.status);
-                    resolve(deidentifiedFileResponse);
-                }).catch(error => {
-                    reject(error)
-                });
-            } catch (error) {
-                if (error instanceof Error)
-                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
-                reject(error);
-            }
-        });
                 const { data, runId } = await promiseReq;
                 if(runId && data.status === DETECT_STATUS.IN_PROGRESS) {
                     return new DeidentifyFileResponse({
