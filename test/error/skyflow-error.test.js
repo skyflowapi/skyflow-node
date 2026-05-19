@@ -89,12 +89,12 @@ describe('SkyflowError deprecated request_ID alias', () => {
         expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('requestId'));
     });
 
-    test('request_ID is not enumerable', () => {
+    test('request_ID is enumerable', () => {
         const err = new SkyflowError({
             http_code: 400,
             message: 'test',
             requestId: 'req-xyz',
         });
-        expect(Object.keys(err.error)).not.toContain('request_ID');
+        expect(Object.keys(err.error)).toContain('request_ID');
     });
 });
