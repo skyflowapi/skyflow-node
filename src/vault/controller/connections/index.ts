@@ -274,7 +274,7 @@ class ConnectionController {
               .catch((err) => {
                 printLog(
                   logs.errorLogs.INVOKE_CONNECTION_REQUEST_REJECTED,
-                  MessageType.LOG,
+                  MessageType.ERROR,
                   this.logLevel,
                 );
                 this.client.failureResponse(err).catch((err) => reject(err));
