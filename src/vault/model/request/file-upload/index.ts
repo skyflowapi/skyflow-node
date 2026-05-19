@@ -37,6 +37,11 @@ class FileUploadRequest {
         this._columnName = value;
     }
 
+    /** @internal */
+    getLegacySkyflowId(): string | undefined {
+        return this._legacySkyflowId;
+    }
+
     /** @deprecated Use FileUploadOptions.setSkyflowId() instead. Will be removed in v3. */
     public get skyflowId(): string {
         printLog(logs.warnLogs.DEPRECATED_FILE_UPLOAD_SKYFLOW_ID, MessageType.WARN, LogLevel.WARN);

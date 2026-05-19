@@ -30,6 +30,8 @@ import { validateDeleteRequest, validateDetokenizeRequest, validateGetColumnRequ
 import path from 'path';
 import { Records } from '../../../ _generated_/rest/api/resources/records/client/Client';
 import FileUploadOptions from '../../model/options/fileUpload';
+import SkyflowError from '../../../error';
+import SKYFLOW_ERROR_CODE from '../../../error/codes';
 
 class VaultController {
 
@@ -176,6 +178,8 @@ class VaultController {
                             case TYPES.DELETE:
                                 resolve(new DeleteResponse({ deletedIds: data?.RecordIDResponse ?? [], errors: null }) as T);
                                 break;
+                            default:
+                                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR));
                         }
                     }).catch((error: any) => {
                         printLog(logs.errorLogs[`${requestType}_REQUEST_REJECTED`], MessageType.ERROR, this.client.getLogLevel());
@@ -419,7 +423,7 @@ class VaultController {
     }
 
     uploadFile(request: FileUploadRequest, options?: FileUploadOptions): Promise<FileUploadResponse> {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 printLog(logs.infoLogs.UPLOAD_FILE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_FILE_UPLOAD_INPUT, MessageType.LOG, this.client.getLogLevel());
@@ -432,16 +436,16 @@ class VaultController {
                 let fileName: string | undefined;
 
                 if(options?.getFilePath()) {
-                    const fileBuffer = fs.readFileSync(options.getFilePath()!);
+                    const fileBuffer = await fs.promises.readFile(options.getFilePath()!);
                     fileName = path.basename(options.getFilePath()!);
-                    fileBlob = new File([fileBuffer], fileName, {
+                    fileBlob = new File([new Uint8Array(fileBuffer)], fileName, {
                         type: CONTENT_TYPE.APPLICATION_JSON
                     });
                 } 
                 else if (options?.getBase64()) { 
                     const buffer = Buffer.from(options.getBase64()!, ENCODING_TYPE.BASE64);
                     fileName = options.getFileName()!;
-                    fileBlob = new File([buffer], fileName, {
+                    fileBlob = new File([new Uint8Array(buffer)], fileName, {
                         type: CONTENT_TYPE.APPLICATION_JSON
                     });
                 }
@@ -453,7 +457,7 @@ class VaultController {
                 const uploadFileV2Request: UploadFileV2Request = {
                     columnName:request.columnName,
                     tableName: request.table,
-                    skyflowID: options?.getSkyflowId() ?? (request as any)._legacySkyflowId,
+                    skyflowID: options?.getSkyflowId() ?? request.getLegacySkyflowId(),
                     returnFileMetadata: false,
                 }
 
