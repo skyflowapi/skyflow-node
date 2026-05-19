@@ -181,6 +181,13 @@ const logs = {
         REIDENTIFY_TEXT_REQUEST_REJECTED: 'Reidentify text resulted in failure.',
     },
     warnLogs: {
+        DEPRECATED_FILE_UPLOAD_CONSTRUCTOR: "[DEPRECATED] FileUploadRequest(table, skyflowId, columnName) is deprecated and will be removed in a future release. Use FileUploadRequest(table, columnName) with FileUploadOptions.setSkyflowId(skyflowId) instead.",
+        DEPRECATED_FILE_UPLOAD_SKYFLOW_ID: "[DEPRECATED] Property 'skyflowId' of FileUploadRequest is deprecated and will be removed in an upcoming release. Use FileUploadOptions.setSkyflowId() instead.",
+        DEPRECATED_SET_DOWNLOAD_URL: "[DEPRECATED] Method 'setDownloadURL()' is deprecated and will be removed in an upcoming release. Use 'setDownloadUrl()' instead.",
+        DEPRECATED_GET_DOWNLOAD_URL: "[DEPRECATED] Method 'getDownloadURL()' is deprecated and will be removed in an upcoming release. Use 'getDownloadUrl()' instead.",
+        DEPRECATED_SKYFLOW_ID_PROPERTY: "[DEPRECATED] Property 'skyflow_id' is deprecated and will be removed in an upcoming release. Use 'skyflowId' instead.",
+        DEPRECATED_REQUEST_ID_PROPERTY: "[DEPRECATED] Property 'request_ID' is deprecated and will be removed in an upcoming release. Use 'requestId' instead.",
+        DEPRECATED_ROLE_IDS_PROPERTY: "[DEPRECATED] Property 'roleIDs' is deprecated and will be removed in an upcoming release. Use 'roleIds' instead.",
     }
 };
 

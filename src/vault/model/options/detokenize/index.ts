@@ -1,4 +1,5 @@
 import { LogLevel, MessageType, printLog } from '../../../../utils';
+import logs from '../../../../utils/logs';
 
 class DetokenizeOptions {
     // Fields with default values
@@ -19,7 +20,7 @@ class DetokenizeOptions {
 
     /** @deprecated Use setDownloadUrl() instead. Will be removed in v3. */
     setDownloadURL(downloadURL: boolean) {
-        printLog("[DEPRECATED] Method 'setDownloadURL()' is deprecated and will be removed in an upcoming release. Use 'setDownloadUrl()' instead.", MessageType.WARN, LogLevel.WARN);
+        printLog(logs.warnLogs.DEPRECATED_SET_DOWNLOAD_URL, MessageType.WARN, LogLevel.WARN);
         this.setDownloadUrl(downloadURL);
     }
 
@@ -34,7 +35,7 @@ class DetokenizeOptions {
 
     /** @deprecated Use getDownloadUrl() instead. Will be removed in v3. */
     getDownloadURL(): boolean | undefined {
-        printLog("[DEPRECATED] Method 'getDownloadURL()' is deprecated and will be removed in an upcoming release. Use 'getDownloadUrl()' instead.", MessageType.WARN, LogLevel.WARN);
+        printLog(logs.warnLogs.DEPRECATED_GET_DOWNLOAD_URL, MessageType.WARN, LogLevel.WARN);
         return this.getDownloadUrl();
     }
 }

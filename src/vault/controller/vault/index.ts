@@ -56,6 +56,15 @@ class VaultController {
         return [];
     }
 
+    private addDeprecatedSkyflowIdAccessor(result: Record<string, unknown>): void {
+        const logLevel = this.client.getLogLevel();
+        Object.defineProperty(result, 'skyflow_id', {
+            get() { printLog(logs.warnLogs.DEPRECATED_SKYFLOW_ID_PROPERTY, MessageType.WARN, logLevel); return this.skyflowId; },
+            enumerable: true,
+            configurable: true,
+        });
+    }
+
     private parseDetokenizeResponse(records: Record<string,string>[], requestId: string): ParsedDetokenizeResponse {
         const response: ParsedDetokenizeResponse = {
             success: [],
@@ -389,16 +398,11 @@ class VaultController {
                     TYPES.GET
                 ).then(response => {
                     printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const logLevel = this.client.getLogLevel();
                     const processedRecords = response.records.map(record => {
                         const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
                         const { skyflow_id: skyflowIdValue, ...rest } = fields;
                         const result: Record<string, unknown> = { ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}), ...rest };
-                        Object.defineProperty(result, 'skyflow_id', {
-                            get() { printLog("[DEPRECATED] Property 'skyflow_id' is deprecated and will be removed in an upcoming release. Use 'skyflowId' instead.", MessageType.WARN, logLevel); return this.skyflowId; },
-                            enumerable: true,
-                            configurable: true,
-                        });
+                        this.addDeprecatedSkyflowIdAccessor(result);
                         return result;
                     });
                     resolve(new GetResponse({ data: processedRecords, errors: null }));
@@ -497,7 +501,6 @@ class VaultController {
                     TYPES.QUERY
                 ).then(response => {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const logLevel = this.client.getLogLevel();
                     const processedRecords = response.records.map(record => {
                         const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
                         const { skyflow_id: skyflowIdValue, ...rest } = fields;
@@ -508,11 +511,7 @@ class VaultController {
                                 ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
                             },
                         };
-                        Object.defineProperty(result, 'skyflow_id', {
-                            get() { printLog("[DEPRECATED] Property 'skyflow_id' is deprecated and will be removed in an upcoming release. Use 'skyflowId' instead.", MessageType.WARN, logLevel); return this.skyflowId; },
-                            enumerable: true,
-                            configurable: true,
-                        });
+                        this.addDeprecatedSkyflowIdAccessor(result);
                         return result;
                     });
                     resolve(new QueryResponse({ fields: processedRecords, errors: null }));
