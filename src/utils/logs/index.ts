@@ -173,6 +173,7 @@ const logs = {
         INVALID_SKYFLOW_ID_IN_FILE_UPLOAD: "Invalid file upload request. Skyflow Id is required.",
         EMPTY_RUN_ID: "Invalid Run Id. Run Id can not be empty.",
         INVALID_RUN_ID: "Invalid Run ID. A Run ID of string type is required.",
+        INVALID_TOKEN_URI: "Invalid credentials. Token URI must be a string and a valid URL.",
         DETECT_REQUEST_RESOLVED: 'Detect request is resolved.',
         DEIDENTIFY_FILE_REQUEST_REJECTED: 'Deidentify file resulted in failure.',
         DETECT_RUN_REQUEST_REJECTED: 'Detect get run resulted in failure.',
