@@ -180,6 +180,7 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         }
         if(Object.prototype.hasOwnProperty.call(pathCred, 'tokenUri')) {
             if (pathCred.tokenUri === undefined || typeof pathCred.tokenUri !== 'string' || !isValidURL(pathCred.tokenUri)) {
+                printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, logLevel);
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI, [type, typeId, id]);
             }
         }
@@ -200,6 +201,7 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         }
         if (Object.prototype.hasOwnProperty.call(stringCred, 'tokenUri')) {
             if (stringCred.tokenUri === undefined || typeof stringCred.tokenUri !== 'string' || !isValidURL(stringCred.tokenUri)) {
+                printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, logLevel);
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI, [type, typeId, id]);
             }
         }
@@ -317,6 +319,7 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
 
         if(Object.prototype.hasOwnProperty.call(pathCred, 'tokenUri')) {
             if (pathCred.tokenUri === undefined || typeof pathCred.tokenUri !== 'string' || !isValidURL(pathCred.tokenUri)) {
+                printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, logLevel);
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
             }
         }
@@ -338,6 +341,7 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         }
         if (Object.prototype.hasOwnProperty.call(stringCred, 'tokenUri')) {
             if (stringCred.tokenUri === undefined || typeof stringCred.tokenUri !== 'string' || !isValidURL(stringCred.tokenUri)) {
+                printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, logLevel);
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
             }
         }
