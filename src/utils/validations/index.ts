@@ -61,7 +61,7 @@ export function isLogLevel(value?: string): boolean {
 }
 
 export function isValidAPIKey(apiKey: string) {
-    if (!apiKey || apiKey === null || apiKey === undefined) {
+    if (!apiKey) {
         return false;
     }
     if (apiKey && typeof apiKey === 'string' && apiKey.startsWith(API_KEY.PREFIX)) {
