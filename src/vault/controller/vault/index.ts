@@ -34,8 +34,6 @@ import FileUploadOptions from '../../model/options/fileUpload';
 class VaultController {
 
     private client: VaultClient;
-    private static readonly HTTP_OK = 200;
-
     constructor(client: VaultClient) {
         this.client = client;
     }
@@ -108,7 +106,7 @@ class VaultController {
     }
 
     private isSuccess(record: Record<string, unknown>): boolean {
-        return record?.Status === VaultController.HTTP_OK;
+        return record?.Status === HTTP_STATUS_CODE.OK;
     }
 
     private processSuccess(record: Record<string, unknown>, index: number, response: ParsedInsertBatchResponse): void {
