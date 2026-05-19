@@ -115,7 +115,8 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
 
             if (options && Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
                 if (typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
-                    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+                    printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI));
                 }
             }
 
@@ -258,7 +259,8 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
 
             if (options && Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
                 if (typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
-                    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+                    printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI));
                 }
             }
 

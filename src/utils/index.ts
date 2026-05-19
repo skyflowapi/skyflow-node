@@ -310,6 +310,8 @@ export interface ISkyflowError {
     http_code: string | number | null | undefined,
     message: string,
     requestId?: string | null,
+    /** @deprecated Use requestId instead. Will be removed in v3. */
+    request_ID?: string | null,
     details?: Array<string> | null,
 }
 
