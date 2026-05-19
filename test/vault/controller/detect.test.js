@@ -552,6 +552,9 @@ describe('deidentifyFile', () => {
         options.setPixelDensity(300);
         options.setMaxResolution(2000);
 
+        // Mock fs.promises.readFile so fake timers don't block on real I/O
+        jest.spyOn(fs.promises, 'readFile').mockResolvedValue(Buffer.from('dummy pdf content'));
+
         // Mock PDF deidentify API to return a run_id
         mockVaultClient.filesAPI.deidentifyPdf.mockImplementation(() => ({
             withRawResponse: jest.fn().mockResolvedValue({
@@ -939,9 +942,9 @@ describe('deidentifyFile', () => {
     const options = new DeidentifyFileOptions();
     options.setOutputDirectory('/mock/output/directory');
 
-    // 2. Mock File System (using spies to verify calls)
-    const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-    const writeSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+    // 2. Mock File System (source uses fs.promises — spy on async methods)
+    const mkdirSpy = jest.spyOn(fs.promises, 'mkdir').mockResolvedValue(undefined);
+    const writeFileSpy = jest.spyOn(fs.promises, 'writeFile').mockResolvedValue(undefined);
 
     // 3. Mock deidentifyFile (The specific method causing the TypeError)
     mockVaultClient.filesAPI.deidentifyFile = jest.fn().mockImplementation(() => ({
@@ -990,8 +993,8 @@ describe('deidentifyFile', () => {
     expect(result.status).toBe('SUCCESS');
 
     // Verify file system interactions
-    expect(existsSpy).toHaveBeenCalledWith(expect.stringContaining('/mock/output/directory'));
-    expect(writeSpy).toHaveBeenCalledWith(
+    expect(mkdirSpy).toHaveBeenCalledWith('/mock/output/directory', { recursive: true });
+    expect(writeFileSpy).toHaveBeenCalledWith(
         expect.stringContaining('processed-test.txt'),
         expect.any(Buffer)
     );
@@ -1076,10 +1079,9 @@ describe('deidentifyFile', () => {
             // ... (other mock data)
         });
 
-    // 2. Setup Spies
-    const existsSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-    const mkdirSpy = jest.spyOn(fs, 'mkdirSync').mockImplementation(() => {});
-    const writeSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+    // 2. Setup Spies (source uses fs.promises — spy on async methods)
+    const mkdirSpy = jest.spyOn(fs.promises, 'mkdir').mockResolvedValue(undefined);
+    const writeSpy = jest.spyOn(fs.promises, 'writeFile').mockResolvedValue(undefined);
 
     // 3. START the execution
     const promise = detectController.deidentifyFile(pdfRequest, mockOptions);
@@ -1092,7 +1094,7 @@ describe('deidentifyFile', () => {
     
     // Assertions
     expect(result.extension).toBe('pdf');
-    expect(existsSpy).toHaveBeenCalledWith('/mock/output/directory');
+    expect(mkdirSpy).toHaveBeenCalledWith('/mock/output/directory', { recursive: true });
     expect(writeSpy).toHaveBeenCalledWith(
         expect.stringContaining('processed-test.pdf'),
         expect.any(Buffer)
