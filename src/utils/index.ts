@@ -1,6 +1,7 @@
 import SkyflowError from "../error";
 import * as sdkDetails from "../../package.json";
 import { generateBearerToken, generateBearerTokenFromCreds } from "../service-account";
+import type { BearerTokenOptions } from "../service-account";
 import Credentials, { ApiKeyCredentials, PathCredentials, StringCredentials, TokenCredentials } from "../vault/config/credentials";
 import dotenv from "dotenv";
 import logs from "./logs";
@@ -26,7 +27,7 @@ export const BAD_REQUEST = "Bad Request";
 
 export const REQUEST = {
     ID_KEY: "x-request-id",
-};
+} as const;
 
 export const CONFIG = {
     LOGLEVEL: "loglevel",
@@ -276,7 +277,6 @@ export const ENCODING_TYPE = {
     UTF8: 'utf8',
     BASE64: 'base64',
     BINARY: 'binary',
-    UTF_8: 'utf-8',
 } as const;
 
 // JWT Constants
@@ -377,16 +377,16 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
         const stringCred = credentials as StringCredentials;
         printLog(logs.infoLogs.USING_CREDENTIALS_STRING, MessageType.LOG, logLevel);
         
-        const options: any = {
+        const options: BearerTokenOptions = {
             roleIds: stringCred.roles,
             ctx: stringCred.context,
             logLevel,
         };
-        
+
         if (stringCred.tokenUri !== undefined) {
             options.tokenUri = stringCred.tokenUri;
         }
-        
+
         return generateBearerTokenFromCreds(stringCred.credentialsString, options);
     }
 
@@ -394,16 +394,16 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
         const pathCred = credentials as PathCredentials;
         printLog(logs.infoLogs.USING_PATH, MessageType.LOG, logLevel);
         
-        const options: any = {
+        const options: BearerTokenOptions = {
             roleIds: pathCred.roles,
             ctx: pathCred.context,
             logLevel,
         };
-        
+
         if (pathCred.tokenUri !== undefined) {
             options.tokenUri = pathCred.tokenUri;
         }
-        
+
         return generateBearerToken(pathCred.path, options);
     }
 
@@ -605,6 +605,7 @@ export const isValidURL = (url: string) => {
 
 
 export function objectToXML(obj: any, rootName: string = "root"): string {
+  if (obj === null || obj === undefined) return '';
   function convertToXML(data: any, nodeName: string): string {
     if (data === null || data === undefined) {
       return `<${nodeName}/>`;
