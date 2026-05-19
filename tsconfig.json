@@ -7,7 +7,7 @@
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "removeComments": true,
+    "removeComments": false,
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "strict": true,
