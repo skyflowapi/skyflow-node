@@ -20,7 +20,7 @@ export const SDK = {
 export const SKYFLOW = {
     ID: "skyflowId",
     AUTH_HEADER_KEY: "x-skyflow-authorization",
-};
+} as const;
 
 export const BAD_REQUEST = "Bad Request";
 

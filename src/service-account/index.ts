@@ -146,7 +146,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
             }
             else if (credentialsObj.privateKey == null) {
                 printLog(logs.errorLogs.PRIVATE_KEY_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
             }
             else {
                 const privateKey = credentialsObj.privateKey.toString(ENCODING_TYPE.UTF8);
@@ -297,7 +297,7 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
                     }
                     else if (credentialsObj.privateKey == null) {
                         printLog(logs.errorLogs.PRIVATE_KEY_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                        reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
+                        return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
                     }
                     else {
                         const privateKey = credentialsObj.privateKey.toString(ENCODING_TYPE.UTF8);
