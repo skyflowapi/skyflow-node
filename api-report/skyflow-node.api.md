@@ -263,7 +263,6 @@ export class DeleteRequest {
 
 // @public (undocumented)
 export class DeleteResponse {
-    // @deprecated
     constructor(input: {
         deletedIds: Array<string>;
         errors: Array<SkyflowRecordError> | null;
@@ -443,13 +442,13 @@ export class DetokenizeOptions {
     constructor();
     // (undocumented)
     getContinueOnError(): boolean | undefined;
-    // @deprecated (undocumented)
+    // (undocumented)
     getDownloadURL(): boolean | undefined;
     // (undocumented)
     getDownloadUrl(): boolean | undefined;
     // (undocumented)
     setContinueOnError(continueOnError: boolean): void;
-    // @deprecated (undocumented)
+    // (undocumented)
     setDownloadURL(downloadURL: boolean): void;
     // (undocumented)
     setDownloadUrl(downloadUrl: boolean): void;
@@ -526,9 +525,9 @@ export class FileUploadRequest {
     // (undocumented)
     get columnName(): string;
     set columnName(value: string);
-    // @internal (undocumented)
+    // (undocumented)
     getLegacySkyflowId(): string | undefined;
-    // @deprecated (undocumented)
+    // (undocumented)
     get skyflowId(): string;
     set skyflowId(value: string);
     // (undocumented)
@@ -598,7 +597,7 @@ export class GetOptions {
     getColumnName(): string | undefined;
     // (undocumented)
     getColumnValues(): Array<string> | undefined;
-    // @deprecated (undocumented)
+    // (undocumented)
     getDownloadURL(): boolean | undefined;
     // (undocumented)
     getDownloadUrl(): boolean | undefined;
@@ -618,7 +617,7 @@ export class GetOptions {
     setColumnName(columnName: string): void;
     // (undocumented)
     setColumnValues(columnValues: Array<string>): void;
-    // @deprecated (undocumented)
+    // (undocumented)
     setDownloadURL(downloadURL: boolean): void;
     // (undocumented)
     setDownloadUrl(downloadUrl: boolean): void;
@@ -715,7 +714,6 @@ export class InsertRequest {
 
 // @public (undocumented)
 export class InsertResponse {
-    // @deprecated
     constructor(input: {
         insertedFields: Array<InsertResponseType>;
         errors: Array<SkyflowRecordError> | null;
