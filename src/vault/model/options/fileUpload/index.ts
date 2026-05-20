@@ -5,7 +5,6 @@ class FileUploadOptions {
     private base64?: string;
     private fileObject?: File;
     private fileName?: string;
-    private skyflowId?: string;
 
     // Constructor
     constructor() { }
@@ -26,9 +25,7 @@ class FileUploadOptions {
         this.fileName = fileName;
     }
 
-    setSkyflowId(skyflowId: string): void {
-        this.skyflowId = skyflowId;
-    }
+
 
     // Getters
     getFilePath(): string | undefined {
@@ -45,10 +42,6 @@ class FileUploadOptions {
 
     getFileName(): string | undefined {
         return this.fileName;
-    }
-
-    getSkyflowId(): string | undefined {
-        return this.skyflowId;
     }
 }
 

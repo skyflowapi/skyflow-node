@@ -18,7 +18,6 @@ const SKYFLOW_ERROR_CODE = {
     INVALID_KEY: { http_code: 400, message: errorMessages.INVALID_KEY },
     INVALID_CREDENTIALS_FILE_PATH: { http_code: 400, message: errorMessages.INVALID_CREDENTIALS_FILE_PATH },
     INVALID_TOKEN_URI: { http_code: 400, message: errorMessages.INVALID_TOKEN_URI },
-    INVALID_TOKEN_URI_WITH_ID: { http_code: 400, message: errorMessages.INVALID_TOKEN_URI_WITH_ID },
 
     INVALID_BEARER_TOKEN_WITH_ID: { http_code: 400, message: errorMessages.INVALID_BEARER_TOKEN_WITH_ID },
     INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: { http_code: 400, message: errorMessages.INVALID_PARSED_CREDENTIALS_STRING_WITH_ID },

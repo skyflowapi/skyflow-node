@@ -173,7 +173,6 @@ const logs = {
         INVALID_SKYFLOW_ID_IN_FILE_UPLOAD: "Invalid file upload request. Skyflow Id is required.",
         EMPTY_RUN_ID: "Invalid Run Id. Run Id can not be empty.",
         INVALID_RUN_ID: "Invalid Run ID. A Run ID of string type is required.",
-        INVALID_TOKEN_URI: "Invalid credentials. Token URI must be a string and a valid URL.",
         DETECT_REQUEST_RESOLVED: 'Detect request is resolved.',
         DEIDENTIFY_FILE_REQUEST_REJECTED: 'Deidentify file resulted in failure.',
         DETECT_RUN_REQUEST_REJECTED: 'Detect get run resulted in failure.',
@@ -181,13 +180,6 @@ const logs = {
         REIDENTIFY_TEXT_REQUEST_REJECTED: 'Reidentify text resulted in failure.',
     },
     warnLogs: {
-        DEPRECATED_FILE_UPLOAD_CONSTRUCTOR: "[DEPRECATED] FileUploadRequest(table, skyflowId, columnName) is deprecated and will be removed in a future release. Use FileUploadRequest(table, columnName) with FileUploadOptions.setSkyflowId(skyflowId) instead.",
-        DEPRECATED_FILE_UPLOAD_SKYFLOW_ID: "[DEPRECATED] Property 'skyflowId' of FileUploadRequest is deprecated and will be removed in an upcoming release. Use FileUploadOptions.setSkyflowId() instead.",
-        DEPRECATED_SET_DOWNLOAD_URL: "[DEPRECATED] Method 'setDownloadURL()' is deprecated and will be removed in an upcoming release. Use 'setDownloadUrl()' instead.",
-        DEPRECATED_GET_DOWNLOAD_URL: "[DEPRECATED] Method 'getDownloadURL()' is deprecated and will be removed in an upcoming release. Use 'getDownloadUrl()' instead.",
-        DEPRECATED_SKYFLOW_ID_PROPERTY: "[DEPRECATED] Property 'skyflow_id' is deprecated and will be removed in an upcoming release. Use 'skyflowId' instead.",
-        DEPRECATED_REQUEST_ID_PROPERTY: "[DEPRECATED] Property 'request_ID' is deprecated and will be removed in an upcoming release. Use 'requestId' instead.",
-        DEPRECATED_ROLE_IDS_PROPERTY: "[DEPRECATED] Property 'roleIDs' is deprecated and will be removed in an upcoming release. Use 'roleIds' instead.",
     }
 };
 

@@ -1,5 +1,3 @@
-import { SkyflowRecordError } from "../../../../utils";
-
 class DeidentifyFileResponse {
     // fields
     fileBase64?: string;
@@ -18,9 +16,8 @@ class DeidentifyFileResponse {
     slideCount?: number;
     runId?: string;
     status?: string;
-    errors: Array<SkyflowRecordError> | null;
 
-    constructor({
+    constructor({        
         fileBase64,
         file,
         type,
@@ -33,8 +30,7 @@ class DeidentifyFileResponse {
         slideCount,
         entities,
         runId,
-        status,
-        errors,
+        status
     } :{
         fileBase64?: string;
         file?: File;
@@ -52,7 +48,6 @@ class DeidentifyFileResponse {
         }>;
         runId?: string;
         status?: string;
-        errors?: Array<SkyflowRecordError> | null;
     }) {
         this.fileBase64 = fileBase64;
         this.file =  file;
@@ -67,7 +62,6 @@ class DeidentifyFileResponse {
         this.entities = entities;
         this.runId = runId;
         this.status = status;
-        this.errors = errors ?? null;
     }
 
 }
