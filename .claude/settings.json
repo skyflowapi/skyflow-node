@@ -34,7 +34,10 @@
   },
   "permissions": {
     "allow": [
-      "Bash(node -e ' *)"
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(python3 *)"
     ],
     "deny": [
       "Edit(src/_generated_/**)",
