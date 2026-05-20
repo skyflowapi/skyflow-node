@@ -84,7 +84,7 @@ function isValidCredentialsString(credentialsString: string) {
                 keyId: parsed.keyId ?? parsed.keyID,
                 tokenUri: parsed.tokenUri ?? parsed.tokenURI,
             };
-            if (credentialsObj?.clientId == null || credentialsObj?.keyId == null || credentialsObj?.tokenUri == null) {
+            if (credentialsObj?.clientId == null || credentialsObj?.keyId == null) {
                 return false;
             }
             return true;
