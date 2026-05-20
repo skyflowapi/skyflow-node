@@ -488,7 +488,9 @@ class VaultController {
                     TYPES.FILE_UPLOAD
                 ).then(data => {
                     printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    resolve(new FileUploadResponse({ skyflowId: data.skyflowID ?? "", errors: null }));
+                    const fileUploadResp = new FileUploadResponse({ skyflowId: data.skyflowID ?? "", errors: null });
+                    this.addDeprecatedSkyflowIdAccessor(fileUploadResp as unknown as Record<string, unknown>);
+                    resolve(fileUploadResp);
                 })
                     .catch(error => {
                         reject(error);
@@ -597,7 +599,7 @@ class VaultController {
                     TYPES.TOKENIZE
                 ).then(response => {
                     printLog(logs.infoLogs.TOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    resolve(new TokenizeResponse({ tokens: response.records, errors: null }))
+                    resolve(new TokenizeResponse({ tokens: response.records, errors: null }));
                 })
                     .catch(error => {
                         reject(error);
