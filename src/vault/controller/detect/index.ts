@@ -285,8 +285,17 @@ class DetectController {
                 continue;
             }
 
+            if (!/^[a-zA-Z0-9]+$/.test(processedFileExtension)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
+            }
+
             const outputFileName = `processed-${fileBaseName}.${processedFileExtension}`;
             const outputFilePath = path.join(outputDirectory, outputFileName);
+            const resolvedOutput = path.resolve(outputFilePath);
+            const resolvedDir = path.resolve(outputDirectory);
+            if (!resolvedOutput.startsWith(resolvedDir + path.sep) && resolvedOutput !== resolvedDir) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
+            }
 
             if (processedFileExtension === FILE_EXTENSION.JSON) {
                 const jsonData = Buffer.from(processedFile, ENCODING_TYPE.BASE64).toString(ENCODING_TYPE.UTF8);

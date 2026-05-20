@@ -15,6 +15,7 @@ function normalizeTokenOptions(options?: BearerTokenOptions): BearerTokenOptions
         printLog(logs.warnLogs.DEPRECATED_ROLE_IDS_PROPERTY, MessageType.WARN, options.logLevel);
         return { ...options, roleIds: options.roleIDs };
     }
+    // if both provided, roleIDs is ignored; roleIds takes precedence
     return options;
 }
 
