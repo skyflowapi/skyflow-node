@@ -1,7 +1,5 @@
 # Skyflow Node.js SDK
 
-> **Node.js V2.1.x IS NOW AVAILABLE:** A new, improved version of the Skyflow SDK is ready with flexible authentication, multi-vault support, and richer error diagnostics. V1 is in maintenance mode (security patches only) and will reach End of Life on October 31, 2026. We recommend upgrading to v2 — see the **[Migration Guide](docs/migrate_to_v2.md)** for step-by-step instructions.
-
 Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
 
 [![CI](https://img.shields.io/static/v1?label=CI&message=passing&color=green?style=plastic&logo=github)](https://github.com/skyflowapi/skyflow-node/actions)
@@ -203,7 +201,7 @@ Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.
 
 ## Vault
 
-The [Vault](https://docs.skyflow.com/docs/vaults) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflowId`s and to invoke the Connection.
+The [Vault](https://docs.skyflow.com/docs/vaults) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflow_id`'s and to invoke the Connection.
 
 ### Insert and tokenize data: `.insert(request)`
 
@@ -273,7 +271,7 @@ const detokenizeRequest = new DetokenizeRequest([
 
 const detokenizeOptions = new DetokenizeOptions();
 detokenizeOptions.setContinueOnError(true);
-detokenizeOptions.setDownloadUrl(false);
+detokenizeOptions.setDownloadURL(false);
 
 const response: DetokenizeResponse = await skyflowClient
   .vault(primaryVaultConfig.vaultId)
@@ -467,7 +465,7 @@ Refer to [Query your data](https://docs.skyflow.com/query-data/) and [Execute Qu
 
 ### Upload File
 
-Upload files to a Skyflow vault using the `uploadFile` method. Create a file upload request with the `FileUploadRequest` class, which accepts the table name and column name. Set the Skyflow ID via `FileUploadOptions.setSkyflowId()`. Configure upload options with the `FileUploadOptions` class, which accepts the file object as shown below:
+Upload files to a Skyflow vault using the `uploadFile` method. Create a file upload request with the `FileUploadRequest` class, which accepts parameters such as the table name, column name, and Skyflow ID. Configure upload options with the `FileUploadOptions` class, which accepts the file object as shown below:
 
 ```typescript
 // Please use Node version 20 & above to run file upload
@@ -481,19 +479,19 @@ import * as fs from "fs";
 
 // Prepare File Upload Data
 const tableName: string = "table-name"; // Table name
-const columnName: string = "column-name"; // Column name to store file
 const skyflowId: string = "skyflow-id"; // Skyflow ID of the record
+const columnName: string = "column-name"; // Column name to store file
 const filePath: string = "file-path"; // Path to the file for upload
 
 // Create File Upload Request
 const uploadReq: FileUploadRequest = new FileUploadRequest(
   tableName,
+  skyflowId,
   columnName,
 );
 
 // Configure FileUpload Options
 const uploadOptions: FileUploadOptions = new FileUploadOptions();
-uploadOptions.setSkyflowId(skyflowId); // Set the Skyflow ID via options
 const buffer = fs.readFileSync(filePath);
 // Set any one of FilePath, Base64 or FileObject in FileUploadOptions
 uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
@@ -859,11 +857,11 @@ Alternatively, you can also send the entire credentials as string by using `gene
 
 #### Generate bearer tokens scoped to certain roles
 
-Generate bearer tokens with access limited to a specific role by specifying the appropriate roleId when using a service account with multiple roles. Use this to limit access for services with multiple responsibilities, such as segregating access for billing and analytics. Generated bearer tokens are valid for 60 minutes and can only execute operations permitted by the permissions associated with the designated role.
+Generate bearer tokens with access limited to a specific role by specifying the appropriate roleID when using a service account with multiple roles. Use this to limit access for services with multiple responsibilities, such as segregating access for billing and analytics. Generated bearer tokens are valid for 60 minutes and can only execute operations permitted by the permissions associated with the designated role.
 
 ```ts
 const options = {
-  roleIds: ['roleId1', 'roleId2'],
+  roleIDs: ['roleID1', 'roleID2'],
 };
 ```
 

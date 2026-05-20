@@ -251,7 +251,6 @@ class Skyflow {
     
             this.throwErrorForUnknownId(clientId, idKey);
         }
-        throw new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR);
     }
 
     private updateClients(updateType: string) {

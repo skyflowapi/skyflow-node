@@ -23,7 +23,6 @@ const errorMessages = {
     
     INVALID_CREDENTIALS_FILE_PATH: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Expected file path to exists.`,
     INVALID_TOKEN_URI: `${errorPrefix} Initialization failed. Invalid Skyflow credentials. The token URI must be a string and a valid URL.`,
-    INVALID_TOKEN_URI_WITH_ID: `${errorPrefix} Initialization failed. Invalid Skyflow credentials. The token URI must be a string and a valid URL for %s1 with %s2 %s3.`,
     INVALID_KEY: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid api key.`,
     INVALID_PARSED_CREDENTIALS_STRING: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Specify a valid credentials string.`,
     INVALID_BEARER_TOKEN: `${errorPrefix} Initialization failed. Invalid skyflow credentials. Bearer token is invalid or expired. Specify a valid token.`,

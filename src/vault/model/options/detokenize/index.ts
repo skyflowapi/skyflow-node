@@ -1,10 +1,8 @@
-import { LogLevel, MessageType, printLog } from '../../../../utils';
-import logs from '../../../../utils/logs';
 
 class DetokenizeOptions {
     // Fields with default values
     private continueOnError?: boolean;
-    private downloadUrl?: boolean;
+    private downloadURL?: boolean;
 
     // Constructor
     constructor() { }
@@ -14,14 +12,8 @@ class DetokenizeOptions {
         this.continueOnError = continueOnError;
     }
 
-    setDownloadUrl(downloadUrl: boolean) {
-        this.downloadUrl = downloadUrl;
-    }
-
-    /** @deprecated Use setDownloadUrl() instead. Will be removed in v3. */
     setDownloadURL(downloadURL: boolean) {
-        printLog(logs.warnLogs.DEPRECATED_SET_DOWNLOAD_URL, MessageType.WARN, LogLevel.WARN);
-        this.setDownloadUrl(downloadURL);
+        this.downloadURL = downloadURL;
     }
 
     // Getters
@@ -29,14 +21,8 @@ class DetokenizeOptions {
         return this.continueOnError;
     }
 
-    getDownloadUrl(): boolean | undefined {
-        return this.downloadUrl;
-    }
-
-    /** @deprecated Use getDownloadUrl() instead. Will be removed in v3. */
     getDownloadURL(): boolean | undefined {
-        printLog(logs.warnLogs.DEPRECATED_GET_DOWNLOAD_URL, MessageType.WARN, LogLevel.WARN);
-        return this.getDownloadUrl();
+        return this.downloadURL;
     }
 }
 

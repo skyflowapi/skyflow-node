@@ -68,12 +68,13 @@ async function performSecureDataInsertion() {
             .vault(primaryVaultConfig.vaultId)
             .insert(insertReq, insertOptions);
         
-        console.log(response);
-
-        // Handle Successful Response — insertedFields is always an array
-        for(let i = 0; i < response.insertedFields.length; i++) {
-            const field: InsertResponseType = response.insertedFields[i];
-            console.log('Inserted Field: ', field);
+        // Handle Successful Response
+        if(response.insertedFields!=null) {
+            for(let i = 0; i < response.insertedFields.length; i++) {
+                const field: InsertResponseType = response.insertedFields[i];
+                console.log('Inserted Field: ',field);
+                // Handle filed
+            }
         }
 
     } catch (error) {

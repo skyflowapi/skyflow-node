@@ -9,6 +9,7 @@ import {
     SkyflowConfig,
     SkyflowError, 
     InsertResponse,
+    ApiKeyCredentials,
     SkyflowRecordError
 } from 'skyflow-node';
 
@@ -70,17 +71,18 @@ async function performSecureDataInsertion() {
             .insert(insertReq, insertOptions);
         
 
-        // insertedFields is always an array; errors is null when no errors
         if (
+            response.insertedFields &&
             response.insertedFields.length === 0 &&
-            response.errors !== null &&
+            Array.isArray(response.errors) &&
             response.errors.length > 0
         ) {
             //handle insert response failure
             console.error("Insert failed: ", response.errors);
         } else if (
+            response.insertedFields &&
             response.insertedFields.length > 0 &&
-            response.errors !== null &&
+            Array.isArray(response.errors) &&
             response.errors.length > 0
         ) {
             // handle partial response
@@ -93,8 +95,9 @@ async function performSecureDataInsertion() {
 
         if(response.errors!=null) {
             for (let i=0; i < response.errors.length; i++) {
-                const recordError: SkyflowRecordError = response.errors[i];
-                console.log('Skyflow Record Error:', recordError);
+                let error: SkyflowRecordError = response.errors[i];
+                console.log('Skyflow Record Error:', error);
+                // Handle error
             }
         }
 
