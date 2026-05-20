@@ -264,9 +264,16 @@ class ConnectionController {
                   this.logLevel,
                 );
                 const requestId = headers?.get(REQUEST.ID_KEY) || "";
+                const logLevel = this.logLevel;
+                const metadata: Record<string, unknown> = { requestId };
+                Object.defineProperty(metadata, 'request_ID', {
+                  get() { printLog(logs.warnLogs.DEPRECATED_REQUEST_ID_PROPERTY, MessageType.WARN, logLevel); return this.requestId; },
+                  enumerable: true,
+                  configurable: true,
+                });
                 const invokeConnectionResponse = new InvokeConnectionResponse({
                   data: body,
-                  metadata: { requestId },
+                  metadata,
                   errors: null,
                 });
                 resolve(invokeConnectionResponse);
