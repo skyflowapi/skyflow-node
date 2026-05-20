@@ -67,6 +67,15 @@ class VaultController {
         });
     }
 
+    private addDeprecatedRequestIdAccessor(result: Record<string, unknown>): void {
+        const logLevel = this.client.getLogLevel();
+        Object.defineProperty(result, 'request_ID', {
+            get() { printLog(logs.warnLogs.DEPRECATED_REQUEST_ID_PROPERTY, MessageType.WARN, logLevel); return this.requestId; },
+            enumerable: true,
+            configurable: true,
+        });
+    }
+
     private parseDetokenizeResponse(records: Record<string,string>[], requestId: string): ParsedDetokenizeResponse {
         const response: ParsedDetokenizeResponse = {
             success: [],
@@ -79,9 +88,10 @@ class VaultController {
             if (record.error) {
                 const detokenizeError: SkyflowRecordError = {
                     token: record.token,
-                    error: record.error, 
+                    error: record.error,
                     requestId: requestId
-                }
+                };
+                this.addDeprecatedRequestIdAccessor(detokenizeError as unknown as Record<string, unknown>);
                 response.errors.push(detokenizeError);
             } else {
                 response.success.push({
@@ -124,11 +134,13 @@ class VaultController {
         const body = record.Body as { records: StringKeyValueMapType[] };
         if (body && Array.isArray(body.records)) {
             body.records.forEach((field: StringKeyValueMapType) => {
-                response.success.push({
+                const result: Record<string, unknown> = {
                     skyflowId: String(field?.skyflow_id),
                     requestIndex: index,
                     ...(typeof field?.tokens === 'object' && field?.tokens !== null ? field.tokens : {})
-                });
+                };
+                this.addDeprecatedSkyflowIdAccessor(result);
+                response.success.push(result as InsertResponseType);
             });
         }
     }
@@ -145,6 +157,7 @@ class VaultController {
             requestId: requestId ?? null,
             requestIndex: index ?? null,
         };
+        this.addDeprecatedRequestIdAccessor(errorObj as unknown as Record<string, unknown>);
         response.errors.push(errorObj);
     }
 
@@ -224,10 +237,14 @@ class VaultController {
     }
 
     private parseBulkInsertResponse(records: Record<string, unknown>[]): InsertResponse {
-        const insertedFields: InsertResponseType[] = records.map(record => ({
-            skyflowId: String(record.skyflow_id),
-            ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {})
-        }));
+        const insertedFields: InsertResponseType[] = records.map(record => {
+            const result: Record<string, unknown> = {
+                skyflowId: String(record.skyflow_id),
+                ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {})
+            };
+            this.addDeprecatedSkyflowIdAccessor(result);
+            return result as InsertResponseType;
+        });
         return new InsertResponse({ insertedFields, errors: null });
     }
 
@@ -302,11 +319,12 @@ class VaultController {
                     TYPES.UPDATE
                 ).then(data => {
                     printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const updatedRecord = {
+                    const updatedRecord: Record<string, unknown> = {
                         skyflowId: data.skyflow_id ?? '',
                         ...data?.tokens
                     };
-                    resolve(new UpdateResponse({ updatedField: updatedRecord, errors: null }));
+                    this.addDeprecatedSkyflowIdAccessor(updatedRecord);
+                    resolve(new UpdateResponse({ updatedField: updatedRecord as InsertResponseType, errors: null }));
                 })
                     .catch(error => {
                         reject(error);

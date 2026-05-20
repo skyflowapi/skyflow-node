@@ -319,6 +319,8 @@ export interface ISkyflowError {
 export interface SkyflowRecordError {
     error: string,
     requestId: string | null,
+    /** @deprecated Use requestId instead. Will be removed in v3. */
+    request_ID?: string | null,
     httpCode?: string | number | null,
     requestIndex?: number | null,
     token?: string | null,
