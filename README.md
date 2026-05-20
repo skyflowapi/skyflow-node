@@ -1,6 +1,8 @@
 # Skyflow Node.js SDK
 
-> **Node.js V2.1.x IS NOW AVAILABLE:** A new, improved version of the Skyflow SDK is ready with flexible authentication, multi-vault support, and richer error diagnostics. V1 is in maintenance mode (security patches only) and will reach End of Life on October 31, 2026. We recommend upgrading to v2 — see the **[Migration Guide](docs/migrate_to_v2.md)** for step-by-step instructions.
+> **This is the current, recommended version of the Skyflow SDK.** V2.1.0 brings flexible auth, multi-vault support, builder patterns, native data types, and rich error diagnostics.
+>
+> Migrating from v1? See the **[Migration Guide](docs/migrate_to_v2.md)** for step-by-step instructions. V1 is in maintenance mode and will reach End of Life on October 31, 2026.
 
 Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
 
@@ -230,6 +232,8 @@ const response: InsertResponse = await skyflowClient
 console.log('Insert response:', response);
 ```
 
+> **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
+
 #### Insert example with `continueOnError` option
 
 Set the `continueOnError` flag to `true` to allow insert operations to proceed despite encountering partial errors.
@@ -308,6 +312,8 @@ const response: GetResponse = await skyflowClient
 
 console.log("Get response:", response);
 ```
+
+> **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
 #### Get by Skyflow IDs
 
@@ -414,6 +420,8 @@ const response: UpdateResponse = await skyflowClient
 
 console.log('Update response:', response);
 ```
+
+> **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
 > [!TIP]
 > See the full example in the samples directory: [update-record.ts](samples/vault-api/update-record.ts)
