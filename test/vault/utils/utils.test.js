@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import errorMessages from "../../../src/error/messages";
-import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, MessageType, LogLevel, objectToXML } from "../../../src/utils";
+import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, getBaseUrl, removeSDKVersion, parameterizedString, MessageType, LogLevel, objectToXML } from "../../../src/utils";
 import jwt_decode from 'jwt-decode';
 import os from 'os';
 import { generateBearerTokenFromCreds, generateBearerToken } from '../../../src/service-account';
@@ -403,7 +403,7 @@ describe('getToken', () => {
 
         expect(result).toEqual(mockToken);
         expect(generateBearerTokenFromCreds).toHaveBeenCalledWith('someCredentials', {
-            roleIDs: credentials.roles,
+            roleIds: credentials.roles,
             ctx: credentials.context,
             logLevel,
         });
@@ -423,7 +423,7 @@ describe('getToken', () => {
 
         expect(result).toEqual(mockToken);
         expect(generateBearerToken).toHaveBeenCalledWith('/some/path', {
-            roleIDs: credentials.roles,
+            roleIds: credentials.roles,
             ctx: credentials.context,
             logLevel,
         });
@@ -527,6 +527,372 @@ describe('getBearerToken', () => {
         const result = await getBearerToken(credentials, logLevel);
 
         expect(result).toEqual({"key": "generatedToken", "type": "TOKEN"});
+    });
+
+    test('should throw error for invalid API key (does not start with sky-)', async () => {
+        const credentials = {
+            apiKey: 'invalid-api-key'
+        };
+
+        await expect(getBearerToken(credentials, logLevel))
+            .rejects
+            .toThrow();
+    });
+});
+
+describe('getBaseUrl', () => {
+    test('should return base URL for valid https URL', () => {
+        expect(getBaseUrl('https://example.skyflowapis.com/vault/v1/vaults')).toBe('https://example.skyflowapis.com');
+    });
+
+    test('should return empty string for invalid URL', () => {
+        expect(getBaseUrl('not-a-valid-url')).toBe('');
+    });
+});
+
+describe('removeSDKVersion', () => {
+    test('should strip SDK version from message', () => {
+        const msg = 'Skyflow Node SDK v2.0.4 some error occurred';
+        expect(removeSDKVersion(msg)).toBe('some error occurred');
+    });
+
+    test('should return unchanged message when no SDK version present', () => {
+        const msg = 'plain error message';
+        expect(removeSDKVersion(msg)).toBe('plain error message');
+    });
+});
+
+describe('parameterizedString', () => {
+    test('returns empty string when message is falsy', () => {
+        expect(parameterizedString('')).toBe('');
+        expect(parameterizedString(null)).toBe('');
+    });
+
+    test('replaces %sN placeholders with args', () => {
+        expect(parameterizedString('value at %s1 is %s2', 'index0', 'hello')).toBe('value at index0 is hello');
+    });
+});
+
+describe('printLog version fallback', () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('uses empty version when sdkDetails.version is undefined', () => {
+        const origDescriptor = Object.getOwnPropertyDescriptor(sdkDetails, 'version');
+        Object.defineProperty(sdkDetails, 'version', { value: undefined, writable: true, configurable: true });
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+        printLog('test msg', MessageType.LOG, LogLevel.DEBUG);
+        expect(consoleSpy).toHaveBeenCalledWith('DEBUG: [Skyflow Node SDK ] test msg');
+        Object.defineProperty(sdkDetails, 'version', origDescriptor);
+    });
+});
+
+describe('generateSDKMetrics branch coverage', () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('uses empty strings when sdkDetails name and version are falsy', () => {
+        const origName = Object.getOwnPropertyDescriptor(sdkDetails, 'name');
+        const origVersion = Object.getOwnPropertyDescriptor(sdkDetails, 'version');
+        Object.defineProperty(sdkDetails, 'name', { value: '', writable: true, configurable: true });
+        Object.defineProperty(sdkDetails, 'version', { value: '', writable: true, configurable: true });
+        const metrics = generateSDKMetrics();
+        expect(metrics.sdk_name_version).toBe('');
+        Object.defineProperty(sdkDetails, 'name', origName);
+        Object.defineProperty(sdkDetails, 'version', origVersion);
+    });
+
+    test('uses empty string for clientDeviceModel when process.platform is undefined', () => {
+        const origPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
+        const origArch = Object.getOwnPropertyDescriptor(process, 'arch');
+        Object.defineProperty(process, 'platform', { value: undefined, writable: true, configurable: true });
+        Object.defineProperty(process, 'arch', { value: undefined, writable: true, configurable: true });
+        jest.spyOn(os, 'release').mockReturnValue('5.4.0');
+        jest.spyOn(os, 'platform').mockReturnValue('linux');
+        const metrics = generateSDKMetrics();
+        expect(metrics.sdk_client_device_model).toBe(' ');
+        Object.defineProperty(process, 'platform', origPlatform);
+        Object.defineProperty(process, 'arch', origArch);
+    });
+
+    test('uses empty string for clientOSDetails when os.platform returns empty', () => {
+        jest.spyOn(os, 'release').mockReturnValue('5.4.0');
+        jest.spyOn(os, 'platform').mockReturnValue('');
+        const metrics = generateSDKMetrics();
+        expect(metrics.sdk_client_os_details).toBe('');
+    });
+});
+
+describe('objectToXML', () => {
+    const { objectToXML } = require('../../../src/utils');
+
+    test('should convert simple object to XML with default root', () => {
+        const obj = { name: 'John', age: 30 };
+        const result = objectToXML(obj);
+        
+        expect(result).toBe('<?xml version="1.0" encoding="UTF-8"?><root><name>John</name><age>30</age></root>');
+    });
+
+    test('should convert simple object to XML with custom root name', () => {
+        const obj = { name: 'John', age: 30 };
+        const result = objectToXML(obj, 'person');
+        
+        expect(result).toBe('<?xml version="1.0" encoding="UTF-8"?><person><name>John</name><age>30</age></person>');
+    });
+
+    test('should convert nested object to XML', () => {
+        const obj = { 
+            user: { 
+                name: 'John', 
+                details: { 
+                    age: 30, 
+                    city: 'New York' 
+                } 
+            } 
+        };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<user>');
+        expect(result).toContain('<name>John</name>');
+        expect(result).toContain('<details>');
+        expect(result).toContain('<age>30</age>');
+        expect(result).toContain('<city>New York</city>');
+        expect(result).toContain('</details>');
+        expect(result).toContain('</user>');
+    });
+
+    test('should convert array to XML with repeated elements', () => {
+        const obj = { 
+            items: ['apple', 'banana', 'cherry'] 
+        };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<items>apple</items>');
+        expect(result).toContain('<items>banana</items>');
+        expect(result).toContain('<items>cherry</items>');
+    });
+
+    test('should handle null values', () => {
+        const obj = { name: 'John', middleName: null };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<name>John</name>');
+        expect(result).toContain('<middleName/>');
+    });
+
+    test('should handle undefined values', () => {
+        const obj = { name: 'John', middleName: undefined };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<name>John</name>');
+        expect(result).toContain('<middleName/>');
+    });
+
+    test('should escape special XML characters', () => {
+        const obj = { 
+            text: 'This & that < > " \' are special' 
+        };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('&amp;');
+        expect(result).toContain('&lt;');
+        expect(result).toContain('&gt;');
+        expect(result).toContain('&quot;');
+        expect(result).toContain('&apos;');
+    });
+
+    test('should handle ampersand character', () => {
+        const obj = { company: 'AT&T' };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<company>AT&amp;T</company>');
+    });
+
+    test('should handle less than and greater than characters', () => {
+        const obj = { expression: '5 < 10 > 3' };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<expression>5 &lt; 10 &gt; 3</expression>');
+    });
+
+    test('should handle quotes and apostrophes', () => {
+        const obj = { text: 'He said "Hello" and it\'s true' };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('&quot;');
+        expect(result).toContain('&apos;');
+    });
+
+    test('should handle boolean values', () => {
+        const obj = { isActive: true, isDeleted: false };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<isActive>true</isActive>');
+        expect(result).toContain('<isDeleted>false</isDeleted>');
+    });
+
+    test('should handle numeric values', () => {
+        const obj = { age: 30, price: 99.99, negative: -5 };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<age>30</age>');
+        expect(result).toContain('<price>99.99</price>');
+        expect(result).toContain('<negative>-5</negative>');
+    });
+
+    test('should handle empty object', () => {
+        const obj = {};
+        const result = objectToXML(obj);
+        
+        expect(result).toBe('<?xml version="1.0" encoding="UTF-8"?><root></root>');
+    });
+
+    test('should handle empty string values', () => {
+        const obj = { name: '' };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<name></name>');
+    });
+
+    test('should handle complex nested structure', () => {
+        const obj = {
+            order: {
+                id: 123,
+                customer: {
+                    name: 'John Doe',
+                    email: 'john@example.com'
+                },
+                items: ['item1', 'item2'],
+                total: 99.99
+            }
+        };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<order>');
+        expect(result).toContain('<id>123</id>');
+        expect(result).toContain('<customer>');
+        expect(result).toContain('<name>John Doe</name>');
+        expect(result).toContain('<email>john@example.com</email>');
+        expect(result).toContain('</customer>');
+        expect(result).toContain('<items>item1</items>');
+        expect(result).toContain('<items>item2</items>');
+        expect(result).toContain('<total>99.99</total>');
+        expect(result).toContain('</order>');
+    });
+
+    test('should handle array of objects', () => {
+        const obj = {
+            users: [
+                { name: 'John', age: 30 },
+                { name: 'Jane', age: 25 }
+            ]
+        };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<users>');
+        expect(result).toContain('<name>John</name>');
+        expect(result).toContain('<age>30</age>');
+        expect(result).toContain('<name>Jane</name>');
+        expect(result).toContain('<age>25</age>');
+        expect(result).toContain('</users>');
+    });
+
+    test('should handle mixed types in nested structure', () => {
+        const obj = {
+            data: {
+                string: 'text',
+                number: 42,
+                boolean: true,
+                null: null,
+                array: [1, 2, 3]
+            }
+        };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<string>text</string>');
+        expect(result).toContain('<number>42</number>');
+        expect(result).toContain('<boolean>true</boolean>');
+        expect(result).toContain('<null/>');
+        expect(result).toContain('<array>1</array>');
+        expect(result).toContain('<array>2</array>');
+        expect(result).toContain('<array>3</array>');
+    });
+
+    test('should include XML declaration', () => {
+        const obj = { test: 'value' };
+        const result = objectToXML(obj);
+        
+        expect(result.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);
+    });
+
+    test('should handle objects with multiple root-level keys', () => {
+        const obj = {
+            firstName: 'John',
+            lastName: 'Doe',
+            age: 30
+        };
+        const result = objectToXML(obj, 'person');
+        
+        expect(result).toContain('<person>');
+        expect(result).toContain('<firstName>John</firstName>');
+        expect(result).toContain('<lastName>Doe</lastName>');
+        expect(result).toContain('<age>30</age>');
+        expect(result).toContain('</person>');
+    });
+
+    test('should handle deeply nested objects', () => {
+        const obj = {
+            level1: {
+                level2: {
+                    level3: {
+                        level4: {
+                            value: 'deep'
+                        }
+                    }
+                }
+            }
+        };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<level1>');
+        expect(result).toContain('<level2>');
+        expect(result).toContain('<level3>');
+        expect(result).toContain('<level4>');
+        expect(result).toContain('<value>deep</value>');
+        expect(result).toContain('</level4>');
+        expect(result).toContain('</level3>');
+        expect(result).toContain('</level2>');
+        expect(result).toContain('</level1>');
+    });
+
+    test('should handle empty arrays', () => {
+        const obj = { items: [] };
+        const result = objectToXML(obj);
+        
+        // Empty array should not produce any items elements
+        expect(result).toBe('<?xml version="1.0" encoding="UTF-8"?><root></root>');
+    });
+
+    test('should convert numbers to strings', () => {
+        const obj = { zero: 0, negative: -100, float: 3.14159 };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<zero>0</zero>');
+        expect(result).toContain('<negative>-100</negative>');
+        expect(result).toContain('<float>3.14159</float>');
+    });
+
+    test('should handle special characters in keys and values', () => {
+        const obj = {
+            'data-id': 'test-123',
+            value: 'special & chars < >'
+        };
+        const result = objectToXML(obj);
+        
+        expect(result).toContain('<data-id>test-123</data-id>');
+        expect(result).toContain('special &amp; chars &lt; &gt;');
     });
 });
 

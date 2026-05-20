@@ -1,6 +1,7 @@
 import SkyflowError from "../error";
 import * as sdkDetails from "../../package.json";
 import { generateBearerToken, generateBearerTokenFromCreds } from "../service-account";
+import type { BearerTokenOptions } from "../service-account";
 import Credentials, { ApiKeyCredentials, PathCredentials, StringCredentials, TokenCredentials } from "../vault/config/credentials";
 import dotenv from "dotenv";
 import logs from "./logs";
@@ -20,13 +21,13 @@ export const SDK = {
 export const SKYFLOW = {
     ID: "skyflowId",
     AUTH_HEADER_KEY: "x-skyflow-authorization",
-};
+} as const;
 
 export const BAD_REQUEST = "Bad Request";
 
 export const REQUEST = {
     ID_KEY: "x-request-id",
-};
+} as const;
 
 export const CONFIG = {
     LOGLEVEL: "loglevel",
@@ -237,9 +238,10 @@ export const CONTENT_TYPE = {
 } as const;
 
 // HTTP Headers
+const _CONTENT_TYPE_HEADER = 'Content-Type';
 export const HTTP_HEADER = {
-    CONTENT_TYPE: 'Content-Type',
-    CONTENT_TYPE_LOWER: 'content-type',
+    CONTENT_TYPE: _CONTENT_TYPE_HEADER,
+    CONTENT_TYPE_LOWER: _CONTENT_TYPE_HEADER.toLowerCase(),
     X_REQUEST_ID: 'x-request-id',
     ERROR_FROM_CLIENT: 'error-from-client',
 } as const;
@@ -276,7 +278,6 @@ export const ENCODING_TYPE = {
     UTF8: 'utf8',
     BASE64: 'base64',
     BINARY: 'binary',
-    UTF_8: 'utf-8',
 } as const;
 
 // JWT Constants
@@ -309,6 +310,8 @@ export interface ISkyflowError {
     grpc_code?: string | number | null,
     http_code: string | number | null | undefined,
     message: string,
+    requestId?: string | null,
+    /** @deprecated Use requestId instead. Will be removed in v3. */
     request_ID?: string | null,
     details?: Array<string> | null,
 }
@@ -316,6 +319,8 @@ export interface ISkyflowError {
 export interface SkyflowRecordError {
     error: string,
     requestId: string | null,
+    /** @deprecated Use requestId instead. Will be removed in v3. */
+    request_ID?: string | null,
     httpCode?: string | number | null,
     requestIndex?: number | null,
     token?: string | null,
@@ -326,33 +331,33 @@ export interface AuthInfo {
     type: AuthType
 }
 
-export function getVaultURL(clusterID: string, env: Env) {
+export function getVaultURL(clusterId: string, env: Env) {
     switch (env) {
         case Env.PROD:
-            return `https://${clusterID}.vault.skyflowapis.com`;
+            return `https://${clusterId}.vault.skyflowapis.com`;
         case Env.SANDBOX:
-            return `https://${clusterID}.vault.skyflowapis-preview.com`;
+            return `https://${clusterId}.vault.skyflowapis-preview.com`;
         case Env.DEV:
-            return `https://${clusterID}.vault.skyflowapis.dev`;
+            return `https://${clusterId}.vault.skyflowapis.dev`;
         case Env.STAGE:
-            return `https://${clusterID}.vault.skyflowapis.tech`;
+            return `https://${clusterId}.vault.skyflowapis.tech`;
         default:
-            return `https://${clusterID}.vault.skyflowapis.com`;
+            return `https://${clusterId}.vault.skyflowapis.com`;
     }
 }
 
-export function getConnectionBaseURL(clusterID: string, env: Env) {
+export function getConnectionBaseURL(clusterId: string, env: Env) {
     switch (env) {
         case Env.PROD:
-            return `https://${clusterID}.gateway.skyflowapis.com`;
+            return `https://${clusterId}.gateway.skyflowapis.com`;
         case Env.SANDBOX:
-            return `https://${clusterID}.gateway.skyflowapis-preview.com`;
+            return `https://${clusterId}.gateway.skyflowapis-preview.com`;
         case Env.DEV:
-            return `https://${clusterID}.gateway.skyflowapis.dev`;
+            return `https://${clusterId}.gateway.skyflowapis.dev`;
         case Env.STAGE:
-            return `https://${clusterID}.gateway.skyflowapis.tech`;
+            return `https://${clusterId}.gateway.skyflowapis.tech`;
         default:
-            return `https://${clusterID}.gateway.skyflowapis.com`;
+            return `https://${clusterId}.gateway.skyflowapis.com`;
     }
 }
 
@@ -375,16 +380,16 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
         const stringCred = credentials as StringCredentials;
         printLog(logs.infoLogs.USING_CREDENTIALS_STRING, MessageType.LOG, logLevel);
         
-        const options: any = {
-            roleIDs: stringCred.roles,
+        const options: BearerTokenOptions = {
+            roleIds: stringCred.roles,
             ctx: stringCred.context,
             logLevel,
         };
-        
+
         if (stringCred.tokenUri !== undefined) {
             options.tokenUri = stringCred.tokenUri;
         }
-        
+
         return generateBearerTokenFromCreds(stringCred.credentialsString, options);
     }
 
@@ -392,16 +397,16 @@ export async function getToken(credentials: Credentials, logLevel?: LogLevel): P
         const pathCred = credentials as PathCredentials;
         printLog(logs.infoLogs.USING_PATH, MessageType.LOG, logLevel);
         
-        const options: any = {
-            roleIDs: pathCred.roles,
+        const options: BearerTokenOptions = {
+            roleIds: pathCred.roles,
             ctx: pathCred.context,
             logLevel,
         };
-        
+
         if (pathCred.tokenUri !== undefined) {
             options.tokenUri = pathCred.tokenUri;
         }
-        
+
         return generateBearerToken(pathCred.path, options);
     }
 
@@ -505,7 +510,7 @@ export const printLog = (message: string, messageType: MessageType, logLevel: Lo
     const {
         showDebugLogs, showInfoLogs, showWarnLogs, showErrorLogs,
     } = LogLevelOptions[logLevel];
-    const version = sdkDetails?.version ? `v${sdkDetails?.version}` : '';
+    const version = sdkDetails.version ? `v${sdkDetails.version}` : '';
     if (messageType === MessageType.LOG && showDebugLogs) {
         // eslint-disable-next-line no-console
         console.log(`DEBUG: [Skyflow Node SDK ${version}] ` + message);
@@ -603,6 +608,7 @@ export const isValidURL = (url: string) => {
 
 
 export function objectToXML(obj: any, rootName: string = "root"): string {
+  if (obj === null || obj === undefined) return '';
   function convertToXML(data: any, nodeName: string): string {
     if (data === null || data === undefined) {
       return `<${nodeName}/>`;

@@ -1256,7 +1256,7 @@ test('should throw error when table name is invalid', () => {
   // Test different log levels
   test('should work with different log levels', () => {
     const request = {
-      _table: 'users', 
+      _table: 'users',
       table: 'users',
       data: [{ field: 'value' }]
     };
@@ -1265,6 +1265,7 @@ test('should throw error when table name is invalid', () => {
     expect(() => validateInsertRequest(request, undefined, LogLevel.WARN)).not.toThrow();
     expect(() => validateInsertRequest(request, undefined, LogLevel.ERROR)).not.toThrow();
   });
+
 });
 
 
@@ -2018,7 +2019,7 @@ describe('validateDetokenizeRequest', () => {
 
     test('should validate downloadURL option', () => {
       const options = {
-        getDownloadURL: () => 'not-a-boolean'
+        getDownloadUrl: () => 'not-a-boolean'
       };
       expect(() => validateDetokenizeRequest(validRequest, options))
         .toThrow(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL);
@@ -2067,7 +2068,7 @@ describe('validateDetokenizeRequest', () => {
     };
     const options = {
       getContinueOnError: () => true,
-      getDownloadURL: () => false
+      getDownloadUrl: () => false
     };
     expect(() => validateDetokenizeRequest(request, options)).not.toThrow();
   });
@@ -2591,15 +2592,14 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
     const options = {
       getFilePath: () => '/valid/path/to/file.txt',
       getBase64: () => null,
-      getFileObject: () => null
+      getFileObject: () => null,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -2608,8 +2608,6 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
@@ -2617,7 +2615,8 @@ describe('validateUploadFileRequest', () => {
       getFilePath: () => null,
       getBase64: () => 'valid-base64',
       getFileName: () => 'file.txt',
-      getFileObject: () => null
+      getFileObject: () => null,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -2626,8 +2625,6 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
@@ -2635,7 +2632,8 @@ describe('validateUploadFileRequest', () => {
     const options = {
       getFilePath: () => null,
       getBase64: () => null,
-      getFileObject: () => mockFile
+      getFileObject: () => mockFile,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -3859,7 +3857,7 @@ describe('validateGetRequest/validateGetColumnRequest - validateGetOptions', () 
   // Test downloadURL validation
   test('should throw error when downloadURL is not boolean', () => {
     const options = {
-      getDownloadURL: () => 'not-a-boolean'
+      getDownloadUrl: () => 'not-a-boolean'
     };
     expect(() => validateGetRequest(validGetRequest, options))
       .toThrow(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL);
@@ -3950,7 +3948,7 @@ describe('validateGetRequest/validateGetColumnRequest - validateGetOptions', () 
       getRedactionType: () => 'REDACTED',
       getOffset: () => '0',
       getLimit: () => '10',
-      getDownloadURL: () => false,
+      getDownloadUrl: () => false,
       getColumnName: () => 'column1',
       getOrderBy: () => OrderByEnum.ASCENDING,
       getFields: () => ['field1', 'field2'],

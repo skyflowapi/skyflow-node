@@ -1,6 +1,7 @@
 //imports
 
 import { IndexRange } from "../../../types";
+import { SkyflowRecordError } from "../../../../utils";
 
 class DeidentifyTextResponse {
     //fields
@@ -15,12 +16,14 @@ class DeidentifyTextResponse {
     }>;
     wordCount: number;
     charCount: number;
+    errors: Array<SkyflowRecordError> | null;
 
     constructor({
         processedText,
         entities,
         wordCount,
         charCount,
+        errors,
     }: {
         processedText: string;
         entities: Array<{
@@ -33,11 +36,13 @@ class DeidentifyTextResponse {
         }>;
         wordCount: number;
         charCount: number;
+        errors?: Array<SkyflowRecordError> | null;
     }) {
         this.processedText = processedText;
         this.entities = entities;
         this.wordCount = wordCount;
         this.charCount = charCount;
+        this.errors = errors ?? null;
     }
 
     //getters and setters

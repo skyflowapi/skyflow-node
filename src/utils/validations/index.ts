@@ -61,7 +61,7 @@ export function isLogLevel(value?: string): boolean {
 }
 
 export function isValidAPIKey(apiKey: string) {
-    if (!apiKey || apiKey === null || apiKey === undefined) {
+    if (!apiKey) {
         return false;
     }
     if (apiKey && typeof apiKey === 'string' && apiKey.startsWith(API_KEY.PREFIX)) {
@@ -77,8 +77,14 @@ function isValidCredentialsString(credentialsString: string) {
     if (credentialsString && typeof credentialsString === 'string') {
         try {
             let credentialsObj = JSON.parse("{}")
-            credentialsObj = JSON.parse(credentialsString);
-            if (credentialsObj?.clientID === null || credentialsObj?.keyID === null || credentialsObj?.clientID === null) {
+            const parsed = JSON.parse(credentialsString);
+            credentialsObj = {
+                ...parsed,
+                clientId: parsed.clientId ?? parsed.clientID,
+                keyId: parsed.keyId ?? parsed.keyID,
+                tokenUri: parsed.tokenUri ?? parsed.tokenURI,
+            };
+            if (credentialsObj?.clientId == null || credentialsObj?.keyId == null) {
                 return false;
             }
             return true;
@@ -174,7 +180,8 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         }
         if(Object.prototype.hasOwnProperty.call(pathCred, 'tokenUri')) {
             if (pathCred.tokenUri === undefined || typeof pathCred.tokenUri !== 'string' || !isValidURL(pathCred.tokenUri)) {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI, [type, typeId, id]);
+                printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, logLevel);
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI_WITH_ID, [type, typeId, id]);
             }
         }
     }
@@ -194,7 +201,8 @@ export const validateCredentialsWithId = (credentials: Credentials, type: string
         }
         if (Object.prototype.hasOwnProperty.call(stringCred, 'tokenUri')) {
             if (stringCred.tokenUri === undefined || typeof stringCred.tokenUri !== 'string' || !isValidURL(stringCred.tokenUri)) {
-                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI, [type, typeId, id]);
+                printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, logLevel);
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI_WITH_ID, [type, typeId, id]);
             }
         }
     }
@@ -311,6 +319,7 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
 
         if(Object.prototype.hasOwnProperty.call(pathCred, 'tokenUri')) {
             if (pathCred.tokenUri === undefined || typeof pathCred.tokenUri !== 'string' || !isValidURL(pathCred.tokenUri)) {
+                printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, logLevel);
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
             }
         }
@@ -332,6 +341,7 @@ export const validateSkyflowCredentials = (credentials: Credentials, logLevel: L
         }
         if (Object.prototype.hasOwnProperty.call(stringCred, 'tokenUri')) {
             if (stringCred.tokenUri === undefined || typeof stringCred.tokenUri !== 'string' || !isValidURL(stringCred.tokenUri)) {
+                printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, logLevel);
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
             }
         }
@@ -638,7 +648,7 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
         }
 
-        if (updateRequest?.data[SKYFLOW.ID]  && typeof updateRequest.data[SKYFLOW.ID] !== 'string' || (updateRequest.data[SKYFLOW.ID] as string).trim().length === 0) {
+        if (typeof updateRequest.data[SKYFLOW.ID] !== 'string' || (updateRequest.data[SKYFLOW.ID] as string).trim().length === 0) {
             printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
         }
@@ -668,8 +678,8 @@ export const validateGetOptions = (getOptions?: GetOptions) => {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_LIMIT, [typeof getOptions?.getLimit()]);
         }
 
-        if (getOptions?.getDownloadURL && getOptions?.getDownloadURL() && typeof getOptions.getDownloadURL() !== 'boolean') {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL, [typeof getOptions?.getDownloadURL()]);
+        if (getOptions?.getDownloadUrl && getOptions?.getDownloadUrl() && typeof getOptions.getDownloadUrl() !== 'boolean') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL, [typeof getOptions?.getDownloadUrl()]);
         }
 
         if (getOptions?.getColumnName && getOptions?.getColumnName() && typeof getOptions.getColumnName() !== 'string') {
@@ -810,8 +820,8 @@ export const validateDetokenizeOptions = (detokenizeOptions?: DetokenizeOptions)
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CONTINUE_ON_ERROR, [typeof detokenizeOptions?.getContinueOnError()]);
         }
 
-        if (detokenizeOptions?.getDownloadURL && detokenizeOptions?.getDownloadURL() && typeof detokenizeOptions.getDownloadURL() !== 'boolean') {
-            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL, [typeof detokenizeOptions?.getDownloadURL()]);
+        if (detokenizeOptions?.getDownloadUrl && detokenizeOptions?.getDownloadUrl() && typeof detokenizeOptions.getDownloadUrl() !== 'boolean') {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL, [typeof detokenizeOptions?.getDownloadUrl()]);
         }
 
     }
@@ -878,7 +888,7 @@ export const validateTokenizeRequest = (tokenizeRequest: TokenizeRequest, logLev
             if (typeof data !== 'object') {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DATA_IN_TOKENIZE, [index]);
             }
-            if (!data.value) {
+            if (data.value === null || data.value === undefined || data.value === '') {
                 throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_VALUE_IN_TOKENIZE, [index]);
             }
             if (typeof data.value !== 'string' || data.value.trim().length === 0) {
@@ -952,12 +962,13 @@ export const validateUploadFileRequest = (fileRequest: FileUploadRequest, option
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TABLE_IN_UPLOAD_FILE);
     }
 
-    if (!fileRequest?.skyflowId || !Object.prototype.hasOwnProperty.call(fileRequest, '_skyflowId')) {
+    const effectiveSkyflowId = options?.getSkyflowId() ?? (fileRequest as any)._legacySkyflowId;
+    if (!effectiveSkyflowId) {
         printLog(logs.errorLogs.EMPTY_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
         throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPLOAD_FILE);
     }
 
-    if (typeof fileRequest?.skyflowId !== 'string' || fileRequest.skyflowId.trim().length === 0) {
+    if (typeof effectiveSkyflowId !== 'string' || effectiveSkyflowId.trim().length === 0) {
         printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_FILE_UPLOAD, MessageType.ERROR, logLevel);
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPLOAD_FILE);
     }
