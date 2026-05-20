@@ -829,6 +829,7 @@ describe('VaultController delete method', () => {
             expect.any(Object) // Headers
         );
         expect(response).toBeInstanceOf(DeleteResponse);
+        expect(Array.isArray(response.deletedIds)).toBe(true);
         expect(response.deletedIds).toHaveLength(1);
         expect(response.errors).toBe(null);
     });
@@ -885,6 +886,7 @@ describe('VaultController delete method', () => {
 
         const response = await vaultController.delete(mockRequest);
 
+        expect(Array.isArray(response.deletedIds)).toBe(true);
         expect(response.deletedIds).toHaveLength(0);
         expect(response.errors).toBe(null);
     });

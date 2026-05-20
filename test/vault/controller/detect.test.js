@@ -197,6 +197,7 @@ describe('deidentifyText', () => {
         expect(response.entities).toHaveLength(1);
         expect(response.wordCount).toBe(5);
         expect(response.charCount).toBe(30);
+        expect(response.errors).toBeNull();
     });
 
     test('should handle validation errors', async () => {
@@ -543,6 +544,7 @@ describe('deidentifyFile', () => {
         expect(result.sizeInKb).toBe(2048);
         expect(result.pageCount).toBe(2);
         expect(result.status).toBe('SUCCESS');
+        expect(result.errors).toBeNull();
     });
 
     test('should successfully deidentify a PDF file using file path', async () => {
