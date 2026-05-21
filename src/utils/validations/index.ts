@@ -1,4 +1,4 @@
-import { CONFIG, Env, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW, TokenMode, API_KEY } from "..";
+import { CONFIG, Env, HTTP_HEADER, isValidURL, LogLevel, MessageType, RequestMethod, OrderByEnum, parameterizedString, printLog, RedactionType, SKYFLOW, TokenMode, API_KEY } from "..";
 import { V1Byot } from "../../ _generated_/rest/api";
 import SkyflowError from "../../error";
 import SKYFLOW_ERROR_CODE from "../../error/codes";
@@ -449,7 +449,7 @@ function validateUpdateInput(input: unknown): void {
     const inputObject = input as { [key: string]: unknown };
 
     // Exclude skyflow_id — it is the record identifier, not a data field to update
-    const entries = Object.entries(inputObject).filter(([key]) => key !== SKYFLOW.ID && key !== 'skyflow_id');
+    const entries = Object.entries(inputObject).filter(([key]) => key !== SKYFLOW.ID && key !== SKYFLOW.LEGACY_ID);
 
     if (entries.length === 0) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
@@ -653,7 +653,7 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             printLog(logs.warnLogs.DEPRECATED_SKYFLOW_ID_PROPERTY, MessageType.WARN, logLevel);
         }
 
-        const idValue = updateRequest.data[SKYFLOW.ID] ?? updateRequest.data['skyflow_id'];
+        const idValue = updateRequest.data[SKYFLOW.ID] ?? updateRequest.data[SKYFLOW.LEGACY_ID];
         if (typeof idValue !== 'string' || (idValue as string).trim().length === 0) {
             printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
@@ -1263,7 +1263,7 @@ export const validateInvokeConnectionRequest = (invokeRequest: InvokeConnectionR
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PATH_PARAMS);
         }
 
-        const contentType = invokeRequest?.headers?.['Content-Type'] || invokeRequest?.headers?.['content-type'] || '';
+        const contentType = invokeRequest?.headers?.[HTTP_HEADER.CONTENT_TYPE] || invokeRequest?.headers?.[HTTP_HEADER.CONTENT_TYPE_LOWER] || '';
         const isStringBody = typeof invokeRequest?.body === 'string';
         if (invokeRequest?.body && !isStringKeyValueMap(invokeRequest?.body) && !(isStringBody && contentType)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BODY);

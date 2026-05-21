@@ -51,6 +51,7 @@ jest.mock('../../../src/utils', () => ({
     },
     SKYFLOW: {
         ID: 'skyflowId',
+        LEGACY_ID: 'skyflow_id',
     },
     CONTENT_TYPE: {
         APPLICATION_JSON: 'application/json',

@@ -300,12 +300,12 @@ class VaultController {
 
                 const data = { ...request.data };
                 let skyflowId = data[SKYFLOW.ID];
-                if (data['skyflow_id'] !== undefined) {
+                if (data[SKYFLOW.LEGACY_ID] !== undefined) {
                     printLog(logs.warnLogs.DEPRECATED_SKYFLOW_ID_PROPERTY, MessageType.WARN, this.client.getLogLevel());
                     if (skyflowId === undefined) {
-                        skyflowId = data['skyflow_id'];
+                        skyflowId = data[SKYFLOW.LEGACY_ID];
                     }
-                    delete data['skyflow_id'];
+                    delete data[SKYFLOW.LEGACY_ID];
                 }
                 delete data[SKYFLOW.ID];
                 const record = { fields: data, tokens: options?.getTokens() };

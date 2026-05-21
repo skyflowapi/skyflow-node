@@ -20,6 +20,7 @@ export const SDK = {
 
 export const SKYFLOW = {
     ID: "skyflowId",
+    LEGACY_ID: "skyflow_id",
     AUTH_HEADER_KEY: "x-skyflow-authorization",
 } as const;
 
