@@ -325,7 +325,7 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
                 let description = err.body?.error?.message ?? err.body;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err.body?.error?.http_code,
+                    httpCode: err.body?.error?.http_code,
                     message: description,
                     requestId: requestId,
                 }));
@@ -333,7 +333,7 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
                 let description = err.body;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err.body?.error?.http_code,
+                    httpCode: err.body?.error?.http_code,
                     message: description,
                     requestId: requestId
                 }));
@@ -341,7 +341,7 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
                 let description = logs.errorLogs.ERROR_OCCURED;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err.response?.status,
+                    httpCode: err.response?.status,
                     message: description,
                     requestId: requestId
                 }));
@@ -349,7 +349,7 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
         } else {
             printLog(err.message, MessageType.ERROR, options?.logLevel);
             reject(new SkyflowError({
-                http_code: String(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR),
+                httpCode: String(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR),
                 message: err.message,
             }))
         }

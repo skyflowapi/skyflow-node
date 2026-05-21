@@ -449,7 +449,7 @@ function validateUpdateInput(input: unknown): void {
     const inputObject = input as { [key: string]: unknown };
 
     // Exclude skyflow_id — it is the record identifier, not a data field to update
-    const entries = Object.entries(inputObject).filter(([key]) => key !== SKYFLOW.ID);
+    const entries = Object.entries(inputObject).filter(([key]) => key !== SKYFLOW.ID && key !== 'skyflow_id');
 
     if (entries.length === 0) {
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
@@ -643,12 +643,18 @@ export const validateUpdateRequest = (updateRequest: UpdateRequest, updateOption
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_UPDATE_DATA);
         }
 
-        if (updateRequest?.data && !Object.prototype.hasOwnProperty.call(updateRequest.data, SKYFLOW.ID)) {
+        const hasNewId = Object.prototype.hasOwnProperty.call(updateRequest.data, SKYFLOW.ID);
+        const hasLegacyId = Object.prototype.hasOwnProperty.call(updateRequest.data, 'skyflow_id');
+        if (updateRequest?.data && !hasNewId && !hasLegacyId) {
             printLog(logs.errorLogs.EMPTY_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
         }
+        if (hasLegacyId) {
+            printLog(logs.warnLogs.DEPRECATED_SKYFLOW_ID_PROPERTY, MessageType.WARN, logLevel);
+        }
 
-        if (typeof updateRequest.data[SKYFLOW.ID] !== 'string' || (updateRequest.data[SKYFLOW.ID] as string).trim().length === 0) {
+        const idValue = updateRequest.data[SKYFLOW.ID] ?? updateRequest.data['skyflow_id'];
+        if (typeof idValue !== 'string' || (idValue as string).trim().length === 0) {
             printLog(logs.errorLogs.INVALID_SKYFLOW_ID_IN_UPDATE, MessageType.ERROR, logLevel);
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPDATE);
         }

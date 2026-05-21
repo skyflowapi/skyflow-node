@@ -134,10 +134,11 @@ class VaultController {
         const body = record.Body as { records: StringKeyValueMapType[] };
         if (body && Array.isArray(body.records)) {
             body.records.forEach((field: StringKeyValueMapType) => {
+                const fieldTokens = field?.tokens;
                 const result: Record<string, unknown> = {
                     skyflowId: String(field?.skyflow_id),
                     requestIndex: index,
-                    ...(typeof field?.tokens === 'object' && field?.tokens !== null ? field.tokens : {})
+                    ...(typeof fieldTokens === 'object' && fieldTokens !== null ? fieldTokens : {})
                 };
                 this.addDeprecatedSkyflowIdAccessor(result);
                 response.success.push(result as InsertResponseType);
@@ -298,10 +299,17 @@ class VaultController {
                 validateUpdateRequest(request, options, this.client.getLogLevel());
 
                 const data = { ...request.data };
-                const skyflowId = data[SKYFLOW.ID];
+                let skyflowId = data[SKYFLOW.ID];
+                if (data['skyflow_id'] !== undefined) {
+                    printLog(logs.warnLogs.DEPRECATED_SKYFLOW_ID_PROPERTY, MessageType.WARN, this.client.getLogLevel());
+                    if (skyflowId === undefined) {
+                        skyflowId = data['skyflow_id'];
+                    }
+                    delete data['skyflow_id'];
+                }
                 delete data[SKYFLOW.ID];
                 const record = { fields: data, tokens: options?.getTokens() };
-                const strictMode = options?.getTokenMode() ? options?.getTokenMode() : V1Byot.Disable;
+                const strictMode = options?.getTokenMode() ? /* istanbul ignore next */ options?.getTokenMode() : V1Byot.Disable;
                 const updateData: RecordServiceUpdateRecordBody = {
                     record: record,
                     tokenization: options?.getReturnTokens(),

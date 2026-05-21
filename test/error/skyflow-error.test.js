@@ -52,6 +52,133 @@ describe('SkyflowError', () => {
   });
 });
 
+describe('SkyflowError new camelCase fields', () => {
+  test('httpCode is set from httpCode input', () => {
+    const err = new SkyflowError({ httpCode: 404, message: 'not found' });
+    expect(err.error.httpCode).toBe(404);
+  });
+
+  test('httpStatus is set from httpStatus input', () => {
+    const err = new SkyflowError({ httpCode: 200, message: 'ok', httpStatus: 'OK' });
+    expect(err.error.httpStatus).toBe('OK');
+  });
+
+  test('grpcCode is set from grpcCode input', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'invalid', grpcCode: 3 });
+    expect(err.error.grpcCode).toBe(3);
+  });
+
+  test('httpCode input falls back to http_code', () => {
+    const err = new SkyflowError({ http_code: 400, message: 'test' });
+    expect(err.error.httpCode).toBe(400);
+  });
+
+  test('grpcCode input falls back to grpc_code', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test', grpc_code: 13 });
+    expect(err.error.grpcCode).toBe(13);
+  });
+
+  test('httpStatus input falls back to http_status', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test', http_status: 'Custom Status' });
+    expect(err.error.httpStatus).toBe('Custom Status');
+  });
+});
+
+describe('SkyflowError deprecated http_code alias', () => {
+  let warnSpy;
+
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  test('http_code returns same value as httpCode', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test' });
+    expect(err.error.http_code).toBe(400);
+    expect(err.error.http_code).toBe(err.error.httpCode);
+  });
+
+  test('http_code logs deprecation warning', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test' });
+    void err.error.http_code;
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('http_code'));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('httpCode'));
+  });
+
+  test('http_code is enumerable', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test' });
+    expect(Object.keys(err.error)).toContain('http_code');
+  });
+});
+
+describe('SkyflowError deprecated http_status alias', () => {
+  let warnSpy;
+
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  test('http_status returns same value as httpStatus', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test', httpStatus: 'Bad Request' });
+    expect(err.error.http_status).toBe('Bad Request');
+    expect(err.error.http_status).toBe(err.error.httpStatus);
+  });
+
+  test('http_status logs deprecation warning', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test' });
+    void err.error.http_status;
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('http_status'));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('httpStatus'));
+  });
+
+  test('http_status is enumerable', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test' });
+    expect(Object.keys(err.error)).toContain('http_status');
+  });
+});
+
+describe('SkyflowError deprecated grpc_code alias', () => {
+  let warnSpy;
+
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  test('grpc_code returns same value as grpcCode', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test', grpcCode: 3 });
+    expect(err.error.grpc_code).toBe(3);
+    expect(err.error.grpc_code).toBe(err.error.grpcCode);
+  });
+
+  test('grpc_code returns null when grpcCode not set', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test' });
+    expect(err.error.grpc_code).toBeNull();
+  });
+
+  test('grpc_code logs deprecation warning', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test', grpcCode: 5 });
+    void err.error.grpc_code;
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('grpc_code'));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('grpcCode'));
+  });
+
+  test('grpc_code is enumerable', () => {
+    const err = new SkyflowError({ httpCode: 400, message: 'test', grpcCode: 5 });
+    expect(Object.keys(err.error)).toContain('grpc_code');
+  });
+});
+
 describe('SkyflowError deprecated request_ID alias', () => {
     let warnSpy;
 

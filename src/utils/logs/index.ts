@@ -188,6 +188,9 @@ const logs = {
         DEPRECATED_SKYFLOW_ID_PROPERTY: "[DEPRECATED] Property 'skyflow_id' is deprecated and will be removed in an upcoming release. Use 'skyflowId' instead.",
         DEPRECATED_REQUEST_ID_PROPERTY: "[DEPRECATED] Property 'request_ID' is deprecated and will be removed in an upcoming release. Use 'requestId' instead.",
         DEPRECATED_ROLE_IDS_PROPERTY: "[DEPRECATED] Property 'roleIDs' is deprecated and will be removed in an upcoming release. Use 'roleIds' instead.",
+        DEPRECATED_HTTP_CODE_PROPERTY: "[DEPRECATED] Property 'http_code' is deprecated and will be removed in an upcoming release. Use 'httpCode' instead.",
+        DEPRECATED_HTTP_STATUS_PROPERTY: "[DEPRECATED] Property 'http_status' is deprecated and will be removed in an upcoming release. Use 'httpStatus' instead.",
+        DEPRECATED_GRPC_CODE_PROPERTY: "[DEPRECATED] Property 'grpc_code' is deprecated and will be removed in an upcoming release. Use 'grpcCode' instead.",
     }
 };
 

@@ -942,7 +942,7 @@ try {
   // catch an error, identify if it is a SkyflowError
   if (error instanceof SkyflowError) {
     console.error("Skyflow Specific Error:", {
-      code: error.error?.http_code,
+      code: error.error?.httpCode,
       message: error.message,
       details: error.error?.details,
     });
