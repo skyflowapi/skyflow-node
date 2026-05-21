@@ -1263,7 +1263,9 @@ export const validateInvokeConnectionRequest = (invokeRequest: InvokeConnectionR
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_PATH_PARAMS);
         }
 
-        if (invokeRequest?.body && !isStringKeyValueMap(invokeRequest?.body)) {
+        const contentType = invokeRequest?.headers?.['Content-Type'] || invokeRequest?.headers?.['content-type'] || '';
+        const isStringBody = typeof invokeRequest?.body === 'string';
+        if (invokeRequest?.body && !isStringKeyValueMap(invokeRequest?.body) && !(isStringBody && contentType)) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_BODY);
         }
 
