@@ -46,6 +46,7 @@ async function performSecureDataUpdate() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Update Data
+        // SK-2812: data object uses camelCase skyflowId (was skyflow_id)
         const updateData: Record<string, unknown> = {
             skyflowId: 'your-skyflow-id',          // Skyflow ID of the record to update
             card_number: '1234567890123456'        // Updated sensitive data
@@ -73,9 +74,11 @@ async function performSecureDataUpdate() {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
-                details: error.error?.details
+                details: error.error?.details,
             });
         } else {
             console.error('Unexpected Error:', error);

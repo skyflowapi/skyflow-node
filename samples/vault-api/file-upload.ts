@@ -54,22 +54,16 @@ async function performFileUpload() {
         const columnName: string = 'column-name';    // Column name to store file
         const filePath: string = 'file-path';        // Path to the file for upload
 
-        // Step 5: Create File Upload Request
+        // Step 5: Create File Upload Request (SK-2812: 2-arg constructor, skyflowId moved to options)
         const uploadReq: FileUploadRequest = new FileUploadRequest(
             tableName,
-            skyflowId,
             columnName,
         );
 
         // Step 6: Configure FileUpload Options
         const uploadOptions: FileUploadOptions = new FileUploadOptions();
-        // Set any one of FilePath, Base64 or FileObject in FileUploadOptions
-
-        // uploadOptions.setFilePath(filePath);      // Set the file path
-        // uploadOptions.setBase64('base64-string'); // Set base64 string
-        // uploadOptions.setFileName('file-name');   // Set the file name when using base64
-        const buffer = fs.readFileSync(filePath);
-        uploadOptions.setFileObject(new File([buffer], filePath)); // Set a File object
+        uploadOptions.setSkyflowId(skyflowId); // SK-2812: new API
+        uploadOptions.setFilePath(filePath);
 
         // Step 6: Perform File Upload
         const response: FileUploadResponse = await skyflowClient
@@ -83,7 +77,9 @@ async function performFileUpload() {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
                 details: error.error?.details,
             });

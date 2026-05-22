@@ -59,7 +59,13 @@ async function performSecureDataRetrieval() {
 
         // Step 6: Configure Get Options
         const getOptions: GetOptions = new GetOptions();
-        getOptions.setReturnTokens(true); // Optional: Get tokens for retrieved data
+        getOptions.setReturnTokens(true);
+
+        // NEW API (SK-2812): setDownloadUrl (camelCase)
+        getOptions.setDownloadUrl(false);
+
+        // DEPRECATED API — still works, logs WARN: setDownloadURL (uppercase URL)
+        // getOptions.setDownloadURL(false);
 
         // Step 7: Perform Secure Retrieval
         const response: GetResponse = await skyflowClient
@@ -80,7 +86,9 @@ async function performSecureDataRetrieval() {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
                 details: error.error?.details,
             });
