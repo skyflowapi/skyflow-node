@@ -7,7 +7,7 @@ import {
   isExpired,
 } from 'skyflow-node';
 
-const filepath: string = '/home/aadt/Downloads/credentials (3).json';
+const filepath: string = '<filepath_to_credentials>';
 let bearerToken: string = '';
 
 // To generate Bearer Token from credentials string.
