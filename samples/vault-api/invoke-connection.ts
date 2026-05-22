@@ -82,12 +82,11 @@ async function invokeSkyflowConnection() {
         console.log('Connection invocation successful:', response);
 
     } catch (error) {
-        // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
-            console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+            console.error('SkyflowError:', {
+                httpCode: error.error?.httpCode,
                 message: error.message,
-                details: error.error?.details
+                details: error.error?.details,
             });
         } else {
             console.error('Unexpected Error:', error);

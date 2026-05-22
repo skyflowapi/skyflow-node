@@ -84,7 +84,7 @@ async function main() {
             await detokenizeData(skyflowClient, primaryVaultConfig.vaultId);
         } catch (err) {
             // Retry detokenization if the error is due to unauthorized access (HTTP 401)
-            if (err instanceof SkyflowError && err.error?.http_code === 401) {
+            if (err instanceof SkyflowError && err.error?.httpCode === 401) {
                 console.warn('Unauthorized access detected. Retrying...');
                 await detokenizeData(skyflowClient, primaryVaultConfig.vaultId);
             } else {

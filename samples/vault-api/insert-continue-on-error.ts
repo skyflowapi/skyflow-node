@@ -29,7 +29,6 @@ async function performSecureDataInsertion() {
             apiKey: 'your-skyflow-api-key',
         };
 
-
         // Step 2: Configure Vault 
         const primaryVaultConfig: VaultConfig = {
             vaultId: 'your-vault-id',          // Unique vault identifier
@@ -102,9 +101,11 @@ async function performSecureDataInsertion() {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
-                details: error.error?.details
+                details: error.error?.details,
             });
         } else {
             console.error('Unexpected Error:', error);

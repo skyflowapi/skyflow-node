@@ -6,7 +6,7 @@ import {
     Skyflow, 
     VaultConfig, 
     SkyflowConfig,
-    SkyflowError, 
+    SkyflowError,
     DeleteResponse,
     StringCredentials
 } from 'skyflow-node';
@@ -24,10 +24,10 @@ async function performSecureDataDeletion() {
     try {
         // Step 1: Configure Skyflow client Credentials
         const cred:  Record<string, string> = {
-            clientID: '<your-client-id>',       // Client identifier
+            clientId: '<your-client-id>',       // Client identifier
             clientName: '<your-client-name>',   // Client name
-            keyID: '<your-key-id>',             // Key identifier
-            tokenURI: '<your-token-uri>',       // Token URI
+            keyId: '<your-key-id>',             // Key identifier
+            tokenUri: '<your-token-uri>',       // Token URI
             privateKey: '<your-pem-private-key>' // Private key for authentication
         };
 
@@ -87,8 +87,7 @@ async function performSecureDataDeletion() {
             .vault('<your_vault_id>')  // Specify the primary vault ID
             .delete(primaryDeleteRequest);
 
-        // Handle Successful Response
-        console.log('Primary Vault Deletion Successful:', primaryDeleteResponse);
+        console.log('Primary Vault Deletion Successful (v1 credentialsString):', primaryDeleteResponse);
 
         // Step 5: Prepare Delete Request for Secondary Vault
         const secondaryDeleteIds: Array<string> = [
@@ -116,9 +115,11 @@ async function performSecureDataDeletion() {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
-                details: error.error?.details
+                details: error.error?.details,
             });
         } else {
             console.error('Unexpected Error:', error);

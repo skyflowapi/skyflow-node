@@ -60,12 +60,16 @@ async function performDeletion() {
 
         // Handle Successful Response
         console.log('Deletion successful:', response);
+        console.log('deletedIds (non-nullable):', response.deletedIds);
+        console.log('deletedIds.length:', response.deletedIds.length);
 
     } catch (error) {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
                 details: error.error?.details,
             });
