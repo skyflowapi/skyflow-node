@@ -25,6 +25,7 @@ function getScopedBearerTokenFromFilePath() {
     try {
       const options = {
         roleIds: ['roleID1', 'roleID2'],
+        tokenUri: '<OVERRIDE_TOKEN_URI>', // optional: overrides tokenUri from credentials file
         logLevel: LogLevel.WARN,
       };
       if (!isExpired(bearerToken)) resolve(bearerToken);
@@ -49,6 +50,7 @@ function getScopedBearerTokenFromCreds() {
     try {
       const options = {
         roleIds: ['roleID1', 'roleID2'],
+        tokenUri: '<OVERRIDE_TOKEN_URI>', // optional: overrides tokenUri from credentials string
         logLevel: LogLevel.WARN,
       };
       if (!isExpired(bearerToken)) resolve(bearerToken);

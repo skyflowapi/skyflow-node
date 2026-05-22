@@ -23,7 +23,8 @@ function getSignedTokenFromFilePath() {
       const options = {
         ctx: 'ctx',
         dataTokens: ['dataToken1', 'dataToken2'],
-        timeToLive: 90 // In seconds.
+        timeToLive: 90, // In seconds.
+        tokenUri: '<OVERRIDE_TOKEN_URI>', // optional: overrides tokenUri from credentials file
       };
       let response = await generateSignedDataTokens(filepath, options);
       resolve(response);
@@ -40,6 +41,7 @@ function getSignedTokenFromCreds() {
         ctx: 'ctx',
         dataTokens: ['dataToken1', 'dataToken2'],
         timeToLive: 90, // In seconds.
+        tokenUri: '<OVERRIDE_TOKEN_URI>', // optional: overrides tokenUri from credentials string
       };
       let response = await generateSignedDataTokensFromCreds(
         JSON.stringify(cred),
