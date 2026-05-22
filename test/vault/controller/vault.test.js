@@ -21,7 +21,7 @@ jest.mock('fs', () => ({
 
 global.FormData = class {
     data = {};
-    
+
     append(key, value) {
         this.data[key] = value;
     }
@@ -30,6 +30,16 @@ global.FormData = class {
         return this.data;
     }
 };
+
+if (typeof File === 'undefined') {
+    global.File = class File {
+        constructor(parts, name, options = {}) {
+            this.parts = parts;
+            this.name = name;
+            this.type = options.type || '';
+        }
+    };
+}
 
 jest.mock('../../../src/utils', () => ({
     printLog: jest.fn(),
@@ -786,6 +796,32 @@ describe('VaultController detokenize method', () => {
 
         await expect(vaultController.detokenize(mockRequest, mockOptions)).rejects.toThrow('Validation error');
         expect(mockVaultClient.tokensAPI.recordServiceDetokenize).not.toHaveBeenCalled();
+    });
+
+    test('should use DEFAULT redaction when redactionType is not set', async () => {
+        validateDetokenizeRequest.mockImplementation(() => {});
+        const mockRequest = {
+            data: [{ token: 'token1' }],
+        };
+        const mockOptions = {
+            getContinueOnError: jest.fn().mockReturnValue(false),
+            getDownloadUrl: jest.fn().mockReturnValue(false),
+        };
+        mockVaultClient.tokensAPI.recordServiceDetokenize.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValueOnce({
+                data: { records: [{ token: 'token1', value: 'value1' }] },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+        const response = await vaultController.detokenize(mockRequest, mockOptions);
+        expect(mockVaultClient.tokensAPI.recordServiceDetokenize).toHaveBeenCalledWith(
+            'vault123',
+            expect.objectContaining({
+                detokenizationParameters: [{ token: 'token1', redaction: 'DEFAULT' }],
+            }),
+            expect.any(Object)
+        );
+        expect(response.detokenizedFields).toHaveLength(1);
     });
 });
 

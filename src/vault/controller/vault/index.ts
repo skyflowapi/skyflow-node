@@ -329,7 +329,7 @@ class VaultController {
                     printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
                     const updatedRecord: Record<string, unknown> = {
                         skyflowId: data.skyflow_id ?? '',
-                        ...data?.tokens
+                        ...data.tokens
                     };
                     this.addDeprecatedSkyflowIdAccessor(updatedRecord);
                     resolve(new UpdateResponse({ updatedField: updatedRecord as InsertResponseType, errors: null }));
@@ -477,7 +477,7 @@ class VaultController {
                 }
                 
                 else if (options?.getFileObject() as File) {
-                    fileBlob = options?.getFileObject();
+                    fileBlob = options!.getFileObject();
                 }
 
                 const uploadFileV2Request: UploadFileV2Request = {
@@ -568,7 +568,7 @@ class VaultController {
                 //validations checks
                 validateDetokenizeRequest(request, options, this.client.getLogLevel());
 
-                const fields = request.data.map(record => ({ token: record.token, redaction: record?.redactionType || RedactionType.DEFAULT })) as Array<V1DetokenizeRecordRequest>;
+                const fields = request.data.map(record => ({ token: record.token, redaction: record.redactionType || RedactionType.DEFAULT })) as Array<V1DetokenizeRecordRequest>;
                 const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadUrl() };
 
                 this.handleRequest<RecordsResponse<Record<string, string>>>(
