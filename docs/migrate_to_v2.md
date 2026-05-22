@@ -238,10 +238,13 @@ insertOptions.setContinueOnError(true); // Optional: Continue on partial errors
 In V2, we have enriched the error details to provide better debugging capabilities.
 The error response now includes:
 
-- **`http_status`**: The HTTP status code. .
-- **`grpc_code`**: The gRPC code associated with the error.
+- **`httpStatus`**: The HTTP status text (e.g. `"Bad Request"`).
+- **`grpcCode`**: The gRPC code associated with the error.
+- **`httpCode`**: The HTTP status code number.
 - **`details & message`**: A detailed description of the error.
-- **`request_ID`**: A unique request identifier for easier debugging.
+- **`requestId`**: A unique request identifier for easier debugging.
+
+> **Deprecated names** — `http_status`, `grpc_code`, `http_code`, and `request_ID` still work but will log a deprecation warning and will be removed in v3. Use the camelCase names above.
 
 #### V1 (Old) - Error Structure
 
@@ -256,11 +259,11 @@ The error response now includes:
 
 ```typescript
 {
-    http_status?: string | number | null,
-    grpc_code?: string | number | null,
-    http_code: string | number | null,
+    httpStatus?: string | number | null,
+    grpcCode?: string | number | null,
+    httpCode?: string | number | null,
     message: string,
-    request_ID?: string | null,
+    requestId?: string | null,
     details?: Array<string> | null,
 }
 ```

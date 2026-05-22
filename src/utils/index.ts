@@ -20,6 +20,7 @@ export const SDK = {
 
 export const SKYFLOW = {
     ID: "skyflowId",
+    LEGACY_ID: "skyflow_id",
     AUTH_HEADER_KEY: "x-skyflow-authorization",
 } as const;
 
@@ -306,9 +307,15 @@ export const BOOLEAN_STRING = {
 
 
 export interface ISkyflowError {
+    httpStatus?: string | number | null,
+    /** @deprecated Use httpStatus instead. Will be removed in v3. */
     http_status?: string | number | null,
+    grpcCode?: string | number | null,
+    /** @deprecated Use grpcCode instead. Will be removed in v3. */
     grpc_code?: string | number | null,
-    http_code: string | number | null | undefined,
+    httpCode?: string | number | null | undefined,
+    /** @deprecated Use httpCode instead. Will be removed in v3. */
+    http_code?: string | number | null | undefined,
     message: string,
     requestId?: string | null,
     /** @deprecated Use requestId instead. Will be removed in v3. */

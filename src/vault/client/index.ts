@@ -353,11 +353,11 @@ class VaultClient {
     ) {
         printLog(description, MessageType.ERROR, this.getLogLevel());
         reject(new SkyflowError({
-            http_code: isNewError ? (err?.statusCode ?? err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST) : err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST,
+            httpCode: isNewError ? (err?.statusCode ?? err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST) : err?.body?.error?.http_code ?? HTTP_STATUS_CODE.BAD_REQUEST,
             message: description,
             requestId: requestId,
-            grpc_code: grpcCode,
-            http_status: httpStatus,
+            grpcCode: grpcCode,
+            httpStatus: httpStatus,
             details: details,
         }, []));
     }
