@@ -31,14 +31,17 @@ async function performFileUpload() {
             logLevel: LogLevel.WARN,
         };
 
-        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
-
         // v1: 3-arg constructor (table, skyflowId, columnName) — deprecated, emits WARN, still works
         const uploadReq: FileUploadRequest = new FileUploadRequest(
             'table1',
             '<SKYFLOW_ID>',  // skyflowId as 2nd arg (old API)
             'file',
         );
+
+        // v1: .skyflowId getter on FileUploadRequest — deprecated, emits WARN
+        console.log('v1 skyflowId getter:', (uploadReq as any).skyflowId);
+
+        const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         const uploadOptions: FileUploadOptions = new FileUploadOptions();
         uploadOptions.setFilePath('<FILE_PATH>');

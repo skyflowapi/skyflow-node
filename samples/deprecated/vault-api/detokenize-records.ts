@@ -33,6 +33,14 @@ async function performDetokenization() {
             logLevel: LogLevel.WARN,
         };
 
+        const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
+        detokenizeOptions.setContinueOnError(true);
+
+        // v1: setDownloadURL uppercase — deprecated setter, still works
+        (detokenizeOptions as any).setDownloadURL(false);
+        // v1: getDownloadURL uppercase — deprecated getter, still works
+        console.log('v1 getDownloadURL:', (detokenizeOptions as any).getDownloadURL());
+
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         const detokenizeData: DetokenizeData[] = [
@@ -43,12 +51,6 @@ async function performDetokenization() {
         ];
 
         const detokenizeRequest: DetokenizeRequest = new DetokenizeRequest(detokenizeData);
-
-        const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
-        detokenizeOptions.setContinueOnError(true);
-
-        // v1: setDownloadURL uppercase — deprecated getter, still works
-        (detokenizeOptions as any).setDownloadURL(false);
 
         const response: DetokenizeResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)

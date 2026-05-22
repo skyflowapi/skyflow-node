@@ -30,18 +30,20 @@ async function performSecureDataRetrieval() {
             logLevel: LogLevel.WARN,
         };
 
+        const getOptions: GetOptions = new GetOptions();
+        getOptions.setReturnTokens(true);
+
+        // v1: setDownloadURL (uppercase — deprecated, still works, emits WARN)
+        (getOptions as any).setDownloadURL(false);
+        // v1: getDownloadURL (uppercase — deprecated getter, still works, emits WARN)
+        console.log('v1 getDownloadURL:', (getOptions as any).getDownloadURL());
+
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         const getRequest: GetRequest = new GetRequest('table1', [
             '<SKYFLOW_ID>',
             '<SKYFLOW_ID_2>',
         ]);
-
-        const getOptions: GetOptions = new GetOptions();
-        getOptions.setReturnTokens(true);
-
-        // v1: setDownloadURL (uppercase — deprecated, still works, emits WARN)
-        (getOptions as any).setDownloadURL(false);
 
         const response: GetResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)
