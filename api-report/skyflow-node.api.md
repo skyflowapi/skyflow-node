@@ -730,6 +730,8 @@ export class InsertResponse {
 export interface InsertResponseType {
     // (undocumented)
     [key: string]: unknown;
+    // @deprecated (undocumented)
+    skyflow_id?: string;
     // (undocumented)
     skyflowId: string;
 }
@@ -973,6 +975,8 @@ export interface SkyflowRecordError {
     error: string;
     // (undocumented)
     httpCode?: string | number | null;
+    // @deprecated (undocumented)
+    request_ID?: string | null;
     // (undocumented)
     requestId: string | null;
     // (undocumented)
