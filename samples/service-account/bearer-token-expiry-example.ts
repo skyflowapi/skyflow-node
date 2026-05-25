@@ -42,7 +42,7 @@ async function detokenizeData(skyflowClient: Skyflow, vaultId: string) {
         // Configuring detokenization options
         const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
         detokenizeOptions.setContinueOnError(false); // Stop on error
-        detokenizeOptions.setDownloadURL(false);    // Disable download URL generation
+        detokenizeOptions.setDownloadUrl(false);    // Disable download URL generation
 
         // Sending the detokenization request and receiving the response
         const response: DetokenizeResponse = await skyflowClient
@@ -84,7 +84,7 @@ async function main() {
             await detokenizeData(skyflowClient, primaryVaultConfig.vaultId);
         } catch (err) {
             // Retry detokenization if the error is due to unauthorized access (HTTP 401)
-            if (err instanceof SkyflowError && err.error?.http_code === 401) {
+            if (err instanceof SkyflowError && err.error?.httpCode === 401) {
                 console.warn('Unauthorized access detected. Retrying...');
                 await detokenizeData(skyflowClient, primaryVaultConfig.vaultId);
             } else {

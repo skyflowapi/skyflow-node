@@ -41,6 +41,8 @@ export interface ClientObj {
 
 export interface InsertResponseType {
     skyflowId: string;
+    /** @deprecated Renamed to skyflowId. Will be removed in v3. */
+    skyflow_id?: string;
     [key: string]: unknown;
 }
 
@@ -169,7 +171,9 @@ export interface DetectFileResponse<T = unknown> {
   requestId: string;
 }
 export interface SkyflowIdResponse {
-  skyflow_id: string;
+  skyflowId: string;
+  /** @deprecated Renamed to skyflowId. Will be removed in v3. */
+  skyflow_id?: string;
 }
   
 export interface TokensResponse extends SkyflowIdResponse {

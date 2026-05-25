@@ -1,5 +1,6 @@
 // Imports
-import { OrderByEnum, RedactionType } from "../../../../utils";
+import { LogLevel, MessageType, OrderByEnum, printLog, RedactionType } from "../../../../utils";
+import logs from '../../../../utils/logs';
 
 class GetOptions {
     // Fields
@@ -8,7 +9,7 @@ class GetOptions {
     private fields?: Array<string>; 
     private offset?: string;
     private limit?: string;
-    private downloadURL?: boolean;
+    private downloadUrl?: boolean;
     private columnName?: string;
     private columnValues?: Array<string>;
     private orderBy?: OrderByEnum;
@@ -37,8 +38,14 @@ class GetOptions {
         this.limit = limit;
     }
 
+    setDownloadUrl(downloadUrl: boolean) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    /** @deprecated Use setDownloadUrl() instead. Will be removed in v3. */
     setDownloadURL(downloadURL: boolean) {
-        this.downloadURL = downloadURL;
+        printLog(logs.warnLogs.DEPRECATED_SET_DOWNLOAD_URL, MessageType.WARN, LogLevel.WARN);
+        this.setDownloadUrl(downloadURL);
     }
 
     setColumnName(columnName: string) {
@@ -74,8 +81,14 @@ class GetOptions {
         return this.limit;
     }
 
+    getDownloadUrl(): boolean | undefined {
+        return this.downloadUrl;
+    }
+
+    /** @deprecated Use getDownloadUrl() instead. Will be removed in v3. */
     getDownloadURL(): boolean | undefined {
-        return this.downloadURL;
+        printLog(logs.warnLogs.DEPRECATED_GET_DOWNLOAD_URL, MessageType.WARN, LogLevel.WARN);
+        return this.getDownloadUrl();
     }
 
     getColumnName(): string | undefined {

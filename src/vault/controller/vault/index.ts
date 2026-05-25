@@ -1,7 +1,7 @@
 //imports
 import * as fs from 'fs';
 import InsertRequest from "../../model/request/insert";
-import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, UploadFileV2Request, UploadFileV2Response, V1Byot, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest } from '../../../ _generated_/rest/api';
+import { BatchRecordMethod, QueryServiceExecuteQueryBody, RecordServiceBatchOperationBody, RecordServiceBulkDeleteRecordBody, RecordServiceInsertRecordBody, RecordServiceUpdateRecordBody, UploadFileV2Request, UploadFileV2Response, V1Byot, V1DetokenizePayload, V1DetokenizeRecordRequest, V1FieldRecords, V1TokenizePayload, V1TokenizeRecordRequest, V1UpdateRecordResponse } from '../../../ _generated_/rest/api';
 import InsertOptions from "../../model/options/insert";
 import GetRequest from "../../model/request/get";
 import GetOptions from "../../model/options/get";
@@ -21,8 +21,8 @@ import QueryResponse from '../../model/response/query';
 import FileUploadResponse from '../../model/response/file-upload';
 import TokenizeResponse from '../../model/response/tokenize';
 import TokenizeRequest from '../../model/request/tokenize';
-import { InsertResponseType, ParsedDetokenizeResponse, ParsedInsertBatchResponse, RecordsResponse, SkyflowIdResponse, StringKeyValueMapType, TokenizeRequestType, TokensResponse } from '../../types';
-import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK_METRICS_HEADER_KEY, removeSDKVersion, RedactionType, SKYFLOW_ID, SkyflowRecordError } from '../../../utils';
+import { InsertResponseType, ParsedDetokenizeResponse, ParsedInsertBatchResponse, RecordsResponse, StringKeyValueMapType, TokenizeRequestType } from '../../types';
+import { generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, TYPES, SDK, removeSDKVersion, RedactionType, SKYFLOW, SkyflowRecordError, HTTP_STATUS_CODE, HTTP_HEADER, CONTENT_TYPE, ENCODING_TYPE } from '../../../utils';
 import GetColumnRequest from '../../model/request/get-column';
 import logs from '../../../utils/logs';
 import VaultClient from '../../client';
@@ -30,17 +30,18 @@ import { validateDeleteRequest, validateDetokenizeRequest, validateGetColumnRequ
 import path from 'path';
 import { Records } from '../../../ _generated_/rest/api/resources/records/client/Client';
 import FileUploadOptions from '../../model/options/fileUpload';
+import SkyflowError from '../../../error';
+import SKYFLOW_ERROR_CODE from '../../../error/codes';
 
 class VaultController {
 
     private client: VaultClient;
-
     constructor(client: VaultClient) {
         this.client = client;
     }
 
     private createSdkHeaders() {
-        return { [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
+        return { [SDK.METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
     }
 
     private handleRecordsResponse(records?: Record<string, unknown>[]): Record<string, unknown>[] {
@@ -57,6 +58,24 @@ class VaultController {
         return [];
     }
 
+    private addDeprecatedSkyflowIdAccessor(result: Record<string, unknown>): void {
+        const logLevel = this.client.getLogLevel();
+        Object.defineProperty(result, 'skyflow_id', {
+            get() { printLog(logs.warnLogs.DEPRECATED_SKYFLOW_ID_PROPERTY, MessageType.WARN, logLevel); return this.skyflowId; },
+            enumerable: true,
+            configurable: true,
+        });
+    }
+
+    private addDeprecatedRequestIdAccessor(result: Record<string, unknown>): void {
+        const logLevel = this.client.getLogLevel();
+        Object.defineProperty(result, 'request_ID', {
+            get() { printLog(logs.warnLogs.DEPRECATED_REQUEST_ID_PROPERTY, MessageType.WARN, logLevel); return this.requestId; },
+            enumerable: true,
+            configurable: true,
+        });
+    }
+
     private parseDetokenizeResponse(records: Record<string,string>[], requestId: string): ParsedDetokenizeResponse {
         const response: ParsedDetokenizeResponse = {
             success: [],
@@ -69,9 +88,10 @@ class VaultController {
             if (record.error) {
                 const detokenizeError: SkyflowRecordError = {
                     token: record.token,
-                    error: record.error, 
+                    error: record.error,
                     requestId: requestId
-                }
+                };
+                this.addDeprecatedRequestIdAccessor(detokenizeError as unknown as Record<string, unknown>);
                 response.errors.push(detokenizeError);
             } else {
                 response.success.push({
@@ -91,34 +111,37 @@ class VaultController {
         };
 
         if (!records || !Array.isArray(records) || records.length === 0) {
-            return new InsertResponse({ insertedFields:null, errors: null });
+            return new InsertResponse({ insertedFields: [], errors: null });
         }
 
         records.forEach((record: Record<string, unknown>, index: number) => {
             if (this.isSuccess(record)) {
-                
+
                 this.processSuccess(record, index, response);
             } else {
                 this.processError(record, index, requestId, response);
             }
         });
 
-        return new InsertResponse({ insertedFields: response.success.length>0 ? response.success : null, errors: response.errors.length>0 ? response.errors : null });
+        return new InsertResponse({ insertedFields: response.success, errors: response.errors.length>0 ? response.errors : null });
     }
 
     private isSuccess(record: Record<string, unknown>): boolean {
-        return record?.Status === 200;
+        return record?.Status === HTTP_STATUS_CODE.OK;
     }
 
     private processSuccess(record: Record<string, unknown>, index: number, response: ParsedInsertBatchResponse): void {
         const body = record.Body as { records: StringKeyValueMapType[] };
         if (body && Array.isArray(body.records)) {
             body.records.forEach((field: StringKeyValueMapType) => {
-                response.success.push({
+                const fieldTokens = field?.tokens;
+                const result: Record<string, unknown> = {
                     skyflowId: String(field?.skyflow_id),
                     requestIndex: index,
-                    ...(typeof field?.tokens === 'object' && field?.tokens !== null ? field.tokens : {})
-                });
+                    ...(typeof fieldTokens === 'object' && fieldTokens !== null ? fieldTokens : {})
+                };
+                this.addDeprecatedSkyflowIdAccessor(result);
+                response.success.push(result as InsertResponseType);
             });
         }
     }
@@ -135,10 +158,11 @@ class VaultController {
             requestId: requestId ?? null,
             requestIndex: index ?? null,
         };
+        this.addDeprecatedRequestIdAccessor(errorObj as unknown as Record<string, unknown>);
         response.errors.push(errorObj);
     }
 
-    private handleRequest<T>(apiCall: Function, requestType: string): Promise<T> {
+    private handleRequest<T>(apiCall: (options: Records.RequestOptions) => Promise<{ data: any; rawResponse: any }>, requestType: string): Promise<T> {
         return new Promise((resolve, reject) => {
             printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES[requestType]), MessageType.LOG, this.client.getLogLevel());
             const sdkHeaders = this.createSdkHeaders();
@@ -166,8 +190,10 @@ class VaultController {
                                 resolve(data)
                                 break;
                             case TYPES.DELETE:
-                                resolve(new DeleteResponse({ deletedIds: data?.RecordIDResponse, errors: null }) as T);
+                                resolve(new DeleteResponse({ deletedIds: data?.RecordIDResponse ?? [], errors: null }) as T);
                                 break;
+                            default:
+                                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR));
                         }
                     }).catch((error: any) => {
                         printLog(logs.errorLogs[`${requestType}_REQUEST_REJECTED`], MessageType.ERROR, this.client.getLogLevel());
@@ -212,10 +238,14 @@ class VaultController {
     }
 
     private parseBulkInsertResponse(records: Record<string, unknown>[]): InsertResponse {
-        const insertedFields: InsertResponseType[] = records.map(record => ({
-            skyflowId: String(record.skyflow_id),
-            ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {})
-        }));
+        const insertedFields: InsertResponseType[] = records.map(record => {
+            const result: Record<string, unknown> = {
+                skyflowId: String(record.skyflow_id),
+                ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {})
+            };
+            this.addDeprecatedSkyflowIdAccessor(result);
+            return result as InsertResponseType;
+        });
         return new InsertResponse({ insertedFields, errors: null });
     }
 
@@ -268,17 +298,25 @@ class VaultController {
                 // Validation checks
                 validateUpdateRequest(request, options, this.client.getLogLevel());
 
-                const skyflowId = request.data[SKYFLOW_ID];
-                delete request.data[SKYFLOW_ID];
-                const record = { fields: request.data, tokens: options?.getTokens() };
-                const strictMode = options?.getTokenMode() ? options?.getTokenMode() : V1Byot.Disable;
+                const data = { ...request.data };
+                let skyflowId = data[SKYFLOW.ID];
+                if (data[SKYFLOW.LEGACY_ID] !== undefined) {
+                    printLog(logs.warnLogs.DEPRECATED_SKYFLOW_ID_PROPERTY, MessageType.WARN, this.client.getLogLevel());
+                    if (skyflowId === undefined) {
+                        skyflowId = data[SKYFLOW.LEGACY_ID];
+                    }
+                    delete data[SKYFLOW.LEGACY_ID];
+                }
+                delete data[SKYFLOW.ID];
+                const record = { fields: data, tokens: options?.getTokens() };
+                const strictMode = options?.getTokenMode() ? /* istanbul ignore next */ options?.getTokenMode() : V1Byot.Disable;
                 const updateData: RecordServiceUpdateRecordBody = {
                     record: record,
                     tokenization: options?.getReturnTokens(),
                     byot: strictMode
                 };
 
-                this.handleRequest<TokensResponse>(
+                this.handleRequest<V1UpdateRecordResponse>(
                     (headers: Records.RequestOptions | undefined) => this.client.vaultAPI.recordServiceUpdateRecord(
                         this.client.vaultId,
                         request.table,
@@ -289,11 +327,12 @@ class VaultController {
                     TYPES.UPDATE
                 ).then(data => {
                     printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const updatedRecord = {
-                        skyflowId: data.skyflow_id,
-                        ...data?.tokens
+                    const updatedRecord: Record<string, unknown> = {
+                        skyflowId: data.skyflow_id ?? '',
+                        ...data.tokens
                     };
-                    resolve(new UpdateResponse({ updatedField: updatedRecord, errors: null }));
+                    this.addDeprecatedSkyflowIdAccessor(updatedRecord);
+                    resolve(new UpdateResponse({ updatedField: updatedRecord as InsertResponseType, errors: null }));
                 })
                     .catch(error => {
                         reject(error);
@@ -373,7 +412,7 @@ class VaultController {
                     fields: options?.getFields(),
                     offset: options?.getOffset(),
                     limit: options?.getLimit(),
-                    downloadURL: options?.getDownloadURL(),
+                    downloadURL: options?.getDownloadUrl(),
                     column_name: columnName,
                     column_values: columnValues,
                     order_by: options?.getOrderBy(),
@@ -389,9 +428,13 @@ class VaultController {
                     TYPES.GET
                 ).then(response => {
                     printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = response.records.map(record => ({
-                        ...(typeof record.fields === 'object' && record.fields !== null ? record.fields : {}),
-                    }));
+                    const processedRecords = response.records.map(record => {
+                        const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
+                        const { skyflow_id: skyflowIdValue, ...rest } = fields;
+                        const result: Record<string, unknown> = { ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}), ...rest };
+                        this.addDeprecatedSkyflowIdAccessor(result);
+                        return result;
+                    });
                     resolve(new GetResponse({ data: processedRecords, errors: null }));
                 })
                     .catch(error => {
@@ -406,7 +449,7 @@ class VaultController {
     }
 
     uploadFile(request: FileUploadRequest, options?: FileUploadOptions): Promise<FileUploadResponse> {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 printLog(logs.infoLogs.UPLOAD_FILE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_FILE_UPLOAD_INPUT, MessageType.LOG, this.client.getLogLevel());
@@ -419,28 +462,28 @@ class VaultController {
                 let fileName: string | undefined;
 
                 if(options?.getFilePath()) {
-                    const fileBuffer = fs.readFileSync(options.getFilePath()!);
+                    const fileBuffer = await fs.promises.readFile(options.getFilePath()!);
                     fileName = path.basename(options.getFilePath()!);
-                    fileBlob = new File([fileBuffer], fileName, {
-                        type: 'application/json'
+                    fileBlob = new File([new Uint8Array(fileBuffer)], fileName, {
+                        type: CONTENT_TYPE.APPLICATION_JSON
                     });
                 } 
                 else if (options?.getBase64()) { 
-                    const buffer = Buffer.from(options.getBase64()!, 'base64');
+                    const buffer = Buffer.from(options.getBase64()!, ENCODING_TYPE.BASE64);
                     fileName = options.getFileName()!;
-                    fileBlob = new File([buffer], fileName, {
-                        type: 'application/json'
+                    fileBlob = new File([new Uint8Array(buffer)], fileName, {
+                        type: CONTENT_TYPE.APPLICATION_JSON
                     });
                 }
                 
                 else if (options?.getFileObject() as File) {
-                    fileBlob = options?.getFileObject();
+                    fileBlob = options!.getFileObject();
                 }
 
                 const uploadFileV2Request: UploadFileV2Request = {
                     columnName:request.columnName,
                     tableName: request.table,
-                    skyflowID: request.skyflowId,
+                    skyflowID: options?.getSkyflowId() ?? request.getLegacySkyflowId(),
                     returnFileMetadata: false,
                 }
 
@@ -453,7 +496,9 @@ class VaultController {
                     TYPES.FILE_UPLOAD
                 ).then(data => {
                     printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    resolve(new FileUploadResponse({ skyflowId: data.skyflowID ?? "", errors: null }));
+                    const fileUploadResp = new FileUploadResponse({ skyflowId: data.skyflowID ?? "", errors: null });
+                    this.addDeprecatedSkyflowIdAccessor(fileUploadResp as unknown as Record<string, unknown>);
+                    resolve(fileUploadResp);
                 })
                     .catch(error => {
                         reject(error);
@@ -488,12 +533,19 @@ class VaultController {
                     TYPES.QUERY
                 ).then(response => {
                     printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    const processedRecords = response.records.map(record => ({
-                        ...(typeof record.fields === 'object' && record.fields !== null ? record.fields : {}),
-                        tokenizedData: {
-                            ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
-                        },
-                    }));
+                    const processedRecords = response.records.map(record => {
+                        const fields = typeof record.fields === 'object' && record.fields !== null ? record.fields as Record<string, unknown> : {};
+                        const { skyflow_id: skyflowIdValue, ...rest } = fields;
+                        const result: Record<string, unknown> = {
+                            ...(skyflowIdValue !== undefined ? { skyflowId: skyflowIdValue } : {}),
+                            ...rest,
+                            tokenizedData: {
+                                ...(typeof record.tokens === 'object' && record.tokens !== null ? record.tokens : {}),
+                            },
+                        };
+                        this.addDeprecatedSkyflowIdAccessor(result);
+                        return result;
+                    });
                     resolve(new QueryResponse({ fields: processedRecords, errors: null }));
                 })
                     .catch(error => {
@@ -516,8 +568,8 @@ class VaultController {
                 //validations checks
                 validateDetokenizeRequest(request, options, this.client.getLogLevel());
 
-                const fields = request.data.map(record => ({ token: record.token, redaction: record?.redactionType || RedactionType.DEFAULT })) as Array<V1DetokenizeRecordRequest>;
-                const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadURL() };
+                const fields = request.data.map(record => ({ token: record.token, redaction: record.redactionType || RedactionType.DEFAULT })) as Array<V1DetokenizeRecordRequest>;
+                const detokenizePayload: V1DetokenizePayload = { detokenizationParameters: fields, continueOnError: options?.getContinueOnError(), downloadURL: options?.getDownloadUrl() };
 
                 this.handleRequest<RecordsResponse<Record<string, string>>>(
                     (headers: Records.RequestOptions | undefined) => this.client.tokensAPI.recordServiceDetokenize(this.client.vaultId, detokenizePayload, headers).withRawResponse(),
@@ -555,7 +607,7 @@ class VaultController {
                     TYPES.TOKENIZE
                 ).then(response => {
                     printLog(logs.infoLogs.TOKENIZE_SUCCESS, MessageType.LOG, this.client.getLogLevel());
-                    resolve(new TokenizeResponse({ tokens: response.records, errors: null }))
+                    resolve(new TokenizeResponse({ tokens: response.records, errors: null }));
                 })
                     .catch(error => {
                         reject(error);
@@ -568,25 +620,6 @@ class VaultController {
         });
     }
 
-    connection() {
-        // cache detect object if created
-        // return detect object using static func
-    }
-
-    lookUpBin() {
-        // cache binlookup object if created
-        // return binlookup object using static func
-    }
-
-    audit() {
-        // cache audit object if created
-        // return audit object using static func
-    }
-
-    detect() {
-        // cache detect object if created
-        // return detect object using static func
-    }
 }
 
 export default VaultController;

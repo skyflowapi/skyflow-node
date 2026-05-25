@@ -5,6 +5,7 @@ import {
   generateBearerToken,
   generateBearerTokenFromCreds,
   isExpired,
+  LogLevel,
 } from 'skyflow-node';
 
 const filepath = 'CREDENTIALS_FILE_PATH';
@@ -12,10 +13,10 @@ let bearerToken: string = '';
 
 // To generate Bearer Token from credentials string.
 const cred = {
-  clientID: '<YOUR_CLIENT_ID>',
+  clientId: '<YOUR_CLIENT_ID>',
   clientName: '<YOUR_CLIENT_NAME>',
-  keyID: '<YOUR_KEY_ID>',
-  tokenURI: '<YOUR_TOKEN_URI>',
+  keyId: '<YOUR_KEY_ID>',
+  tokenUri: '<YOUR_TOKEN_URI>',
   privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
 
@@ -23,7 +24,9 @@ function getScopedBearerTokenFromFilePath() {
   return new Promise((resolve, reject) => {
     try {
       const options = {
-        roleIDs: ['roleID1', 'roleID2'],
+        roleIds: ['roleID1', 'roleID2'],
+        tokenUri: '<OVERRIDE_TOKEN_URI>', // optional: overrides tokenUri from credentials file
+        logLevel: LogLevel.WARN,
       };
       if (!isExpired(bearerToken)) resolve(bearerToken);
       else {
@@ -46,7 +49,9 @@ function getScopedBearerTokenFromCreds() {
   return new Promise((resolve, reject) => {
     try {
       const options = {
-        roleIDs: ['roleID1', 'roleID2'],
+        roleIds: ['roleID1', 'roleID2'],
+        tokenUri: '<OVERRIDE_TOKEN_URI>', // optional: overrides tokenUri from credentials string
+        logLevel: LogLevel.WARN,
       };
       if (!isExpired(bearerToken)) resolve(bearerToken);
       else {

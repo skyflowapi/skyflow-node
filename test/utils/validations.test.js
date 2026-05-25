@@ -1164,7 +1164,6 @@ describe('validateInsertRequest', () => {
   });
 
   // Test valid cases
-  // Test valid cases
 test('should accept valid insert request', () => {
   const request = {
     _table: 'users',  // Changed from table to _table
@@ -1172,6 +1171,52 @@ test('should accept valid insert request', () => {
     data: [
       { field1: 'value1' },
       { field2: 'value2' }
+    ]
+  };
+  expect(() => validateInsertRequest(request)).not.toThrow();
+});
+
+test('should accept insert request with null field values', () => {
+  const request = {
+    _table: 'sensitive_data_table',
+    table: 'sensitive_data_table',
+    data: [
+      { card_number: null }
+    ]
+  };
+  expect(() => validateInsertRequest(request)).not.toThrow();
+});
+
+test('should accept insert request with empty string field values', () => {
+  const request = {
+    _table: 'sensitive_data_table',
+    table: 'sensitive_data_table',
+    data: [
+      { card_number: '' }
+    ]
+  };
+  expect(() => validateInsertRequest(request)).not.toThrow();
+});
+
+test('should accept insert request with mixed null, empty string and valid field values', () => {
+  const request = {
+    _table: 'sensitive_data_table',
+    table: 'sensitive_data_table',
+    data: [
+      { card_number: '4111111111111112', cvv: null, expiry: '' }
+    ]
+  };
+  expect(() => validateInsertRequest(request)).not.toThrow();
+});
+
+test('should accept insert request with multiple records containing null and empty values', () => {
+  const request = {
+    _table: 'sensitive_data_table',
+    table: 'sensitive_data_table',
+    data: [
+      { card_number: '4111111111111112' },
+      { card_number: null },
+      { card_number: '' }
     ]
   };
   expect(() => validateInsertRequest(request)).not.toThrow();
@@ -1211,7 +1256,7 @@ test('should throw error when table name is invalid', () => {
   // Test different log levels
   test('should work with different log levels', () => {
     const request = {
-      _table: 'users', 
+      _table: 'users',
       table: 'users',
       data: [{ field: 'value' }]
     };
@@ -1220,6 +1265,7 @@ test('should throw error when table name is invalid', () => {
     expect(() => validateInsertRequest(request, undefined, LogLevel.WARN)).not.toThrow();
     expect(() => validateInsertRequest(request, undefined, LogLevel.ERROR)).not.toThrow();
   });
+
 });
 
 
@@ -1421,17 +1467,56 @@ describe('validateUpdateRequest - validateUpdateInput', () => {
       .toThrow(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_UPDATE_DATA);
   });
 
-  // Test validateUpdateInput with null values
-  test('should throw error when data contains null values', () => {
+  // Test validateUpdateInput with null values — should be accepted
+  test('should accept update data with null field values', () => {
     const request = {
       ...validTable,
       data: {
-        skyflow_id: 'valid-id',
+        skyflowId: 'valid-id',
         field: null
       }
     };
-    expect(() => validateUpdateRequest(request))
-      .toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+    expect(() => validateUpdateRequest(request)).not.toThrow();
+  });
+
+  // Test validateUpdateInput with empty string field values — should be accepted
+  test('should accept update data with empty string field values', () => {
+    const request = {
+      ...validTable,
+      data: {
+        skyflowId: 'valid-id',
+        field: ''
+      }
+    };
+    expect(() => validateUpdateRequest(request)).not.toThrow();
+  });
+
+  // Test validateUpdateInput with mixed null, empty string and valid values
+  test('should accept update data with mixed null, empty string and valid field values', () => {
+    const request = {
+      ...validTable,
+      data: {
+        skyflowId: 'valid-id',
+        card_number: null,
+        name: '',
+        ssn: '123-45-6789'
+      }
+    };
+    expect(() => validateUpdateRequest(request)).not.toThrow();
+  });
+
+  // Test validateUpdateInput with numeric and boolean field values
+  test('should accept update data with numeric and boolean field values', () => {
+    const request = {
+      ...validTable,
+      data: {
+        skyflowId: 'valid-id',
+        age: 0,
+        active: false,
+        score: 99.5
+      }
+    };
+    expect(() => validateUpdateRequest(request)).not.toThrow();
   });
 
   // Test valid update data with multiple fields
@@ -1934,7 +2019,7 @@ describe('validateDetokenizeRequest', () => {
 
     test('should validate downloadURL option', () => {
       const options = {
-        getDownloadURL: () => 'not-a-boolean'
+        getDownloadUrl: () => 'not-a-boolean'
       };
       expect(() => validateDetokenizeRequest(validRequest, options))
         .toThrow(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL);
@@ -1983,7 +2068,7 @@ describe('validateDetokenizeRequest', () => {
     };
     const options = {
       getContinueOnError: () => true,
-      getDownloadURL: () => false
+      getDownloadUrl: () => false
     };
     expect(() => validateDetokenizeRequest(request, options)).not.toThrow();
   });
@@ -2507,15 +2592,14 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
     const options = {
       getFilePath: () => '/valid/path/to/file.txt',
       getBase64: () => null,
-      getFileObject: () => null
+      getFileObject: () => null,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -2524,8 +2608,6 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
@@ -2533,7 +2615,8 @@ describe('validateUploadFileRequest', () => {
       getFilePath: () => null,
       getBase64: () => 'valid-base64',
       getFileName: () => 'file.txt',
-      getFileObject: () => null
+      getFileObject: () => null,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -2542,8 +2625,6 @@ describe('validateUploadFileRequest', () => {
     const request = {
       _table: 'users',
       table: 'users',
-      _skyflowId: 'id1',
-      skyflowId: 'id1',
       _columnName: 'file_column',
       columnName: 'file_column'
     };
@@ -2551,7 +2632,8 @@ describe('validateUploadFileRequest', () => {
     const options = {
       getFilePath: () => null,
       getBase64: () => null,
-      getFileObject: () => mockFile
+      getFileObject: () => mockFile,
+      getSkyflowId: () => 'id1'
     };
     expect(() => validateUploadFileRequest(request, options)).not.toThrow();
   });
@@ -3775,7 +3857,7 @@ describe('validateGetRequest/validateGetColumnRequest - validateGetOptions', () 
   // Test downloadURL validation
   test('should throw error when downloadURL is not boolean', () => {
     const options = {
-      getDownloadURL: () => 'not-a-boolean'
+      getDownloadUrl: () => 'not-a-boolean'
     };
     expect(() => validateGetRequest(validGetRequest, options))
       .toThrow(SKYFLOW_ERROR_CODE.INVALID_DOWNLOAD_URL);
@@ -3866,7 +3948,7 @@ describe('validateGetRequest/validateGetColumnRequest - validateGetOptions', () 
       getRedactionType: () => 'REDACTED',
       getOffset: () => '0',
       getLimit: () => '10',
-      getDownloadURL: () => false,
+      getDownloadUrl: () => false,
       getColumnName: () => 'column1',
       getOrderBy: () => OrderByEnum.ASCENDING,
       getFields: () => ['field1', 'field2'],
@@ -4045,5 +4127,141 @@ describe('validateCredentialsWithId', () => {
   test('should throw error when credentials is null', () => {
     expect(() => validateCredentialsWithId(null, type, typeId, id))
       .toThrow(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_WITH_ID);
+  });
+});
+
+describe('validateCredentialsWithId and validateSkyflowCredentials - tokenUri validation', () => {
+  const type = 'vault';
+  const typeId = 'vault_id';
+  const id = 'test-id';
+
+  const validUrl = 'https://valid.url/token';
+
+  test('validateCredentialsWithId: should throw error if tokenUri is present but not a string (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: 123
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateCredentialsWithId: should throw error if tokenUri is present but not a valid URL (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: 'not-a-url'
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateCredentialsWithId: should accept valid tokenUri (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: validUrl
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id)).not.toThrow();
+  });
+
+  test('validateCredentialsWithId: should throw error if tokenUri is present but not a string (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: 123
+    };
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateCredentialsWithId: should throw error if tokenUri is present but not a valid URL (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: 'not-a-url'
+    };
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateCredentialsWithId: should accept valid tokenUri (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: validUrl
+    };
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id)).not.toThrow();
+  });
+
+  test('validateCredentialsWithId: should accept valid tokenUri (TokenCredentials)', () => {
+    jest.spyOn(require('../../src/utils/jwt-utils'), 'isExpired').mockReturnValue(false);
+    const credentials = {
+      token: 'valid-token',
+      tokenUri: validUrl
+    };
+    expect(() => validateCredentialsWithId(credentials, type, typeId, id)).not.toThrow();
+  });
+
+  test('validateSkyflowCredentials: should throw error if tokenUri is present but not a string (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: 123
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateSkyflowCredentials: should throw error if tokenUri is present but not a valid URL (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: 'not-a-url'
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateSkyflowCredentials: should accept valid tokenUri (PathCredentials)', () => {
+    const credentials = {
+      path: '/valid/path',
+      tokenUri: validUrl
+    };
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateSkyflowCredentials(credentials)).not.toThrow();
+  });
+
+  test('validateSkyflowCredentials: should throw error if tokenUri is present but not a string (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: 123
+    };
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateSkyflowCredentials: should throw error if tokenUri is present but not a valid URL (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: 'not-a-url'
+    };
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI);
+  });
+
+  test('validateSkyflowCredentials: should accept valid tokenUri (StringCredentials)', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      tokenUri: validUrl
+    };
+    expect(() => validateSkyflowCredentials(credentials)).not.toThrow();
+  });
+
+  test('validateSkyflowCredentials: should accept valid tokenUri (TokenCredentials)', () => {
+    jest.spyOn(require('../../src/utils/jwt-utils'), 'isExpired').mockReturnValue(false);
+    const credentials = {
+      token: 'valid-token',
+      tokenUri: validUrl
+    };
+    expect(() => validateSkyflowCredentials(credentials)).not.toThrow();
   });
 });

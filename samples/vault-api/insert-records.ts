@@ -68,22 +68,23 @@ async function performSecureDataInsertion() {
             .vault(primaryVaultConfig.vaultId)
             .insert(insertReq, insertOptions);
         
-        // Handle Successful Response
-        if(response.insertedFields!=null) {
-            for(let i = 0; i < response.insertedFields.length; i++) {
-                const field: InsertResponseType = response.insertedFields[i];
-                console.log('Inserted Field: ',field);
-                // Handle filed
-            }
+        console.log(response);
+
+        // Handle Successful Response — insertedFields is always an array
+        for(let i = 0; i < response.insertedFields.length; i++) {
+            const field: InsertResponseType = response.insertedFields[i];
+            console.log('Inserted Field: ', field);
         }
 
     } catch (error) {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
-                details: error.error?.details
+                details: error.error?.details,
             });
         } else {
             console.error('Unexpected Error:', error);

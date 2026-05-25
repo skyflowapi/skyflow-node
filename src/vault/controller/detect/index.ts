@@ -5,7 +5,7 @@ import { DeidentifyTextRequest as DeidentifyTextRequest2,DeidentifyAudioRequest,
 import { DeidentifyFileRequest as  DeidentifyFileRequest2} from "../../../ _generated_/rest/api";
 
 import { TokenType } from "../../../ _generated_/rest/api";
-import { DeidenitfyFileRequestTypes, generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, removeSDKVersion, SDK_METRICS_HEADER_KEY, TYPES } from "../../../utils";
+import { DeidenitfyFileRequestTypes, generateSDKMetrics, getBearerToken, MessageType, parameterizedString, printLog, removeSDKVersion, SDK, TYPES, HTTP_HEADER, DETECT_STATUS, FILE_EXTENSION, FILE_FORMAT_TYPE, FILE_PROCESSING, ENCODING_TYPE } from "../../../utils";
 import logs from "../../../utils/logs";
 import { validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateDeidentifyFileRequest, validateGetDetectRunRequest } from "../../../utils/validations";
 import VaultClient from "../../client";
@@ -30,15 +30,13 @@ import { DeidentifyFileDetectRunResponse, DeidentifyFileOutput, DetectTextRespon
 class DetectController {
 
     private client: VaultClient;
-    
-    private waitTime: number = 64;
 
     constructor(client: VaultClient) {
         this.client = client;
     }
 
     private createSdkHeaders() {
-        return { [SDK_METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
+        return { [SDK.METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics()) };
     }
 
     private async getFileFromRequest(request: DeidentifyFileRequest): Promise<File> {
@@ -49,8 +47,8 @@ class DetectController {
             return fileType.file as File;
         } else if ('filePath' in fileType && fileType.filePath) {
             const filePath = fileType.filePath;
-            const buffer = fs.readFileSync(filePath);
-            return new File([buffer], filePath);
+            const buffer = await fs.promises.readFile(filePath);
+            return new File([new Uint8Array(buffer)], filePath);
         }
         throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
     }
@@ -58,7 +56,7 @@ class DetectController {
     private async getBase64FileContent(file: File){
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        const base64String = buffer.toString('base64');
+        const base64String = buffer.toString(ENCODING_TYPE.BASE64);
         return base64String;
     }
 
@@ -106,7 +104,7 @@ class DetectController {
             vault_id: this.client.vaultId,
             file: {
                 base64: base64String,
-                data_format: "txt",
+                data_format: FILE_FORMAT_TYPE.TXT,
             },
             entity_types: options?.getEntities() as EntityType[],
             token_type: {
@@ -125,7 +123,7 @@ class DetectController {
         var pdfRequest: DeidentifyPdfRequest = {
             file: {
                 base64: base64String as string,
-                data_format: "pdf",
+                data_format: FILE_FORMAT_TYPE.PDF,
             },
             vault_id: this.client.vaultId,
             entity_types: options?.getEntities() as EntityType[],
@@ -268,62 +266,56 @@ class DetectController {
         return genericRequest;
     }
 
-    private decodeBase64AndSaveToFile(base64Data: string, outputFilePath: string) {
+    private async decodeBase64AndSaveToFile(base64Data: string, outputFilePath: string) {
         try {
-            // Decode the base64 string
-            const buffer = Buffer.from(base64Data, 'base64');
-
-            // Write the decoded data to the specified file
-            fs.writeFileSync(outputFilePath, buffer);
+            const buffer = Buffer.from(base64Data, ENCODING_TYPE.BASE64);
+            await fs.promises.writeFile(outputFilePath, buffer);
         } catch (error) {
             throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
-
         }
     }
 
-    private processDeidentifyFileResponse(response: DeidentifyFileDetectRunResponse, outputDirectory: string, fileBaseName: string) {
-        try {
-            // Ensure the output directory exists
-            if (!fs.existsSync(outputDirectory)) {
-                fs.mkdirSync(outputDirectory, { recursive: true });
+    private async processDeidentifyFileResponse(response: DeidentifyFileDetectRunResponse, outputDirectory: string, fileBaseName: string) {
+        await fs.promises.mkdir(outputDirectory, { recursive: true });
+
+        for (const fileObject of response.output) {
+            const { processedFile, processedFileExtension } = fileObject as DeidentifyFileOutput;
+
+            if (!processedFile || !processedFileExtension) {
+                continue;
             }
 
-            // Iterate over the output array in the response
-            response.output.forEach((fileObject: DeidentifyFileOutput, index: number) => {
-                const { processedFile, processedFileExtension } = fileObject;
+            if (!/^[a-zA-Z0-9]+$/.test(processedFileExtension)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
+            }
 
-                if (!processedFile || !processedFileExtension) {
-                    return;
-                }
+            const outputFileName = `processed-${fileBaseName}.${processedFileExtension}`;
+            const outputFilePath = path.join(outputDirectory, outputFileName);
+            const resolvedOutput = path.resolve(outputFilePath);
+            const resolvedDir = path.resolve(outputDirectory);
+            if (!resolvedOutput.startsWith(resolvedDir + path.sep) && resolvedOutput !== resolvedDir) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_REQUEST);
+            }
 
-                // Determine the output file name and path
-                const outputFileName = `processed-${fileBaseName}.${processedFileExtension}`;
-                const outputFilePath = path.join(outputDirectory, outputFileName);
-
-                // Handle JSON files
-                if (processedFileExtension === 'json') {
-                    const jsonData = Buffer.from(processedFile, 'base64').toString('utf-8');
-                    fs.writeFileSync(outputFilePath, jsonData);
-                } else if ( processedFileExtension === 'mp3' || processedFileExtension === 'wav') {
-                    const mp3Data = Buffer.from(processedFile, 'base64');
-                    fs.writeFileSync(outputFilePath, mp3Data, { encoding: 'binary' });
-                } else {
-                    // Handle other file types (e.g., images, PDFs, etc.)
-                    this.decodeBase64AndSaveToFile(processedFile, outputFilePath);
-                }
-            });
-            } catch (error) {
-            throw error;
+            if (processedFileExtension === FILE_EXTENSION.JSON) {
+                const jsonData = Buffer.from(processedFile, ENCODING_TYPE.BASE64).toString(ENCODING_TYPE.UTF8);
+                await fs.promises.writeFile(outputFilePath, jsonData);
+            } else if (processedFileExtension === FILE_EXTENSION.MP3 || processedFileExtension === FILE_EXTENSION.WAV) {
+                const mp3Data = Buffer.from(processedFile, ENCODING_TYPE.BASE64);
+                await fs.promises.writeFile(outputFilePath, mp3Data, { encoding: ENCODING_TYPE.BINARY });
+            } else {
+                await this.decodeBase64AndSaveToFile(processedFile, outputFilePath);
+            }
         }
     }
 
     private getReqType(format: string): DeidenitfyFileRequestTypes{
-        var reqType: DeidenitfyFileRequestTypes
+        let reqType: DeidenitfyFileRequestTypes
         if (Object.values(DeidentifyAudioRequestFileDataFormat).includes(format as DeidentifyAudioRequestFileDataFormat)){
             reqType = DeidenitfyFileRequestTypes.AUDIO;
-        } else if (format.includes('pdf')){
+        } else if (format.includes(DeidenitfyFileRequestTypes.PDF.toLowerCase())){
             reqType = DeidenitfyFileRequestTypes.PDF
-        } else if (format.includes('txt')){
+        } else if (format.includes(DeidenitfyFileRequestTypes.TEXT.toLowerCase())){
             reqType = DeidenitfyFileRequestTypes.TEXT
         } else if (Object.values(DeidentifyImageRequestFileDataFormat).includes(format as DeidentifyImageRequestFileDataFormat)){
             reqType = DeidenitfyFileRequestTypes.IMAGE;
@@ -348,10 +340,11 @@ class DetectController {
     
         const poll = () => {
             this.client.filesAPI.getRun(runId, req)
-                .then((response: DeidentifyStatusResponse) => {
-                    if (response.status?.toUpperCase() === 'IN_PROGRESS'
+                    .then((response: DeidentifyStatusResponse) => {
+                    if (response.status?.toUpperCase() === DETECT_STATUS.IN_PROGRESS
 ) {
                         if (currentWaitTime >= maxWaitTime) {
+                            resolve({ data: { status: 'IN_PROGRESS' }, runId });
                             resolve({ data: { status: 'IN_PROGRESS' }, runId });
                         } else {
                             const nextWaitTime = currentWaitTime * 2;
@@ -367,10 +360,12 @@ class DetectController {
                                 poll();
                             }, waitTime * 1000);
                         }
-                    } else if (response.status?.toUpperCase() === 'SUCCESS') {
+                    } else if (response.status?.toUpperCase() === DETECT_STATUS.SUCCESS) {
                         resolve({ data: response, runId });
                     }
-                    else if (response.status?.toUpperCase() === 'FAILED') {
+                    else if (response.status?.toUpperCase() === DETECT_STATUS.FAILED) {
+                        reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
+                    } else {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     }
                 })
@@ -381,7 +376,7 @@ class DetectController {
     
         poll(); // Start polling
     }
-    private handleRequest<T>(apiCall: Function, requestType: string): Promise<T> {
+    private handleRequest<T>(apiCall: Function, requestType: string, waitTime: number = 64): Promise<T> {
         return new Promise((resolve, reject) => {
             printLog(parameterizedString(logs.infoLogs.EMIT_REQUEST, TYPES[requestType]), MessageType.LOG, this.client.getLogLevel());
             const sdkHeaders = this.createSdkHeaders();
@@ -403,7 +398,7 @@ class DetectController {
                                     vault_id: this.client.vaultId,
                                 }
 
-                                const maxWaitTime = this.waitTime;
+                                const maxWaitTime = waitTime;
 
                                 this.pollForProcessedFile(data?.run_id, req, maxWaitTime, resolve, reject); // Call the extracted polling function
                                 break; 
@@ -456,6 +451,7 @@ class DetectController {
             })),
             wordCount: records.word_count,
             charCount: records.character_count,
+            errors: null,
         };
     }
 
@@ -466,10 +462,10 @@ class DetectController {
         let file: File | undefined = undefined;
 
         if (base64String && extension) {
-            const buffer = Buffer.from(base64String, 'base64');
+            const buffer = Buffer.from(base64String, ENCODING_TYPE.BASE64);
             const fileName = `deidentified.${extension}`;
-            file = new File([buffer], fileName);
-        }
+    file = new File([buffer], fileName);
+}
 
         return new DeidentifyFileResponse({
             fileBase64: base64String,
@@ -483,12 +479,12 @@ class DetectController {
             pageCount: data.pages ?? 0,
             slideCount: data.slides ?? 0,
             entities: (data.output || [])
-                .filter((fileObject: DeidentifyFileOutput) => fileObject.processedFileType === 'entities')
+                .filter((fileObject: DeidentifyFileOutput) => fileObject.processedFileType === FILE_PROCESSING.ENTITIES)
                 .map((fileObject: DeidentifyFileOutput) => ({
                     file: fileObject.processedFile as string,
                     extension: fileObject.processedFileExtension as string,
                 })),
-            runId: data.runId ?? data.runId ?? runId,
+            runId: data.runId ?? runId,
             status: status,
         });
     }
@@ -589,9 +585,8 @@ class DetectController {
         });
     }
 
-    deidentifyFile(request: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyFileResponse> {
-        return new Promise(async (resolve, reject) => {
-            try {
+    async deidentifyFile(request: DeidentifyFileRequest, options?: DeidentifyFileOptions): Promise<DeidentifyFileResponse> {
+        try {
                 printLog(logs.infoLogs.DETECT_FILE_TRIGGERED, MessageType.LOG, this.client.getLogLevel());
                 printLog(logs.infoLogs.VALIDATE_DETECT_FILE_INPUT, MessageType.LOG, this.client.getLogLevel());
                 validateDeidentifyFileRequest(request, options, this.client.getLogLevel());
@@ -602,13 +597,13 @@ class DetectController {
                 const fileBaseName = path.parse(fileName).name;
                 const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1); 
 
-                this.waitTime = options?.getWaitTime() ?? this.waitTime; 
+                const waitTime = options?.getWaitTime() ?? 64;
 
-                var reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension); 
+                const reqType : DeidenitfyFileRequestTypes = this.getReqType(fileExtension);
                 type PollResult =
                     | { data: DeidentifyFileDetectRunResponse; runId: string }
                     | { data: { status: string }; runId: string };
-                var promiseReq: Promise<PollResult>;
+                let promiseReq: Promise<PollResult>;
                 switch (reqType){
                     case DeidenitfyFileRequestTypes.AUDIO:
                         promiseReq = this.buildAudioRequest(fileObj, options, fileExtension)
@@ -617,7 +612,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyAudio(
                                         audioReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -628,7 +624,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyText(
                                         textFileReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;  
@@ -639,7 +636,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyPdf(
                                         pdfReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -650,7 +648,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyImage(
                                         imageReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -661,7 +660,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyPresentation(
                                         pptReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -672,7 +672,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifySpreadsheet(
                                         spreadsheetReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -683,7 +684,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyStructuredText(
                                         structuredTextReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -694,7 +696,8 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyDocument(
                                         documentReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;
@@ -705,35 +708,31 @@ class DetectController {
                                     () => this.client.filesAPI.deidentifyFile(
                                         defaultReq
                                     ).withRawResponse(),
-                                    TYPES.DEIDENTIFY_FILE
+                                    TYPES.DEIDENTIFY_FILE,
+                                    waitTime
                                 );
                             });
                         break;                    
                 }
 
-                promiseReq.then(({ data, runId })  => {
-                    if(runId && data.status === "IN_PROGRESS") {
-                        resolve(new DeidentifyFileResponse({
-                            runId: runId,
-                            status: data.status,
-                        }));
-                        return;
-                    }
-                    const fullResponse = data as DeidentifyFileDetectRunResponse;
-                    if (options?.getOutputDirectory() && fullResponse.status === "SUCCESS") {
-                        this.processDeidentifyFileResponse(fullResponse, options.getOutputDirectory() as string, fileBaseName);
-                    }
-                    const deidentifiedFileResponse = this.parseDeidentifyFileResponse(fullResponse, runId, fullResponse.status);
-                    resolve(deidentifiedFileResponse);
-                }).catch(error => {
-                    reject(error)
-                });
-            } catch (error) {
-                if (error instanceof Error)
-                    printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
-                reject(error);
-            }
-        });
+                const { data, runId } = await promiseReq;
+                if(runId && data.status === DETECT_STATUS.IN_PROGRESS) {
+                    return new DeidentifyFileResponse({
+                        runId: runId,
+                        status: data.status,
+                    });
+                }
+                const fullResponse = data as DeidentifyFileDetectRunResponse;
+                if (options?.getOutputDirectory() && fullResponse.status === DETECT_STATUS.SUCCESS) {
+                    await this.processDeidentifyFileResponse(fullResponse, options.getOutputDirectory() as string, fileBaseName);
+                }
+                const deidentifiedFileResponse = this.parseDeidentifyFileResponse(fullResponse, runId, fullResponse.status);
+                return deidentifiedFileResponse;
+        } catch (error) {
+            if (error instanceof Error)
+                printLog(removeSDKVersion(error.message), MessageType.ERROR, this.client.getLogLevel());
+            throw error;
+        }
     }
 }
 

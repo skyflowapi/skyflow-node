@@ -1,3 +1,4 @@
+// eslint-disable-next-line camelcase
 import jwt_decode, { JwtPayload } from 'jwt-decode';
 import { MessageType, printLog } from '..';
 import logs from '../logs';

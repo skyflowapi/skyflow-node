@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import jwt from "jsonwebtoken";
 import { V1GetAuthTokenRequest, V1GetAuthTokenResponse } from '../ _generated_/rest/api';
-import { getBaseUrl, LogLevel, MessageType, parameterizedString, printLog } from '../utils';
+import { getBaseUrl, LogLevel, isValidURL, MessageType, parameterizedString, printLog, HTTP_HEADER, CONTENT_TYPE, HTTP_STATUS_CODE, JWT, ENCODING_TYPE } from '../utils';
 import Client from './client';
 import logs from '../utils/logs';
 import SkyflowError from '../error';
@@ -9,10 +9,23 @@ import SKYFLOW_ERROR_CODE from '../error/codes';
 import { ServiceAccountResponseError } from '../vault/types';
 import { WithRawResponse } from '../ _generated_/rest/core';
 
+function normalizeTokenOptions(options?: BearerTokenOptions): BearerTokenOptions | undefined {
+    if (!options) return options;
+    if (options.roleIDs !== undefined && options.roleIds === undefined) {
+        printLog(logs.warnLogs.DEPRECATED_ROLE_IDS_PROPERTY, MessageType.WARN, options.logLevel);
+        return { ...options, roleIds: options.roleIDs };
+    }
+    // if both provided, roleIDs is ignored; roleIds takes precedence
+    return options;
+}
+
 export type BearerTokenOptions = {
     ctx?: string | Record<string, any>,
+    /** @deprecated Use roleIds instead. Will be removed in v3. */
     roleIDs?: string[],
+    roleIds?: string[],
     logLevel?: LogLevel,
+    tokenUri?: string,
 }
 
 export type GenerateTokenOptions = {
@@ -29,6 +42,7 @@ export type SignedDataTokensOptions = {
     timeToLive?: number,
     ctx?: string | Record<string, any>,
     logLevel?: LogLevel,
+    tokenUri?: string
 }
 
 export type TokenResponse = {
@@ -42,20 +56,20 @@ function generateBearerToken(credentialsFilePath: string, options?: BearerTokenO
 
         if (!fs.existsSync(credentialsFilePath)) {
             printLog(parameterizedString(logs.errorLogs.FILE_NOT_FOUND, [credentialsFilePath]), MessageType.ERROR, options?.logLevel);
-            reject(new SkyflowError(SKYFLOW_ERROR_CODE.FILE_NOT_FOUND, [credentialsFilePath]));
+            return reject(new SkyflowError(SKYFLOW_ERROR_CODE.FILE_NOT_FOUND, [credentialsFilePath]));
         }
-        credentials = fs.readFileSync(credentialsFilePath, "utf8");
+        credentials = fs.readFileSync(credentialsFilePath, ENCODING_TYPE.UTF8);
 
         if (credentials === '') {
             printLog(logs.errorLogs.EMPTY_FILE, MessageType.ERROR, options?.logLevel);
-            reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FILE, [credentialsFilePath]))
+            return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FILE, [credentialsFilePath]))
         }
 
         try {
             JSON.parse(credentials);
         } catch (e) {
             printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
-            reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FILE, [credentialsFilePath]));
+            return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FILE, [credentialsFilePath]));
         }
 
         getToken(credentials, options).then((res) => {
@@ -69,83 +83,96 @@ function generateBearerTokenFromCreds(credentials, options?: BearerTokenOptions)
 }
 
 function getToken(credentials, options?: BearerTokenOptions): Promise<TokenResponse> {
+    options = normalizeTokenOptions(options);
     return new Promise((resolve, reject) => {
         printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_TRIGGERED, MessageType.LOG, options?.logLevel);
         try {
             if (!credentials || credentials === "" || credentials === "{}") {
                 printLog(logs.errorLogs.CREDENTIALS_CONTENT_EMPTY, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CREDENTIALS_STRING));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CREDENTIALS_STRING));
             }
             if (typeof (credentials) !== "string") {
                 printLog(logs.errorLogs.EXPECTED_STRING_PARAMETER, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_STRING));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_STRING));
             }
 
-            if (options?.roleIDs && options.roleIDs?.length == 0) {
-                printLog(logs.errorLogs.SCOPED_ROLES_EMPTY, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_ROLES));
-            }
-
-            if (options?.roleIDs && !Array.isArray(options.roleIDs)) {
+            if (options?.roleIds && !Array.isArray(options.roleIds)) {
                 printLog(logs.errorLogs.EXPECTED_ROLE_ID_PARAMETER, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_ROLES_KEY_TYPE));
+            }
+
+            if (options?.roleIds && options.roleIds?.length == 0) {
+                printLog(logs.errorLogs.SCOPED_ROLES_EMPTY, MessageType.ERROR, options?.logLevel);
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_ROLES));
             }
             let credentialsObj = JSON.parse("{}")
             try {
-                credentialsObj = JSON.parse(credentials);
+                credentialsObj = normalizeCredentials(JSON.parse(credentials));
             }
             catch (e) {
                 printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
             }
+
+            if (options && Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
+                if (typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
+                    printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI));
+                }
+            }
+
+            if (options?.tokenUri) {
+                credentialsObj.tokenUri = options.tokenUri;
+            }
+
             const expiryTime = Math.floor(Date.now() / 1000) + 3600;
             const claims = {
-                iss: credentialsObj.clientID,
-                key: credentialsObj.keyID,
-                aud: credentialsObj.tokenURI,
+                iss: credentialsObj.clientId,
+                key: credentialsObj.keyId,
+                aud: credentialsObj.tokenUri,
                 exp: expiryTime,
-                sub: credentialsObj.clientID,
+                sub: credentialsObj.clientId,
                 ...(options && options.ctx ? { ctx: options.ctx } : {}),
             };
             if (claims.iss == null) {
                 printLog(logs.errorLogs.CLIENT_ID_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_CLIENT_ID));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_CLIENT_ID));
             }
             else if (claims.key == null) {
                 printLog(logs.errorLogs.KEY_ID_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_KEY_ID));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_KEY_ID));
             }
             else if (claims.aud == null) {
                 printLog(logs.errorLogs.TOKEN_URI_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI));
             }
             else if (credentialsObj.privateKey == null) {
                 printLog(logs.errorLogs.PRIVATE_KEY_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
             }
             else {
-                const privateKey = credentialsObj.privateKey.toString("utf8");
-                const signedJwt = jwt.sign(claims, privateKey, { algorithm: "RS256" });
+                const privateKey = credentialsObj.privateKey.toString(ENCODING_TYPE.UTF8);
+                const signedJwt = jwt.sign(claims, privateKey, { algorithm: JWT.ALGORITHM_RS256 });
 
-                const scopedRoles = options?.roleIDs && getRolesForScopedToken(options.roleIDs);
+                const scopedRoles = options?.roleIds && getRolesForScopedToken(options.roleIds);
 
-                const url = getBaseUrl(credentialsObj?.tokenURI);
+                const url = getBaseUrl(credentialsObj.tokenUri);
 
                 if (url === '') {
                     printLog(logs.errorLogs.TOKEN_URI_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                    reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI));
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI));
                 }
 
                 const client = new Client(url);
 
                 const req: V1GetAuthTokenRequest = {
-                    grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                    grant_type: JWT.GRANT_TYPE_JWT_BEARER,
                     assertion: signedJwt,
                     scope: scopedRoles,
                 };
                 client.authApi.authenticationServiceGetAuthToken(
                     req,
-                    { headers: { "Content-Type": "application/json", } }
+                    { headers: { "Content-Type": CONTENT_TYPE.APPLICATION_JSON, } }
                 ).withRawResponse().then((res: WithRawResponse<V1GetAuthTokenResponse>) => {
                     successResponse(res.data, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
                 })
@@ -166,13 +193,13 @@ function generateSignedDataTokens(credentialsFilePath: string, options: SignedDa
 
         if (!fs.existsSync(credentialsFilePath)) {
             printLog(parameterizedString(logs.errorLogs.FILE_NOT_FOUND, [credentialsFilePath]), MessageType.ERROR, options?.logLevel);
-            reject(new SkyflowError(SKYFLOW_ERROR_CODE.FILE_NOT_FOUND, [credentialsFilePath]));
+            return reject(new SkyflowError(SKYFLOW_ERROR_CODE.FILE_NOT_FOUND, [credentialsFilePath]));
         }
-        credentials = fs.readFileSync(credentialsFilePath, "utf8");
+        credentials = fs.readFileSync(credentialsFilePath, ENCODING_TYPE.UTF8);
 
         if (credentials === '') {
             printLog(logs.errorLogs.EMPTY_FILE, MessageType.ERROR, options?.logLevel);
-            reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FILE, [credentialsFilePath]))
+            return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FILE, [credentialsFilePath]))
         }
 
         try {
@@ -193,42 +220,53 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
     return new Promise((resolve, reject) => {
         printLog(logs.infoLogs.GENERATE_SIGNED_DATA_TOKENS_TRIGGERED, MessageType.LOG, options?.logLevel);
         try {
-            if (!credentials && credentials == "") {
+            if (!credentials || credentials === "" || credentials === "{}") {
                 printLog(logs.errorLogs.CREDENTIALS_CONTENT_EMPTY, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CREDENTIALS_STRING));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CREDENTIALS_STRING));
             }
             if (typeof (credentials) !== "string") {
                 printLog(logs.errorLogs.EXPECTED_STRING_PARAMETER, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_STRING));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_STRING));
             }
 
-            if (options?.dataTokens && options.dataTokens?.length == 0) {
-                printLog(logs.errorLogs.DATA_TOKENS_EMPTY, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DATA_TOKENS));
-            }
-
-            if (options && options.dataTokens == null || undefined) {
+            if (!options || options.dataTokens == null) {
                 printLog(logs.errorLogs.DATA_TOKENS_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DATA_TOKENS));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DATA_TOKENS));
             }
 
-            if (options?.dataTokens && !Array.isArray(options.dataTokens)) {
+            if (!Array.isArray(options.dataTokens)) {
                 printLog(logs.errorLogs.EXPECTED_DATA_TOKENS_PARAMETER, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.DATA_TOKEN_KEY_TYPE));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.DATA_TOKEN_KEY_TYPE));
+            }
+
+            if (options.dataTokens.length == 0) {
+                printLog(logs.errorLogs.DATA_TOKENS_EMPTY, MessageType.ERROR, options?.logLevel);
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_DATA_TOKENS));
             }
 
             if (options?.timeToLive && typeof (options.timeToLive) !== "number") {
                 printLog(logs.errorLogs.EXPECTED_TIME_TO_LIVE_PARAMETER, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.TIME_TO_LIVE_KET_TYPE));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.TIME_TO_LIVE_KET_TYPE));
             }
 
             let credentialsObj = JSON.parse("{}")
             try {
-                credentialsObj = JSON.parse(credentials);
+                credentialsObj = normalizeCredentials(JSON.parse(credentials));
             }
             catch (e) {
                 printLog(logs.errorLogs.NOT_A_VALID_JSON, MessageType.ERROR, options?.logLevel);
-                reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
+                return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT));
+            }
+
+            if (options && Object.prototype.hasOwnProperty.call(options, 'tokenUri')) {
+                if (typeof options.tokenUri !== 'string' || !isValidURL(options.tokenUri)) {
+                    printLog(logs.errorLogs.INVALID_TOKEN_URI, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI));
+                }
+            }
+
+            if (options?.tokenUri) {
+                credentialsObj.tokenUri = options.tokenUri;
             }
 
             let expiryTime;
@@ -237,40 +275,34 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
             } else {
                 expiryTime = Math.floor(Date.now() / 1000) + 60;
             }
-            const prefix = "signed_token_";
+            const prefix = JWT.SIGNED_TOKEN_PREFIX;
 
             let responseArray: SignedDataTokensResponse[] = [];
-            if (options && options?.dataTokens) {
-                options.dataTokens.forEach((token) => {
-                    const claims = {
-                        iss: "sdk",
-                        key: credentialsObj.keyID,
-                        aud: credentialsObj.tokenURI,
-                        exp: expiryTime,
-                        sub: credentialsObj.clientID,
-                        tok: token,
-                        ...(options && options.ctx ? { ctx: options.ctx } : {}),
-                    };
+            for (const token of (options?.dataTokens ?? [])) {
+                const claims = {
+                    iss: JWT.ISSUER_SDK,
+                    key: credentialsObj.keyId,
+                    aud: credentialsObj.tokenUri,
+                    exp: expiryTime,
+                    sub: credentialsObj.clientId,
+                    tok: token,
+                    ...(options?.ctx ? { ctx: options.ctx } : {}),
+                };
 
-                    if (claims.key == null) {
-                        printLog(logs.errorLogs.KEY_ID_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                        reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_KEY_ID));
-                    }
-                    else if (claims.aud == null) {
-                        printLog(logs.errorLogs.TOKEN_URI_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                        reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI));
-                    }
-                    else if (credentialsObj.privateKey == null) {
-                        printLog(logs.errorLogs.PRIVATE_KEY_NOT_FOUND, MessageType.ERROR, options?.logLevel);
-                        reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
-                    }
-                    else {
-                        const privateKey = credentialsObj.privateKey.toString("utf8");
-                        const signedJwt = jwt.sign(claims, privateKey, { algorithm: "RS256" });
-                        const responseObject = getSignedDataTokenResponseObject(prefix + signedJwt, token);
-                        responseArray.push(responseObject)
-                    }
-                })
+                if (claims.key == null) {
+                    printLog(logs.errorLogs.KEY_ID_NOT_FOUND, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_KEY_ID));
+                } else if (claims.aud == null) {
+                    printLog(logs.errorLogs.TOKEN_URI_NOT_FOUND, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI));
+                } else if (credentialsObj.privateKey == null) {
+                    printLog(logs.errorLogs.PRIVATE_KEY_NOT_FOUND, MessageType.ERROR, options?.logLevel);
+                    return reject(new SkyflowError(SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY));
+                } else {
+                    const privateKey = credentialsObj.privateKey.toString(ENCODING_TYPE.UTF8);
+                    const signedJwt = jwt.sign(claims, privateKey, { algorithm: JWT.ALGORITHM_RS256 });
+                    responseArray.push(getSignedDataTokenResponseObject(prefix + signedJwt, token));
+                }
             }
             signedDataTokenSuccessResponse(responseArray, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
         }
@@ -287,37 +319,37 @@ function generateSignedDataTokensFromCreds(credentials, options: SignedDataToken
 function failureResponse(err: ServiceAccountResponseError, options?: BearerTokenOptions) {
     return new Promise((_, reject) => {
         if (err.rawResponse) {
-            const requestId = err?.rawResponse?.headers?.get('x-request-id');
-            const contentType = err?.rawResponse?.headers?.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                let description = err?.body?.error?.message ?? err?.body;
+            const requestId = err.rawResponse.headers?.get(HTTP_HEADER.X_REQUEST_ID);
+            const contentType = err.rawResponse.headers?.get(HTTP_HEADER.CONTENT_TYPE_LOWER);
+            if (contentType && contentType.includes(CONTENT_TYPE.APPLICATION_JSON)) {
+                let description = err.body?.error?.message ?? err.body;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err?.body?.error?.http_code,
+                    httpCode: err.body?.error?.http_code,
                     message: description,
-                    request_ID: requestId,
+                    requestId: requestId,
                 }));
-            } else if (contentType && contentType.includes('text/plain')) {
-                let description = err?.body;
+            } else if (contentType && contentType.includes(CONTENT_TYPE.TEXT_PLAIN)) {
+                let description = err.body;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err?.body?.error?.http_code,
+                    httpCode: err.body?.error?.http_code,
                     message: description,
-                    request_ID: requestId
+                    requestId: requestId
                 }));
             } else {
                 let description = logs.errorLogs.ERROR_OCCURED;
                 printLog(description, MessageType.ERROR, options?.logLevel);
                 reject(new SkyflowError({
-                    http_code: err.response?.status,
+                    httpCode: err.response?.status,
                     message: description,
-                    request_ID: requestId
+                    requestId: requestId
                 }));
             }
         } else {
             printLog(err.message, MessageType.ERROR, options?.logLevel);
             reject(new SkyflowError({
-                http_code: "500",
+                httpCode: String(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR),
                 message: err.message,
             }))
         }
@@ -326,12 +358,10 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
 
 function successResponse(res: V1GetAuthTokenResponse, logLevel?: LogLevel): Promise<TokenResponse> {
     printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_SUCCESS, MessageType.LOG, logLevel);
-    return new Promise((resolve, _) => {
-        resolve({
-            accessToken: res.accessToken ?? '',
-            tokenType: res.tokenType ?? '',
-        });
-    })
+    return Promise.resolve({
+        accessToken: res.accessToken ?? '',
+        tokenType: res.tokenType ?? '',
+    });
 }
 
 function getSignedDataTokenResponseObject(signedToken, actualToken): SignedDataTokensResponse {
@@ -344,18 +374,25 @@ function getSignedDataTokenResponseObject(signedToken, actualToken): SignedDataT
 
 function signedDataTokenSuccessResponse(res: SignedDataTokensResponse[], logLevel?: LogLevel): Promise<SignedDataTokensResponse[]> {
     printLog(logs.infoLogs.GENERATE_SIGNED_DATA_TOKEN_SUCCESS, MessageType.LOG, logLevel);
-    return new Promise((resolve, _) => {
-        resolve(res);
-    })
+    return Promise.resolve(res);
 }
 
-export function getRolesForScopedToken(roleIDs: string[]) {
+export function getRolesForScopedToken(roleIds: string[]) {
     let str = ''
-    roleIDs?.forEach((role) => {
-        str = str + "role:" + role + " "
+    roleIds?.forEach((role) => {
+        str = str + JWT.ROLE_PREFIX + role + " "
     })
     return str;
 }
 
+
+function normalizeCredentials(obj: any): any {
+    return {
+        ...obj,
+        clientId: obj.clientId ?? obj.clientID,
+        keyId: obj.keyId ?? obj.keyID,
+        tokenUri: obj.tokenUri ?? obj.tokenURI,
+    };
+}
 
 export { generateBearerToken, generateBearerTokenFromCreds, generateSignedDataTokens, generateSignedDataTokensFromCreds, getToken, successResponse, failureResponse };

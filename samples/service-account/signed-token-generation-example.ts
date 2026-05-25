@@ -10,10 +10,10 @@ let filepath: string = 'CREDENTIALS_FILE_PATH';
 
 // To generate Bearer Token from credentials string.
 let cred = {
-  clientID: '<YOUR_CLIENT_ID>',
+  clientId: '<YOUR_CLIENT_ID>',
   clientName: '<YOUR_CLIENT_NAME>',
-  keyID: '<YOUR_KEY_ID>',
-  tokenURI: '<YOUR_TOKEN_URI>',
+  keyId: '<YOUR_KEY_ID>',
+  tokenUri: '<YOUR_TOKEN_URI>',
   privateKey: '<YOUR_PEM_PRIVATE_KEY>',
 };
 
@@ -24,7 +24,8 @@ function getSignedTokenWithStringContext() {
       const options = {
         ctx: 'user_12345',
         dataTokens: ['dataToken1', 'dataToken2'],
-        timeToLive: 90 // In seconds.
+        timeToLive: 90, // In seconds.
+        tokenUri: '<OVERRIDE_TOKEN_URI>', // optional: overrides tokenUri from credentials file
       };
       let response = await generateSignedDataTokens(filepath, options);
       resolve(response);
@@ -65,6 +66,7 @@ function getSignedTokenFromCreds() {
         ctx: 'ctx',
         dataTokens: ['dataToken1', 'dataToken2'],
         timeToLive: 90, // In seconds.
+        tokenUri: '<OVERRIDE_TOKEN_URI>', // optional: overrides tokenUri from credentials string
       };
       let response = await generateSignedDataTokensFromCreds(
         JSON.stringify(cred),

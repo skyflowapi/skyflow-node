@@ -1,15 +1,17 @@
-import { 
-    Credentials, 
-    Env, 
-    GetRequest, 
-    GetResponse, 
-    InsertRequest, 
-    LogLevel, 
-    Skyflow, 
-    VaultConfig, 
-    SkyflowConfig, 
-    InsertResponse, 
-    SkyflowError 
+import {
+    Credentials,
+    Env,
+    GetRequest,
+    GetOptions,
+    GetResponse,
+    InsertRequest,
+    LogLevel,
+    RedactionType,
+    Skyflow,
+    VaultConfig,
+    SkyflowConfig,
+    InsertResponse,
+    SkyflowError
 } from 'skyflow-node';
 
 /**
@@ -65,6 +67,9 @@ async function transferDataBetweenVaults() {
         const tableName: string = 'your-table-name';  // Replace with your table name
 
         const getRequest: GetRequest = new GetRequest(tableName, getIds);
+        const getOptions: GetOptions = new GetOptions();
+        getOptions.setReturnTokens(false);  // Get plaintext to re-insert into destination vault
+        getOptions.setRedactionType(RedactionType.PLAIN_TEXT);
 
         // Perform Get request on Primary Vault
         const getResponse: GetResponse = await skyflowClient
@@ -78,8 +83,12 @@ async function transferDataBetweenVaults() {
 
         // Remove skyflow_id from the data (if needed for re-insertion)
         const sanitizedData = insertData.map((item: Record<string, unknown>) => {
-            const { skyflow_id, ...rest } = item;  // Exclude the skyflow_id field
-            return rest;
+            // SK-2812: strip skyflowId (new), skyflow_id (deprecated getter, enumerable), file (use uploadFile), nulls
+            return Object.fromEntries(
+                Object.entries(item).filter(([k, v]) =>
+                    k !== 'skyflowId' && k !== 'skyflow_id' && k !== 'file' && v !== null
+                )
+            );
         });
 
         // Step 7: Insert Data into Secondary Vault
@@ -99,7 +108,9 @@ async function transferDataBetweenVaults() {
         // Comprehensive error handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
                 details: error.error?.details,
             });

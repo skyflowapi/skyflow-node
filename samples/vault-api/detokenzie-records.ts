@@ -67,7 +67,7 @@ async function performDetokenization() {
         // Configure Detokenize Options
         const detokenizeOptions: DetokenizeOptions = new DetokenizeOptions();
         detokenizeOptions.setContinueOnError(true); // Continue processing on errors
-        detokenizeOptions.setDownloadURL(false);   // Disable download URL generation
+        detokenizeOptions.setDownloadUrl(false);   // Disable download URL generation
 
         // Step 5: Perform Detokenization
         const response: DetokenizeResponse = await skyflowClient
@@ -85,7 +85,9 @@ async function performDetokenization() {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
                 details: error.error?.details,
             });

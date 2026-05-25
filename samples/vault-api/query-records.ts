@@ -54,13 +54,23 @@ async function executeQuery() {
             .query(queryRequest);
 
         // Handle Successful Response
+        // fields, tokenizedData, and errors are always present in QueryResponse
         console.log('Query Result:', response);
+        response.fields.forEach(record => {
+            console.log('Fields:', record);
+            console.log('Tokenized Data:', record.tokenizedData);
+        });
+        if (response.errors !== null) {
+            console.error('Query Errors:', response.errors);
+        }
 
     } catch (error) {
         // Comprehensive Error Handling
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
-                code: error.error?.http_code,
+                httpCode: error.error?.httpCode,
+                grpcCode: error.error?.grpcCode,
+                httpStatus: error.error?.httpStatus,
                 message: error.message,
                 details: error.error?.details,
             });

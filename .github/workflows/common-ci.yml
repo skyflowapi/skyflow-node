@@ -19,6 +19,9 @@ jobs:
       - name: Install Packages
         run: npm install
 
+      - name: Run ESLint
+        run: npm run eslint
+
       - name: Run Tests
         env:
           SA_WITHOUT_CONTEXT: ${{ secrets.SA_WITHOUT_CONTEXT }}

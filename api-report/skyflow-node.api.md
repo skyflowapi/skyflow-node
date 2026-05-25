@@ -17,7 +17,9 @@ export interface ApiKeyCredentials {
 export type BearerTokenOptions = {
     ctx?: string | Record<string, any>;
     roleIDs?: string[];
+    roleIds?: string[];
     logLevel?: LogLevel;
+    tokenUri?: string;
 };
 
 // @public (undocumented)
@@ -35,9 +37,9 @@ export class Bleep {
     // (undocumented)
     setGain(gain: number): void;
     // (undocumented)
-    setStartPadding(start_padding: number): void;
+    setStartPadding(startPadding: number): void;
     // (undocumented)
-    setStopPadding(stop_padding: number): void;
+    setStopPadding(stopPadding: number): void;
 }
 
 // @public (undocumented)
@@ -146,6 +148,7 @@ export class DeidentifyFileResponse {
         }>;
         runId?: string;
         status?: string;
+        errors?: Array<SkyflowRecordError> | null;
     });
     // (undocumented)
     charCount?: number;
@@ -156,6 +159,8 @@ export class DeidentifyFileResponse {
         file: string;
         extension: string;
     }>;
+    // (undocumented)
+    errors: Array<SkyflowRecordError> | null;
     // (undocumented)
     extension?: string;
     // (undocumented)
@@ -224,6 +229,7 @@ export class DeidentifyTextResponse {
         }>;
         wordCount: number;
         charCount: number;
+        errors?: Array<SkyflowRecordError> | null;
     });
     // (undocumented)
     charCount: number;
@@ -236,6 +242,8 @@ export class DeidentifyTextResponse {
         entity?: string;
         scores?: Record<string, number>;
     }>;
+    // (undocumented)
+    errors: Array<SkyflowRecordError> | null;
     // (undocumented)
     processedText: string;
     // (undocumented)
@@ -255,12 +263,13 @@ export class DeleteRequest {
 
 // @public (undocumented)
 export class DeleteResponse {
+    // @deprecated
     constructor(input: {
         deletedIds: Array<string>;
         errors: Array<SkyflowRecordError> | null;
     });
     // (undocumented)
-    deletedIds?: Array<string>;
+    deletedIds: Array<string>;
     // (undocumented)
     errors: Array<SkyflowRecordError> | null;
 }
@@ -434,12 +443,16 @@ export class DetokenizeOptions {
     constructor();
     // (undocumented)
     getContinueOnError(): boolean | undefined;
-    // (undocumented)
+    // @deprecated (undocumented)
     getDownloadURL(): boolean | undefined;
     // (undocumented)
-    setContinueOnError(continueOnError: boolean): void;
+    getDownloadUrl(): boolean | undefined;
     // (undocumented)
+    setContinueOnError(continueOnError: boolean): void;
+    // @deprecated (undocumented)
     setDownloadURL(downloadURL: boolean): void;
+    // (undocumented)
+    setDownloadUrl(downloadUrl: boolean): void;
 }
 
 // @public (undocumented)
@@ -494,6 +507,8 @@ export class FileUploadOptions {
     // (undocumented)
     getFilePath(): string | undefined;
     // (undocumented)
+    getSkyflowId(): string | undefined;
+    // (undocumented)
     setBase64(base64: string): void;
     // (undocumented)
     setFileName(fileName: string): void;
@@ -501,15 +516,19 @@ export class FileUploadOptions {
     setFileObject(fileObject: File): void;
     // (undocumented)
     setFilePath(filePath: string): void;
+    // (undocumented)
+    setSkyflowId(skyflowId: string): void;
 }
 
 // @public (undocumented)
 export class FileUploadRequest {
-    constructor(table: string, skyflowId: string, columnName: string);
+    constructor(table: string, columnNameOrSkyflowId: string, columnName?: string);
     // (undocumented)
     get columnName(): string;
     set columnName(value: string);
-    // (undocumented)
+    // @internal (undocumented)
+    getLegacySkyflowId(): string | undefined;
+    // @deprecated (undocumented)
     get skyflowId(): string;
     set skyflowId(value: string);
     // (undocumented)
@@ -579,8 +598,10 @@ export class GetOptions {
     getColumnName(): string | undefined;
     // (undocumented)
     getColumnValues(): Array<string> | undefined;
-    // (undocumented)
+    // @deprecated (undocumented)
     getDownloadURL(): boolean | undefined;
+    // (undocumented)
+    getDownloadUrl(): boolean | undefined;
     // (undocumented)
     getFields(): Array<string> | undefined;
     // (undocumented)
@@ -597,8 +618,10 @@ export class GetOptions {
     setColumnName(columnName: string): void;
     // (undocumented)
     setColumnValues(columnValues: Array<string>): void;
-    // (undocumented)
+    // @deprecated (undocumented)
     setDownloadURL(downloadURL: boolean): void;
+    // (undocumented)
+    setDownloadUrl(downloadUrl: boolean): void;
     // (undocumented)
     setFields(fields: Array<string>): void;
     // (undocumented)
@@ -692,20 +715,23 @@ export class InsertRequest {
 
 // @public (undocumented)
 export class InsertResponse {
+    // @deprecated
     constructor(input: {
-        insertedFields: Array<InsertResponseType> | null;
+        insertedFields: Array<InsertResponseType>;
         errors: Array<SkyflowRecordError> | null;
     });
     // (undocumented)
     errors: Array<SkyflowRecordError> | null;
     // (undocumented)
-    insertedFields: Array<InsertResponseType> | null;
+    insertedFields: Array<InsertResponseType>;
 }
 
 // @public (undocumented)
 export interface InsertResponseType {
     // (undocumented)
     [key: string]: unknown;
+    // @deprecated (undocumented)
+    skyflow_id?: string;
     // (undocumented)
     skyflowId: string;
 }
@@ -783,6 +809,8 @@ export interface PathCredentials {
     path: string;
     // (undocumented)
     roles?: Array<string>;
+    // (undocumented)
+    tokenUri?: string;
 }
 
 // @public (undocumented)
@@ -874,6 +902,7 @@ export type SignedDataTokensOptions = {
     timeToLive?: number;
     ctx?: string | Record<string, any>;
     logLevel?: LogLevel;
+    tokenUri?: string;
 };
 
 // @public (undocumented)
@@ -907,6 +936,8 @@ export class Skyflow {
     setLogLevel(logLevel: LogLevel): void;
     // (undocumented)
     updateConnectionConfig(config: ConnectionConfig): void;
+    // (undocumented)
+    updateLogLevel(logLevel: LogLevel): Skyflow;
     // (undocumented)
     updateSkyflowCredentials(credentials: Credentials): void;
     // (undocumented)
@@ -944,6 +975,8 @@ export interface SkyflowRecordError {
     error: string;
     // (undocumented)
     httpCode?: string | number | null;
+    // @deprecated (undocumented)
+    request_ID?: string | null;
     // (undocumented)
     requestId: string | null;
     // (undocumented)
@@ -960,6 +993,8 @@ export interface StringCredentials {
     credentialsString: string;
     // (undocumented)
     roles?: Array<string>;
+    // (undocumented)
+    tokenUri?: string;
 }
 
 // @public (undocumented)

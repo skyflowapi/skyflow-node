@@ -12,12 +12,14 @@ export interface PathCredentials {
   path: string;
   roles?: Array<string>;
   context?: string | Record<string, any>;
+  tokenUri?: string;
 }
 
 export interface StringCredentials {
   credentialsString: string;
   roles?: Array<string>;
   context?: string | Record<string, any>
+  tokenUri?: string;
 }
 
 export interface ApiKeyCredentials {
