@@ -557,6 +557,469 @@ describe('VaultClient', () => {
                 expect(err).toBeInstanceOf(SkyflowError);
             }
         });
+
+        test('should handle JSON error with non-array details and error-from-client false (rawResponse)', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'req-1'],
+                        ['error-from-client', 'false'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'JSON error',
+                        http_code: 400,
+                        grpc_code: 3,
+                        details: { field: 'issue' },
+                    },
+                },
+                statusCode: 400,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle legacy JSON error without message using default description', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['content-type', 'application/json'],
+                    ['x-request-id', 'req-legacy'],
+                ]),
+                body: {
+                    error: {
+                        http_code: 500,
+                        grpc_code: 13,
+                        details: [],
+                    },
+                },
+                status: 500,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle legacy JSON error with non-array details and error-from-client', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['content-type', 'application/json'],
+                    ['x-request-id', 'req-legacy-2'],
+                    ['error-from-client', 'true'],
+                ]),
+                body: {
+                    error: {
+                        message: 'Legacy JSON',
+                        http_code: 403,
+                        details: 'not-an-array',
+                    },
+                },
+                status: 403,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle new-format text error using rawBody when message is missing', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'text/plain'],
+                        ['x-request-id', 'req-text'],
+                    ]),
+                },
+                body: {
+                    error: {},
+                    rawBody: 'plain text failure',
+                },
+                statusCode: 500,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle legacy text error without message in body', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['content-type', 'text/plain'],
+                    ['x-request-id', 'req-text-legacy'],
+                ]),
+                body: {
+                    error: {},
+                },
+                status: 500,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle new-format generic error using top-level message', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['x-request-id', 'req-generic'],
+                    ]),
+                },
+                message: 'Top-level API failure',
+                body: {},
+                statusCode: 502,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle new-format generic error with undefined headers', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: undefined,
+                },
+                body: {
+                    error: {
+                        message: 'No headers error',
+                        grpc_code: 2,
+                        details: [],
+                    },
+                },
+                statusCode: 400,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle legacy generic error with non-array details and error-from-client', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['x-request-id', 'req-gen-legacy'],
+                    ['error-from-client', 'true'],
+                ]),
+                body: {
+                    error: {
+                        message: 'Legacy generic',
+                        details: { code: 'X' },
+                    },
+                },
+                status: 500,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle new-format JSON error without error-from-client header', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'req-no-client-flag'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'Server error',
+                        http_code: 500,
+                        grpc_code: 13,
+                        details: [],
+                    },
+                },
+                statusCode: 500,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle new-format JSON error without message in error body', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'req-no-msg'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        http_status: '400',
+                        grpc_code: 3,
+                        details: [],
+                    },
+                },
+                statusCode: 400,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle new-format JSON error with array details and error-from-client', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'req-arr-details'],
+                        ['error-from-client', 'true'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'Validation failed',
+                        http_code: 400,
+                        grpc_code: 3,
+                        details: [{ field: 'name' }],
+                    },
+                },
+                statusCode: 400,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle legacy JSON error without error-from-client header', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['content-type', 'application/json'],
+                    ['x-request-id', 'req-legacy-no-flag'],
+                ]),
+                body: {
+                    error: {
+                        message: 'Legacy without flag',
+                        http_code: 400,
+                        details: [{ issue: 'bad' }],
+                    },
+                },
+                status: 400,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle new-format text error with message in body', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'text/plain'],
+                        ['x-request-id', 'req-text-msg'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'Text error message',
+                        http_code: 503,
+                        grpc_code: 14,
+                    },
+                },
+                statusCode: 503,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should handle new-format generic error with body error message', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([['x-request-id', 'req-gen-msg']]),
+                },
+                body: {
+                    error: {
+                        message: 'Structured generic error',
+                        grpc_code: 4,
+                        details: ['detail-a'],
+                    },
+                },
+                statusCode: 502,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should set errorFromClient to false when header is false (rawResponse)', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'req-false-flag'],
+                        ['error-from-client', 'false'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'Client flagged false',
+                        http_code: 400,
+                        details: [],
+                    },
+                },
+                statusCode: 400,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should set errorFromClient to false when header is false (legacy)', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['content-type', 'application/json'],
+                    ['x-request-id', 'req-legacy-false-flag'],
+                    ['error-from-client', 'false'],
+                ]),
+                body: {
+                    error: {
+                        message: 'Legacy client flagged false',
+                        http_code: 400,
+                        details: [],
+                    },
+                },
+                status: 400,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should use statusCode on new-format error when body http_code is missing', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'req-status-only'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'Status only',
+                        grpc_code: 3,
+                    },
+                },
+                statusCode: 418,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+
+        test('should use legacy http_code in logAndRejectError when isNewFormat is false', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['content-type', 'application/json'],
+                    ['x-request-id', 'req-legacy-http'],
+                ]),
+                body: {
+                    error: {
+                        message: 'Legacy http code',
+                        http_code: 422,
+                        grpc_code: 9,
+                    },
+                },
+                status: 422,
+            };
+            await expect(vaultClient.failureResponse(errorResponse)).rejects.toBeInstanceOf(SkyflowError);
+        });
+    });
+
+    describe('error handler internals', () => {
+        const reject = jest.fn();
+
+        beforeEach(() => {
+            reject.mockClear();
+        });
+
+        test('normalizeErrorMeta handles new and legacy header shapes', () => {
+            const newMeta = vaultClient['normalizeErrorMeta']({
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/json'],
+                        ['x-request-id', 'req-1'],
+                        ['error-from-client', 'false'],
+                    ]),
+                },
+            });
+            expect(newMeta.isNewFormat).toBe(true);
+            expect(newMeta.requestId).toBe('req-1');
+            expect(newMeta.errorFromClient).toBe(false);
+
+            const legacyMeta = vaultClient['normalizeErrorMeta']({
+                headers: new Map([['x-request-id', 'legacy-req']]),
+            });
+            expect(legacyMeta.isNewFormat).toBe(false);
+            expect(legacyMeta.requestId).toBe('legacy-req');
+            expect(legacyMeta.errorFromClient).toBeUndefined();
+        });
+
+        test('handleJsonError covers new and legacy branches', () => {
+            vaultClient['handleJsonError']({
+                rawResponse: { headers: new Map() },
+                body: { error: { message: 'new', http_status: '400', details: [] } },
+                statusCode: 400,
+            }, { message: 'new' }, 'req', reject, true);
+
+            vaultClient['handleJsonError']({
+                headers: new Map([['content-type', 'application/json']]),
+                body: { error: { http_code: 422, details: 'x' } },
+            }, { http_code: 422 }, 'legacy-req', reject, false);
+
+            expect(reject).toHaveBeenCalled();
+        });
+
+        test('handleTextError covers new and legacy branches', () => {
+            vaultClient['handleTextError']({
+                rawResponse: { headers: new Map() },
+                body: { error: { message: 'text' }, rawBody: 'fallback' },
+            }, { message: 'text' }, 'req', reject, true);
+
+            vaultClient['handleTextError']({
+                headers: new Map([['content-type', 'text/plain']]),
+                body: { error: {} },
+            }, {}, 'legacy-req', reject, false);
+
+            expect(reject).toHaveBeenCalled();
+        });
+
+        test('handleGenericError covers message fallbacks', () => {
+            vaultClient['handleGenericError']({
+                rawResponse: { headers: new Map() },
+                message: 'top-level',
+                body: { error: { grpc_code: 1 } },
+            }, 'req', reject, undefined);
+
+            vaultClient['handleGenericError']({
+                rawResponse: { headers: new Map() },
+                body: {},
+            }, 'req-no-body', reject, undefined);
+
+            vaultClient['handleGenericError']({
+                headers: new Map(),
+                body: { error: { message: 'legacy generic' } },
+            }, 'legacy-req', reject, true);
+
+            expect(reject).toHaveBeenCalled();
+        });
+
+        test('handleJsonError uses non-array details when errorFromClient is set', () => {
+            vaultClient['handleJsonError']({
+                rawResponse: { headers: new Map() },
+                body: { error: { message: 'err', details: { reason: 'x' } } },
+            }, { message: 'err', details: { reason: 'x' } }, 'req', reject, true);
+            expect(reject).toHaveBeenCalled();
+        });
+
+        test('handleTextError uses rawBody fallback for new-format errors', () => {
+            vaultClient['handleTextError']({
+                rawResponse: { headers: new Map() },
+                body: { error: {}, rawBody: 'raw failure text' },
+            }, { rawBody: 'raw failure text' }, 'req', reject, true);
+            expect(reject).toHaveBeenCalled();
+        });
+
+        test('logAndRejectError uses new and legacy http codes', () => {
+            vaultClient['logAndRejectError'](
+                'desc',
+                { statusCode: 418, body: { error: {} } },
+                'req',
+                reject,
+                undefined,
+                3,
+                [],
+                true
+            );
+            vaultClient['logAndRejectError'](
+                'legacy desc',
+                { body: { error: { http_code: 409 } } },
+                'legacy-req',
+                reject,
+                409,
+                7,
+                [],
+                false
+            );
+            expect(reject).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    describe('getCredentials with updateTriggered', () => {
+        test('should skip token reuse when updateTriggered is true', () => {
+            isExpired.mockReturnValue(false);
+            vaultClient.authInfo = { key: token, type: AuthType.TOKEN };
+            vaultClient.updateTriggered = true;
+            const credentials = vaultClient.getCredentials();
+            expect(credentials).toEqual({ apiKey });
+            expect(vaultClient.updateTriggered).toBe(false);
+        });
     });
 
     describe('updateClientConfig', () => {
