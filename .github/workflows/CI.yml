@@ -24,6 +24,6 @@ jobs:
   ci-checks:
     uses: ./.github/workflows/common-ci.yml
     with:
-      upload-to-code-cov: false
+      upload-to-code-cov: true
     secrets: inherit
 
