@@ -1,11 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const { validateDeidentifyFileRequest, validateSkyflowConfig, validateVaultConfig, validateUpdateVaultConfig, validateSkyflowCredentials, validateConnectionConfig, validateUpdateConnectionConfig, validateInsertRequest, validateUpdateRequest, validateGetRequest, validateDetokenizeRequest, validateTokenizeRequest, validateDeleteRequest, validateUploadFileRequest, validateQueryRequest, validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateGetDetectRunRequest, validateInvokeConnectionRequest, validateUpdateOptions, validateGetColumnRequest, validateCredentialsWithId } = require('../../src/utils/validations');
+const { validateDeidentifyFileRequest, validateDeidentifyFileOptions, validateSkyflowConfig, validateVaultConfig, validateUpdateVaultConfig, validateSkyflowCredentials, validateConnectionConfig, validateUpdateConnectionConfig, validateInsertRequest, validateUpdateRequest, validateGetRequest, validateDetokenizeRequest, validateTokenizeRequest, validateDeleteRequest, validateUploadFileRequest, validateQueryRequest, validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateGetDetectRunRequest, validateInvokeConnectionRequest, validateUpdateOptions, validateGetColumnRequest, validateCredentialsWithId, isEnv, isRedactionType, isByot, isOrderBy, isMethod, isLogLevel, isValidAPIKey, validateInsertOptions, validateGetOptions, validateDetokenizeOptions } = require('../../src/utils/validations');
 const DeidentifyFileRequest = require('../../src/vault/model/request/deidentify-file').default;
 const DeidentifyFileOptions = require('../../src/vault/model/options/deidentify-file').default;
 const SKYFLOW_ERROR_CODE = require('../../src/error/codes');
 const { default: TokenFormat } = require('../../src/vault/model/options/deidentify-text/token-format');
-const { DetectEntities, Env, TokenMode, OrderByEnum } = require('../../src/utils');
+const { DetectEntities, Env, TokenMode, OrderByEnum, MaskingMethod } = require('../../src/utils');
+const { Bleep } = require('../../src/vault/model/options/deidentify-file/bleep-audio');
 const { LogLevel } = require('../../src/utils');
 const { default: Transformations } = require('../../src/vault/model/options/deidentify-text/transformations');
 
@@ -290,6 +291,64 @@ describe('validateDeidentifyFileRequest', () => {
         options.setEntities(['PERSON', 'LOCATION']);
         options.setAllowRegexList(['^test', 'pattern$']);
         expect(() => validateDeidentifyFileRequest(request, options)).not.toThrow();
+    });
+
+    test('should throw error when file base name is whitespace only', () => {
+        const invalidFile = new File(['content'], '   .txt', { type: 'text/plain' });
+        const request = new DeidentifyFileRequest({ file: invalidFile });
+        expect(() => validateDeidentifyFileRequest(request))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+    });
+
+    test('should throw error when file path is whitespace only', () => {
+        const request = new DeidentifyFileRequest({ filePath: '   ' });
+        expect(() => validateDeidentifyFileRequest(request))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_PATH);
+    });
+
+    test('should throw error when output directory is not a string', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setOutputDirectory(123);
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_DIRECTORY);
+    });
+
+    test('should throw error for invalid restrict regex list in file options', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setRestrictRegexList('pattern');
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_RESTRICT_REGEX_LIST);
+    });
+
+    test('should throw error when token format is not a TokenFormat instance in file options', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setTokenFormat({});
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
+    });
+
+    test('should throw error for invalid output ocr text type', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setOutputOcrText('true');
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_OCR_TEXT);
+    });
+
+    test('should throw error when bleep is not a Bleep instance', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setBleep({});
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_BLEEP);
+    });
+
+    test('should throw error when validateDeidentifyFileOptions receives null', () => {
+        expect(() => validateDeidentifyFileOptions(null))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_OPTIONS);
     });
 });
 
@@ -2522,7 +2581,10 @@ describe('validateUploadFileRequest', () => {
     // Test invalid filePath
     test('should throw error when filePath is invalid', () => {
       const options = {
-        getFilePath: () => 123  // number instead of string
+        getSkyflowId: () => 'id1',
+        getFilePath: () => 123,  // number instead of string
+        getBase64: () => null,
+        getFileObject: () => null
       };
       expect(() => validateUploadFileRequest(validRequest, options))
         .toThrow(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH_IN_UPLOAD_FILE);
@@ -2531,7 +2593,10 @@ describe('validateUploadFileRequest', () => {
     // Test invalid base64
     test('should throw error when base64 is invalid', () => {
       const options = {
-        getBase64: () => 123  // number instead of string
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
+        getBase64: () => 123,  // number instead of string
+        getFileObject: () => null
       };
       expect(() => validateUploadFileRequest(validRequest, options))
         .toThrow(SKYFLOW_ERROR_CODE.INVALID_BASE64_IN_UPLOAD_FILE);
@@ -2540,6 +2605,9 @@ describe('validateUploadFileRequest', () => {
     // Test invalid fileObject
     test('should throw error when fileObject is invalid', () => {
       const options = {
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
+        getBase64: () => null,
         getFileObject: () => "not-a-file-object"  // string instead of File object
       };
       expect(() => validateUploadFileRequest(validRequest, options))
@@ -2549,6 +2617,7 @@ describe('validateUploadFileRequest', () => {
     // Test missing file source
     test('should throw error when no file source is provided', () => {
       const options = {
+        getSkyflowId: () => 'id1',
         getFilePath: () => null,
         getBase64: () => null,
         getFileObject: () => null
@@ -2560,7 +2629,10 @@ describe('validateUploadFileRequest', () => {
     // Test missing fileName for base64
     test('should throw error when fileName is missing for base64', () => {
       const options = {
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
         getBase64: () => 'valid-base64',
+        getFileObject: () => null,
         getFileName: () => null
       };
       expect(() => validateUploadFileRequest(validRequest, options))
@@ -2570,6 +2642,9 @@ describe('validateUploadFileRequest', () => {
     // Test invalid File object
     test('should throw error when File object is invalid', () => {
       const options = {
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
+        getBase64: () => null,
         getFileObject: () => ({})  // not a File instance
       };
       expect(() => validateUploadFileRequest(validRequest, options))
@@ -2580,6 +2655,9 @@ describe('validateUploadFileRequest', () => {
     test('should throw error when filename is missing in File object', () => {
       const mockFile = new File([], '');  // empty filename
       const options = {
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
+        getBase64: () => null,
         getFileObject: () => mockFile
       };
       expect(() => validateUploadFileRequest(validRequest, options))
@@ -2794,6 +2872,7 @@ describe('validateDeIdentifyTextRequest', () => {
 
     test('should throw error when allowRegexList is not an array', () => {
       const options = {
+        getEntities: () => null,
         getAllowRegexList: () => 'not-an-array'
       };
       expect(() => validateDeIdentifyTextRequest(validRequest, options))
@@ -2802,6 +2881,8 @@ describe('validateDeIdentifyTextRequest', () => {
 
     test('should throw error when restrictRegexList is not an array', () => {
       const options = {
+        getEntities: () => null,
+        getAllowRegexList: () => null,
         getRestrictRegexList: () => 'not-an-array'
       };
       expect(() => validateDeIdentifyTextRequest(validRequest, options))
@@ -2810,6 +2891,9 @@ describe('validateDeIdentifyTextRequest', () => {
 
     test('should throw error when tokenFormat is not TokenFormat instance', () => {
       const options = {
+        getEntities: () => null,
+        getAllowRegexList: () => null,
+        getRestrictRegexList: () => null,
         getTokenFormat: () => ({})  // not a TokenFormat instance
       };
       expect(() => validateDeIdentifyTextRequest(validRequest, options))
@@ -2818,6 +2902,10 @@ describe('validateDeIdentifyTextRequest', () => {
 
     test('should throw error when transformations is not Transformations instance', () => {
       const options = {
+        getEntities: () => null,
+        getAllowRegexList: () => null,
+        getRestrictRegexList: () => null,
+        getTokenFormat: () => null,
         getTransformations: () => ({})  // not a Transformations instance
       };
       expect(() => validateDeIdentifyTextRequest(validRequest, options))
@@ -2927,6 +3015,7 @@ describe('validateReidentifyTextRequest', () => {
 
     test('should throw error when maskedEntities is not an array', () => {
       const options = {
+        getRedactedEntities: () => null,
         getMaskedEntities: () => 'not-an-array'
       };
       expect(() => validateReidentifyTextRequest(validRequest, options))
@@ -2935,6 +3024,8 @@ describe('validateReidentifyTextRequest', () => {
 
     test('should throw error when plainTextEntities is not an array', () => {
       const options = {
+        getRedactedEntities: () => null,
+        getMaskedEntities: () => null,
         getPlainTextEntities: () => 'not-an-array'
       };
       expect(() => validateReidentifyTextRequest(validRequest, options))
@@ -3251,6 +3342,17 @@ describe('validateInvokeConnectionRequest', () => {
       headers: {}
     };
     expect(() => validateInvokeConnectionRequest(request)).not.toThrow();
+  });
+
+  test('should throw error for invalid headers', () => {
+    const request = {
+      method: 'GET',
+      headers: {
+        'Content-Type': Symbol()  // symbol value — not a string
+      }
+    };
+    expect(() => validateInvokeConnectionRequest(request))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_HEADERS);
   });
 });
 
@@ -4263,5 +4365,466 @@ describe('validateCredentialsWithId and validateSkyflowCredentials - tokenUri va
       tokenUri: validUrl
     };
     expect(() => validateSkyflowCredentials(credentials)).not.toThrow();
+  });
+});
+
+describe('validation helper functions', () => {
+  test('isEnv returns true for valid env and false otherwise', () => {
+    expect(isEnv(Env.SANDBOX)).toBe(true);
+    expect(isEnv(undefined)).toBe(false);
+    expect(isEnv('not-an-env')).toBe(false);
+  });
+
+  test('isRedactionType returns true for valid type and false otherwise', () => {
+    expect(isRedactionType('PLAIN_TEXT')).toBe(true);
+    expect(isRedactionType(undefined)).toBe(false);
+    expect(isRedactionType('invalid')).toBe(false);
+  });
+
+  test('isByot returns true for valid value and false otherwise', () => {
+    expect(isByot('ENABLE')).toBe(true);
+    expect(isByot(undefined)).toBe(false);
+    expect(isByot('invalid')).toBe(false);
+  });
+
+  test('isOrderBy returns true for valid value and false otherwise', () => {
+    expect(isOrderBy(OrderByEnum.ASCENDING)).toBe(true);
+    expect(isOrderBy(undefined)).toBe(false);
+    expect(isOrderBy('invalid')).toBe(false);
+  });
+
+  test('isMethod returns true for valid method and false otherwise', () => {
+    expect(isMethod('GET')).toBe(true);
+    expect(isMethod(undefined)).toBe(false);
+    expect(isMethod('INVALID')).toBe(false);
+  });
+
+  test('isLogLevel returns true for valid level and false otherwise', () => {
+    expect(isLogLevel(LogLevel.ERROR)).toBe(true);
+    expect(isLogLevel(undefined)).toBe(false);
+    expect(isLogLevel('INVALID')).toBe(false);
+  });
+
+  test('isValidAPIKey returns false for empty or invalid keys and true for sky- prefix', () => {
+    expect(isValidAPIKey('')).toBe(false);
+    expect(isValidAPIKey('bad-key')).toBe(false);
+    expect(isValidAPIKey('sky-key-abc')).toBe(true);
+  });
+
+  test('validateSkyflowCredentials validates credentials string payloads', () => {
+    expect(() => validateSkyflowCredentials({ credentialsString: '' }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+    expect(() => validateSkyflowCredentials({ credentialsString: 'not-json' }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+    expect(() => validateSkyflowCredentials({
+      credentialsString: JSON.stringify({ keyID: 'only-key' }),
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+    expect(() => validateSkyflowCredentials({
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+    })).not.toThrow();
+  });
+
+  test('validateSkyflowCredentials validates credential file paths', () => {
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    expect(() => validateSkyflowCredentials({ path: '/exists.json' })).not.toThrow();
+    jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+    expect(() => validateSkyflowCredentials({ path: '/missing.json' }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_FILE_PATH);
+    expect(() => validateSkyflowCredentials({ path: '' }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_FILE_PATH);
+  });
+});
+
+describe('additional validation branch coverage', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('validateSkyflowCredentials rejects credentials string missing clientId', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ keyID: 'key-only' }),
+    };
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+  });
+
+  test('validateSkyflowCredentials rejects null credentials string', () => {
+    expect(() => validateSkyflowCredentials({ credentialsString: null }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+  });
+
+  test('validateSkyflowCredentials rejects credentials string that is not a string type', () => {
+    expect(() => validateSkyflowCredentials({ credentialsString: 12345 }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+  });
+
+  test('validateSkyflowCredentials rejects path when file does not exist', () => {
+    jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+    expect(() => validateSkyflowCredentials({ path: '/missing/file.json' }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS_FILE_PATH);
+  });
+
+  test('validateCredentialsWithId rejects string credentials with numeric context', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      context: 42,
+    };
+    expect(() => validateCredentialsWithId(credentials, 'vault', 'vaultId', 'id'))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
+  });
+
+  test('validateUpdateConnectionConfig rejects whitespace-only connectionUrl', () => {
+    expect(() => validateUpdateConnectionConfig({
+      connectionId: 'conn-1',
+      connectionUrl: '   ',
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
+  });
+
+  test('validateInsertRequest rejects missing and invalid data with _table set', () => {
+    const base = { _table: 'users', table: 'users' };
+    expect(() => validateInsertRequest({ ...base })).toThrow(SKYFLOW_ERROR_CODE.EMPTY_DATA_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: undefined })).toThrow(SKYFLOW_ERROR_CODE.EMPTY_DATA_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: { field: 'x' } })).toThrow(SKYFLOW_ERROR_CODE.INVALID_TYPE_OF_DATA_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: [] })).toThrow(SKYFLOW_ERROR_CODE.EMPTY_DATA_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: [null] })).toThrow(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: [false] })).toThrow(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: [123] })).toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: [{ '': 'value' }] })).toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: [[]] })).toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+  });
+
+  test('validateUpdateRequest rejects array update data', () => {
+    expect(() => validateUpdateRequest({
+      table: 'users',
+      data: [],
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+  });
+
+  test('validateUpdateRequest rejects update data with empty field name', () => {
+    expect(() => validateUpdateRequest({
+      table: 'users',
+      data: { skyflow_id: 'id-1', '': 'value' },
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+  });
+
+  test('validateUpdateOptions rejects token entry with non-string key', () => {
+    const entriesSpy = jest.spyOn(Object, 'entries').mockReturnValueOnce([[123, 'token']]);
+    const options = { getTokens: () => ({ placeholder: 'x' }) };
+    expect(() => validateUpdateOptions(options))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_IN_UPDATE);
+    entriesSpy.mockRestore();
+  });
+
+  test('validateUploadFileRequest rejects non-string skyflowId from options', () => {
+    const request = {
+      _table: 'users',
+      table: 'users',
+      _columnName: 'file_column',
+      columnName: 'file_column',
+    };
+    const options = { getSkyflowId: () => 123 };
+    expect(() => validateUploadFileRequest(request, options))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPLOAD_FILE);
+  });
+
+  test('validateUploadFileRequest rejects whitespace skyflowId from options', () => {
+    const request = {
+      _table: 'users',
+      table: 'users',
+      _columnName: 'file_column',
+      columnName: 'file_column',
+    };
+    const options = { getSkyflowId: () => '   ' };
+    expect(() => validateUploadFileRequest(request, options))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_SKYFLOW_ID_IN_UPLOAD_FILE);
+  });
+
+  test('validateUploadFileRequest rejects missing columnName property', () => {
+    const request = {
+      _table: 'users',
+      table: 'users',
+      _skyflowId: 'id-1',
+    };
+    const options = { getSkyflowId: () => 'id-1' };
+    expect(() => validateUploadFileRequest(request, options))
+      .toThrow(SKYFLOW_ERROR_CODE.MISSING_COLUMN_NAME_IN_UPLOAD_FILE);
+  });
+
+  test('validateUploadFileRequest rejects invalid columnName', () => {
+    const request = {
+      _table: 'users',
+      table: 'users',
+      _columnName: '   ',
+      columnName: '   ',
+      _skyflowId: 'id-1',
+    };
+    const options = { getSkyflowId: () => 'id-1' };
+    expect(() => validateUploadFileRequest(request, options))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_COLUMN_NAME_IN_UPLOAD_FILE);
+  });
+
+  test('validateSkyflowCredentials rejects empty credentials string', () => {
+    expect(() => validateSkyflowCredentials({ credentialsString: '' }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+  });
+
+  test('validateSkyflowCredentials rejects invalid JSON credentials string', () => {
+    expect(() => validateSkyflowCredentials({ credentialsString: 'not-json' }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+  });
+
+  test('validateSkyflowCredentials rejects boolean context on string credentials', () => {
+    const credentials = {
+      credentialsString: JSON.stringify({ clientID: 'c', keyID: 'k' }),
+      context: true,
+    };
+    expect(() => validateSkyflowCredentials(credentials))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_CONTEXT);
+  });
+
+  test('validateInsertRequest rejects undefined data', () => {
+    expect(() => validateInsertRequest({ table: 'users', data: undefined }))
+      .toThrow(SKYFLOW_ERROR_CODE.EMPTY_DATA_IN_INSERT);
+  });
+
+  test('validateInsertRequest rejects falsy record in data array', () => {
+    expect(() => validateInsertRequest({ table: 'users', data: [false] }))
+      .toThrow(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IN_INSERT);
+  });
+
+  test('validateInsertRequest rejects record with only null values and empty keys', () => {
+    const record = Object.create(null);
+    record[''] = 'value';
+    expect(() => validateInsertRequest({ table: 'users', data: [record] }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+  });
+
+  test('validateSkyflowCredentials accepts legacy credential field aliases', () => {
+    const payload = {
+      clientID: 'client',
+      keyID: 'key',
+      tokenURI: 'https://example.com/oauth/token',
+    };
+    expect(() => validateSkyflowCredentials({
+      credentialsString: JSON.stringify(payload),
+    })).not.toThrow();
+  });
+
+  test('validateSkyflowConfig accepts connectionConfigs without vaultConfigs key', () => {
+    expect(() => validateSkyflowConfig({ connectionConfigs: [] })).not.toThrow();
+  });
+
+  test('validateVaultConfig accepts config without env', () => {
+    expect(() => validateVaultConfig({
+      vaultId: 'vault-1',
+      clusterId: 'cluster-1',
+    })).not.toThrow();
+  });
+
+  test('validateUpdateVaultConfig accepts partial update without env or clusterId', () => {
+    expect(() => validateUpdateVaultConfig({ vaultId: 'vault-1' })).not.toThrow();
+  });
+
+  test('validateUpdateVaultConfig rejects invalid env when provided', () => {
+    expect(() => validateUpdateVaultConfig({
+      vaultId: 'vault-1',
+      env: 'NOT_ENV',
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_ENV);
+  });
+
+  test('validateUpdateVaultConfig rejects non-string clusterId when provided', () => {
+    expect(() => validateUpdateVaultConfig({
+      vaultId: 'vault-1',
+      clusterId: 99,
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_CLUSTER_ID);
+  });
+
+  test('validateInsertRequest rejects empty object and invalid field keys in records', () => {
+    const base = { _table: 'users', table: 'users' };
+    expect(() => validateInsertRequest({ ...base, data: [{}] }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: [{ '': 'x' }] }))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_INSERT);
+    expect(() => validateInsertRequest({ ...base, data: [{ name: 'ok' }] }))
+      .not.toThrow();
+  });
+
+  test('validateUpdateRequest rejects array data and empty field keys', () => {
+    expect(() => validateUpdateRequest({
+      _table: 'users',
+      table: 'users',
+      data: [],
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+    expect(() => validateUpdateRequest({
+      _table: 'users',
+      table: 'users',
+      data: { skyflow_id: 'id-1' },
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+    expect(() => validateUpdateRequest({
+      _table: 'users',
+      table: 'users',
+      data: { skyflow_id: 'id-1', '': 'x' },
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE);
+    expect(() => validateUpdateRequest({
+      _table: 'users',
+      table: 'users',
+      data: { skyflow_id: 'id-1', field: 'v' },
+    })).not.toThrow();
+  });
+
+  test('validateDeidentifyFileRequest accepts fully populated valid options', () => {
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    jest.spyOn(fs, 'lstatSync').mockReturnValue({ isDirectory: () => true });
+    const file = new File(['content'], 'sample.txt', { type: 'text/plain' });
+    const request = new DeidentifyFileRequest({ file });
+    const options = new DeidentifyFileOptions();
+    const tokenFormat = new TokenFormat();
+    tokenFormat.setDefault('entity_unique_counter');
+    const transformations = new Transformations();
+    transformations.setShiftDays({ max: 5, min: 1, entities: ['DATE'] });
+    const bleep = new Bleep();
+    bleep.setGain(0.5);
+    bleep.setFrequency(440);
+    options.setWaitTime(10);
+    options.setOutputDirectory('/valid/output/dir');
+    options.setEntities(['NAME']);
+    options.setAllowRegexList(['allow']);
+    options.setRestrictRegexList(['restrict']);
+    options.setTokenFormat(tokenFormat);
+    options.setTransformations(transformations);
+    options.setOutputProcessedImage(true);
+    options.setOutputOcrText(true);
+    options.setMaskingMethod(MaskingMethod.Blur);
+    options.setPixelDensity(300);
+    options.setMaxResolution(1920);
+    options.setOutputProcessedAudio(true);
+    options.setOutputTranscription('transcription');
+    options.setBleep(bleep);
+    expect(() => validateDeidentifyFileRequest(request, options)).not.toThrow();
+  });
+
+  test('validateDeIdentifyTextRequest accepts valid options', () => {
+    const options = new (require('../../src/vault/model/options/deidentify-text').default)();
+    const tokenFormat = new TokenFormat();
+    const transformations = new Transformations();
+    transformations.setShiftDays({ max: 3, min: 1, entities: ['DATE'] });
+    options.setEntities(['NAME']);
+    options.setAllowRegexList(['a']);
+    options.setRestrictRegexList(['b']);
+    options.setTokenFormat(tokenFormat);
+    options.setTransformations(transformations);
+    expect(() => validateDeIdentifyTextRequest({ text: 'hello' }, options)).not.toThrow();
+  });
+
+  test('validateReidentifyTextRequest accepts valid entity lists', () => {
+    const ReidentifyTextOptions = require('../../src/vault/model/options/reidentify-text').default;
+    const options = new ReidentifyTextOptions();
+    options.setRedactedEntities(['NAME']);
+    options.setMaskedEntities(['EMAIL']);
+    options.setPlainTextEntities(['PHONE']);
+    expect(() => validateReidentifyTextRequest({ text: 'redacted' }, options)).not.toThrow();
+  });
+
+  test('validateInvokeConnectionRequest accepts string body with content type', () => {
+    expect(() => validateInvokeConnectionRequest({
+      method: 'POST',
+      body: 'raw body',
+      headers: { 'Content-Type': 'text/plain' },
+      pathParams: { id: '1', meta: { nested: 'x' } },
+      queryParams: { q: 'search' },
+    })).not.toThrow();
+  });
+
+  test('validateInsertRequest accepts ENABLE_STRICT token mode with matching tokens', () => {
+    expect(() => validateInsertRequest({
+      _table: 'users',
+      table: 'users',
+      data: [{ name: 'value' }],
+    }, {
+      getTokenMode: () => TokenMode.ENABLE_STRICT,
+      getTokens: () => [{ name: 'token-value' }],
+    })).not.toThrow();
+  });
+
+  test('validateInsertOptions short-circuits when optional getters return falsy', () => {
+    expect(() => validateInsertOptions({
+      getReturnTokens: () => false,
+      getUpsertColumn: () => '',
+      getContinueOnError: () => null,
+      getHomogeneous: () => 0,
+      getTokenMode: () => undefined,
+      getTokens: () => [],
+    })).not.toThrow();
+  });
+
+  test('validateUpdateOptions short-circuits when optional getters return falsy', () => {
+    expect(() => validateUpdateOptions({
+      getReturnTokens: () => false,
+      getTokenMode: () => null,
+      getTokens: () => undefined,
+    })).not.toThrow();
+  });
+
+  test('validateGetOptions short-circuits when optional getters return falsy', () => {
+    expect(() => validateGetOptions({
+      getReturnTokens: () => false,
+      getRedactionType: () => undefined,
+      getOffset: () => 0,
+      getLimit: () => '',
+      getDownloadUrl: () => false,
+      getColumnName: () => null,
+      getOrderBy: () => undefined,
+      getFields: () => [],
+      getColumnValues: () => false,
+    })).not.toThrow();
+  });
+
+  test('validateDetokenizeOptions short-circuits when optional getters return falsy', () => {
+    expect(() => validateDetokenizeOptions({
+      getContinueOnError: () => false,
+      getDownloadUrl: () => null,
+    })).not.toThrow();
+  });
+
+  test('validateSkyflowCredentials rejects null clientId and accepts canonical fields', () => {
+    expect(() => validateSkyflowCredentials({
+      credentialsString: JSON.stringify({ clientId: null, keyId: 'k' }),
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_PARSED_CREDENTIALS_STRING);
+    expect(() => validateSkyflowCredentials({
+      credentialsString: JSON.stringify({
+        clientId: 'c',
+        keyId: 'k',
+        tokenUri: 'https://example.com',
+      }),
+    })).not.toThrow();
+  });
+
+  test('validateUpdateConnectionConfig accepts connectionId without connectionUrl', () => {
+    expect(() => validateUpdateConnectionConfig({
+      connectionId: 'conn-1',
+    })).not.toThrow();
+  });
+
+  test('validateConnectionConfig rejects whitespace-only connectionUrl', () => {
+    expect(() => validateConnectionConfig({
+      connectionId: 'conn-1',
+      connectionUrl: '   ',
+    })).toThrow(SKYFLOW_ERROR_CODE.INVALID_CONNECTION_URL);
+  });
+
+  test('validateUpdateRequest rejects update data missing skyflow id', () => {
+    expect(() => validateUpdateRequest({
+      _table: 'users',
+      table: 'users',
+      data: { name: 'only-field' },
+    })).toThrow(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE);
+  });
+
+  test('validateUpdateRequest warns when legacy skyflow_id is used', () => {
+    expect(() => validateUpdateRequest({
+      _table: 'users',
+      table: 'users',
+      data: { skyflow_id: 'legacy-id', name: 'value' },
+    })).not.toThrow();
   });
 });

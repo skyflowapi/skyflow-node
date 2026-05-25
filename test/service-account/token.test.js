@@ -1,7 +1,6 @@
 import {
     generateBearerToken,
     generateBearerTokenFromCreds,
-    generateToken,
     getToken,
     successResponse,
     failureResponse,
@@ -9,6 +8,7 @@ import {
     generateSignedDataTokens,
     generateSignedDataTokensFromCreds,
 } from "../../src/service-account";
+import SKYFLOW_ERROR_CODE from '../../src/error/codes';
 import SkyflowError from '../../src/error';
 import errorMessages from '../../src/error/messages';
 import jwt from 'jsonwebtoken';
@@ -317,11 +317,10 @@ describe('Signed Data Token Generation Test', () => {
     test("Valid credentials file", async () => {
         const filePath = 'test/demo-credentials/valid.json';
         jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
-        try {
-            await generateSignedDataTokens(filePath, defaultOptions);
-        } catch (err) {
-            expect(err.message).toBe(errorMessages.MISSING_TOKEN_URI);
-        }
+        const result = await generateSignedDataTokens(filePath, defaultOptions);
+        expect(result).toHaveLength(1);
+        expect(result[0].token).toBe('datatoken1');
+        expect(result[0].signedToken).toContain('signed_token_');
     });
 
     test("File does not exist", async () => {
@@ -603,6 +602,44 @@ describe('failureResponse with rawResponse', () => {
         await expect(failureResponse(err)).rejects.toBeDefined();
     });
 
+    test("handles application/json with error http_code and no request id", async () => {
+        const err = {
+            rawResponse: {
+                headers: {
+                    get: (key) =>
+                        key === 'content-type' ? 'application/json' : undefined,
+                },
+            },
+            body: { error: { message: 'structured error', http_code: 422 } },
+        };
+        await expect(failureResponse(err)).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: 422,
+                message: 'structured error',
+            }),
+        });
+    });
+
+    test("handles application/json when body has no error.message", async () => {
+        const err = {
+            rawResponse: { headers: makeHeaders('application/json') },
+            body: { code: 'ERR', detail: 'no nested message' },
+        };
+        await expect(failureResponse(err)).rejects.toMatchObject({
+            error: expect.objectContaining({
+                message: { code: 'ERR', detail: 'no nested message' },
+            }),
+        });
+    });
+
+    test("handles rawResponse without headers", async () => {
+        const err = {
+            rawResponse: {},
+            body: { error: { message: 'no headers' } },
+        };
+        await expect(failureResponse(err)).rejects.toBeDefined();
+    });
+
     test("should use tokenUri from options if provided and valid", async () => {
         const validCredsString = JSON.stringify(validCredentials);
         const validTokenOptions = { tokenUri: "https://override-token-uri.com" };
@@ -773,5 +810,339 @@ describe('deprecated BearerTokenOptions.roleIDs normalization', () => {
         expect(warnSpy).not.toHaveBeenCalledWith(
             expect.stringContaining('roleIDs'),
         );
+    });
+});
+
+describe('service-account branch and line coverage', () => {
+    const fs = require('fs');
+    const os = require('os');
+    const path = require('path');
+
+    const writeTempCredentialsFile = (content) => {
+        const filePath = path.join(
+            os.tmpdir(),
+            `sa-creds-${Date.now()}-${Math.random()}.json`,
+        );
+        fs.writeFileSync(filePath, content, 'utf8');
+        return filePath;
+    };
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test('generateBearerToken rejects credential file with invalid JSON syntax', async () => {
+        const filePath = writeTempCredentialsFile('{not-valid-json');
+        try {
+            await expect(generateBearerToken(filePath)).rejects.toMatchObject({
+                error: expect.objectContaining({
+                    httpCode: SKYFLOW_ERROR_CODE.INVALID_JSON_FILE.httpCode,
+                }),
+            });
+        } finally {
+            fs.unlinkSync(filePath);
+        }
+    });
+
+    test('generateBearerToken rejects empty credential file', async () => {
+        const filePath = writeTempCredentialsFile('');
+        try {
+            await expect(generateBearerToken(filePath)).rejects.toMatchObject({
+                error: expect.objectContaining({
+                    httpCode: SKYFLOW_ERROR_CODE.INVALID_JSON_FILE.httpCode,
+                }),
+            });
+        } finally {
+            fs.unlinkSync(filePath);
+        }
+    });
+
+    test('getToken rejects credentials that are not valid JSON', async () => {
+        await expect(getToken('{not-valid-json')).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.INVALID_JSON_FORMAT.httpCode,
+            }),
+        });
+    });
+
+    test('generateSignedDataTokens rejects credential file with invalid JSON syntax', async () => {
+        const filePath = writeTempCredentialsFile('{not-valid-json');
+        try {
+            await expect(
+                generateSignedDataTokens(filePath, { dataTokens: ['token'] }),
+            ).rejects.toMatchObject({
+                error: expect.objectContaining({
+                    httpCode: SKYFLOW_ERROR_CODE.INVALID_JSON_FILE.httpCode,
+                }),
+            });
+        } finally {
+            fs.unlinkSync(filePath);
+        }
+    });
+
+    test('generateSignedDataTokensFromCreds rejects empty credentials string', async () => {
+        await expect(
+            generateSignedDataTokensFromCreds('', { dataTokens: ['token'] }),
+        ).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.EMPTY_CREDENTIALS_STRING.httpCode,
+            }),
+        });
+    });
+
+    test('generateSignedDataTokensFromCreds rejects credentials missing key ID', async () => {
+        const creds = JSON.stringify({
+            clientID: 'test-client-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'KEY',
+        });
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+        await expect(
+            generateSignedDataTokensFromCreds(creds, { dataTokens: ['token'] }),
+        ).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.MISSING_KEY_ID.httpCode,
+            }),
+        });
+    });
+
+    test('generateSignedDataTokensFromCreds outer catch when jwt.sign throws', async () => {
+        jest.spyOn(jwt, 'sign').mockImplementation(() => {
+            throw new Error('jwt sign failed');
+        });
+        const creds = JSON.stringify(validCredentials);
+        await expect(
+            generateSignedDataTokensFromCreds(creds, { dataTokens: ['token'] }),
+        ).rejects.toThrow('jwt sign failed');
+    });
+
+    test('generateSignedDataTokensFromCreds succeeds with multiple tokens, ctx, and default TTL', async () => {
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+        const creds = JSON.stringify(validCredentials);
+        const result = await generateSignedDataTokensFromCreds(creds, {
+            dataTokens: ['token-a', 'token-b'],
+            ctx: { scope: 'test' },
+        });
+        expect(result).toHaveLength(2);
+        expect(result[0].token).toBe('token-a');
+        expect(result[0].signedToken).toContain('signed_token_');
+        expect(result[1].token).toBe('token-b');
+    });
+
+    test('failureResponse text/plain branch handles plain string body', async () => {
+        const err = {
+            rawResponse: {
+                headers: {
+                    get: (key) => (key === 'content-type' ? 'text/plain' : 'req-id'),
+                },
+            },
+            body: 'plain error message',
+        };
+        await expect(failureResponse(err)).rejects.toBeDefined();
+    });
+
+    test('successResponse returns empty strings when token fields are missing', async () => {
+        const result = await successResponse({});
+        expect(result).toEqual({ accessToken: '', tokenType: '' });
+    });
+
+    test('generateBearerToken rejects missing credential file with logLevel', async () => {
+        await expect(
+            generateBearerToken('missing-credentials-file.json', {
+                logLevel: LogLevel.ERROR,
+            }),
+        ).rejects.toBeDefined();
+    });
+
+    test('getToken rejects credentials missing clientId', async () => {
+        const creds = JSON.stringify({
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'KEY',
+        });
+        await expect(getToken(creds, { logLevel: LogLevel.ERROR })).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.MISSING_CLIENT_ID.httpCode,
+            }),
+        });
+    });
+
+    test('getToken rejects credentials missing keyId', async () => {
+        const creds = JSON.stringify({
+            clientID: 'test-client-id',
+            tokenURI: 'https://test-token-uri.com',
+            privateKey: 'KEY',
+        });
+        await expect(getToken(creds, { logLevel: LogLevel.ERROR })).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.MISSING_KEY_ID.httpCode,
+            }),
+        });
+    });
+
+    test('getToken rejects credentials missing tokenUri', async () => {
+        const creds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            privateKey: 'KEY',
+        });
+        await expect(getToken(creds, { logLevel: LogLevel.ERROR })).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI.httpCode,
+            }),
+        });
+    });
+
+    test('getToken rejects credentials missing privateKey', async () => {
+        const creds = JSON.stringify({
+            clientID: 'test-client-id',
+            keyID: 'test-key-id',
+            tokenURI: 'https://test-token-uri.com',
+        });
+        await expect(getToken(creds, { logLevel: LogLevel.ERROR })).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.MISSING_PRIVATE_KEY.httpCode,
+            }),
+        });
+    });
+
+    test('getToken rejects when getBaseUrl returns empty string', async () => {
+        jest.spyOn(require('../../src/utils'), 'getBaseUrl').mockReturnValue('');
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+        await expect(getToken(JSON.stringify(validCredentials))).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.MISSING_TOKEN_URI.httpCode,
+            }),
+        });
+    });
+
+    test('getToken rejects options with tokenUri property explicitly undefined', async () => {
+        await expect(
+            getToken(JSON.stringify(validCredentials), { tokenUri: undefined }),
+        ).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: SKYFLOW_ERROR_CODE.INVALID_TOKEN_URI.httpCode,
+            }),
+        });
+    });
+
+    test('generateSignedDataTokens rejects missing file with logLevel', async () => {
+        await expect(
+            generateSignedDataTokens('missing-signed-creds.json', {
+                dataTokens: ['token'],
+                logLevel: LogLevel.ERROR,
+            }),
+        ).rejects.toBeDefined();
+    });
+
+    test('generateSignedDataTokens rejects empty credential file with logLevel', async () => {
+        const filePath = writeTempCredentialsFile('');
+        try {
+            await expect(
+                generateSignedDataTokens(filePath, {
+                    dataTokens: ['token'],
+                    logLevel: LogLevel.ERROR,
+                }),
+            ).rejects.toBeDefined();
+        } finally {
+            fs.unlinkSync(filePath);
+        }
+    });
+
+    test('generateSignedDataTokensFromCreds uses custom timeToLive', async () => {
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+        const result = await generateSignedDataTokensFromCreds(
+            JSON.stringify(validCredentials),
+            { dataTokens: ['token'], timeToLive: 120 },
+        );
+        expect(result).toHaveLength(1);
+    });
+
+    test('generateSignedDataTokensFromCreds rejects non-string credentials with logLevel', async () => {
+        await expect(
+            generateSignedDataTokensFromCreds(123, {
+                dataTokens: ['token'],
+                logLevel: LogLevel.ERROR,
+            }),
+        ).rejects.toBeDefined();
+    });
+
+    test('generateSignedDataTokensFromCreds rejects missing dataTokens with logLevel', async () => {
+        await expect(
+            generateSignedDataTokensFromCreds(JSON.stringify(validCredentials), {
+                logLevel: LogLevel.ERROR,
+            }),
+        ).rejects.toBeDefined();
+    });
+
+    test('failureResponse text/plain uses http_code from nested error when present', async () => {
+        const err = {
+            rawResponse: {
+                headers: {
+                    get: (key) => (key === 'content-type' ? 'text/plain' : 'req-id'),
+                },
+            },
+            body: { error: { http_code: 503 } },
+        };
+        await expect(failureResponse(err, { logLevel: LogLevel.ERROR })).rejects.toMatchObject({
+            error: expect.objectContaining({ httpCode: 503 }),
+        });
+    });
+
+    test('getToken accepts canonical clientId, keyId, and tokenUri credential fields', async () => {
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+        const creds = JSON.stringify({
+            clientId: 'canonical-client',
+            keyId: 'canonical-key',
+            tokenUri: 'https://canonical-token-uri.com',
+            privateKey: 'KEY',
+        });
+        const result = await getToken(creds);
+        expect(result.accessToken).toBe('mocked_access_token');
+    });
+
+    test('generateSignedDataTokensFromCreds with null timeToLive uses default expiry', async () => {
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+        const result = await generateSignedDataTokensFromCreds(
+            JSON.stringify(validCredentials),
+            { dataTokens: ['token'], timeToLive: null },
+        );
+        expect(result).toHaveLength(1);
+    });
+
+    test('error paths with logLevel cover optional logging branches', async () => {
+        const logOpts = { logLevel: LogLevel.DEBUG };
+        const creds = JSON.stringify(validCredentials);
+
+        await expect(generateBearerToken('missing.json', logOpts)).rejects.toBeDefined();
+        await expect(getToken('{}', logOpts)).rejects.toBeDefined();
+        await expect(getToken('not-json', logOpts)).rejects.toBeDefined();
+        await expect(
+            getToken(creds, { ...logOpts, roleIds: [] }),
+        ).rejects.toBeDefined();
+        await expect(
+            getToken(creds, { ...logOpts, tokenUri: 'not-a-url' }),
+        ).rejects.toBeDefined();
+        await expect(
+            generateSignedDataTokensFromCreds('', {
+                dataTokens: ['token'],
+                ...logOpts,
+            }),
+        ).rejects.toBeDefined();
+        await expect(
+            generateSignedDataTokens('missing.json', {
+                dataTokens: ['token'],
+                ...logOpts,
+            }),
+        ).rejects.toBeDefined();
+        await expect(
+            generateSignedDataTokensFromCreds(creds, {
+                dataTokens: [],
+                ...logOpts,
+            }),
+        ).rejects.toBeDefined();
+        await expect(
+            failureResponse({ message: 'network error' }, logOpts),
+        ).rejects.toBeDefined();
     });
 });
