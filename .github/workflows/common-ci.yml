@@ -29,7 +29,7 @@ jobs:
         run: npm run test
 
       - name: Upload Code Coverage To Codecov
-        if: ${{ inputs.upload-to-code-cov == 'true' }}
+        if: ${{ inputs.upload-to-code-cov == true }}
         uses: codecov/codecov-action@v2.1.0
         with:
           token: ${{ secrets.CODECOV_REPO_UPLOAD_TOKEN }}
