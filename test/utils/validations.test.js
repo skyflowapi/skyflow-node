@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { validateDeidentifyFileRequest, validateSkyflowConfig, validateVaultConfig, validateUpdateVaultConfig, validateSkyflowCredentials, validateConnectionConfig, validateUpdateConnectionConfig, validateInsertRequest, validateUpdateRequest, validateGetRequest, validateDetokenizeRequest, validateTokenizeRequest, validateDeleteRequest, validateUploadFileRequest, validateQueryRequest, validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateGetDetectRunRequest, validateInvokeConnectionRequest, validateUpdateOptions, validateGetColumnRequest, validateCredentialsWithId } = require('../../src/utils/validations');
+const { validateDeidentifyFileRequest, validateDeidentifyFileOptions, validateSkyflowConfig, validateVaultConfig, validateUpdateVaultConfig, validateSkyflowCredentials, validateConnectionConfig, validateUpdateConnectionConfig, validateInsertRequest, validateUpdateRequest, validateGetRequest, validateDetokenizeRequest, validateTokenizeRequest, validateDeleteRequest, validateUploadFileRequest, validateQueryRequest, validateDeIdentifyTextRequest, validateReidentifyTextRequest, validateGetDetectRunRequest, validateInvokeConnectionRequest, validateUpdateOptions, validateGetColumnRequest, validateCredentialsWithId } = require('../../src/utils/validations');
 const DeidentifyFileRequest = require('../../src/vault/model/request/deidentify-file').default;
 const DeidentifyFileOptions = require('../../src/vault/model/options/deidentify-file').default;
 const SKYFLOW_ERROR_CODE = require('../../src/error/codes');
@@ -290,6 +290,64 @@ describe('validateDeidentifyFileRequest', () => {
         options.setEntities(['PERSON', 'LOCATION']);
         options.setAllowRegexList(['^test', 'pattern$']);
         expect(() => validateDeidentifyFileRequest(request, options)).not.toThrow();
+    });
+
+    test('should throw error when file base name is whitespace only', () => {
+        const invalidFile = new File(['content'], '   .txt', { type: 'text/plain' });
+        const request = new DeidentifyFileRequest({ file: invalidFile });
+        expect(() => validateDeidentifyFileRequest(request))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_FILE_TYPE);
+    });
+
+    test('should throw error when file path is whitespace only', () => {
+        const request = new DeidentifyFileRequest({ filePath: '   ' });
+        expect(() => validateDeidentifyFileRequest(request))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_PATH);
+    });
+
+    test('should throw error when output directory is not a string', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setOutputDirectory(123);
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_DIRECTORY);
+    });
+
+    test('should throw error for invalid restrict regex list in file options', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setRestrictRegexList('pattern');
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_RESTRICT_REGEX_LIST);
+    });
+
+    test('should throw error when token format is not a TokenFormat instance in file options', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setTokenFormat({});
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_TOKEN_FORMAT);
+    });
+
+    test('should throw error for invalid output ocr text type', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setOutputOcrText('true');
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_OUTPUT_OCR_TEXT);
+    });
+
+    test('should throw error when bleep is not a Bleep instance', () => {
+        const request = new DeidentifyFileRequest({ file: mockFile });
+        const options = new DeidentifyFileOptions();
+        options.setBleep({});
+        expect(() => validateDeidentifyFileRequest(request, options))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_BLEEP);
+    });
+
+    test('should throw error when validateDeidentifyFileOptions receives null', () => {
+        expect(() => validateDeidentifyFileOptions(null))
+            .toThrow(SKYFLOW_ERROR_CODE.INVALID_DEIDENTIFY_FILE_OPTIONS);
     });
 });
 
@@ -2522,7 +2580,10 @@ describe('validateUploadFileRequest', () => {
     // Test invalid filePath
     test('should throw error when filePath is invalid', () => {
       const options = {
-        getFilePath: () => 123  // number instead of string
+        getSkyflowId: () => 'id1',
+        getFilePath: () => 123,  // number instead of string
+        getBase64: () => null,
+        getFileObject: () => null
       };
       expect(() => validateUploadFileRequest(validRequest, options))
         .toThrow(SKYFLOW_ERROR_CODE.INVALID_FILE_PATH_IN_UPLOAD_FILE);
@@ -2531,7 +2592,10 @@ describe('validateUploadFileRequest', () => {
     // Test invalid base64
     test('should throw error when base64 is invalid', () => {
       const options = {
-        getBase64: () => 123  // number instead of string
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
+        getBase64: () => 123,  // number instead of string
+        getFileObject: () => null
       };
       expect(() => validateUploadFileRequest(validRequest, options))
         .toThrow(SKYFLOW_ERROR_CODE.INVALID_BASE64_IN_UPLOAD_FILE);
@@ -2540,6 +2604,9 @@ describe('validateUploadFileRequest', () => {
     // Test invalid fileObject
     test('should throw error when fileObject is invalid', () => {
       const options = {
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
+        getBase64: () => null,
         getFileObject: () => "not-a-file-object"  // string instead of File object
       };
       expect(() => validateUploadFileRequest(validRequest, options))
@@ -2549,6 +2616,7 @@ describe('validateUploadFileRequest', () => {
     // Test missing file source
     test('should throw error when no file source is provided', () => {
       const options = {
+        getSkyflowId: () => 'id1',
         getFilePath: () => null,
         getBase64: () => null,
         getFileObject: () => null
@@ -2560,7 +2628,10 @@ describe('validateUploadFileRequest', () => {
     // Test missing fileName for base64
     test('should throw error when fileName is missing for base64', () => {
       const options = {
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
         getBase64: () => 'valid-base64',
+        getFileObject: () => null,
         getFileName: () => null
       };
       expect(() => validateUploadFileRequest(validRequest, options))
@@ -2570,6 +2641,9 @@ describe('validateUploadFileRequest', () => {
     // Test invalid File object
     test('should throw error when File object is invalid', () => {
       const options = {
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
+        getBase64: () => null,
         getFileObject: () => ({})  // not a File instance
       };
       expect(() => validateUploadFileRequest(validRequest, options))
@@ -2580,6 +2654,9 @@ describe('validateUploadFileRequest', () => {
     test('should throw error when filename is missing in File object', () => {
       const mockFile = new File([], '');  // empty filename
       const options = {
+        getSkyflowId: () => 'id1',
+        getFilePath: () => null,
+        getBase64: () => null,
         getFileObject: () => mockFile
       };
       expect(() => validateUploadFileRequest(validRequest, options))
@@ -2794,6 +2871,7 @@ describe('validateDeIdentifyTextRequest', () => {
 
     test('should throw error when allowRegexList is not an array', () => {
       const options = {
+        getEntities: () => null,
         getAllowRegexList: () => 'not-an-array'
       };
       expect(() => validateDeIdentifyTextRequest(validRequest, options))
@@ -2802,6 +2880,8 @@ describe('validateDeIdentifyTextRequest', () => {
 
     test('should throw error when restrictRegexList is not an array', () => {
       const options = {
+        getEntities: () => null,
+        getAllowRegexList: () => null,
         getRestrictRegexList: () => 'not-an-array'
       };
       expect(() => validateDeIdentifyTextRequest(validRequest, options))
@@ -2810,6 +2890,9 @@ describe('validateDeIdentifyTextRequest', () => {
 
     test('should throw error when tokenFormat is not TokenFormat instance', () => {
       const options = {
+        getEntities: () => null,
+        getAllowRegexList: () => null,
+        getRestrictRegexList: () => null,
         getTokenFormat: () => ({})  // not a TokenFormat instance
       };
       expect(() => validateDeIdentifyTextRequest(validRequest, options))
@@ -2818,6 +2901,10 @@ describe('validateDeIdentifyTextRequest', () => {
 
     test('should throw error when transformations is not Transformations instance', () => {
       const options = {
+        getEntities: () => null,
+        getAllowRegexList: () => null,
+        getRestrictRegexList: () => null,
+        getTokenFormat: () => null,
         getTransformations: () => ({})  // not a Transformations instance
       };
       expect(() => validateDeIdentifyTextRequest(validRequest, options))
@@ -2927,6 +3014,7 @@ describe('validateReidentifyTextRequest', () => {
 
     test('should throw error when maskedEntities is not an array', () => {
       const options = {
+        getRedactedEntities: () => null,
         getMaskedEntities: () => 'not-an-array'
       };
       expect(() => validateReidentifyTextRequest(validRequest, options))
@@ -2935,6 +3023,8 @@ describe('validateReidentifyTextRequest', () => {
 
     test('should throw error when plainTextEntities is not an array', () => {
       const options = {
+        getRedactedEntities: () => null,
+        getMaskedEntities: () => null,
         getPlainTextEntities: () => 'not-an-array'
       };
       expect(() => validateReidentifyTextRequest(validRequest, options))
@@ -3251,6 +3341,17 @@ describe('validateInvokeConnectionRequest', () => {
       headers: {}
     };
     expect(() => validateInvokeConnectionRequest(request)).not.toThrow();
+  });
+
+  test('should throw error for invalid headers', () => {
+    const request = {
+      method: 'GET',
+      headers: {
+        'Content-Type': Symbol()  // symbol value — not a string
+      }
+    };
+    expect(() => validateInvokeConnectionRequest(request))
+      .toThrow(SKYFLOW_ERROR_CODE.INVALID_HEADERS);
   });
 });
 

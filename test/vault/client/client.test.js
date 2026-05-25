@@ -427,6 +427,136 @@ describe('VaultClient', () => {
                 expect(err).toBeInstanceOf(SkyflowError);
             }
         });
+
+        test('should handle error response with non-JSON non-text content-type (rawResponse)', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'application/xml'],
+                        ['x-request-id', 'abc-123'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'XML error occurred',
+                        grpc_code: 2,
+                    },
+                },
+                statusCode: 400,
+            };
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
+                expect(err).toBeInstanceOf(SkyflowError);
+            }
+        });
+
+        test('should handle error response with non-JSON non-text content-type (legacy)', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['content-type', 'application/xml'],
+                    ['x-request-id', 'abc-123'],
+                ]),
+                data: {
+                    error: {
+                        message: 'XML error occurred',
+                    },
+                },
+                status: 400,
+            };
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
+                expect(err).toBeInstanceOf(SkyflowError);
+            }
+        });
+
+        test('should handle text error response with error-from-client header (rawResponse)', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['content-type', 'text/plain'],
+                        ['x-request-id', 'abc-123'],
+                        ['error-from-client', 'true'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'Text error from client',
+                    },
+                },
+                statusCode: 400,
+            };
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
+                expect(err).toBeInstanceOf(SkyflowError);
+            }
+        });
+
+        test('should handle text error response with error-from-client header (legacy)', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['content-type', 'text/plain'],
+                    ['x-request-id', 'abc-123'],
+                    ['error-from-client', 'true'],
+                ]),
+                data: {
+                    error: {
+                        message: 'Text error from client',
+                    },
+                },
+                status: 400,
+            };
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
+                expect(err).toBeInstanceOf(SkyflowError);
+            }
+        });
+
+        test('should handle generic error response with error-from-client header (rawResponse)', async () => {
+            const errorResponse = {
+                rawResponse: {
+                    headers: new Map([
+                        ['x-request-id', 'abc-123'],
+                        ['error-from-client', 'true'],
+                    ]),
+                },
+                body: {
+                    error: {
+                        message: 'Generic error from client',
+                        grpc_code: 3,
+                    },
+                },
+                statusCode: 400,
+            };
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
+                expect(err).toBeInstanceOf(SkyflowError);
+            }
+        });
+
+        test('should handle generic error response with error-from-client header (legacy)', async () => {
+            const errorResponse = {
+                headers: new Map([
+                    ['x-request-id', 'abc-123'],
+                    ['error-from-client', 'true'],
+                ]),
+                data: {
+                    error: {
+                        message: 'Generic error from client',
+                    },
+                },
+                status: 400,
+            };
+            try {
+                await vaultClient.failureResponse(errorResponse);
+            } catch (err) {
+                expect(err).toBeInstanceOf(SkyflowError);
+            }
+        });
     });
 
     describe('updateClientConfig', () => {
