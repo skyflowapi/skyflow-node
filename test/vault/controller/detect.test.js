@@ -4,8 +4,43 @@ import DeidentifyTextResponse from '../../../src/vault/model/response/deidentify
 import ReidentifyTextResponse from '../../../src/vault/model/response/reidentify-text';
 import DeidentifyFileRequest from '../../../src/vault/model/request/deidentify-file';
 import DeidentifyFileOptions from '../../../src/vault/model/options/deidentify-file';
+import TokenFormat from '../../../src/vault/model/options/deidentify-text/token-format';
+import Transformations from '../../../src/vault/model/options/deidentify-text/transformations';
+import { Bleep } from '../../../src/vault/model/options/deidentify-file/bleep-audio';
 import { DETECT_STATUS, ENCODING_TYPE, TYPES } from '../../../src/utils';
 import fs from 'fs';
+
+function createFullDeidentifyFileOptions() {
+    const options = new DeidentifyFileOptions();
+    const tokenFormat = new TokenFormat();
+    tokenFormat.setDefault('entity_unique_counter');
+    tokenFormat.setEntityUniqueCounter(['NAME']);
+    tokenFormat.setEntityOnly(['EMAIL']);
+
+    const transformations = new Transformations();
+    transformations.setShiftDays({ max: 10, min: 2, entities: ['DATE'] });
+
+    const bleep = new Bleep();
+    bleep.setGain(0.5);
+    bleep.setFrequency(440);
+    bleep.setStartPadding(0.1);
+    bleep.setStopPadding(0.2);
+
+    options.setEntities(['NAME', 'EMAIL']);
+    options.setAllowRegexList(['allow-regex']);
+    options.setRestrictRegexList(['restrict-regex']);
+    options.setTokenFormat(tokenFormat);
+    options.setTransformations(transformations);
+    options.setOutputTranscription('transcription');
+    options.setOutputProcessedAudio(true);
+    options.setOutputProcessedImage(true);
+    options.setOutputOcrText(true);
+    options.setMaskingMethod('blackbox');
+    options.setMaxResolution(1920);
+    options.setPixelDensity(300);
+    options.setBleep(bleep);
+    return options;
+}
 
 jest.mock('../../../src/utils', () => ({
     printLog: jest.fn(),
@@ -68,6 +103,11 @@ jest.mock('../../../src/utils', () => ({
         BASE64: 'base64',
         BINARY: 'binary',
         UTF_8: 'utf-8',
+    },
+    TokenType: {
+        ENTITY_UNIQUE_COUNTER: 'entity_unq_counter',
+        ENTITY_ONLY: 'entity_only',
+        VAULT_TOKEN: 'vault_token',
     },
     generateSDKMetrics: jest.fn().mockReturnValue({ sdk: 'metrics' }),
     getBearerToken: jest.fn().mockResolvedValue(Promise.resolve('your-bearer-token')),
@@ -206,6 +246,108 @@ describe('deidentifyText', () => {
         expect(response.wordCount).toBe(5);
         expect(response.charCount).toBe(30);
         expect(response.errors).toBeNull();
+    });
+
+    test('should map entities with missing optional fields', async () => {
+        validateDeIdentifyTextRequest.mockImplementation(() => {});
+        const mockRequest = { text: 'text with entity' };
+
+        mockVaultClient.stringsAPI.deidentifyString.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: {
+                    processed_text: 'processed',
+                    entities: [{}],
+                    word_count: 1,
+                    character_count: 9,
+                },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        const response = await detectController.deidentifyText(mockRequest);
+        expect(response.entities[0]).toEqual({
+            token: undefined,
+            value: undefined,
+            textIndex: { start: undefined, end: undefined },
+            processedIndex: { start: undefined, end: undefined },
+            entity: undefined,
+            scores: undefined,
+        });
+    });
+
+    test('should map entities with partial location fields', async () => {
+        validateDeIdentifyTextRequest.mockImplementation(() => {});
+        const mockRequest = { text: 'partial entity fields' };
+
+        mockVaultClient.stringsAPI.deidentifyString.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: {
+                    processed_text: 'processed',
+                    entities: [
+                        { token: 'tok', location: { start_index: 0, end_index: 1 } },
+                        { value: 'val', location: { start_index_processed: 2, end_index_processed: 3 } },
+                    ],
+                    word_count: 2,
+                    character_count: 20,
+                },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        const response = await detectController.deidentifyText(mockRequest);
+        expect(response.entities[0].textIndex).toEqual({ start: 0, end: 1 });
+        expect(response.entities[0].processedIndex).toEqual({
+            start: undefined,
+            end: undefined,
+        });
+        expect(response.entities[1].processedIndex).toEqual({ start: 2, end: 3 });
+        expect(response.entities[1].textIndex).toEqual({
+            start: undefined,
+            end: undefined,
+        });
+    });
+
+    test('should handle undefined records in deidentify text response', async () => {
+        validateDeIdentifyTextRequest.mockImplementation(() => {});
+        const mockRequest = { text: 'no records payload' };
+
+        mockVaultClient.stringsAPI.deidentifyString.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: undefined,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        const response = await detectController.deidentifyText(mockRequest);
+        expect(response.processedText).toBeUndefined();
+        expect(response.entities).toEqual([]);
+    });
+
+    test('should map null entity entries safely', async () => {
+        validateDeIdentifyTextRequest.mockImplementation(() => {});
+        const mockRequest = { text: 'null entity entry' };
+
+        mockVaultClient.stringsAPI.deidentifyString.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: {
+                    processed_text: 'processed',
+                    entities: [null],
+                    word_count: 1,
+                    character_count: 9,
+                },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        const response = await detectController.deidentifyText(mockRequest);
+        expect(response.entities[0]).toEqual({
+            token: undefined,
+            value: undefined,
+            textIndex: { start: undefined, end: undefined },
+            processedIndex: { start: undefined, end: undefined },
+            entity: undefined,
+            scores: undefined,
+        });
     });
 
     test('should handle validation errors', async () => {
@@ -465,6 +607,37 @@ describe('getDetectRun', () => {
             mockRequest.runId,
             { vault_id: 'vault123' }
         );
+    });
+
+    test('should prefer runId from response data over request runId', async () => {
+        validateGetDetectRunRequest.mockImplementation(() => {});
+        const mockRequest = { runId: 'request-run-id' };
+        const mockResponseData = {
+            runId: 'response-run-id',
+            status: 'SUCCESS',
+            output: [
+                {
+                    processedFile: Buffer.from('file').toString(ENCODING_TYPE.BASE64),
+                    processedFileType: 'pdf',
+                    processedFileExtension: 'pdf',
+                },
+            ],
+            wordCharacterCount: { wordCount: 1, characterCount: 10 },
+            size: 100,
+            duration: 0,
+            pages: 1,
+            slides: 0,
+        };
+
+        mockVaultClient.filesAPI.getRun.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: mockResponseData,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        const result = await detectController.getDetectRun(mockRequest);
+        expect(result.runId).toBe('response-run-id');
     });
 
     test('should handle validation errors', async () => {
@@ -1862,5 +2035,230 @@ describe('deidentifyFile', () => {
         expect(result.status).toBe('SUCCESS');
         expect(result.fileBase64).toBe('');
         expect(result.entities).toHaveLength(0);
+    });
+
+    const fullOptionsFileCases = [
+        {
+            name: 'audio',
+            fileName: 'test.mp3',
+            api: 'deidentifyAudio',
+            assertRequest: (req) => {
+                expect(req.token_type.default).toBe('entity_unique_counter');
+                expect(req.bleep_gain).toBe(0.5);
+                expect(req.bleep_frequency).toBe(440);
+                expect(req.output_transcription).toBe('transcription');
+                expect(req.output_processed_audio).toBe(true);
+            },
+        },
+        {
+            name: 'text',
+            fileName: 'test.text',
+            api: 'deidentifyText',
+            assertRequest: (req) => {
+                expect(req.token_type.entity_only).toEqual(['EMAIL']);
+                expect(req.transformations.shift_dates.max_days).toBe(10);
+            },
+        },
+        {
+            name: 'image',
+            fileName: 'test.png',
+            api: 'deidentifyImage',
+            assertRequest: (req) => {
+                expect(req.masking_method).toBe('blackbox');
+                expect(req.output_ocr_text).toBe(true);
+                expect(req.output_processed_image).toBe(true);
+            },
+        },
+        {
+            name: 'ppt',
+            fileName: 'test.pptx',
+            api: 'deidentifyPresentation',
+            assertRequest: (req) => {
+                expect(req.allow_regex).toEqual(['allow-regex']);
+                expect(req.restrict_regex).toEqual(['restrict-regex']);
+            },
+        },
+        {
+            name: 'spreadsheet',
+            fileName: 'test.xlsx',
+            api: 'deidentifySpreadsheet',
+            assertRequest: (req) => {
+                expect(req.entity_types).toEqual(['NAME', 'EMAIL']);
+            },
+        },
+        {
+            name: 'structured text',
+            fileName: 'test.json',
+            api: 'deidentifyStructuredText',
+            assertRequest: (req) => {
+                expect(req.transformations.shift_dates.min_days).toBe(2);
+            },
+        },
+        {
+            name: 'document',
+            fileName: 'test.docx',
+            api: 'deidentifyDocument',
+            assertRequest: (req) => {
+                expect(req.token_type.entity_unq_counter).toEqual(['NAME']);
+            },
+        },
+        {
+            name: 'generic file',
+            fileName: 'test.abc',
+            api: 'deidentifyFile',
+            assertRequest: (req) => {
+                expect(req.entity_types).toEqual(['NAME', 'EMAIL']);
+                expect(req.transformations.shift_dates.entity_types).toEqual(['DATE']);
+            },
+        },
+    ];
+
+    test.each(fullOptionsFileCases)(
+        'should pass all file options to %s deidentify API',
+        async ({ fileName, api, assertRequest }) => {
+            jest.clearAllMocks();
+            const file = new File(['content'], fileName);
+            const deidentifyFileReq = new DeidentifyFileRequest({ file });
+            const options = createFullDeidentifyFileOptions();
+
+            mockVaultClient.filesAPI[api].mockImplementation(() => ({
+                withRawResponse: jest.fn().mockResolvedValue({
+                    data: { run_id: `run-${api}` },
+                    rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+                }),
+            }));
+
+            mockVaultClient.filesAPI.getRun.mockResolvedValueOnce({
+                status: 'SUCCESS',
+                output: [{
+                    processedFile: 'data',
+                    processedFileType: 'txt',
+                    processedFileExtension: 'txt',
+                }],
+                wordCharacterCount: { wordCount: 1, characterCount: 10 },
+                size: 10,
+                duration: 0,
+                pages: 0,
+                slides: 0,
+            });
+
+            const promise = detectController.deidentifyFile(deidentifyFileReq, options);
+            await jest.runAllTimersAsync();
+            await promise;
+
+            expect(mockVaultClient.filesAPI[api]).toHaveBeenCalled();
+            assertRequest(mockVaultClient.filesAPI[api].mock.calls[0][0]);
+        }
+    );
+
+    test('should poll when deidentify response has null data', async () => {
+        jest.clearAllMocks();
+        const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+        const deidentifyFileReq = new DeidentifyFileRequest({ file });
+        const options = new DeidentifyFileOptions();
+
+        mockVaultClient.filesAPI.deidentifyPdf.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: null,
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        mockVaultClient.filesAPI.getRun.mockResolvedValueOnce({
+            status: 'SUCCESS',
+            output: [{
+                processedFile: 'pdfData',
+                processedFileType: 'pdf',
+                processedFileExtension: 'pdf',
+            }],
+            wordCharacterCount: { wordCount: 1, characterCount: 10 },
+            size: 10,
+            duration: 0,
+            pages: 1,
+            slides: 0,
+        });
+
+        const promise = detectController.deidentifyFile(deidentifyFileReq, options);
+        await jest.runAllTimersAsync();
+        await promise;
+
+        expect(mockVaultClient.filesAPI.getRun).toHaveBeenCalledWith(
+            undefined,
+            { vault_id: 'vault123' }
+        );
+    });
+
+    test('should poll when deidentify response omits run_id', async () => {
+        jest.clearAllMocks();
+        const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
+        const deidentifyFileReq = new DeidentifyFileRequest({ file });
+        const options = new DeidentifyFileOptions();
+
+        mockVaultClient.filesAPI.deidentifyPdf.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: {},
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        mockVaultClient.filesAPI.getRun.mockResolvedValueOnce({
+            status: 'SUCCESS',
+            output: [{
+                processedFile: 'pdfData',
+                processedFileType: 'pdf',
+                processedFileExtension: 'pdf',
+            }],
+            wordCharacterCount: { wordCount: 1, characterCount: 10 },
+            size: 10,
+            duration: 0,
+            pages: 1,
+            slides: 0,
+        });
+
+        const promise = detectController.deidentifyFile(deidentifyFileReq, options);
+        await jest.runAllTimersAsync();
+        await promise;
+
+        expect(mockVaultClient.filesAPI.getRun).toHaveBeenCalledWith(
+            undefined,
+            { vault_id: 'vault123' }
+        );
+    });
+
+    test('should pass all file options to pdf deidentify API', async () => {
+        jest.clearAllMocks();
+        const file = new File(['pdf'], 'test.pdf', { type: 'application/pdf' });
+        const deidentifyFileReq = new DeidentifyFileRequest({ file });
+        const options = createFullDeidentifyFileOptions();
+
+        mockVaultClient.filesAPI.deidentifyPdf.mockImplementation(() => ({
+            withRawResponse: jest.fn().mockResolvedValue({
+                data: { run_id: 'run-pdf' },
+                rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } },
+            }),
+        }));
+
+        mockVaultClient.filesAPI.getRun.mockResolvedValueOnce({
+            status: 'SUCCESS',
+            output: [{
+                processedFile: 'pdfData',
+                processedFileType: 'pdf',
+                processedFileExtension: 'pdf',
+            }],
+            wordCharacterCount: { wordCount: 1, characterCount: 10 },
+            size: 10,
+            duration: 0,
+            pages: 1,
+            slides: 0,
+        });
+
+        const promise = detectController.deidentifyFile(deidentifyFileReq, options);
+        await jest.runAllTimersAsync();
+        await promise;
+
+        const pdfReq = mockVaultClient.filesAPI.deidentifyPdf.mock.calls[0][0];
+        expect(pdfReq.max_resolution).toBe(1920);
+        expect(pdfReq.density).toBe(300);
+        expect(pdfReq.token_type.default).toBe('entity_unique_counter');
     });
 });

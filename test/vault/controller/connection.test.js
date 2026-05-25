@@ -1525,4 +1525,390 @@ describe("ConnectionController Tests", () => {
         expect(deprecatedValue).toBeDefined();
         expect(result.metadata.requestId).toBeDefined();
     });
+
+    it("should JSON.stringify non-string request header values", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: {
+                get: jest.fn().mockReturnValue(null),
+            },
+            json: jest.fn().mockResolvedValue({ success: true }),
+        });
+
+        const request = {
+            body: { data: "sample" },
+            method: RequestMethod.POST,
+            headers: {
+                "Content-Type": "application/json",
+                "X-Custom": { nested: "value" },
+            },
+        };
+
+        await connectionController.invoke(request);
+
+        const fetchCall = global.fetch.mock.calls[0][1];
+        expect(fetchCall.headers["X-Custom"]).toBe(JSON.stringify({ nested: "value" }));
+    });
+
+    it("should handle urlencoded body when body is null", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: {
+                get: jest.fn().mockReturnValue(null),
+            },
+            text: jest.fn().mockResolvedValue(""),
+        });
+
+        const request = {
+            body: null,
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        };
+
+        await connectionController.invoke(request);
+
+        expect(global.fetch.mock.calls[0][1].body).toBe("");
+    });
+
+    it("should stringify non-string body for text/plain", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: { get: jest.fn().mockReturnValue(null) },
+            text: jest.fn().mockResolvedValue("ok"),
+        });
+
+        const request = {
+            body: 42,
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "text/plain" },
+        };
+
+        await connectionController.invoke(request);
+
+        expect(global.fetch.mock.calls[0][1].body).toBe("42");
+    });
+
+    it("should stringify non-string body for text/html", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: { get: jest.fn().mockReturnValue(null) },
+            text: jest.fn().mockResolvedValue("ok"),
+        });
+
+        const request = {
+            body: 99,
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "text/html" },
+        };
+
+        await connectionController.invoke(request);
+
+        expect(global.fetch.mock.calls[0][1].body).toBe("99");
+    });
+
+    it("should build multipart FormData when body is null", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: { get: jest.fn().mockReturnValue(null) },
+            text: jest.fn().mockResolvedValue("ok"),
+        });
+
+        const request = {
+            body: null,
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "multipart/form-data" },
+        };
+
+        await connectionController.invoke(request);
+
+        expect(global.fetch.mock.calls[0][1].body).toBeInstanceOf(FormData);
+    });
+
+    it("should return null when response text is empty after json parse failure", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: {
+                get: jest.fn().mockImplementation((key) => {
+                    if (key?.toLowerCase() === "content-type") return "application/json";
+                    return null;
+                }),
+            },
+            json: jest.fn().mockRejectedValue(new Error("parse error")),
+            text: jest.fn().mockResolvedValue(""),
+        });
+
+        const request = {
+            body: { data: "sample" },
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "application/json" },
+        };
+
+        const result = await connectionController.invoke(request);
+        expect(result.data).toBeNull();
+    });
+
+    it("should parse response when response headers object is undefined", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: undefined,
+            json: jest.fn().mockResolvedValue({ success: true }),
+        });
+
+        const request = {
+            body: { data: "sample" },
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "application/json" },
+        };
+
+        const result = await connectionController.invoke(request);
+        expect(result.data).toEqual({ success: true });
+        expect(result.metadata.requestId).toBe("");
+    });
+
+    it("should default requestId to empty string when x-request-id header is missing", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: {
+                get: jest.fn().mockReturnValue(null),
+            },
+            json: jest.fn().mockResolvedValue({ success: true }),
+        });
+
+        const request = {
+            body: { data: "sample" },
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "application/json" },
+        };
+
+        const result = await connectionController.invoke(request);
+        expect(result.metadata.requestId).toBe("");
+    });
+
+    it("should default to POST when method is not provided", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: { get: jest.fn().mockReturnValue(null) },
+            json: jest.fn().mockResolvedValue({ success: true }),
+        });
+
+        const request = {
+            body: { data: "sample" },
+            headers: { "Content-Type": "application/json" },
+        };
+
+        await connectionController.invoke(request);
+
+        expect(global.fetch.mock.calls[0][1].method).toBe(RequestMethod.POST);
+    });
+
+    it("should invoke without request headers", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: { get: jest.fn().mockReturnValue(null) },
+            json: jest.fn().mockResolvedValue({ success: true }),
+        });
+
+        const request = {
+            body: { data: "sample" },
+            method: RequestMethod.POST,
+        };
+
+        await connectionController.invoke(request);
+
+        expect(global.fetch).toHaveBeenCalled();
+    });
+
+    it("should return null when json and text parsing fail without response body", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: {
+                get: jest.fn().mockImplementation((key) => {
+                    if (key?.toLowerCase() === "content-type") return "application/json";
+                    return null;
+                }),
+            },
+            json: jest.fn().mockRejectedValue(new Error("parse error")),
+            text: jest.fn().mockRejectedValue(new Error("text error")),
+        });
+
+        const request = {
+            body: { data: "sample" },
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "application/json" },
+        };
+
+        const result = await connectionController.invoke(request);
+        expect(result.data).toBeNull();
+    });
+
+    it("should cancel response body when json and text parsing both fail", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        const cancel = jest.fn().mockReturnValue(Promise.reject(new Error("cancel failed")));
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: {
+                get: jest.fn().mockImplementation((key) => {
+                    if (key?.toLowerCase() === "content-type") return "application/json";
+                    return null;
+                }),
+            },
+            json: jest.fn().mockRejectedValue(new Error("parse error")),
+            text: jest.fn().mockRejectedValue(new Error("text error")),
+            body: { cancel },
+        });
+
+        const request = {
+            body: { data: "sample" },
+            method: RequestMethod.POST,
+            headers: { "Content-Type": "application/json" },
+        };
+
+        const result = await connectionController.invoke(request);
+        expect(result.data).toBeNull();
+        expect(cancel).toHaveBeenCalled();
+    });
+
+    it("should skip content-type header and stringify non-string values for multipart", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: { get: jest.fn().mockReturnValue(null) },
+            text: jest.fn().mockResolvedValue("ok"),
+        });
+
+        const request = {
+            body: { field: "value" },
+            method: RequestMethod.POST,
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "X-Meta": ["a", "b"],
+            },
+        };
+
+        await connectionController.invoke(request);
+
+        const fetchCall = global.fetch.mock.calls[0][1];
+        expect(fetchCall.headers["Content-Type"]).toBeUndefined();
+        expect(fetchCall.headers["X-Meta"]).toBe(JSON.stringify(["a", "b"]));
+    });
+
+    it("should keep string header values when not removing content-type", async () => {
+        const token = { key: "bearer_token" };
+        getBearerToken.mockResolvedValue(token);
+        fillUrlWithPathAndQueryParams.mockReturnValue("https://api.example.com/resource");
+        generateSDKMetrics.mockReturnValue({ metric: "value" });
+        validateInvokeConnectionRequest.mockImplementation(jest.fn());
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            headers: { get: jest.fn().mockReturnValue("req-123") },
+            json: jest.fn().mockResolvedValue({ success: true }),
+        });
+
+        const request = {
+            body: { data: "sample" },
+            method: RequestMethod.POST,
+            headers: {
+                "Content-Type": "application/json",
+                "X-Plain": "plain-value",
+            },
+        };
+
+        await connectionController.invoke(request);
+
+        const fetchCall = global.fetch.mock.calls[0][1];
+        expect(fetchCall.headers["X-Plain"]).toBe("plain-value");
+        expect(fetchCall.headers["Content-Type"]).toBe("application/json");
+    });
 });

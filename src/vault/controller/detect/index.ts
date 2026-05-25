@@ -434,8 +434,8 @@ class DetectController {
 
     private parseDeidentifyTextResponse(records: DeidentifyStringResponse) {
         return {
-            processedText: records.processed_text,
-            entities: records?.entities.map((entity: DetectedEntity) => ({
+            processedText: records?.processed_text,
+            entities: (records?.entities ?? []).map((entity: DetectedEntity) => ({
                 token: entity?.token,
                 value: entity?.value,
                 textIndex: {
@@ -449,8 +449,8 @@ class DetectController {
                 entity: entity?.entity_type,
                 scores: entity?.entity_scores,
             })),
-            wordCount: records.word_count,
-            charCount: records.character_count,
+            wordCount: records?.word_count,
+            charCount: records?.character_count,
             errors: null,
         };
     }

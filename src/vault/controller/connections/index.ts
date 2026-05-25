@@ -143,7 +143,7 @@ class ConnectionController {
 
   private async parseResponseBody(response: Response): Promise<any> {
     const contentType =
-      response.headers.get(HTTP_HEADER.CONTENT_TYPE)?.toLowerCase() || "";
+      response.headers?.get(HTTP_HEADER.CONTENT_TYPE)?.toLowerCase() || "";
 
     try {
       if (contentType.includes(CONTENT_TYPE.APPLICATION_JSON)) {
