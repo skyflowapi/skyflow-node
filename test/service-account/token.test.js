@@ -317,11 +317,10 @@ describe('Signed Data Token Generation Test', () => {
     test("Valid credentials file", async () => {
         const filePath = 'test/demo-credentials/valid.json';
         jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
-        try {
-            await generateSignedDataTokens(filePath, defaultOptions);
-        } catch (err) {
-            expect(err.message).toBe(errorMessages.MISSING_TOKEN_URI);
-        }
+        const result = await generateSignedDataTokens(filePath, defaultOptions);
+        expect(result).toHaveLength(1);
+        expect(result[0].token).toBe('datatoken1');
+        expect(result[0].signedToken).toContain('signed_token_');
     });
 
     test("File does not exist", async () => {
@@ -599,6 +598,44 @@ describe('failureResponse with rawResponse', () => {
         const err = {
             rawResponse: { headers: makeHeaders('application/xml') },
             response: { status: 503 },
+        };
+        await expect(failureResponse(err)).rejects.toBeDefined();
+    });
+
+    test("handles application/json with error http_code and no request id", async () => {
+        const err = {
+            rawResponse: {
+                headers: {
+                    get: (key) =>
+                        key === 'content-type' ? 'application/json' : undefined,
+                },
+            },
+            body: { error: { message: 'structured error', http_code: 422 } },
+        };
+        await expect(failureResponse(err)).rejects.toMatchObject({
+            error: expect.objectContaining({
+                httpCode: 422,
+                message: 'structured error',
+            }),
+        });
+    });
+
+    test("handles application/json when body has no error.message", async () => {
+        const err = {
+            rawResponse: { headers: makeHeaders('application/json') },
+            body: { code: 'ERR', detail: 'no nested message' },
+        };
+        await expect(failureResponse(err)).rejects.toMatchObject({
+            error: expect.objectContaining({
+                message: { code: 'ERR', detail: 'no nested message' },
+            }),
+        });
+    });
+
+    test("handles rawResponse without headers", async () => {
+        const err = {
+            rawResponse: {},
+            body: { error: { message: 'no headers' } },
         };
         await expect(failureResponse(err)).rejects.toBeDefined();
     });
@@ -1047,7 +1084,21 @@ describe('service-account branch and line coverage', () => {
             },
             body: { error: { http_code: 503 } },
         };
-        await expect(failureResponse(err, { logLevel: LogLevel.ERROR })).rejects.toBeDefined();
+        await expect(failureResponse(err, { logLevel: LogLevel.ERROR })).rejects.toMatchObject({
+            error: expect.objectContaining({ httpCode: 503 }),
+        });
+    });
+
+    test('getToken accepts canonical clientId, keyId, and tokenUri credential fields', async () => {
+        jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
+        const creds = JSON.stringify({
+            clientId: 'canonical-client',
+            keyId: 'canonical-key',
+            tokenUri: 'https://canonical-token-uri.com',
+            privateKey: 'KEY',
+        });
+        const result = await getToken(creds);
+        expect(result.accessToken).toBe('mocked_access_token');
     });
 
     test('generateSignedDataTokensFromCreds with null timeToLive uses default expiry', async () => {
