@@ -345,6 +345,7 @@ class DetectController {
 ) {
                         if (currentWaitTime >= maxWaitTime) {
                             resolve({ data: { status: 'IN_PROGRESS' }, runId });
+                            resolve({ data: { status: 'IN_PROGRESS' }, runId });
                         } else {
                             const nextWaitTime = currentWaitTime * 2;
                             let waitTime = 0;

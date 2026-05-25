@@ -6,12 +6,14 @@ import { AuthType, LogLevel, TYPES } from '../../../src/utils';
 import { isExpired } from '../../../src/utils/jwt-utils';
 import SkyflowError  from '../../../src/error';
 import { Strings } from '../../../src/ _generated_/rest/api/resources/strings/client/Client';
+import { Files } from '../../../src/ _generated_/rest/api/resources/files/client/Client';
 
 jest.mock('../../../src/ _generated_/rest');
 jest.mock('../../../src/ _generated_/rest/api/resources/records/client/Client');
 jest.mock('../../../src/ _generated_/rest/api/resources/query/client/Client');
 jest.mock('../../../src/ _generated_/rest/api/resources/tokens/client/Client');
 jest.mock('../../../src/ _generated_/rest/api/resources/strings/client/Client');
+jest.mock('../../../src/ _generated_/rest/api/resources/files/client/Client');
 jest.mock('../../../src/utils/jwt-utils');
 jest.mock('../../../src/error');
 
@@ -432,7 +434,183 @@ describe('VaultClient', () => {
             vaultClient.updateClientConfig(url, vaultId);
             expect(vaultClient.url).toBe(url);
             expect(vaultClient.vaultId).toBe(vaultId);
-            expect(vaultClient.logLevel).toBe(LogLevel.ERROR); 
+            expect(vaultClient.logLevel).toBe(LogLevel.ERROR);
+        });
+    });
+
+    // ─── Supplier-based client reuse (new behaviour) ───────────────────────────
+
+    describe('initAPI - client created only once (supplier pattern)', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+            // Fresh client so no API instances carry over between tests
+            vaultClient = new VaultClient(url, vaultId, { apiKey }, { token }, LogLevel.INFO);
+        });
+
+        test('Records client is created only once across repeated INSERT calls', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            expect(Records).toHaveBeenCalledTimes(1);
+        });
+
+        test('Records client is created only once across INSERT, GET, UPDATE, DELETE, INSERT_BATCH, FILE_UPLOAD calls', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            vaultClient.initAPI(authInfo, TYPES.GET);
+            vaultClient.initAPI(authInfo, TYPES.UPDATE);
+            vaultClient.initAPI(authInfo, TYPES.DELETE);
+            vaultClient.initAPI(authInfo, TYPES.INSERT_BATCH);
+            vaultClient.initAPI(authInfo, TYPES.FILE_UPLOAD);
+            expect(Records).toHaveBeenCalledTimes(1);
+        });
+
+        test('Tokens client is created only once across repeated DETOKENIZE calls', () => {
+            vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
+            vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
+            expect(Tokens).toHaveBeenCalledTimes(1);
+        });
+
+        test('Tokens client is created only once across DETOKENIZE and TOKENIZE calls', () => {
+            vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
+            vaultClient.initAPI(authInfo, TYPES.TOKENIZE);
+            expect(Tokens).toHaveBeenCalledTimes(1);
+        });
+
+        test('Query client is created only once across repeated QUERY calls', () => {
+            vaultClient.initAPI(authInfo, TYPES.QUERY);
+            vaultClient.initAPI(authInfo, TYPES.QUERY);
+            expect(Query).toHaveBeenCalledTimes(1);
+        });
+
+        test('Strings client is created only once across DEIDENTIFY_TEXT and REIDENTIFY_TEXT calls', () => {
+            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_TEXT);
+            vaultClient.initAPI(authInfo, TYPES.REIDENTIFY_TEXT);
+            expect(Strings).toHaveBeenCalledTimes(1);
+        });
+
+        test('Files client is created only once across DEIDENTIFY_FILE and DETECT_RUN calls', () => {
+            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_FILE);
+            vaultClient.initAPI(authInfo, TYPES.DETECT_RUN);
+            expect(Files).toHaveBeenCalledTimes(1);
+        });
+
+        test('each API type gets its own client (INSERT + DETOKENIZE + QUERY each create once)', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
+            vaultClient.initAPI(authInfo, TYPES.QUERY);
+            expect(Records).toHaveBeenCalledTimes(1);
+            expect(Tokens).toHaveBeenCalledTimes(1);
+            expect(Query).toHaveBeenCalledTimes(1);
+        });
+
+        test('Records instance is the same object reference after repeated calls', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            const firstInstance = vaultClient.vaultAPI;
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            expect(vaultClient.vaultAPI).toBe(firstInstance);
+        });
+    });
+
+    describe('initAPI - supplier functions carry live values', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+            vaultClient = new VaultClient(url, vaultId, { apiKey }, { token }, LogLevel.INFO);
+        });
+
+        test('Records constructor receives a function for token (not a plain string)', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            const opts = Records.mock.calls[0][0];
+            expect(typeof opts.token).toBe('function');
+        });
+
+        test('Records constructor receives a function for baseUrl (not a plain string)', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            const opts = Records.mock.calls[0][0];
+            expect(typeof opts.baseUrl).toBe('function');
+        });
+
+        test('token supplier returns the token from authInfo at creation time', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            const opts = Records.mock.calls[0][0];
+            expect(opts.token()).toBe(token);
+        });
+
+        test('baseUrl supplier returns the url at creation time', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            const opts = Records.mock.calls[0][0];
+            expect(opts.baseUrl()).toBe(url);
+        });
+
+        test('token supplier reflects new token after second initAPI call — without recreating Records client', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            const opts = Records.mock.calls[0][0];
+
+            const newToken = 'refreshed_token_789';
+            vaultClient.initAPI({ key: newToken, type: AuthType.TOKEN }, TYPES.INSERT);
+
+            // Still only one Records instance
+            expect(Records).toHaveBeenCalledTimes(1);
+            // But supplier now returns the new token
+            expect(opts.token()).toBe(newToken);
+        });
+
+        test('token supplier reflects expired-then-refreshed token without recreating Tokens client', () => {
+            vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
+            const opts = Tokens.mock.calls[0][0];
+
+            const refreshedToken = 'token_after_expiry';
+            vaultClient.initAPI({ key: refreshedToken, type: AuthType.TOKEN }, TYPES.DETOKENIZE);
+
+            expect(Tokens).toHaveBeenCalledTimes(1);
+            expect(opts.token()).toBe(refreshedToken);
+        });
+
+        test('baseUrl supplier reflects new url after updateClientConfig — without recreating Records client', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            const opts = Records.mock.calls[0][0];
+
+            const newUrl = 'https://updated-cluster.skyflow.com';
+            vaultClient.updateClientConfig(newUrl, vaultId);
+
+            // No second initAPI call needed — supplier reads this.url live
+            expect(opts.baseUrl()).toBe(newUrl);
+            // Client was never recreated
+            expect(Records).toHaveBeenCalledTimes(1);
+        });
+
+        test('Records client is not recreated after updateClientConfig followed by initAPI', () => {
+            vaultClient.initAPI(authInfo, TYPES.INSERT);
+            vaultClient.updateClientConfig('https://new-cluster.skyflow.com', 'newVaultId');
+            vaultClient.initAPI({ key: 'new_token', type: AuthType.TOKEN }, TYPES.INSERT);
+            expect(Records).toHaveBeenCalledTimes(1);
+        });
+
+        test('Tokens constructor also receives supplier functions', () => {
+            vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
+            const opts = Tokens.mock.calls[0][0];
+            expect(typeof opts.token).toBe('function');
+            expect(typeof opts.baseUrl).toBe('function');
+        });
+
+        test('Query constructor also receives supplier functions', () => {
+            vaultClient.initAPI(authInfo, TYPES.QUERY);
+            const opts = Query.mock.calls[0][0];
+            expect(typeof opts.token).toBe('function');
+            expect(typeof opts.baseUrl).toBe('function');
+        });
+
+        test('Strings constructor also receives supplier functions', () => {
+            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_TEXT);
+            const opts = Strings.mock.calls[0][0];
+            expect(typeof opts.token).toBe('function');
+            expect(typeof opts.baseUrl).toBe('function');
+        });
+
+        test('Files constructor also receives supplier functions', () => {
+            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_FILE);
+            const opts = Files.mock.calls[0][0];
+            expect(typeof opts.token).toBe('function');
+            expect(typeof opts.baseUrl).toBe('function');
         });
     });
 });
