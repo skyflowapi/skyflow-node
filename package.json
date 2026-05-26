@@ -1,6 +1,6 @@
 {
   "name": "skyflow-node",
-  "version": "1.14.3",
+  "version": "2.1.0-dev.16449f7",
   "description": "[DEPRECATED - EOL 2026-10-31] Skyflow Node.js SDK v1.x. Migrate to v2: https://github.com/skyflowapi/skyflow-node/blob/main/docs/migrate_to_v2.md",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
