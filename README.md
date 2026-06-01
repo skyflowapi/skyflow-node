@@ -51,6 +51,7 @@ Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow 
     - [De-identify File: `.deidentifyFile(fileReq, options)`](#de-identify-file-deidentifyfilefilereq-options)
     - [Get Run: `.getDetectRun(request)`](#get-run-getdetectrunrequest)
   - [Connections](#connections)
+    - [Configure a connection](#configure-a-connection)
     - [Invoke a connection](#invoke-a-connection)
       - [Construct an invoke connection request](#construct-an-invoke-connection-request)
   - [Authentication \& authorization](#authentication--authorization)
@@ -58,15 +59,26 @@ Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow 
     - [Generate bearer tokens for authentication \& authorization](#generate-bearer-tokens-for-authentication--authorization)
       - [Generate a bearer token](#generate-a-bearer-token)
         - [`generateBearerToken(filepath)`](#generatebearertokenfilepath)
-        - [`generateBearerTokenFromCreds(credentials)`](#generatebearertokenfromcredscredentials)
+        - [`generateBearerTokenFromCreds(credentialsString)`](#generatebearertokenfromcredscredentialsstring)
       - [Generate bearer tokens scoped to certain roles](#generate-bearer-tokens-scoped-to-certain-roles)
       - [Generate bearer tokens with `ctx` for context-aware authorization](#generate-bearer-tokens-with-ctx-for-context-aware-authorization)
-      - [Generate signed data tokens: `generateSignedDataTokens(filepath, options)`](#generate-signed-data-tokens-generatesigneddatatokensfilepath-options)
+      - [Generate signed data tokens](#generate-signed-data-tokens)
+  - [Runtime client management](#runtime-client-management)
+    - [Vault management](#vault-management)
+    - [Connection management](#connection-management)
+    - [Credentials and log level](#credentials-and-log-level)
+    - [Skyflow class public methods reference](#skyflow-class-public-methods-reference)
   - [Logging](#logging)
     - [Example `skyflowConfig.logLevel: LogLevel.INFO`](#example-skyflowconfigloglevel-loglevelinfo)
   - [Error handling](#error-handling)
     - [Catching `SkyflowError` instances](#catching-skyflowerror-instances)
+    - [Per-record errors (`SkyflowRecordError`)](#per-record-errors-skyflowrecorderror)
     - [Bearer token expiration edge cases](#bearer-token-expiration-edge-cases)
+  - [TypeScript types reference](#typescript-types-reference)
+    - [Credential sub-types](#credential-sub-types)
+    - [Response record shapes](#response-record-shapes)
+    - [Request item shapes](#request-item-shapes)
+    - [File input type](#file-input-type)
   - [Security](#security)
     - [Reporting a Vulnerability](#reporting-a-vulnerability)
 
@@ -155,9 +167,10 @@ const skyflowCredentials = {
 
 // Configure vault
 const vaultConfig: VaultConfig = {
-    vaultId: '<VAULT_ID>',
-    clusterId: '<CLUSTER_ID>',
-    env: Env.PROD
+    vaultId: '<VAULT_ID>',       // required: vault identifier
+    clusterId: '<CLUSTER_ID>',   // required: from vault URL
+    env: Env.PROD,               // optional: PROD (default), SANDBOX, DEV, STAGE
+    // credentials: vaultCredentials  // optional: per-vault credentials; overrides skyflowCredentials
 };
 
 // Initialize Skyflow client
@@ -246,12 +259,37 @@ Set the `continueOnError` flag to `true` to allow insert operations to proceed d
 Turn an insert into an 'update-or-insert' operation using the upsert option. The vault checks for an existing record with the same value in the specified column. If a match exists, the record updates; otherwise, a new record inserts.
 
 ```typescript
-// ...
-// Specify the column to use as the index for the upsert. 
+// Specify the column to use as the index for the upsert.
 // Note: The column must have the `unique` constraint configured in the vault.
 insertOptions.setUpsertColumn("cardholder_name");
-// ...
 ```
+
+#### InsertOptions reference
+
+`InsertOptions` accepts the following setters:
+
+| Setter | Type | Description |
+|---|---|---|
+| `setReturnTokens(bool)` | `boolean` | Return tokens for inserted fields. Default `false`. |
+| `setUpsertColumn(column)` | `string` | Column to use as the upsert key. Must have the `unique` constraint. |
+| `setContinueOnError(bool)` | `boolean` | Allow the batch to proceed despite per-record errors. Default `false`. |
+| `setTokens(tokens)` | `Array<Record<string, unknown>>` | Provide pre-existing tokens for BYOT (bring-your-own-token) inserts. |
+| `setHomogeneous(bool)` | `boolean` | Treat all records as the same schema for a homogeneous bulk insert. |
+| `setTokenMode(mode)` | `TokenMode` | Control tokenization mode for BYOT operations (see below). |
+
+**`TokenMode` enum** — controls how the SDK handles bring-your-own-token inserts:
+
+```typescript
+import { TokenMode } from 'skyflow-node';
+
+insertOptions.setTokenMode(TokenMode.ENABLE);
+```
+
+| Value | Description |
+|---|---|
+| `TokenMode.DISABLE` | Default. Vault generates all tokens. |
+| `TokenMode.ENABLE` | Caller provides tokens; vault accepts them as-is. |
+| `TokenMode.ENABLE_STRICT` | Caller provides tokens; vault validates them before accepting. |
 
 ### Detokenize: `.detokenize(request, options)`
 
@@ -397,6 +435,36 @@ Use redaction types to control how sensitive data displays when retrieved from t
 - Use `MASKED` to provide partial visibility of sensitive data for less critical use cases.
 - Use `PLAIN_TEXT` for internal, authorized access where full data visibility is necessary.
 
+#### GetOptions reference
+
+`GetOptions` accepts the following setters:
+
+| Setter | Type | Description |
+|---|---|---|
+| `setReturnTokens(bool)` | `boolean` | Return tokens instead of plain-text values. |
+| `setRedactionType(type)` | `RedactionType` | Control how values are redacted in the response. |
+| `setFields(fields)` | `Array<string>` | Limit the response to specific field names. |
+| `setOffset(offset)` | `string` | Pagination offset (number of records to skip). |
+| `setLimit(limit)` | `string` | Maximum number of records to return. |
+| `setDownloadUrl(bool)` | `boolean` | Return a pre-signed download URL for file fields. |
+| `setColumnName(name)` | `string` | Column to query by value (use with `setColumnValues`). |
+| `setColumnValues(values)` | `Array<string>` | Values to match in the column specified by `setColumnName`. |
+| `setOrderBy(order)` | `OrderByEnum` | Sort order for returned records (see below). |
+
+**`OrderByEnum`** — controls sort order when retrieving records:
+
+```typescript
+import { OrderByEnum } from 'skyflow-node';
+
+getOptions.setOrderBy(OrderByEnum.ASCENDING);
+```
+
+| Value | Description |
+|---|---|
+| `OrderByEnum.ASCENDING` | Sort records in ascending order. |
+| `OrderByEnum.DESCENDING` | Sort records in descending order. |
+| `OrderByEnum.NONE` | No explicit sort order (server default). |
+
 ### Update Records
 
 Update data in your vault using the `update` method. Create an update request with the `UpdateRequest` class, specifying parameters such as the table name and data (as a dictionary). 
@@ -406,7 +474,7 @@ Configure update options using the `UpdateOptions` class to control returnTokens
 #### Construct an update request
 
 ```typescript
-import { UpdateRequest, UpdateResponse } from 'skyflow-node';
+import { UpdateRequest, UpdateOptions, UpdateResponse, TokenMode } from 'skyflow-node';
 
 const updateRequest = new UpdateRequest('table1', {
   skyflowId: '<SKYFLOW_ID>',
@@ -414,14 +482,27 @@ const updateRequest = new UpdateRequest('table1', {
   <COLUMN_NAME_2>: '<COLUMN_VALUE_2>'
 });
 
+const updateOptions = new UpdateOptions();
+updateOptions.setReturnTokens(true); // return tokens for updated fields
+
 const response: UpdateResponse = await skyflowClient
   .vault('<VAULT_ID>')
-  .update(updateRequest);
+  .update(updateRequest, updateOptions);
 
 console.log('Update response:', response);
 ```
 
 > **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
+
+#### UpdateOptions reference
+
+`UpdateOptions` accepts the following setters:
+
+| Setter | Type | Description |
+|---|---|---|
+| `setReturnTokens(bool)` | `boolean` | When `true`, returns tokens for updated fields. When `false`, returns the Skyflow ID only. Default `false`. |
+| `setTokens(tokens)` | `Record<string, unknown>` | Provide pre-existing tokens for a BYOT update. |
+| `setTokenMode(mode)` | `TokenMode` | Control tokenization mode for BYOT operations. See [`TokenMode`](#insertOptions-reference). |
 
 > [!TIP]
 > See the full example in the samples directory: [update-record.ts](samples/vault-api/update-record.ts)
@@ -514,6 +595,18 @@ const response: FileUploadResponse = await skyflowClient
 console.log("File upload:", response);
 ```
 
+#### FileUploadOptions reference
+
+`FileUploadOptions` accepts the following setters. Set **exactly one** file source (`setFileObject`, `setFilePath`, or `setBase64`):
+
+| Setter | Type | Description |
+|---|---|---|
+| `setSkyflowId(id)` | `string` | **Required.** The Skyflow ID of the record to attach the file to. |
+| `setFileObject(file)` | `File` | Provide an in-memory `File` object directly. |
+| `setFilePath(path)` | `string` | Path to the file on disk. The SDK reads and uploads the file. Requires Node.js v20+. |
+| `setBase64(data)` | `string` | Base64-encoded file content. Use `setFileName` to supply the filename when using this option. |
+| `setFileName(name)` | `string` | Filename to use when uploading base64-encoded content (e.g. `"document.pdf"`). |
+
 > [!TIP]
 > See the full example in the samples directory: [file-upload.ts](samples/vault-api/file-upload.ts)
 
@@ -573,17 +666,20 @@ options.setEntities([DetectEntities.ACCOUNT_NUMBER, DetectEntities.SSN]); // Ent
 options.setAllowRegexList(["<YOUR_REGEX_PATTERN>"]); // Allowlist regex patterns
 options.setRestrictRegexList(["<YOUR_REGEX_PATTERN>"]); // Restrict regex patterns
 
-const tokenFormat = new TokenFormat(); // Specify the token format for deidentified entities
-tokenFormat.setDefault(TokenType.VAULT_TOKEN);
-optionsText.setTokenFormat(tokenFormat);
+const tokenFormat = new TokenFormat();
+tokenFormat.setDefault(TokenType.VAULT_TOKEN);       // default format for all entity types
+// tokenFormat.setVaultToken([DetectEntities.SSN]);           // vault token for specific entities
+// tokenFormat.setEntityUniqueCounter([DetectEntities.NAME]); // unique counter for specific entities
+// tokenFormat.setEntityOnly([DetectEntities.CREDIT_CARD]);   // entity-only (no token) for specific entities
+options.setTokenFormat(tokenFormat);
 
-const transformations = new Transformations(); // Specify custom transformations for entities
+const transformations = new Transformations();
 transformations.setShiftDays({
-  max: 30, // Maximum shift days
-  min: 30, // Minimum shift days
-  entities: [DetectEntities.ACCOUNT_NUMBER, DetectEntities.SSN], // Entities to apply the shift
+  max: 30,                                              // maximum days to shift
+  min: 10,                                              // minimum days to shift
+  entities: [DetectEntities.ACCOUNT_NUMBER, DetectEntities.SSN], // entity types to apply the shift
 });
-optionsText.setTransformations(transformations);
+options.setTransformations(transformations);
 
 // Call deidentifyText
 const response = await skyflowClient
@@ -675,9 +771,25 @@ transformations.setShiftDays({
 });
 options.setTransformations(transformations);
 
-options.setOutputDirectory('<OUTPUT_DIRECTORY_PATH>');  // Output directory for saving the deidentified file. This is not supported in Cloudflare workers
+options.setOutputDirectory('<OUTPUT_DIRECTORY_PATH>');  // Output directory for saving the deidentified file. Not supported in Cloudflare workers.
+options.setWaitTime(64);   // Wait time for polling (max 64 seconds; returns runId + status if exceeded)
 
-options.setWaitTime(64);   // Wait time for response (max 64 seconds; throws error if more)
+// Image-specific options
+options.setOutputProcessedImage(true);    // Include the deidentified image in the response
+options.setOutputOcrText(true);           // Include OCR-extracted text in the response
+options.setMaskingMethod(MaskingMethod.BLUR);  // How to mask detected entities in images
+options.setPixelDensity(150);             // DPI for image rendering (higher = better quality)
+options.setMaxResolution(1920);           // Maximum pixel dimension for output images
+
+// Audio-specific options
+options.setOutputProcessedAudio(true);    // Include the deidentified audio in the response
+options.setOutputTranscription(DetectOutputTranscription.DIARIZED_TRANSCRIPTION); // Transcription format
+const bleep = new Bleep();
+bleep.setGain(1.0);          // Volume of the bleep tone (0.0–1.0)
+bleep.setFrequency(1000);    // Frequency of the bleep tone in Hz
+bleep.setStartPadding(0.1);  // Seconds of silence before the bleep
+bleep.setStopPadding(0.1);   // Seconds of silence after the bleep
+options.setBleep(bleep);     // Apply bleep settings to redacted audio spans
 
 // Call deidentifyFile
 const response: DeidentifyFileResponse = await skyflowClient
@@ -697,11 +809,39 @@ console.log('De-identify File Response:', response);
 - Presentations: `ppt`, `pptx`
 - Audio: `mp3`, `wav`
 
+#### DeidentifyFileOptions reference
+
+| Setter | Type | Description |
+|---|---|---|
+| `setEntities(entities)` | `DetectEntities[]` | Entity types to detect and de-identify. |
+| `setAllowRegexList(patterns)` | `string[]` | Regex patterns that always match as entities (allowlist). |
+| `setRestrictRegexList(patterns)` | `string[]` | Regex patterns that never match as entities (denylist). |
+| `setTokenFormat(format)` | `TokenFormat` | Token format for de-identified entities. |
+| `setTransformations(t)` | `Transformations` | Custom transformations per entity type. |
+| `setOutputDirectory(path)` | `string` | Directory to write de-identified output files. Not supported in Cloudflare Workers. |
+| `setWaitTime(seconds)` | `number` | Max seconds to poll before returning `runId`+`status`. Minimum 1; maximum 64. |
+| `setOutputProcessedImage(bool)` | `boolean` | Include the de-identified image binary in the response. Images only. |
+| `setOutputOcrText(bool)` | `boolean` | Include OCR-extracted text in the response. Images only. |
+| `setMaskingMethod(method)` | `MaskingMethod` | How to mask entities in images (`BLUR`, `BLACKBOX`, etc.). Images only. |
+| `setPixelDensity(dpi)` | `number` | DPI for image rendering. Higher values improve quality. Images only. |
+| `setMaxResolution(px)` | `number` | Maximum pixel dimension of the output image. Images only. |
+| `setOutputProcessedAudio(bool)` | `boolean` | Include the de-identified audio binary in the response. Audio only. |
+| `setOutputTranscription(format)` | `DetectOutputTranscription` | Transcription format (`DIARIZED_TRANSCRIPTION`, `MEDICAL_DIARIZED_TRANSCRIPTION`, etc.). Audio only. |
+| `setBleep(bleep)` | `Bleep` | Bleep tone settings for redacted audio spans. Audio only. See `Bleep` below. |
+
+**`Bleep` class** — configures the bleep tone applied to redacted audio spans:
+
+| Setter | Type | Description |
+|---|---|---|
+| `setGain(value)` | `number` | Volume of the bleep tone (0.0 – 1.0). |
+| `setFrequency(hz)` | `number` | Frequency of the bleep in hertz. |
+| `setStartPadding(seconds)` | `number` | Silence padding before the bleep starts. |
+| `setStopPadding(seconds)` | `number` | Silence padding after the bleep ends. |
+
 **Notes:**
 
-- Transformations can't be applied to Documents, Images, or PDFs file formats.
-- The `waitTime` option must be ≤ 64 seconds; otherwise, an error is thrown.
-- If the API takes more than 64 seconds to process the file, it will return only the `runId` and `status` in the response.
+- Transformations can't be applied to Documents, Images, or PDFs.
+- If the API takes more than `waitTime` seconds to process, the response contains only `runId` and `status`. Use `.getDetectRun(request)` to poll for the final result.
 
 > [!TIP]
 > See the full example in the samples directory: [deidentify-file.ts](samples/detect-api/deidentify-file.ts)
@@ -742,6 +882,20 @@ Securely send and receive data between your systems and first- or third-party se
 - **Inbound connections**: Act as intermediaries between your client and server, tokenizing sensitive data before it reaches your backend, ensuring downstream services handle only tokenized data.
 - **Outbound connections**: Enable secure extraction of data from the vault and transfer it to third-party services via your backend server, such as processing checkout or card issuance flows.
 
+### Configure a connection
+
+Add a `ConnectionConfig` to `SkyflowConfig.connectionConfigs` during initialization, or call `addConnectionConfig()` at runtime:
+
+```typescript
+import { ConnectionConfig, Credentials } from 'skyflow-node';
+
+const connectionConfig: ConnectionConfig = {
+  connectionId: '<CONNECTION_ID>',     // required: unique connection identifier
+  connectionUrl: '<CONNECTION_URL>',   // required: gateway URL for this connection
+  // credentials: connectionCredentials // optional: per-connection credentials; overrides skyflowCredentials
+};
+```
+
 ### Invoke a connection
 
 Invoke a connection using the `invoke` method of the Skyflow client.
@@ -776,7 +930,6 @@ The method of `RequestMethod.POST` must be one of:
 - `POST`
 - `PUT`
 - `PATCH`
-- `DELETE`
 
 **pathParams, queryParams, header, body** are the JSON objects represented as dictionaries that will be sent through the connection integration url.
 
@@ -844,33 +997,79 @@ Generate service account tokens using the [Service Account](https://github.com/s
 
 The `generateBearerToken(filepath)` function takes the `credentials.json` file path for token generation.
 
-```js
-let bearerToken: string = '';
-generateBearerToken('path/to/credentials.json')
+```ts
+import { generateBearerToken, BearerTokenOptions } from 'skyflow-node';
+
+const options: BearerTokenOptions = {
+  roleIds: ['roleId1'],   // optional: scope to specific roles
+  ctx: 'user_12345',      // optional: embed context
+  logLevel: LogLevel.ERROR,
+};
+
+generateBearerToken('path/to/credentials.json', options)
   .then(response => {
-    bearerToken = response.accessToken;
-    // Resolve the generated Bearer Token
-    resolve(bearerToken);
+    const bearerToken = response.accessToken;
   })
-  .catch(error => {
-    // Handle any errors that occur during the generation process
-    reject(error);
-  });
+  .catch(error => { /* handle error */ });
 ```
 
-##### `generateBearerTokenFromCreds(credentials)`
+##### `generateBearerTokenFromCreds(credentialsString)`
 
-Alternatively, you can also send the entire credentials as string by using `generateBearerTokenFromCreds(string)`.
+Use `generateBearerTokenFromCreds` when your credentials JSON is available as a string (e.g. from a secret manager) rather than a file on disk. It accepts the same `BearerTokenOptions` as `generateBearerToken`.
+
+```ts
+import { generateBearerTokenFromCreds, BearerTokenOptions } from 'skyflow-node';
+
+const credentialsString = JSON.stringify(require('./credentials.json'));
+const options: BearerTokenOptions = { roleIds: ['roleId1'] };
+
+const response = await generateBearerTokenFromCreds(credentialsString, options);
+const bearerToken = response.accessToken;
+```
+
+**`BearerTokenOptions` type:**
+
+```ts
+type BearerTokenOptions = {
+  roleIds?: string[];                  // Scope the token to specific service-account roles
+  ctx?: string | Record<string, any>; // Context value(s) embedded in the token
+  logLevel?: LogLevel;                 // Override SDK log level for this call
+  tokenUri?: string;                   // Override the token endpoint URL from the credentials file
+};
+```
+
+**`GenerateTokenOptions` type** — used when logLevel override is the only option needed:
+
+```ts
+import { GenerateTokenOptions } from 'skyflow-node';
+
+const options: GenerateTokenOptions = {
+  logLevel: LogLevel.DEBUG,
+};
+```
+
+**Checking whether a token has expired — `isExpired`:**
+
+```ts
+import { isExpired } from 'skyflow-node';
+
+// Returns true if the JWT bearer token is expired or will expire within the threshold
+const expired: boolean = isExpired(bearerToken);
+if (expired) {
+  // regenerate before making API calls
+  const { accessToken } = await generateBearerToken('path/to/credentials.json');
+}
+```
 
 > [!TIP]
 > See the full example in the samples directory: [token-generation-example.ts](http://github.com/skyflowapi/skyflow-node/blob/v2/samples/service-account/token-generation-example.ts)
 
 #### Generate bearer tokens scoped to certain roles
 
-Generate bearer tokens with access limited to a specific role by specifying the appropriate roleId when using a service account with multiple roles. Use this to limit access for services with multiple responsibilities, such as segregating access for billing and analytics. Generated bearer tokens are valid for 60 minutes and can only execute operations permitted by the permissions associated with the designated role.
+Generate bearer tokens with access limited to a specific role by specifying the appropriate `roleIds` when using a service account with multiple roles. Use this to limit access for services with multiple responsibilities, such as segregating access for billing and analytics. Generated bearer tokens are valid for 60 minutes and can only execute operations permitted by the permissions associated with the designated role.
 
 ```ts
-const options = {
+const options: BearerTokenOptions = {
   roleIds: ['roleId1', 'roleId2'],
 };
 ```
@@ -934,34 +1133,153 @@ const credentials: PathCredentials = {
 > See the full example in the samples directory: [token-generation-with-context-example.ts](samples/service-account/token-generation-with-context-example.ts)
 > See Skyflow's [context-aware authorization](https://docs.skyflow.com) and [conditional data access](https://docs.skyflow.com) docs for policy variable syntax like `request.context.*`.
 
-#### Generate signed data tokens: `generateSignedDataTokens(filepath, options)`
+#### Generate signed data tokens
 
 Digitally sign data tokens with a service account's private key to add an extra layer of protection. Skyflow generates data tokens when sensitive data is inserted into the vault. Detokenize signed tokens only by providing the signed data token along with a bearer token generated from the service account's credentials. The service account must have the necessary permissions and context to successfully detokenize the signed data tokens.
 
-The `ctx` parameter on signed data tokens also accepts either a **string** or a **JSON object**, using the same format as bearer tokens:
+Two variants are available — choose based on how you supply credentials:
 
-```typescript
-// String context
-const options = {
-  ctx: 'user_12345',
-  dataTokens: ['dataToken1', 'dataToken2'],
-  timeToLive: 90,
+```ts
+import {
+  generateSignedDataTokens,
+  generateSignedDataTokensFromCreds,
+  SignedDataTokensOptions,
+} from 'skyflow-node';
+
+const options: SignedDataTokensOptions = {
+  dataTokens: ['dataToken1', 'dataToken2'], // required: tokens to sign
+  timeToLive: 90,                           // optional: seconds until expiry (default 60)
+  ctx: 'user_12345',                        // optional: context embedded in token
 };
 
-// JSON object context
-const options = {
-  ctx: {
-    role: 'analyst',
-    department: 'research',
-  },
-  dataTokens: ['dataToken1', 'dataToken2'],
-  timeToLive: 90,
+// From a credentials file on disk:
+const response = await generateSignedDataTokens('path/to/credentials.json', options);
+
+// From a credentials JSON string (e.g. from a secret manager):
+const credentialsString = JSON.stringify(require('./credentials.json'));
+const response = await generateSignedDataTokensFromCreds(credentialsString, options);
+
+response.forEach(({ token, signedToken }) => {
+  console.log('Original token:', token);
+  console.log('Signed token:', signedToken);
+});
+```
+
+The `ctx` parameter also accepts a JSON object for multi-value context:
+
+```typescript
+const options: SignedDataTokensOptions = {
+  dataTokens: ['dataToken1'],
+  ctx: { role: 'analyst', department: 'research' },
+};
+```
+
+**`SignedDataTokensOptions` type:**
+
+```ts
+type SignedDataTokensOptions = {
+  dataTokens: string[];                     // Data tokens to sign (required)
+  timeToLive?: number;                      // Seconds until token expiry (default 60)
+  ctx?: string | Record<string, any>;       // Context value(s) embedded in the token
+  logLevel?: LogLevel;                      // Override SDK log level for this call
+  tokenUri?: string;                        // Override the token endpoint URL from credentials
 };
 ```
 
 > [!TIP]
 > See the full example in the samples directory: [signed-token-generation-example.ts](samples/service-account/signed-token-generation-example.ts)
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
+
+## Runtime client management
+
+After initializing the `Skyflow` client, you can add, update, retrieve, and remove vault and connection configurations at any time without recreating the client.
+
+### Vault management
+
+```ts
+import { Skyflow, VaultConfig, Credentials, Env } from 'skyflow-node';
+
+// Add a new vault after initialization
+const newVault: VaultConfig = {
+  vaultId: '<NEW_VAULT_ID>',
+  clusterId: '<NEW_CLUSTER_ID>',
+  env: Env.PROD,
+};
+skyflowClient.addVaultConfig(newVault);
+
+// Update an existing vault's configuration (e.g. rotate credentials)
+const rotatedCredentials: Credentials = { apiKey: '<NEW_API_KEY>' };
+skyflowClient.updateVaultConfig({ ...newVault, credentials: rotatedCredentials });
+
+// Retrieve a vault configuration by ID
+const config = skyflowClient.getVaultConfig('<VAULT_ID>');
+
+// Remove a vault configuration
+skyflowClient.removeVaultConfig('<VAULT_ID>');
+```
+
+### Connection management
+
+```ts
+import { ConnectionConfig } from 'skyflow-node';
+
+const newConnection: ConnectionConfig = {
+  connectionId: '<CONNECTION_ID>',
+  connectionUrl: '<CONNECTION_URL>',
+};
+
+// Add a new connection after initialization
+skyflowClient.addConnectionConfig(newConnection);
+
+// Update an existing connection (e.g. change the URL or credentials)
+skyflowClient.updateConnectionConfig({ ...newConnection, connectionUrl: '<UPDATED_URL>' });
+
+// Retrieve a connection configuration by ID
+const connConfig = skyflowClient.getConnectionConfig('<CONNECTION_ID>');
+
+// Remove a connection
+skyflowClient.removeConnectionConfig('<CONNECTION_ID>');
+```
+
+### Credentials and log level
+
+```ts
+import { Credentials, LogLevel } from 'skyflow-node';
+
+// Update shared credentials at runtime (applies to all vaults/connections
+// that don't have their own individual credentials)
+const newCredentials: Credentials = { apiKey: '<NEW_API_KEY>' };
+skyflowClient.updateSkyflowCredentials(newCredentials);
+
+// Read current shared credentials
+const creds = skyflowClient.getSkyflowCredentials();
+
+// Change log level at runtime
+skyflowClient.setLogLevel(LogLevel.DEBUG);
+
+// Read current log level
+const level = skyflowClient.getLogLevel();
+```
+
+### Skyflow class public methods reference
+
+| Method | Description |
+|---|---|
+| `vault(vaultId?)` | Return a `VaultController` for the given vault ID. Defaults to the first configured vault. |
+| `detect(vaultId?)` | Return a `DetectController` for the given vault ID. |
+| `connection(connectionId?)` | Return a `ConnectionController` for the given connection ID. |
+| `addVaultConfig(config)` | Add a new vault configuration. Throws if the vault ID already exists. |
+| `updateVaultConfig(config)` | Update an existing vault configuration. Throws if the vault ID is not found. |
+| `getVaultConfig(vaultId)` | Return the `VaultConfig` for the given vault ID. |
+| `removeVaultConfig(vaultId)` | Remove a vault configuration by ID. |
+| `addConnectionConfig(config)` | Add a new connection configuration. Throws if the connection ID already exists. |
+| `updateConnectionConfig(config)` | Update an existing connection configuration. |
+| `getConnectionConfig(connectionId)` | Return the `ConnectionConfig` for the given connection ID. |
+| `removeConnectionConfig(connectionId)` | Remove a connection configuration by ID. |
+| `updateSkyflowCredentials(credentials)` | Replace the shared credentials used by all vaults/connections. |
+| `getSkyflowCredentials()` | Return the current shared credentials. |
+| `setLogLevel(logLevel)` | Change the SDK log level at runtime. |
+| `getLogLevel()` | Return the current SDK log level. |
 
 ## Logging
 
@@ -1010,11 +1328,46 @@ try {
     console.error("Skyflow Specific Error:", {
       code: error.error?.httpCode,
       message: error.message,
+      requestId: error.error?.requestId,
       details: error.error?.details,
     });
   } else {
     console.error("Unexpected Error:", JSON.stringify(error));
   }
+}
+```
+
+### Per-record errors (`SkyflowRecordError`)
+
+Some operations — such as `insert` with `continueOnError: true` and `detokenize` — can partially succeed. In these cases the response object contains an `errors` array alongside the successful results. Each entry in `errors` is a `SkyflowRecordError`:
+
+```ts
+import { InsertResponse, SkyflowRecordError } from 'skyflow-node';
+
+const response: InsertResponse = await skyflowClient.vault(vaultId).insert(request, options);
+
+if (response.errors && response.errors.length > 0) {
+  response.errors.forEach((err: SkyflowRecordError) => {
+    console.error({
+      requestId: err.requestId,   // x-request-id from the server response
+      httpCode: err.httpCode,     // HTTP status code for this record
+      requestIndex: err.requestIndex, // Index of the failed record in the input array
+      error: err.error,           // Error description string
+      token: err.token,           // Token (detokenize errors only)
+    });
+  });
+}
+```
+
+`SkyflowRecordError` shape:
+
+```ts
+interface SkyflowRecordError {
+  error: string;
+  requestId: string | null;
+  httpCode?: string | number | null;
+  requestIndex?: number | null;
+  token?: string | null;         // present on detokenize errors
 }
 ```
 
@@ -1031,6 +1384,60 @@ If you encounter this kind of error, retry the request. During the retry the SDK
 > [!TIP]
 > See the full example in the samples directory: [bearer-token-expiry-example.ts](samples/service-account/bearer-token-expiry-example.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
+
+## TypeScript types reference
+
+### Credential sub-types
+
+When constructing a `Credentials` object, you can import the specific interface that matches your credential type for stricter TypeScript typing:
+
+```ts
+import {
+  ApiKeyCredentials,
+  TokenCredentials,
+  PathCredentials,
+  StringCredentials,
+} from 'skyflow-node';
+
+const apiKey: ApiKeyCredentials = { apiKey: '<KEY>' };
+const token: TokenCredentials = { token: '<BEARER_TOKEN>' };
+const path: PathCredentials = { path: '/path/to/creds.json', roles: ['roleId'], context: 'user_123' };
+const str: StringCredentials = { credentialsString: JSON.stringify(creds), roles: ['roleId'] };
+```
+
+All four interfaces support an optional `tokenUri` field to override the token endpoint from the credentials file.
+
+### Response record shapes
+
+These interfaces describe individual records inside response objects:
+
+| Interface | Used in | Shape |
+|---|---|---|
+| `InsertResponseType` | `InsertResponse.insertedFields[]`, `UpdateResponse.updatedField` | `{ skyflowId: string; [field: string]: unknown }` |
+| `GetResponseData` | `GetResponse.data[]` | `{ [field: string]: unknown }` |
+| `QueryResponseType` | `QueryResponse.fields[]` | `{ [field: string]: unknown }` |
+| `IndexRange` | `DeidentifyTextResponse.entities[].textIndex` / `.processedIndex` | `{ start?: number; end?: number }` |
+| `StringKeyValueMapType` | `InvokeConnectionRequest` body / headers / params | `{ [key: string]: string \| object }` |
+
+### Request item shapes
+
+These interfaces describe the shape of individual items inside request arrays:
+
+| Interface | Used in | Shape |
+|---|---|---|
+| `TokenizeRequestType` | `TokenizeRequest` values | `{ value: string; columnGroup: string }` |
+| `DetokenizeData` | `DetokenizeRequest` data | `{ token: string; redactionType?: RedactionType }` |
+
+### File input type
+
+`FileInput` is a discriminated union used in `DeidentifyFileRequest`. Provide either a file object or a file path, not both:
+
+```ts
+import { FileInput } from 'skyflow-node';
+
+const byPath: FileInput = { filePath: '/path/to/document.pdf' };
+const byObject: FileInput = { file: new File([buffer], 'document.pdf') };
+```
 
 ## Security
 

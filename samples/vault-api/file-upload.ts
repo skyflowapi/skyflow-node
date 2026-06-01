@@ -15,63 +15,69 @@ import * as fs from 'fs';
 
 /**
  * Skyflow File Upload Example
- * 
- * This example demonstrates how to:
- * 1. Configure credentials
- * 2. Set up vault configuration
- * 3. Create a file upload request
- * 4. Handle response and errors
- * 
- * Note: File upload requires Node version 20 or above.
+ *
+ * This example demonstrates how to upload a file to a Skyflow vault using three
+ * different file source options — pick exactly one per upload:
+ *   Option A: setFilePath()   — read a file from disk by path (simplest for server-side Node.js)
+ *   Option B: setBase64()     — supply file content as a base64-encoded string
+ *   Option C: setFileObject() — supply an in-memory File object directly
+ *
+ * Note: File upload requires Node.js v20 or above.
  */
 async function performFileUpload() {
     try {
-        // Step 1: Configure Credentials
+        // Step 1: Configure credentials
         const credentials: Credentials = {
-            path: 'path-to-credentials-json', // Path to credentials file
+            path: '<YOUR_CREDENTIALS_FILE_PATH>',
         };
 
-        // Step 2: Configure Vault 
+        // Step 2: Configure vault
         const primaryVaultConfig: VaultConfig = {
-            vaultId: 'your-vault-id',          // Unique vault identifier
-            clusterId: 'your-cluster-id',      // From vault URL
-            env: Env.PROD,                     // Deployment environment
-            credentials: credentials           // Authentication method
+            vaultId: '<VAULT_ID>',
+            clusterId: '<CLUSTER_ID>',
+            env: Env.PROD,
+            credentials: credentials,
         };
 
-        // Step 3: Configure Skyflow Client
+        // Step 3: Initialize Skyflow client
         const skyflowConfig: SkyflowConfig = {
             vaultConfigs: [primaryVaultConfig],
-            logLevel: LogLevel.ERROR,               // Logging verbosity
+            logLevel: LogLevel.ERROR,
         };
-
-        // Initialize Skyflow Client
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
-        // Step 4: Prepare File Upload Data
-        const tableName: string = 'table-name';      // Table name
-        const skyflowId: string = 'skyflow-id';      // Skyflow ID of the record
-        const columnName: string = 'column-name';    // Column name to store file
-        const filePath: string = 'file-path';        // Path to the file for upload
-
-        // Step 5: Create File Upload Request (SK-2812: 2-arg constructor, skyflowId moved to options)
+        // Step 4: Create a file upload request (table + column only; Skyflow ID goes in options)
         const uploadReq: FileUploadRequest = new FileUploadRequest(
-            tableName,
-            columnName,
+            '<TABLE_NAME>',
+            '<COLUMN_NAME>',
         );
 
-        // Step 6: Configure FileUpload Options
-        const uploadOptions: FileUploadOptions = new FileUploadOptions();
-        uploadOptions.setSkyflowId(skyflowId); // SK-2812: new API
-        uploadOptions.setFilePath(filePath);
+        // Step 5: Configure upload options — set Skyflow ID, then choose one file source
 
-        // Step 6: Perform File Upload
+        const uploadOptions: FileUploadOptions = new FileUploadOptions();
+
+        // Required: the Skyflow ID of the record to attach this file to
+        uploadOptions.setSkyflowId('<SKYFLOW_ID>');
+
+        // --- Option A: File path (SDK reads the file from disk) ---
+        uploadOptions.setFilePath('<FILE_PATH>');
+
+        // --- Option B: Base64-encoded content ---
+        // const base64Content = fs.readFileSync('<FILE_PATH>').toString('base64');
+        // uploadOptions.setBase64(base64Content);
+        // uploadOptions.setFileName('document.pdf'); // required when using setBase64
+
+        // --- Option C: In-memory File object ---
+        // const buffer = fs.readFileSync('<FILE_PATH>');
+        // uploadOptions.setFileObject(new File([buffer], 'document.pdf'));
+
+        // Step 6: Upload the file
         const response: FileUploadResponse = await skyflowClient
             .vault(primaryVaultConfig.vaultId)
             .uploadFile(uploadReq, uploadOptions);
 
-        // Handle Successful Response
         console.log('File upload successful:', response);
+        console.log('Skyflow ID:', response.skyflowId);
 
     } catch (error) {
         // Comprehensive Error Handling

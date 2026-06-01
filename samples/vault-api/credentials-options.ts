@@ -70,9 +70,9 @@ async function performSecureDataDeletion() {
 
         // Step 4: Prepare Delete Request for Primary Vault
         const primaryDeleteIds: Array<string> = [
-            'skyflow_id1',
-            'skyflow_id2',
-            'skyflow_id3',
+            '<SKYFLOW_ID_1>',
+            '<SKYFLOW_ID_2>',
+            '<SKYFLOW_ID_3>',
         ];
 
         const primaryTableName: string = '<primary_table_name>';   // Replace with actual table name
@@ -91,9 +91,9 @@ async function performSecureDataDeletion() {
 
         // Step 5: Prepare Delete Request for Secondary Vault
         const secondaryDeleteIds: Array<string> = [
-            'skyflow_id4',
-            'skyflow_id5',
-            'skyflow_id6',
+            '<SKYFLOW_ID_4>',
+            '<SKYFLOW_ID_5>',
+            '<SKYFLOW_ID_6>',
         ];
 
         const secondaryTableName: string = '<secondary_table_name>'; // Replace with actual table name

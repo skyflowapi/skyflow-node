@@ -27,7 +27,7 @@ async function performDetokenization() {
     try {
         // Step 1: Configure Credentials
         const credentials: Credentials = {
-            token: 'token', // Bearer token for authentication
+            token: '<BEARER_TOKEN>',
         };
 
         // Step 2: Configure Vault

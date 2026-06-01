@@ -61,15 +61,28 @@ async function performDeidentifyText() {
         // setEntities: Specify which entities to deidentify
         options.setEntities([DetectEntities.CREDIT_CARD, DetectEntities.SSN]);
 
-        // setAllowRegexList: Allowlist regex patterns (entities matching these will not be deidentified)
-        // optionsText.setAllowRegexList(['<YOUR_REGEX_PATTERN>']);
+        // Allowlist: regex patterns whose matches will NOT be de-identified
+        // options.setAllowRegexList(['<YOUR_REGEX_PATTERN>']);
 
-        // setRestrictRegexList: Restrict de-identification to entities matching these regex patterns
-        // optionsText.setRestrictRegexList(['<YOUR_REGEX_PATTERN>']);
+        // Denylist: restrict de-identification to only entities matching these patterns
+        // options.setRestrictRegexList(['<YOUR_REGEX_PATTERN>']);
 
-        // setTokenFormat: Specify the token format for deidentified entities
+        // setTokenFormat: choose how de-identified entities are represented as tokens
         const tokenFormat = new TokenFormat();
+
+        // Apply one token type as the default for all entity types
         tokenFormat.setDefault(TokenType.VAULT_TOKEN);
+
+        // --- Per-entity-type token format overrides (optional) ---
+        // Use vault tokens only for specific entity types
+        // tokenFormat.setVaultToken([DetectEntities.SSN, DetectEntities.CREDIT_CARD]);
+
+        // Use an entity-unique counter token for specific entity types
+        // tokenFormat.setEntityUniqueCounter([DetectEntities.NAME]);
+
+        // Use entity-only (no token) for specific entity types
+        // tokenFormat.setEntityOnly([DetectEntities.DATE_OF_BIRTH]);
+
         options.setTokenFormat(tokenFormat);
 
         // setTransformations: Specify custom transformations for entities
