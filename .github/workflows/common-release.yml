@@ -22,7 +22,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install Packages
-        run: npm install
+        run: npm install --ignore-scripts
 
       - name: Build
         run: npm run build
