@@ -20,6 +20,7 @@ Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow 
     - [ES modules](#es-modules)
     - [All imports](#all-imports)
   - [Quickstart](#quickstart)
+    - [Before you begin](#before-you-begin)
     - [Authenticate](#authenticate)
     - [API Key](#api-key)
     - [Bearer Token (static)](#bearer-token-static)
@@ -68,23 +69,24 @@ Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow 
     - [Connection management](#connection-management)
     - [Credentials and log level](#credentials-and-log-level)
     - [Skyflow class public methods reference](#skyflow-class-public-methods-reference)
+  - [Using the client in production](#using-the-client-in-production)
   - [Logging](#logging)
     - [Example `skyflowConfig.logLevel: LogLevel.INFO`](#example-skyflowconfigloglevel-loglevelinfo)
   - [Error handling](#error-handling)
     - [Catching `SkyflowError` instances](#catching-skyflowerror-instances)
     - [Per-record errors (`SkyflowRecordError`)](#per-record-errors-skyflowrecorderror)
     - [Bearer token expiration edge cases](#bearer-token-expiration-edge-cases)
+  - [Troubleshooting](#troubleshooting)
   - [TypeScript types reference](#typescript-types-reference)
-    - [Credential sub-types](#credential-sub-types)
-    - [Response record shapes](#response-record-shapes)
-    - [Request item shapes](#request-item-shapes)
-    - [File input type](#file-input-type)
   - [Security](#security)
     - [Reporting a Vulnerability](#reporting-a-vulnerability)
 
 ## Overview
 
 The Skyflow SDK enables you to connect to your Skyflow Vault(s) to securely handle sensitive data at rest, in-transit, and in-use.
+
+> [!TIP]
+> Looking for the full list of request parameters, options setters, response fields, enums, and Detect helper classes? See the **[API Reference](docs/api_reference.md)**.
 
 > [!IMPORTANT]  
 > This readme documents SDK version 2.  
@@ -126,6 +128,19 @@ import {
 ## Quickstart
 
 Get started quickly with the essential steps: authenticate, initialize the client, and perform a basic vault operation. This section shows you a minimal working example.
+
+### Before you begin
+
+You need a Skyflow account and a few values from Skyflow Studio. If you don't have an account, [request a demo](https://www.skyflow.com/get-demo).
+
+| Value | Where to find it |
+|---|---|
+| `vaultId` | Your vault's details page in Skyflow Studio. |
+| `clusterId` | The first segment of your vault URL: `https://{clusterId}.vault.skyflowapis.com`. |
+| `env` | The environment your vault runs in — `Env.PROD`, `Env.SANDBOX`, `Env.DEV`, or `Env.STAGE` (defaults to `PROD`). |
+| Credentials | Create a **service account** in Studio. Choose **API key** during creation for the simplest setup, or download the `credentials.json` file for token-based auth. See [Authentication & authorization](#authentication--authorization). |
+
+The quickstart below assumes a table named `table1` with `card_number` and `cardholder_name` columns. Adjust the table and column names to match your vault schema.
 
 ### Authenticate
 
@@ -212,6 +227,8 @@ const insertResponse = await skyflowClient
 console.log("Insert response:", insertResponse);
 ```
 
+Returns an `InsertResponse` — see [API Reference](docs/api_reference.md#insertresponse) for the full field list.
+
 ## Upgrade from v1 to v2
 
 Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.md](docs/migrate_to_v2.md).
@@ -244,6 +261,8 @@ const response: InsertResponse = await skyflowClient
 
 console.log('Insert response:', response);
 ```
+
+Returns an `InsertResponse` (`insertedFields`, `errors`) — see [API Reference](docs/api_reference.md#insertresponse). With `setContinueOnError(true)`, `insertedFields` contains successful records and `errors` contains per-record failures.
 
 > **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
@@ -324,6 +343,8 @@ const response: DetokenizeResponse = await skyflowClient
 console.log("Detokenization response:", response);
 ```
 
+Returns a `DetokenizeResponse` (`detokenizedFields`, `errors`) — see [API Reference](docs/api_reference.md#detokenizeresponse).
+
 > [!TIP]
 > See the full example in the samples directory: [detokenzie-records.ts](samples/vault-api/detokenzie-records.ts)
 
@@ -350,6 +371,8 @@ const response: GetResponse = await skyflowClient
 
 console.log("Get response:", response);
 ```
+
+Returns a `GetResponse` (`data`, `errors`) — see [API Reference](docs/api_reference.md#getresponse).
 
 > **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
@@ -492,6 +515,8 @@ const response: UpdateResponse = await skyflowClient
 console.log('Update response:', response);
 ```
 
+Returns an `UpdateResponse` (`updatedField`, `errors`) — see [API Reference](docs/api_reference.md#updateresponse). With the default `setReturnTokens(false)`, `updatedField` contains only `skyflowId`.
+
 > **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
 #### UpdateOptions reference
@@ -527,6 +552,8 @@ const response: DeleteResponse = await skyflowClient
 console.log("Delete response:", response);
 ```
 
+Returns a `DeleteResponse` (`deletedIds`, `errors`) — see [API Reference](docs/api_reference.md#deleteresponse).
+
 > [!TIP]
 > See the full example in the samples directory: [delete-records.ts](samples/vault-api/delete-records.ts)
 
@@ -549,6 +576,9 @@ const response: QueryResponse = await skyflowClient
 
 console.log("Query response:", response);
 ```
+
+Returns a `QueryResponse` (`fields`, `errors`) — see [API Reference](docs/api_reference.md#queryresponse). Each record also includes a `tokenizedData` map.
+
 > [!TIP]
 > See the full example in the samples directory: [query-records.ts](samples/vault-api/query-records.ts)
 
@@ -630,6 +660,8 @@ const response: TokenizeResponse = await skyflowClient
 
 console.log("Tokenization Result:", response);
 ```
+
+Returns a `TokenizeResponse` (`tokens`, `errors`) — see [API Reference](docs/api_reference.md#tokenizeresponse).
 
 > [!TIP]
 > See the full example in the samples directory: [tokenize-records.ts](samples/vault-api/tokenize-records.ts)
@@ -1281,6 +1313,23 @@ const level = skyflowClient.getLogLevel();
 | `setLogLevel(logLevel)` | Change the SDK log level at runtime. |
 | `getLogLevel()` | Return the current SDK log level. |
 
+## Using the client in production
+
+**Initialize once and reuse.** `new Skyflow(config)` returns a long-lived client that caches tokens per vault. Construct it once at startup (e.g. as a module-level singleton) and reuse it across requests. Recreating the client on every call discards these caches and forces unnecessary token regeneration.
+
+```ts
+// At application startup
+const skyflowClient = new Skyflow(skyflowConfig);
+
+// Reuse `skyflowClient` for the lifetime of the process
+```
+
+**Bearer token refresh is automatic.** When you authenticate with a service-account credentials file/string (or API key), the SDK caches the generated bearer token and regenerates it automatically once it expires. You don't need to manage token lifecycle yourself. (For the rare expire-mid-request case, see [Bearer token expiration edge cases](#bearer-token-expiration-edge-cases).)
+
+**Runtime configuration changes are not concurrency-safe.** Methods that mutate client state at runtime — `addVaultConfig`, `updateVaultConfig`, `removeVaultConfig`, the `*ConnectionConfig` methods, and `updateSkyflowCredentials` — should be called during setup, not concurrently with in-flight requests. Once configured, the client is safe to reuse across concurrent calls.
+
+**Timeouts and retries.** The SDK does not currently expose request timeout or automatic-retry configuration. Wrap your SDK calls with your own timeout/retry logic at the application layer if needed.
+
 ## Logging
 
 The SDK provides useful logging. By default, the logging level is set to `LogLevel.ERROR`. Change this by setting the `logLevel` in Skyflow Config while creating the Skyflow Client as shown below:
@@ -1296,7 +1345,7 @@ Currently, the following five log levels are supported:
 - `ERROR`:  
   When `LogLevel.ERROR` is passed, only ERROR logs will be printed.
 - `OFF`:  
-  `LogLevel.OFF` can be used to turn off all logging from the Skyflow Python SDK.
+  `LogLevel.OFF` can be used to turn off all logging from the Skyflow Node SDK.
 
 > [!NOTE]
 > The ranking of logging levels is as follows: `DEBUG` < `INFO` < `WARN` < `ERROR` < `OFF`.
@@ -1385,58 +1434,49 @@ If you encounter this kind of error, retry the request. During the retry the SDK
 > See the full example in the samples directory: [bearer-token-expiry-example.ts](samples/service-account/bearer-token-expiry-example.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
+## Troubleshooting
+
+Most first-run problems come from configuration mismatches. Every error thrown by the SDK is a `SkyflowError` exposing `httpCode`, `message`, and `details` — inspect these first (see [Error handling](#error-handling)).
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `npm install skyflow-node` fails | Unsupported Node version | Requires Node v12.22.12 or above. |
+| Connection/DNS failures, or 404 on every call | Wrong `clusterId` | `clusterId` is the first segment of your vault URL: `https://{clusterId}.vault.skyflowapis.com`. |
+| Requests hit the wrong host / unexpected auth failures | Wrong `env` | Match `env` to where your vault runs (`Env.PROD`, `Env.SANDBOX`, `Env.DEV`, `Env.STAGE`). |
+| `401 Unauthorized` | Invalid or expired credentials | Verify your API key or service-account credentials. Regenerate if needed. |
+| `403 Forbidden` | Service account lacks permission | Grant the service account a role with the required permissions, or use a [scoped token](#generate-bearer-tokens-scoped-to-certain-roles). |
+| `404` referencing a table or column | Name mismatch | Confirm table and column names match your vault schema exactly (case-sensitive). |
+| Vault not found / 404 with a valid `clusterId` | Wrong `vaultId` | Copy `vaultId` from the vault's details page in Skyflow Studio. |
+| `Authentication failed. Bearer token is expired.` | Token expired mid-request | Retry the request; the SDK regenerates the token. See [Bearer token expiration edge cases](#bearer-token-expiration-edge-cases). |
+| Unexpected credential is used | Multiple credential types provided | Only one credential type is used at a time; the last one added takes precedence. |
+
+If you're stuck, set `logLevel: LogLevel.DEBUG` during development for detailed SDK logs (see [Logging](#logging)).
+
 ## TypeScript types reference
 
-### Credential sub-types
+For the full reference of all exported types, interfaces, enums, request/response fields, and options setters, see the **[API Reference](docs/api_reference.md)**.
 
-When constructing a `Credentials` object, you can import the specific interface that matches your credential type for stricter TypeScript typing:
+The most commonly imported TypeScript types are:
 
 ```ts
 import {
+  // Credential sub-types (for stricter typing)
   ApiKeyCredentials,
   TokenCredentials,
-  PathCredentials,
-  StringCredentials,
+  PathCredentials,       // supports optional tokenUri
+  StringCredentials,     // supports optional tokenUri
+
+  // Request item shapes
+  DetokenizeData,        // { token: string; redactionType?: RedactionType }
+  TokenizeRequestType,   // { value: string; columnGroup: string }
+  FileInput,             // { file: File } | { filePath: string }
+
+  // Response record shapes
+  InsertResponseType,    // { skyflowId: string; [field: string]: unknown }
+  GetResponseData,       // { [field: string]: unknown }
+  QueryResponseType,     // { [field: string]: unknown }
+  SkyflowRecordError,    // shape of entries in response.errors[]
 } from 'skyflow-node';
-
-const apiKey: ApiKeyCredentials = { apiKey: '<KEY>' };
-const token: TokenCredentials = { token: '<BEARER_TOKEN>' };
-const path: PathCredentials = { path: '/path/to/creds.json', roles: ['roleId'], context: 'user_123' };
-const str: StringCredentials = { credentialsString: JSON.stringify(creds), roles: ['roleId'] };
-```
-
-All four interfaces support an optional `tokenUri` field to override the token endpoint from the credentials file.
-
-### Response record shapes
-
-These interfaces describe individual records inside response objects:
-
-| Interface | Used in | Shape |
-|---|---|---|
-| `InsertResponseType` | `InsertResponse.insertedFields[]`, `UpdateResponse.updatedField` | `{ skyflowId: string; [field: string]: unknown }` |
-| `GetResponseData` | `GetResponse.data[]` | `{ [field: string]: unknown }` |
-| `QueryResponseType` | `QueryResponse.fields[]` | `{ [field: string]: unknown }` |
-| `IndexRange` | `DeidentifyTextResponse.entities[].textIndex` / `.processedIndex` | `{ start?: number; end?: number }` |
-| `StringKeyValueMapType` | `InvokeConnectionRequest` body / headers / params | `{ [key: string]: string \| object }` |
-
-### Request item shapes
-
-These interfaces describe the shape of individual items inside request arrays:
-
-| Interface | Used in | Shape |
-|---|---|---|
-| `TokenizeRequestType` | `TokenizeRequest` values | `{ value: string; columnGroup: string }` |
-| `DetokenizeData` | `DetokenizeRequest` data | `{ token: string; redactionType?: RedactionType }` |
-
-### File input type
-
-`FileInput` is a discriminated union used in `DeidentifyFileRequest`. Provide either a file object or a file path, not both:
-
-```ts
-import { FileInput } from 'skyflow-node';
-
-const byPath: FileInput = { filePath: '/path/to/document.pdf' };
-const byObject: FileInput = { file: new File([buffer], 'document.pdf') };
 ```
 
 ## Security
