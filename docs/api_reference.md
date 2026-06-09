@@ -161,13 +161,22 @@ Passed to `detect().reidentifyText()`.
 
 Configure additional behavior with [`ReidentifyTextOptions`](#reidentifytextoptions).
 
+### `FileInput`
+
+Passed as the constructor argument to `DeidentifyFileRequest`. Provide **exactly one** source.
+
+| Variant | Shape | Description |
+|---|---|---|
+| `FileObject` | `{ file: File }` | An in-memory `File` object. |
+| `Filepath` | `{ filePath: string }` | Path to a file on disk. |
+
 ### `DeidentifyFileRequest`
 
 Passed to `detect().deidentifyFile()`. Provide either a `File` object or a file path — not both.
 
 | Constructor argument | Type | Description |
 |---|---|---|
-| `fileInput` | `FileInput` | `{ file: File }` or `{ filePath: string }`. |
+| `fileInput` | [`FileInput`](#fileinput) | `{ file: File }` or `{ filePath: string }`. |
 
 Configure additional behavior with [`DeidentifyFileOptions`](#deidentifyfileoptions).
 
@@ -406,8 +415,11 @@ Returned by `detect().deidentifyFile()` and `detect().getDetectRun()`. All field
 | `fileBase64` | `string \| undefined` | The processed file as a base64 string. |
 | `file` | `File \| undefined` | The processed `File` object. |
 | `type` | `string \| undefined` | MIME type of the processed file. |
+| `extension` | `string \| undefined` | File extension of the processed file. |
 | `wordCount` | `number \| undefined` | Word count (text-bearing files). |
 | `charCount` | `number \| undefined` | Character count (text-bearing files). |
+| `sizeInKb` | `number \| undefined` | Size of the processed file in KB. |
+| `durationInSeconds` | `number \| undefined` | Duration in seconds (audio files). |
 | `pageCount` | `number \| undefined` | Page count (PDF/document files). |
 | `slideCount` | `number \| undefined` | Slide count (presentation files). |
 | `entities` | `Array<{file: string; extension: string}>` | Detected entity files. Defaults to `[]`. |
