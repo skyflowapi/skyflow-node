@@ -64,11 +64,7 @@ Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow 
       - [Generate bearer tokens scoped to certain roles](#generate-bearer-tokens-scoped-to-certain-roles)
       - [Generate bearer tokens with `ctx` for context-aware authorization](#generate-bearer-tokens-with-ctx-for-context-aware-authorization)
       - [Generate signed data tokens](#generate-signed-data-tokens)
-  - [Runtime client management](#runtime-client-management)
-    - [Vault management](#vault-management)
-    - [Connection management](#connection-management)
-    - [Credentials and log level](#credentials-and-log-level)
-    - [Skyflow class public methods reference](#skyflow-class-public-methods-reference)
+  - [Client management](#client-management)
   - [Using the client in production](#using-the-client-in-production)
   - [Logging](#logging)
     - [Example `skyflowConfig.logLevel: LogLevel.INFO`](#example-skyflowconfigloglevel-loglevelinfo)
@@ -227,7 +223,11 @@ const insertResponse = await skyflowClient
 console.log("Insert response:", insertResponse);
 ```
 
-Returns an [`InsertResponse`](docs/api_reference.md#insertresponse) — see the API reference for the full field list.
+Returns an [`InsertResponse`](docs/api_reference.md#insertresponse) (`insertedFields`, `errors`). With `setReturnTokens(true)`, each entry includes the `skyflowId` and a token per column:
+
+```text
+Insert response: { insertedFields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', card_number: '5391-4629-3722-7102', cardholder_name: '0f6b8a2c-90ab-4cde-9def-567890abcdef' }], errors: null }
+```
 
 ## Upgrade from v1 to v2
 
@@ -262,7 +262,11 @@ const response: InsertResponse = await skyflowClient
 console.log('Insert response:', response);
 ```
 
-Returns an [`InsertResponse`](docs/api_reference.md#insertresponse) (`insertedFields`, `errors`). With `setContinueOnError(true)`, `insertedFields` contains successful records and `errors` contains per-record failures.
+Returns an [`InsertResponse`](docs/api_reference.md#insertresponse) (`insertedFields`, `errors`). With `setContinueOnError(true)`, `insertedFields` contains successful records and `errors` contains per-record failures:
+
+```text
+Insert response: { insertedFields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', '<FIELD_NAME_1>': '<TOKEN_1>', '<FIELD_NAME_2>': '<TOKEN_2>' }], errors: null }
+```
 
 > **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
@@ -318,7 +322,11 @@ const response: DetokenizeResponse = await skyflowClient
 console.log("Detokenization response:", response);
 ```
 
-Returns a [`DetokenizeResponse`](docs/api_reference.md#detokenizeresponse) (`detokenizedFields`, `errors`).
+Returns a [`DetokenizeResponse`](docs/api_reference.md#detokenizeresponse) (`detokenizedFields`, `errors`):
+
+```text
+Detokenization response: { detokenizedFields: [{ token: '5391-4629-3722-7102', value: '4111111111111112', type: 'STRING' }], errors: null }
+```
 
 > [!TIP]
 > See the full example in the samples directory: [detokenzie-records.ts](samples/vault-api/detokenzie-records.ts)
@@ -347,7 +355,11 @@ const response: GetResponse = await skyflowClient
 console.log("Get response:", response);
 ```
 
-Returns a [`GetResponse`](docs/api_reference.md#getresponse) (`data`, `errors`).
+Returns a [`GetResponse`](docs/api_reference.md#getresponse) (`data`, `errors`):
+
+```text
+Get response: { data: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', card_number: '4111111111111112', cardholder_name: 'John Doe' }], errors: null }
+```
 
 > **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
@@ -462,7 +474,11 @@ const response: UpdateResponse = await skyflowClient
 console.log('Update response:', response);
 ```
 
-Returns an [`UpdateResponse`](docs/api_reference.md#updateresponse) (`updatedField`, `errors`). With the default `setReturnTokens(false)`, `updatedField` contains only `skyflowId`.
+Returns an [`UpdateResponse`](docs/api_reference.md#updateresponse) (`updatedField`, `errors`). With the default `setReturnTokens(false)`, `updatedField` contains only `skyflowId`:
+
+```text
+Update response: { updatedField: { skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c' }, errors: null }
+```
 
 > **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
@@ -491,7 +507,11 @@ const response: DeleteResponse = await skyflowClient
 console.log("Delete response:", response);
 ```
 
-Returns a [`DeleteResponse`](docs/api_reference.md#deleteresponse) (`deletedIds`, `errors`).
+Returns a [`DeleteResponse`](docs/api_reference.md#deleteresponse) (`deletedIds`, `errors`):
+
+```text
+Delete response: { deletedIds: ['a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c'], errors: null }
+```
 
 > [!TIP]
 > See the full example in the samples directory: [delete-records.ts](samples/vault-api/delete-records.ts)
@@ -516,7 +536,11 @@ const response: QueryResponse = await skyflowClient
 console.log("Query response:", response);
 ```
 
-Returns a [`QueryResponse`](docs/api_reference.md#queryresponse) (`fields`, `errors`). Each record also includes a `tokenizedData` map.
+Returns a [`QueryResponse`](docs/api_reference.md#queryresponse) (`fields`, `errors`). Each record also includes a `tokenizedData` map:
+
+```text
+Query response: { fields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', card_number: '4111111111111112', tokenizedData: { card_number: '5391-4629-3722-7102' } }], errors: null }
+```
 
 > [!TIP]
 > See the full example in the samples directory: [query-records.ts](samples/vault-api/query-records.ts)
@@ -560,7 +584,11 @@ const response: FileUploadResponse = await skyflowClient
 console.log("File upload:", response);
 ```
 
-Both forms return a [`FileUploadResponse`](docs/api_reference.md#fileuploadresponse) (`skyflowId`, `errors`).
+Both forms return a [`FileUploadResponse`](docs/api_reference.md#fileuploadresponse) (`skyflowId`, `errors`):
+
+```text
+File upload: { skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', errors: null }
+```
 
 For all `FileUploadOptions` setters, see [FileUploadOptions](docs/api_reference.md#fileuploadoptions) in the API reference.
 
@@ -588,7 +616,11 @@ const response: TokenizeResponse = await skyflowClient
 console.log("Tokenization Result:", response);
 ```
 
-Returns a [`TokenizeResponse`](docs/api_reference.md#tokenizeresponse) (`tokens`, `errors`).
+Returns a [`TokenizeResponse`](docs/api_reference.md#tokenizeresponse) (`tokens`, `errors`):
+
+```text
+Tokenization Result: { tokens: ['5391-4629-3722-7102', '0f6b8a2c-90ab-4cde-9def-567890abcdef'], errors: null }
+```
 
 > [!TIP]
 > See the full example in the samples directory: [tokenize-records.ts](samples/vault-api/tokenize-records.ts)
@@ -645,7 +677,11 @@ const response = await skyflowClient
 console.log("De-identify Text Response:", response);
 ```
 
-Returns a [`DeidentifyTextResponse`](docs/api_reference.md#deidentifytextresponse) (`processedText`, `entities`, `wordCount`, `charCount`, `errors`).
+Returns a [`DeidentifyTextResponse`](docs/api_reference.md#deidentifytextresponse) (`processedText`, `entities`, `wordCount`, `charCount`, `errors`):
+
+```text
+De-identify Text Response: { processedText: 'Hello, [PERSON_1]! My SSN is [SSN_1].', entities: [{ token: '[PERSON_1]', value: 'John', entity: 'NAME', scores: { NAME: 0.98 } }], wordCount: 8, charCount: 37, errors: null }
+```
 
 > [!TIP]
 > See the full example in the samples directory: [deidentify-text.ts](samples/detect-api/deidentify-text.ts)
@@ -680,7 +716,11 @@ const response: ReidentifyTextResponse = await skyflowClient
 console.log("Reidentify Text Response:", response);
 ```
 
-Returns a [`ReidentifyTextResponse`](docs/api_reference.md#reidentifytextresponse) (`processedText`, `errors`).
+Returns a [`ReidentifyTextResponse`](docs/api_reference.md#reidentifytextresponse) (`processedText`):
+
+```text
+Reidentify Text Response: { processedText: 'Hello, John! My SSN is 123-45-6789.' }
+```
 
 > [!TIP]
 > See the full example in the samples directory: [reidentify-text.ts](samples/detect-api/reidentify-text.ts)
@@ -734,6 +774,12 @@ const response: DeidentifyFileResponse = await skyflowClient
 console.log('De-identify File Response:', response);
 ```
 
+Returns a [`DeidentifyFileResponse`](docs/api_reference.md#deidentifyfileresponse) (`fileBase64`, `file`, `runId`, `status`, `errors`). If processing exceeds `setWaitTime`, only `runId` and `status` are populated — poll with `getDetectRun`:
+
+```text
+De-identify File Response: { runId: 'run-abc123', status: 'IN_PROGRESS', fileBase64: undefined, errors: null }
+```
+
 **Supported file types:**
 
 - Documents: `doc`, `docx`, `pdf`
@@ -780,7 +826,11 @@ const response: DeidentifyFileResponse = await skyflowClient
 console.log('Get Detect Run Response:', response);
 ```
 
-Returns a [`DeidentifyFileResponse`](docs/api_reference.md#deidentifyfileresponse) with the current `status` (and the processed file once complete).
+Returns a [`DeidentifyFileResponse`](docs/api_reference.md#deidentifyfileresponse) with the current `status` (and the processed file once complete):
+
+```text
+Get Detect Run Response: { status: 'SUCCESS', runId: 'run-abc123', fileBase64: '<base64-encoded-content>', errors: null }
+```
 
 > [!TIP]
 > See the full example in the samples directory: [get-detect-run.ts](samples/detect-api/get-detect-run.ts)
@@ -834,7 +884,11 @@ const response: InvokeConnectionResponse = await skyflowClient
 console.log("Invoke connection response:", response);
 ```
 
-Returns an [`InvokeConnectionResponse`](docs/api_reference.md#invokeconnectionresponse) (`data`, `metadata`, `errors`).
+Returns an [`InvokeConnectionResponse`](docs/api_reference.md#invokeconnectionresponse) (`data`, `metadata`, `errors`):
+
+```text
+Invoke connection response: { data: { status: 'success', transaction_id: 'txn_abc123' }, metadata: { requestId: 'req-xyz-456' }, errors: null }
+```
 
 `method` supports the following methods (see [`RequestMethod`](docs/api_reference.md#requestmethod)):
 
@@ -950,15 +1004,6 @@ type BearerTokenOptions = {
 };
 ```
 
-**`GenerateTokenOptions` type** — used when logLevel override is the only option needed:
-
-```ts
-import { GenerateTokenOptions } from 'skyflow-node';
-
-const options: GenerateTokenOptions = {
-  logLevel: LogLevel.DEBUG,
-};
-```
 
 **Checking whether a token has expired — `isExpired`:**
 
@@ -1102,80 +1147,9 @@ type SignedDataTokensOptions = {
 > See the full example in the samples directory: [signed-token-generation-example.ts](samples/service-account/signed-token-generation-example.ts)
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
-## Runtime client management
+## Client management
 
-After initializing the `Skyflow` client, you can add, update, retrieve, and remove vault and connection configurations at any time without recreating the client.
-
-### Vault management
-
-```ts
-import { Skyflow, VaultConfig, Credentials, Env } from 'skyflow-node';
-
-// Add a new vault after initialization
-const newVault: VaultConfig = {
-  vaultId: '<NEW_VAULT_ID>',
-  clusterId: '<NEW_CLUSTER_ID>',
-  env: Env.PROD,
-};
-skyflowClient.addVaultConfig(newVault);
-
-// Update an existing vault's configuration (e.g. rotate credentials)
-const rotatedCredentials: Credentials = { apiKey: '<NEW_API_KEY>' };
-skyflowClient.updateVaultConfig({ ...newVault, credentials: rotatedCredentials });
-
-// Retrieve a vault configuration by ID
-const config = skyflowClient.getVaultConfig('<VAULT_ID>');
-
-// Remove a vault configuration
-skyflowClient.removeVaultConfig('<VAULT_ID>');
-```
-
-### Connection management
-
-```ts
-import { ConnectionConfig } from 'skyflow-node';
-
-const newConnection: ConnectionConfig = {
-  connectionId: '<CONNECTION_ID>',
-  connectionUrl: '<CONNECTION_URL>',
-};
-
-// Add a new connection after initialization
-skyflowClient.addConnectionConfig(newConnection);
-
-// Update an existing connection (e.g. change the URL or credentials)
-skyflowClient.updateConnectionConfig({ ...newConnection, connectionUrl: '<UPDATED_URL>' });
-
-// Retrieve a connection configuration by ID
-const connConfig = skyflowClient.getConnectionConfig('<CONNECTION_ID>');
-
-// Remove a connection
-skyflowClient.removeConnectionConfig('<CONNECTION_ID>');
-```
-
-### Credentials and log level
-
-```ts
-import { Credentials, LogLevel } from 'skyflow-node';
-
-// Update shared credentials at runtime (applies to all vaults/connections
-// that don't have their own individual credentials)
-const newCredentials: Credentials = { apiKey: '<NEW_API_KEY>' };
-skyflowClient.updateSkyflowCredentials(newCredentials);
-
-// Read current shared credentials
-const creds = skyflowClient.getSkyflowCredentials();
-
-// Change log level at runtime
-skyflowClient.setLogLevel(LogLevel.DEBUG);
-
-// Read current log level
-const level = skyflowClient.getLogLevel();
-```
-
-### Skyflow class public methods reference
-
-For the full list of all `Skyflow` client methods, see [Client management methods](docs/api_reference.md#client-management-methods) in the API reference.
+After initializing the `Skyflow` client, you can add, update, retrieve, and remove vault and connection configurations at any time without recreating the client. For the full list of methods, see [Client management methods](docs/api_reference.md#client-management-methods) in the API reference.
 
 ## Using the client in production
 
@@ -1344,7 +1318,6 @@ import {
 ```
 
 ## Security
-
 ### Reporting a Vulnerability
 
 If you discover a potential security issue in this project, reach out to us at [security@skyflow.com](mailto:security@skyflow.com). 
