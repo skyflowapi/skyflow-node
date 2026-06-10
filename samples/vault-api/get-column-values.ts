@@ -1,13 +1,15 @@
-import { 
-    Env, 
-    GetOptions, 
-    LogLevel, 
-    Skyflow, 
-    GetColumnRequest, 
-    Credentials, 
-    SkyflowConfig, 
-    VaultConfig, 
-    SkyflowError, 
+import {
+    Env,
+    GetOptions,
+    LogLevel,
+    OrderByEnum,
+    RedactionType,
+    Skyflow,
+    GetColumnRequest,
+    Credentials,
+    SkyflowConfig,
+    VaultConfig,
+    SkyflowError,
     GetResponse,
     GetResponseData
 } from 'skyflow-node';
@@ -62,7 +64,24 @@ async function performSecureColumnRetrieval() {
 
         // Step 6: Configure Get Options
         const getOptions: GetOptions = new GetOptions();
-        getOptions.setReturnTokens(true); // Optional: Get tokens for retrieved data
+
+        // Return tokens instead of plain-text values (default: false)
+        getOptions.setReturnTokens(true);
+
+        // Control how sensitive data is redacted in the response
+        // getOptions.setRedactionType(RedactionType.PLAIN_TEXT);
+
+        // Limit the response to specific field names
+        // getOptions.setFields(['card_number', 'cardholder_name']);
+
+        // Pagination: skip the first N records
+        // getOptions.setOffset('10');
+
+        // Pagination: return at most N records
+        // getOptions.setLimit('20');
+
+        // Sort order for returned records
+        // getOptions.setOrderBy(OrderByEnum.ASCENDING);
 
         // Step 7: Perform Secure Retrieval
         const response: GetResponse = await skyflowClient

@@ -1,13 +1,15 @@
-import { 
-    Credentials, 
-    Env, 
-    GetOptions, 
-    GetRequest, 
-    LogLevel, 
-    Skyflow, 
-    VaultConfig, 
-    SkyflowConfig, 
-    SkyflowError, 
+import {
+    Credentials,
+    Env,
+    GetOptions,
+    GetRequest,
+    LogLevel,
+    OrderByEnum,
+    RedactionType,
+    Skyflow,
+    VaultConfig,
+    SkyflowConfig,
+    SkyflowError,
     GetResponse,
     GetResponseData
 } from 'skyflow-node';
@@ -59,11 +61,33 @@ async function performSecureDataRetrieval() {
 
         // Step 6: Configure Get Options
         const getOptions: GetOptions = new GetOptions();
+
+        // Return tokens instead of plain-text values (default: false)
         getOptions.setReturnTokens(true);
 
-        // NEW API (SK-2812): setDownloadUrl (camelCase)
-        getOptions.setDownloadUrl(false);
+        // Control how sensitive data is redacted in the response
+        // getOptions.setRedactionType(RedactionType.PLAIN_TEXT);
 
+        // Limit the response to specific field names
+        // getOptions.setFields(['card_number', 'cardholder_name']);
+
+        // Pagination: skip the first N records
+        // getOptions.setOffset('10');
+
+        // Pagination: return at most N records
+        // getOptions.setLimit('20');
+
+        // Sort order for returned records
+        // getOptions.setOrderBy(OrderByEnum.ASCENDING);
+
+        // --- Alternative: query by column value instead of Skyflow IDs ---
+        // (use with a GetRequest that has no IDs; setColumnName + setColumnValues together)
+        // getOptions.setColumnName('card_number');
+        // getOptions.setColumnValues(['4111111111111112']);
+
+        // Return a pre-signed download URL for file fields
+        // getOptions.setDownloadUrl(true);
+        
         // DEPRECATED API — still works, logs WARN: setDownloadURL (uppercase URL)
         // getOptions.setDownloadURL(false);
 

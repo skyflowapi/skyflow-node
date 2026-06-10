@@ -60,8 +60,19 @@ async function performSecureDataInsertion() {
 
         // Step 6: Configure Insertion Options
         const insertOptions: InsertOptions = new InsertOptions();
-        insertOptions.setReturnTokens(true);  // Optional: Get tokens for inserted data
-        // insertOptions.setContinueOnError(true);  // Optional: Continue on partial errors
+
+        // Return tokens for inserted fields (default: false)
+        insertOptions.setReturnTokens(true);
+
+        // Continue inserting remaining records even when some fail (batch mode)
+        // insertOptions.setContinueOnError(true);
+
+        // Upsert: update the record if a matching value exists in the specified column
+        // (the column must have the `unique` constraint in the vault schema)
+        // insertOptions.setUpsertColumn('card_number');
+
+        // Homogeneous insert: treat all records as the same schema for a bulk insert
+        // insertOptions.setHomogeneous(true);
 
         // Step 7: Perform Secure Insertion
         const response: InsertResponse = await skyflowClient

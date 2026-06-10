@@ -1,14 +1,15 @@
-import { 
-    Credentials, 
-    Env, 
-    LogLevel, 
-    Skyflow, 
-    VaultConfig, 
-    SkyflowConfig, 
-    UpdateRequest, 
-    UpdateOptions, 
-    UpdateResponse, 
-    SkyflowError 
+import {
+    Credentials,
+    Env,
+    LogLevel,
+    Skyflow,
+    VaultConfig,
+    SkyflowConfig,
+    UpdateRequest,
+    UpdateOptions,
+    UpdateResponse,
+    TokenMode,
+    SkyflowError
 } from 'skyflow-node';
 
 /**
@@ -46,7 +47,6 @@ async function performSecureDataUpdate() {
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
         // Step 4: Prepare Update Data
-        // SK-2812: data object uses camelCase skyflowId (was skyflow_id)
         const updateData: Record<string, unknown> = {
             skyflowId: 'your-skyflow-id',          // Skyflow ID of the record to update
             card_number: '1234567890123456'        // Updated sensitive data
@@ -60,7 +60,19 @@ async function performSecureDataUpdate() {
 
         // Step 6: Configure Update Options
         const updateOptions: UpdateOptions = new UpdateOptions();
-        updateOptions.setReturnTokens(true);      // Optional: Get tokens for updated data
+
+        // Return tokens for the updated fields (default: false — returns skyflowId only)
+        updateOptions.setReturnTokens(true);
+
+        // --- BYOT (Bring Your Own Token) options ---
+        // Provide pre-existing tokens to associate with the updated fields
+        // updateOptions.setTokens({ card_number: '<YOUR_TOKEN>' });
+
+        // Control tokenization mode when using BYOT:
+        //   TokenMode.DISABLE      — vault generates tokens (default)
+        //   TokenMode.ENABLE       — use provided tokens as-is
+        //   TokenMode.ENABLE_STRICT — validate provided tokens before accepting
+        // updateOptions.setTokenMode(TokenMode.ENABLE);
 
         // Step 7: Perform Secure Update
         const response: UpdateResponse = await skyflowClient

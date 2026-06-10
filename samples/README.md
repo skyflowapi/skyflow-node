@@ -64,8 +64,8 @@ Sample files are organized by API type:
 
 **Vault API samples** ([`vault-api/`](vault-api/)):
 - [`insert-records.ts`](vault-api/insert-records.ts) - Insert data and get tokens
-- [`insert-continue-on-error.ts`](vault-api/insert-continue-on-error.ts) - Bulk insert with error handling
-- [`insert-byot.ts`](vault-api/insert-byot.ts) - Upsert operations
+- [`insert-continue-on-error.ts`](vault-api/insert-continue-on-error.ts) - Bulk insert with per-record error handling
+- [`insert-byot.ts`](vault-api/insert-byot.ts) - Insert with bring-your-own tokens (BYOT)
 - [`get-records.ts`](vault-api/get-records.ts) - Retrieve records by Skyflow IDs
 - [`get-column-values.ts`](vault-api/get-column-values.ts) - Query by column values
 - [`detokenzie-records.ts`](vault-api/detokenzie-records.ts) - Convert tokens to values
@@ -73,14 +73,19 @@ Sample files are organized by API type:
 - [`update-record.ts`](vault-api/update-record.ts) - Update existing records
 - [`delete-records.ts`](vault-api/delete-records.ts) - Delete records by ID
 - [`query-records.ts`](vault-api/query-records.ts) - SQL query operations
-- [`file-upload.ts`](vault-api/file-upload.ts) - Upload files to vault
+- [`file-upload.ts`](vault-api/file-upload.ts) - Upload files to vault (file path, base64, or File object)
 - [`invoke-connection.ts`](vault-api/invoke-connection.ts) - Call external integrations
+- [`client-operations.ts`](vault-api/client-operations.ts) - Runtime vault and connection management
+- [`credentials-options.ts`](vault-api/credentials-options.ts) - All credential types and multi-vault setup
+- [`data-residency.ts`](vault-api/data-residency.ts) - Multi-region vault configuration
 
 **Detect API samples** ([`detect-api/`](detect-api/)):
 - [`deidentify-text.ts`](detect-api/deidentify-text.ts) - Anonymize text data
-- [`deidentify-file.ts`](detect-api/deidentify-file.ts) - Anonymize file data
-- [`reidentify-text.ts`](detect-api/reidentify-text.ts) - Restore original values
-- [`get-detect-run.ts`](detect-api/get-detect-run.ts) - Check operation status
+- [`deidentify-file.ts`](detect-api/deidentify-file.ts) - Anonymize a file using a File object
+- [`deidentify-file-with-filepath.ts`](detect-api/deidentify-file-with-filepath.ts) - Anonymize a file using a file path
+- [`deidentify-file-with-filepath-async.ts`](detect-api/deidentify-file-with-filepath-async.ts) - Anonymize a file asynchronously (poll for result)
+- [`reidentify-text.ts`](detect-api/reidentify-text.ts) - Restore original values from de-identified text
+- [`get-detect-run.ts`](detect-api/get-detect-run.ts) - Check the status of an async de-identify operation
 
 **Service Account samples** ([`service-account/`](service-account/)):
 - [`token-generation-example.ts`](service-account/token-generation-example.ts) - Generate bearer tokens

@@ -26,7 +26,7 @@ async function performSecureDataInsertionWithBYOT() {
     try {
         // Step 1: Configure Credentials
         const credentials: Credentials = {
-            token: 'bearer', // Bearer token authentication
+            token: '<BEARER_TOKEN>',
         };
 
         // Step 2: Configure Vault
@@ -48,7 +48,7 @@ async function performSecureDataInsertionWithBYOT() {
 
         // Step 4: Prepare Insertion Data
         const insertData: Record<string, unknown>[] = [
-            { card_number: 'skyflow_id1', card_cvv: 'skyflow_id2' },
+            { card_number: '<TOKEN_1>', card_cvv: '<TOKEN_2>' },
         ];
 
         const tableName: string = 'your-table-name';
