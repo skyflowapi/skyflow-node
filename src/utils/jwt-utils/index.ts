@@ -1,5 +1,4 @@
-// eslint-disable-next-line camelcase
-import jwt_decode, { JwtPayload } from 'jwt-decode';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { MessageType, printLog } from '..';
 import logs from '../logs';
 
@@ -10,7 +9,7 @@ function isExpired(token: string) {
             return true;
         }
         let isJwtExpired = false;
-        const decoded: JwtPayload = jwt_decode(token);
+        const decoded: JwtPayload = jwtDecode(token);
         const currentTime = (new Date().getTime() / 1000);
         const expiryTime = decoded.exp;
         if (expiryTime && currentTime > expiryTime) {
@@ -27,7 +26,7 @@ function isTokenValid(token: string) {
     try {
         if (token === "") return false
         let isJwtExpired = false;
-        const decoded: JwtPayload = jwt_decode(token);
+        const decoded: JwtPayload = jwtDecode(token);
         const currentTime = (new Date().getTime() / 1000);
         const expiryTime = decoded.exp;
         if (expiryTime && currentTime > expiryTime) {
