@@ -9,6 +9,7 @@ function isExpired(token: string) {
             return true;
         }
         let isJwtExpired = false;
+
         const decoded: JwtPayload = jwtDecode(token);
         const currentTime = (new Date().getTime() / 1000);
         const expiryTime = decoded.exp;
