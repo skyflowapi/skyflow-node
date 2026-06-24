@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import errorMessages from "../../../src/error/messages";
 import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, getBaseUrl, removeSDKVersion, parameterizedString, MessageType, LogLevel, objectToXML } from "../../../src/utils";
-import jwt_decode from 'jwt-decode';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
 import os from 'os';
 import { generateBearerTokenFromCreds, generateBearerToken } from '../../../src/service-account';
 import sdkDetails from '../../../package.json';
