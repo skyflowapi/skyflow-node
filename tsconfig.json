@@ -17,6 +17,7 @@
     "isolatedModules": false,
     "noEmit": false,
     "declaration": true,
+    "rootDir": "src",
     "outDir": "lib",
     "types": ["node"]
   },
