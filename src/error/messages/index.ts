@@ -64,6 +64,8 @@ const errorMessages = {
 
     INVALID_ROLES_KEY_TYPE: `${errorPrefix} Validation error. Invalid roles. Specify roles as an array.`,
     INVALID_CONTEXT: `${errorPrefix} Validation error. Invalid context. Specify context as a string.`,
+    INVALID_CTX_TYPE: `${errorPrefix} Validation error. Invalid context type. Specify context as a string, boolean, number, or JSON object.`,
+    INVALID_CTX_MAP_KEY: `${errorPrefix} Validation error. Invalid context map key '%s1'. Map keys must match pattern /^[a-zA-Z0-9_]+$/.`,
     EMPTY_ROLES: `${errorPrefix} Validation error. Invalid roles. Specify at least one role.`,
 
     INVALID_JSON_FORMAT: `${errorPrefix} Validation error. Credentials is not in valid JSON format. Verify the credentials.`,
