@@ -1,4 +1,4 @@
-import { CONFIG, CONTROLLER_TYPES, Env, getVaultURL, ISkyflowError, LogLevel, MessageType, parameterizedString, printLog } from "../../utils";
+import { anyVaultIsProd, CONFIG, CONTROLLER_TYPES, Env, getVaultURL, isNonGaVersion, ISkyflowError, LogLevel, MessageType, parameterizedString, printLog, SDK_VERSION } from "../../utils";
 import ConnectionConfig from "../config/connection";
 import VaultConfig from "../config/vault";
 import { SkyflowConfig, ClientObj } from "../types";
@@ -43,6 +43,9 @@ class Skyflow {
         config.connectionConfigs?.map(connectionConfig => {
             this.addConnectionConfig(connectionConfig);
         });
+        if (isNonGaVersion(SDK_VERSION) && anyVaultIsProd(config.vaultConfigs)) {
+            printLog(parameterizedString(logs.warnLogs.BETA_BUILD_WARNING, [SDK_VERSION]), MessageType.WARN, this.logLevel);
+        }
         printLog(logs.infoLogs.CLIENT_INITIALIZED, MessageType.LOG, this.logLevel);
     }
 
