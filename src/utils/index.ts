@@ -3,6 +3,7 @@ import * as sdkDetails from "../../package.json";
 import { generateBearerToken, generateBearerTokenFromCreds } from "../service-account";
 import type { BearerTokenOptions } from "../service-account";
 import Credentials, { ApiKeyCredentials, PathCredentials, StringCredentials, TokenCredentials } from "../vault/config/credentials";
+import type VaultConfig from "../vault/config/vault";
 import dotenv from "dotenv";
 import logs from "./logs";
 import os from 'os';
@@ -17,6 +18,8 @@ dotenv.config();
 export const SDK = {
     METRICS_HEADER_KEY: "sky-metadata",
 } as const;
+
+export const SDK_VERSION: string = sdkDetails.version;
 
 export const SKYFLOW = {
     ID: "skyflowId",
@@ -366,6 +369,16 @@ export function getConnectionBaseURL(clusterId: string, env: Env) {
         default:
             return `https://${clusterId}.gateway.skyflowapis.com`;
     }
+}
+
+// Beta/dev builds are published as <major>.<minor>.<patch>-beta.<n> or
+// -dev.<sha> (see scripts/bump_version.sh); a plain public release has no suffix.
+export function isNonGaVersion(version?: string): boolean {
+    return !version || !/^\d+\.\d+\.\d+$/.test(version);
+}
+
+export function anyVaultIsProd(vaultConfigs?: VaultConfig[]): boolean {
+    return !!vaultConfigs?.some(vaultConfig => (vaultConfig.env || Env.PROD) === Env.PROD);
 }
 
 export function validateToken(token: string) {
