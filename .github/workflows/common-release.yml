@@ -66,6 +66,7 @@ jobs:
             git checkout ${{ env.branch_name }}
           fi
           git add package.json
+          git add README.md
           if [[ "${{ inputs.tag }}" == "beta" || "${{ inputs.tag }}" == "public" ]]; then
             git commit -m "[AUTOMATED] Release - ${{ steps.previoustag.outputs.tag }}"
             git push origin ${{ env.branch_name }}
