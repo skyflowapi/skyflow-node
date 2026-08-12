@@ -341,10 +341,19 @@ class DetectController {
         const poll = () => {
             this.client.filesAPI.getRun(runId, req)
                     .then((response: DeidentifyStatusResponse) => {
+                    printLog(
+                        parameterizedString(logs.infoLogs.POLL_DETECT_FILE_STATUS, runId, response.status),
+                        MessageType.LOG,
+                        this.client.getLogLevel(),
+                    );
                     if (response.status?.toUpperCase() === DETECT_STATUS.IN_PROGRESS
 ) {
                         if (currentWaitTime >= maxWaitTime) {
-                            resolve({ data: { status: 'IN_PROGRESS' }, runId });
+                            printLog(
+                                parameterizedString(logs.infoLogs.POLL_DETECT_FILE_TIMEOUT, runId, String(maxWaitTime)),
+                                MessageType.WARN,
+                                this.client.getLogLevel(),
+                            );
                             resolve({ data: { status: 'IN_PROGRESS' }, runId });
                         } else {
                             const nextWaitTime = currentWaitTime * 2;
@@ -356,20 +365,45 @@ class DetectController {
                                 waitTime = nextWaitTime;
                                 currentWaitTime = nextWaitTime;
                             }
+                            printLog(
+                                parameterizedString(logs.infoLogs.POLL_DETECT_FILE_RETRY, runId, String(waitTime)),
+                                MessageType.LOG,
+                                this.client.getLogLevel(),
+                            );
                             setTimeout(() => {
                                 poll();
                             }, waitTime * 1000);
                         }
                     } else if (response.status?.toUpperCase() === DETECT_STATUS.SUCCESS) {
+                        printLog(
+                            parameterizedString(logs.infoLogs.POLL_DETECT_FILE_SUCCESS, runId),
+                            MessageType.LOG,
+                            this.client.getLogLevel(),
+                        );
                         resolve({ data: response, runId });
                     }
                     else if (response.status?.toUpperCase() === DETECT_STATUS.FAILED) {
+                        printLog(
+                            parameterizedString(logs.errorLogs.POLL_DETECT_FILE_FAILED, runId, response.message ?? 'No failure reason provided by the server.'),
+                            MessageType.ERROR,
+                            this.client.getLogLevel(),
+                        );
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     } else {
+                        printLog(
+                            parameterizedString(logs.errorLogs.POLL_DETECT_FILE_UNEXPECTED_STATUS, runId, response.status ?? 'undefined', response.message ?? 'No message provided by the server.'),
+                            MessageType.ERROR,
+                            this.client.getLogLevel(),
+                        );
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     }
                 })
                 .catch((error) => {
+                    printLog(
+                        parameterizedString(logs.errorLogs.POLL_DETECT_FILE_API_ERROR, runId, error?.message ?? String(error)),
+                        MessageType.ERROR,
+                        this.client.getLogLevel(),
+                    );
                     reject(error);
                 });
         };
