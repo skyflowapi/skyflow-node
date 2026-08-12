@@ -341,6 +341,7 @@ class DetectController {
         const poll = () => {
             this.client.filesAPI.getRun(runId, req)
                     .then((response: DeidentifyStatusResponse) => {
+                    console.log("Polling response:", response); // Log the entire response for debugging
                     printLog(
                         parameterizedString(logs.infoLogs.POLL_DETECT_FILE_STATUS, runId, response.status),
                         MessageType.LOG,
@@ -391,7 +392,7 @@ class DetectController {
                         reject(new SkyflowError(SKYFLOW_ERROR_CODE.INTERNAL_SERVER_ERROR, [response.message]));
                     } else {
                         printLog(
-                            parameterizedString(logs.errorLogs.POLL_DETECT_FILE_UNEXPECTED_STATUS, runId, response.status ?? 'undefined', response.message ?? 'No message provided by the server.'),
+                            parameterizedString(logs.errorLogs.POLL_DETECT_FILE_UNEXPECTED_STATUS, runId, response.status ?? 'undefined', JSON.stringify(response)),
                             MessageType.ERROR,
                             this.client.getLogLevel(),
                         );

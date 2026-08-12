@@ -181,7 +181,7 @@ const logs = {
         DETECT_REQUEST_RESOLVED: 'Detect request is resolved.',
         DEIDENTIFY_FILE_REQUEST_REJECTED: 'Deidentify file resulted in failure.',
         POLL_DETECT_FILE_FAILED: 'Deidentify file run %s1 failed. Reason: %s2.',
-        POLL_DETECT_FILE_UNEXPECTED_STATUS: 'Deidentify file run %s1 returned unexpected status: %s2. Message: %s3.',
+        POLL_DETECT_FILE_UNEXPECTED_STATUS: 'Deidentify file run %s1 returned unexpected status: %s2. Response: %s3',
         POLL_DETECT_FILE_API_ERROR: 'Polling for deidentify file run %s1 failed with an API error: %s2.',
         DETECT_RUN_REQUEST_REJECTED: 'Detect get run resulted in failure.',
         DEIDENTIFY_TEXT_REQUEST_REJECTED: 'Deidentify text resulted in failure.',
