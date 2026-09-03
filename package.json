@@ -43,7 +43,7 @@
     "jsonwebtoken": "9.0.3",
     "jwt-decode": "4.0.0",
     "node-fetch": "2.7.0",
-    "qs": "6.15.2",
+    "qs": "6.16.0",
     "readable-stream": "4.7.0",
     "url-join": "4.0.1"
   },
