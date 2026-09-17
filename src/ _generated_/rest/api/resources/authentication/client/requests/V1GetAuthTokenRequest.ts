@@ -6,7 +6,7 @@
  * @example
  *     {
  *         grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
- *         assertion: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.<payload>.<signature>"
+ *         assertion: "<your_signed_jwt_assertion>"
  *     }
  */
 export interface V1GetAuthTokenRequest {

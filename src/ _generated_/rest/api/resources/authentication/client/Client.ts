@@ -45,7 +45,7 @@ export class Authentication {
      * @example
      *     await client.authentication.authenticationServiceGetAuthToken({
      *         grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-     *         assertion: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.<payload>.<signature>"
+     *         assertion: "<your_signed_jwt_assertion>"
      *     })
      */
     public authenticationServiceGetAuthToken(
