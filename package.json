@@ -14,7 +14,9 @@
     "lint": "npm run eslint",
     "lint-fix": "prettier --write '**/*.{js,ts}' && eslint --fix '**/*.{js,ts}'",
     "spellcheck": "cspell '**/*.{ts,js,md}'",
-    "docs-gen": "typedoc && node scripts/docs-script/markdown-gen.js && npx ts-node scripts/docs-script/processMarkdown.ts"
+    "docs-gen": "typedoc && node scripts/docs-script/markdown-gen.js && npx ts-node scripts/docs-script/processMarkdown.ts",
+    "patch-generated-secrets": "node scripts/patch-generated-secrets.js",
+    "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Two-tier secret-leak guard, run on every local commit.
+#   Tier 1: auto-redact gitleaks findings inside src/_generated_ (driven live
+#           by Rule/gitleaks.toml via scripts/patch-generated-secrets.js, not
+#           a hand-maintained list) and re-stage that directory. Never blocks
+#           the commit by itself - it either fixes generated code or leaves
+#           it untouched for tier 2 to catch.
+#   Tier 2: run the real gitleaks scan against the staged diff and block on
+#           any finding tier 1 didn't (or couldn't) resolve.
+# Installed via the repo's own "prepare" npm script - see package.json.
+set -uo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+# git invokes hooks with a leaner PATH than your interactive shell, so a
+# Node install managed by nvm/volta/fnm or bundled with an IDE (rather than
+# a system package) is often invisible here even though `node` works fine
+# in your terminal. If that's you, run this once and commit again:
+#   git config leakguard.nodepath "$(dirname "$(command -v node)")"
+# It's a local git config value (not committed), so it won't affect anyone
+# else's machine.
+if ! command -v node >/dev/null 2>&1; then
+  custom_node_dir="$(git config --get leakguard.nodepath || true)"
+  [ -n "$custom_node_dir" ] && PATH="$custom_node_dir:$PATH" && export PATH
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "[leak-guard] tier 1 skipped: 'node' not found on PATH inside the git hook environment."
+  echo "[leak-guard] If 'node' works in your terminal, git hooks are likely just seeing a different PATH."
+  echo "[leak-guard] Fix: git config leakguard.nodepath \"\$(dirname \"\$(command -v node)\")\", then commit again."
+  echo "[leak-guard] continuing to tier 2; this alone will not block the commit."
+else
+  echo "[leak-guard] tier 1: auto-redacting gitleaks findings in generated code..."
+  if ! node scripts/patch-generated-secrets.js; then
+    echo "[leak-guard] tier 1 couldn't fully resolve generated code - see the message above."
+    echo "[leak-guard] continuing to tier 2; this alone will not block the commit."
+  fi
+fi
+
+# Stages the whole generated-code directory rather than just the files tier 1
+# touched, since we don't get that list back from the script. Safe in
+# practice: src/_generated_ is machine-owned (Fern-generated, never hand
+# edited), so there's no legitimate "leave part of it unstaged" case to worry
+# about disturbing.
+git add -- "src/ _generated_"
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "[leak-guard] tier 2 skipped: 'gitleaks' binary not found locally."
+  echo "[leak-guard] CI will still scan this PR - install gitleaks locally to catch issues before pushing."
+  exit 0
+fi
+
+echo "[leak-guard] tier 2: scanning staged changes with gitleaks..."
+if ! gitleaks protect --staged --config="Rule/gitleaks.toml" --redact; then
+  echo ""
+  echo "[leak-guard] commit blocked - gitleaks found something in your staged changes."
+  echo "[leak-guard] known false positive in generated code -> re-run tier 1 (node scripts/patch-generated-secrets.js) and check its output."
+  echo "[leak-guard] false positive elsewhere -> add an allowlist entry to Rule/gitleaks.toml."
+  echo "[leak-guard] real secret -> remove it and rotate the credential before committing."
+  exit 1
+fi
+
+echo "[leak-guard] clean - proceeding with commit."
+exit 0
