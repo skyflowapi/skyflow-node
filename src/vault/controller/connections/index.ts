@@ -204,6 +204,12 @@ class ConnectionController {
           invokeRequest.pathParams,
           invokeRequest.queryParams,
         );
+        // Ensure that substituting user-controlled pathParams/queryParams did not
+        // change the request's destination (host/origin), preventing SSRF via
+        // injected values such as "@evil.com" or "../" in a path param.
+        if (new URL(filledUrl).origin !== new URL(this.client.url).origin) {
+          throw new Error("Invalid connection URL: destination origin mismatch");
+        }
         getBearerToken(this.client.getCredentials(), this.logLevel)
           .then((token) => {
             printLog(
