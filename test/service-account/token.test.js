@@ -1146,3 +1146,32 @@ describe('service-account branch and line coverage', () => {
         ).rejects.toBeDefined();
     });
 });
+
+describe('ctx validation', () => {
+    const creds = JSON.stringify(validCredentials);
+
+    test('accepts string ctx', async () => {
+        await expect(getToken(creds, { ctx: 'test-ctx' })).resolves.toBeDefined();
+    });
+    test('accepts boolean ctx', async () => {
+        await expect(getToken(creds, { ctx: true })).resolves.toBeDefined();
+    });
+    test('accepts number ctx', async () => {
+        await expect(getToken(creds, { ctx: 42 })).resolves.toBeDefined();
+    });
+    test('accepts valid object ctx', async () => {
+        await expect(getToken(creds, { ctx: { key1: 'val' } })).resolves.toBeDefined();
+    });
+    test('omits empty string ctx from claims', async () => {
+        await expect(getToken(creds, { ctx: '' })).resolves.toBeDefined();
+    });
+    test('rejects array ctx', async () => {
+        await expect(getToken(creds, { ctx: ['bad'] })).rejects.toThrow(SKYFLOW_ERROR_CODE.INVALID_CTX_TYPE);
+    });
+    test('rejects ctx with invalid map key', async () => {
+        await expect(getToken(creds, { ctx: { 'bad key': 'val' } })).rejects.toThrow(SKYFLOW_ERROR_CODE.INVALID_CTX_MAP_KEY);
+    });
+    test('rejects function ctx', async () => {
+        await expect(getToken(creds, { ctx: () => {} })).rejects.toThrow(SKYFLOW_ERROR_CODE.INVALID_CTX_TYPE);
+    });
+});
