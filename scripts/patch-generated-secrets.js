@@ -196,7 +196,12 @@ for (const [relativeFile, fileFindings] of byFile) {
     const base = placeholderFor(ruleID);
     const seen = byRule.get(base) || 0;
     byRule.set(base, seen + 1);
-    const placeholder = seen === 0 ? base : base.replace(">", `_${seen + 1}>`);
+    // base is always `<REDACTED_RULEID>` (placeholderFor always ends it with
+    // exactly one ">"), so slice that off and re-append it with the suffix
+    // rather than using String#replace, which CodeQL flags as an
+    // incomplete-escaping-style bug (replaces only the first occurrence)
+    // even though there's only ever one to begin with here.
+    const placeholder = seen === 0 ? base : `${base.slice(0, -1)}_${seen + 1}>`;
 
     if (content.includes(secret)) {
       content = content.split(secret).join(placeholder);
