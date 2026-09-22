@@ -25,6 +25,16 @@
  *     (e.g. a plain `import { A, B } from '...'` line) as a leak, which
  *     this script would then corrupt by "redacting" it. If the self-test
  *     fails, nothing is touched.
+ *   - Redaction itself never reads a finding's reported "Secret" text. It
+ *     uses gitleaks' (StartLine, StartColumn) only as an approximate
+ *     anchor to locate the surrounding quoted string literal in the
+ *     actual file content, then redacts strictly between its quotes - see
+ *     findQuotedValueSpan. This sidesteps two problems in one move: some
+ *     locally observed gitleaks builds report a "Secret" that swallows a
+ *     trailing quote (would corrupt the surrounding code) or an
+ *     off-by-one column for certain rules, and reading that field at all
+ *     is a source CodeQL's clear-text-logging/storage-sensitive-data
+ *     queries key off of.
  *   - After redacting, `tsc --noEmit` verifies the generated code still
  *     compiles. If it doesn't, every change made in this run is rolled
  *     back and the run fails - a broken build is never left in place
@@ -118,11 +128,87 @@ function placeholderFor(ruleID) {
   return `<REDACTED_${ruleID.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}>`;
 }
 
+const QUOTE_CHARS = new Set(['"', "'", "`"]);
+// How far findQuotedValueSpan will search outward from gitleaks' reported
+// (line, column) for an actual quote character in the file. Only needs to
+// cover small reporting inaccuracies (a couple of characters), not
+// arbitrary distances - see its comment below.
+const QUOTE_SEARCH_WINDOW = 8;
+
+// Absolute char offset where each 1-indexed line starts in `text`.
+// offsets[line - 1] is the offset of `line`. Used to turn gitleaks'
+// 1-indexed (line, column) position into a plain absolute offset into
+// `text`.
+function lineStartOffsets(text) {
+  const offsets = [0];
+  for (const lineText of text.split("\n")) {
+    offsets.push(offsets[offsets.length - 1] + lineText.length + 1);
+  }
+  return offsets;
+}
+
+// Finds [valueStart, valueEnd) strictly inside the quoted string literal
+// nearest to `approxPos`, or null if there isn't one.
+//
+// Every flagged value in these generated files is a quoted example (e.g.
+// `assertion: "..."`), and gitleaks' reported column can be off by a
+// character (observed on the "jwt" rule with at least one locally
+// installed gitleaks build) or include a trailing delimiter it shouldn't
+// (also observed on "jwt" - the reported Secret text itself included the
+// closing quote), so this never trusts the exact position or reads the
+// flagged value's own text - it searches a small window in `content`
+// around the approximate position for an actual quote character, then
+// finds its matching closing quote. Because this only ever looks at
+// `content` and plain integer offsets, the redaction below has no
+// dependency on gitleaks' "Secret" field at all - not just a fix for the
+// trailing-quote bug, but also structurally free of the taint path
+// CodeQL's clear-text-logging/storage-sensitive-data queries would
+// otherwise follow from that field into console.log()/writeFileSync().
+function findQuotedValueSpan(content, approxPos) {
+  const n = content.length;
+  for (let delta = 0; delta <= QUOTE_SEARCH_WINDOW; delta++) {
+    // Backward first: the one observed real-world case (an off-by-one
+    // StartColumn on the "jwt" rule) landed one character INSIDE the
+    // value, so the nearest quote is behind it, not ahead of it.
+    const candidates = delta === 0 ? [approxPos] : [approxPos - delta, approxPos + delta];
+    for (const pos of candidates) {
+      if (pos >= 0 && pos < n && QUOTE_CHARS.has(content[pos])) {
+        const valueStart = pos + 1;
+        const valueEnd = content.indexOf(content[pos], valueStart);
+        return valueEnd === -1 ? null : [valueStart, valueEnd];
+      }
+    }
+  }
+  return null;
+}
+
+// Records exactly which files this run modified (an empty list if none),
+// so the pre-commit hook can stage only those - plus whatever the caller
+// already had staged - instead of the entire generated-code directory,
+// which would otherwise sweep in unrelated or intentionally-unstaged
+// in-progress changes sitting in that same directory. Called at every exit
+// point so the hook never reads a stale list left over from a prior run.
+// Best-effort: if this can't be written, the hook simply finds no list and
+// stages nothing beyond what was already staged.
+function recordTouchedFiles(relativeFiles) {
+  try {
+    const gitDir = execFileSync("git", ["rev-parse", "--git-dir"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }).trim();
+    const listPath = path.resolve(repoRoot, gitDir, "leak-guard-touched-files.txt");
+    fs.writeFileSync(listPath, relativeFiles.map((f) => `${f}\n`).join(""));
+  } catch {
+    // ignored - see comment above
+  }
+}
+
 if (!gitleaksAvailable()) {
   console.warn(
     "gitleaks isn't installed locally - skipping auto-redaction of generated code. " +
       "CI will still scan for this.",
   );
+  recordTouchedFiles([]);
   process.exit(0);
 }
 
@@ -134,6 +220,7 @@ if (!selfTestAllowlistSupport()) {
       "secret. Refusing to auto-redact - please upgrade gitleaks (run `gitleaks version`; " +
       "CI uses zricethezav/gitleaks:latest) and try again.",
   );
+  recordTouchedFiles([]);
   process.exit(1);
 }
 
@@ -147,6 +234,7 @@ const findings = runGitleaksDetect(
 
 if (findings.length === 0) {
   console.log("No gitleaks findings in generated code.");
+  recordTouchedFiles([]);
   process.exit(0);
 }
 
@@ -160,6 +248,7 @@ if (outOfScope.length > 0) {
     "Refusing to continue: gitleaks reported findings outside the generated code directory:\n" +
       outOfScope.map((f) => `  - ${f.File}`).join("\n"),
   );
+  recordTouchedFiles([]);
   process.exit(1);
 }
 
@@ -170,29 +259,80 @@ for (const finding of findings) {
 }
 
 const originalContents = new Map();
+const touchedFiles = new Set();
 let redactedCount = 0;
 
+// Restores every file this run has written so far back to what it read at
+// the start. Called from every failure path after files start getting
+// written, so a build break, a final-scan tool failure, or leftover
+// findings after redaction never leaves a partially-redacted, unverified
+// file sitting in the working tree.
+function rollback() {
+  for (const [filePath, content] of originalContents) {
+    fs.writeFileSync(filePath, content);
+  }
+  recordTouchedFiles([]);
+}
+
+// Redacts by position - gitleaks' own (StartLine, StartColumn), an
+// approximate anchor used only to locate the surrounding quoted string
+// literal in each file's content (see findQuotedValueSpan) - and never
+// reads finding.Secret at all.
+//
+// Resolved in a first pass, across ALL files, before anything is written:
+// an unresolved finding in a later file must not leave an earlier file's
+// already-computed redaction written to disk with no way back.
+const fileContents = new Map();
+const uniqueSpansByFile = new Map();
+const unresolved = [];
 for (const [relativeFile, fileFindings] of byFile) {
   const filePath = path.join(repoRoot, relativeFile);
-  let content = fs.readFileSync(filePath, "utf8");
+  const content = fs.readFileSync(filePath, "utf8");
+  fileContents.set(filePath, content);
+
+  const lineOffsets = lineStartOffsets(content);
+  const spans = [];
+  for (const finding of fileFindings) {
+    const approxPos = lineOffsets[finding.StartLine - 1] + (finding.StartColumn - 1);
+    const span = findQuotedValueSpan(content, approxPos);
+    if (span === null) {
+      unresolved.push([relativeFile, finding]);
+      continue;
+    }
+    spans.push([span[0], span[1], finding.RuleID]);
+  }
+
+  // Deduplicate by [start, end]: if two rules flag the exact same span, it
+  // must only be redacted once. Applied back-to-front (highest offset
+  // first) so replacing a later span never shifts the offsets of an
+  // earlier one still waiting to be processed.
+  const seenSpans = new Map();
+  for (const [start, end, ruleID] of spans) seenSpans.set(`${start}:${end}`, [start, end, ruleID]);
+  const uniqueSpans = [...seenSpans.values()].sort((a, b) => b[0] - a[0] || b[1] - a[1]);
+  uniqueSpansByFile.set(filePath, uniqueSpans);
+}
+
+if (unresolved.length > 0) {
+  console.error(
+    "Refusing to continue: couldn't locate a quoted value near " +
+      `${unresolved.length} finding(s) - this script only knows how to redact ` +
+      '`key: "value"`-shaped examples. Manual review needed:\n' +
+      unresolved.map(([rel, f]) => `  - [${f.RuleID}] ${rel}:${f.StartLine}`).join("\n"),
+  );
+  recordTouchedFiles([]);
+  process.exit(1);
+}
+
+for (const [filePath, spans] of uniqueSpansByFile) {
+  const relativeFile = path.relative(repoRoot, filePath);
+  let content = fileContents.get(filePath);
   originalContents.set(filePath, content);
 
-  // Assign a distinct placeholder per unique secret value, numbering only
-  // when the same rule fires more than once in the same file (so two
-  // different example tokens don't collapse into one identical placeholder).
-  // Longest-first ordering avoids a rare but real hazard: if one finding's
-  // secret text happened to be a substring of another's, redacting the
-  // shorter one first would consume part of the longer one, and the later
-  // `content.includes(secret)` check for it would then (correctly) come up
-  // empty. That finding would just be silently skipped here - which is fine,
-  // because the post-redaction gitleaks re-scan below still catches any
-  // secret that didn't actually get replaced and fails the run for review.
-  const uniqueSecrets = [...new Set(fileFindings.map((f) => f.Secret))].sort(
-    (a, b) => b.length - a.length,
-  );
+  // Assign a distinct placeholder per span, numbering only when the same
+  // rule fires more than once in the same file (so two different example
+  // values don't collapse into one identical placeholder).
   const byRule = new Map();
-  for (const secret of uniqueSecrets) {
-    const ruleID = fileFindings.find((f) => f.Secret === secret).RuleID;
+  for (const [start, end, ruleID] of spans) {
     const base = placeholderFor(ruleID);
     const seen = byRule.get(base) || 0;
     byRule.set(base, seen + 1);
@@ -203,21 +343,20 @@ for (const [relativeFile, fileFindings] of byFile) {
     // even though there's only ever one to begin with here.
     const placeholder = seen === 0 ? base : `${base.slice(0, -1)}_${seen + 1}>`;
 
-    if (content.includes(secret)) {
-      content = content.split(secret).join(placeholder);
-      redactedCount += 1;
-      console.log(`[${ruleID}] redacted in ${relativeFile} -> ${placeholder}`);
-    }
+    content = content.slice(0, start) + placeholder + content.slice(end);
+    redactedCount += 1;
+    console.log(`[${ruleID}] redacted in ${relativeFile} -> ${placeholder}`);
   }
 
   fs.writeFileSync(filePath, content);
+  if (content !== originalContents.get(filePath)) {
+    touchedFiles.add(relativeFile);
+  }
 }
 
 const localTsc = path.join(repoRoot, "node_modules", ".bin", "tsc");
 if (!fs.existsSync(localTsc)) {
-  for (const [filePath, content] of originalContents) {
-    fs.writeFileSync(filePath, content);
-  }
+  rollback();
   console.error(
     `${localTsc} not found (run \`npm install\`) - can't verify redaction is safe, so rolling back and refusing to redact.`,
   );
@@ -236,22 +375,33 @@ try {
 }
 
 if (!buildOk) {
-  for (const [filePath, content] of originalContents) {
-    fs.writeFileSync(filePath, content);
-  }
+  rollback();
   console.error(
     "Rolled back. Redaction needs manual review - see the tsc output above.",
   );
   process.exit(1);
 }
 
-const remaining = runGitleaksDetect(
-  GENERATED_CODE_PREFIX.replace(/\/$/, ""),
-  repoRoot,
-);
-if (remaining.length > 0) {
+// The redaction itself, and this verification re-scan, can each fail for
+// reasons other than "still leaks" (e.g. the gitleaks binary crashing
+// mid-run) - runGitleaksDetect throws in that case rather than returning a
+// findings list. Either way, an unverified redaction must never be left on
+// disk: roll back exactly as the tsc-failure path above does.
+let remaining;
+try {
+  remaining = runGitleaksDetect(GENERATED_CODE_PREFIX.replace(/\/$/, ""), repoRoot);
+} catch (err) {
+  rollback();
   console.error(
-    `Redacted ${redactedCount} secret(s), but ${remaining.length} finding(s) remain after re-scanning. Manual review needed:\n` +
+    `Final gitleaks re-scan failed to run (${err.message}) - rolling back all changes from this run. Redaction needs manual review.`,
+  );
+  process.exit(1);
+}
+if (remaining.length > 0) {
+  rollback();
+  console.error(
+    `Redacted ${redactedCount} secret(s), but ${remaining.length} finding(s) remain after re-scanning. ` +
+      "Rolled back all changes from this run. Manual review needed:\n" +
       remaining
         .map((f) => `  - [${f.RuleID}] ${f.File}:${f.StartLine}`)
         .join("\n"),
@@ -259,6 +409,7 @@ if (remaining.length > 0) {
   process.exit(1);
 }
 
+recordTouchedFiles([...touchedFiles]);
 console.log(
   `\nDone. Redacted ${redactedCount} secret(s) across ${byFile.size} file(s). Build and gitleaks re-scan both clean.`,
 );
