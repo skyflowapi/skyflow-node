@@ -1,0 +1,68 @@
+name: Gitleaks Auto-Redact
+
+# Runs scripts/patch-generated-secrets.js on every push to a PR and, if it
+# finds anything to redact in the Fern-generated code, commits and pushes
+# the fix straight to the PR branch - the same "run in CI, commit the
+# result back" pattern common-release.yml uses for its version bump. This
+# closes the gap where a contributor without gitleaks or node installed
+# locally never gets tier 1's local auto-redaction (see
+# .githooks/pre-commit): CI now does it for them instead of only warning.
+#
+# This is additive to Gitleaks.yml, not a replacement for it - it doesn't
+# change that workflow's scan or its exit behavior.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  auto-redact:
+    runs-on: ubuntu-latest
+    # A fork PR's checkout token can't push back to someone else's fork -
+    # GitHub blocks that regardless of what token this job holds - so skip
+    # cleanly rather than fail noisily. Gitleaks.yml still scans fork PRs
+    # as usual; this job only ever adds a redaction commit for same-repo
+    # branches.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_ACTIONS }}
+          ref: ${{ github.head_ref }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: Install packages
+        run: npm install --ignore-scripts
+
+      - name: Install gitleaks
+        run: |
+          GITLEAKS_VERSION="$(curl -fsSL https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep -m1 '"tag_name"' | cut -d '"' -f4 | sed 's/^v//')"
+          curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+          rm -f gitleaks.tar.gz gitleaks
+          gitleaks version
+
+      - name: Auto-redact generated code
+        run: node scripts/patch-generated-secrets.js
+
+      - name: Commit and push redaction, if any
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git checkout "${{ github.head_ref }}"
+          if git diff --quiet -- "src/ _generated_"; then
+            echo "No fake secrets found to redact."
+          else
+            git add -- "src/ _generated_"
+            git commit -m "[AUTOMATED] redact fake secrets in generated code"
+            git push origin "HEAD:${{ github.head_ref }}"
+          fi
