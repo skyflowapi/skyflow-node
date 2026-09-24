@@ -1,0 +1,7 @@
+# False positives: Fern auto-generates example JWTs/UUID tokens in SDK doc comments (@example blocks) — not real secrets.
+a22a7c279fba8ce54b647845374492c41d0f9350:src/ _generated_/rest/api/resources/authentication/client/Client.ts:jwt:48
+a22a7c279fba8ce54b647845374492c41d0f9350:src/ _generated_/rest/api/resources/authentication/client/requests/V1GetAuthTokenRequest.ts:jwt:9
+a22a7c279fba8ce54b647845374492c41d0f9350:src/ _generated_/rest/api/resources/tokens/client/requests/V1DetokenizePayload.ts:generic-api-key:11
+a22a7c279fba8ce54b647845374492c41d0f9350:src/ _generated_/rest/api/resources/tokens/client/requests/V1DetokenizePayload.ts:generic-api-key:14
+a22a7c279fba8ce54b647845374492c41d0f9350:src/ _generated_/rest/api/resources/tokens/client/Client.ts:generic-api-key:47
+a22a7c279fba8ce54b647845374492c41d0f9350:src/ _generated_/rest/api/resources/tokens/client/Client.ts:generic-api-key:50
