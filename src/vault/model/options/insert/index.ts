@@ -26,6 +26,10 @@ class InsertOptions {
         this.tokens = tokens;
     }
 
+    setEnableTokens(tokens: Array<Record<string, unknown>>) {
+        this.tokens = tokens;
+    }
+
     setHomogeneous(homogeneous: boolean) {
         this.homogeneous = homogeneous;
     }
