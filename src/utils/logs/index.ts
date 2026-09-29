@@ -191,6 +191,7 @@ const logs = {
         DEPRECATED_HTTP_CODE_PROPERTY: "[DEPRECATED] Property 'http_code' is deprecated and will be removed in an upcoming release. Use 'httpCode' instead.",
         DEPRECATED_HTTP_STATUS_PROPERTY: "[DEPRECATED] Property 'http_status' is deprecated and will be removed in an upcoming release. Use 'httpStatus' instead.",
         DEPRECATED_GRPC_CODE_PROPERTY: "[DEPRECATED] Property 'grpc_code' is deprecated and will be removed in an upcoming release. Use 'grpcCode' instead.",
+        BETA_BUILD_WARNING: "This is a beta/pre-release build of the Skyflow SDK (v%s1). Beta builds are intended for acceptance testing only - you appear to be connecting to a Production vault. Contact your Skyflow representative before using this build in Production.",
     }
 };
 

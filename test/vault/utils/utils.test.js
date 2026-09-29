@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import errorMessages from "../../../src/error/messages";
-import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, getBaseUrl, removeSDKVersion, parameterizedString, MessageType, LogLevel, objectToXML } from "../../../src/utils";
+import { Env, getConnectionBaseURL, getVaultURL, validateToken, isValidURL, fillUrlWithPathAndQueryParams, generateSDKMetrics, printLog, getToken, getBearerToken, getBaseUrl, removeSDKVersion, parameterizedString, MessageType, LogLevel, objectToXML, isNonGaVersion, anyVaultIsProd } from "../../../src/utils";
 import { jwtDecode as jwt_decode } from 'jwt-decode';
 import os from 'os';
 import { generateBearerTokenFromCreds, generateBearerToken } from '../../../src/service-account';
@@ -35,6 +35,48 @@ describe('Vault URL Helper', () => {
         test(`should return ${description}`, () => {
             expect(getVaultURL(clusterId, env)).toBe(expected);
         });
+    });
+});
+
+// SK-2963: beta-build-in-prod warning
+describe('isNonGaVersion', () => {
+    test.each([
+        ['1.0.0', false],
+        ['2.11.3', false],
+        ['2.1.0-beta.1', true],
+        ['2.1.0-dev.18f8f1ba', true],
+        ['3.0.0-beta.13-dev.18f8f1ba', true],
+        [undefined, true],
+        ['', true],
+        ['v2', true],
+    ])('isNonGaVersion(%p) should return %p', (version, expected) => {
+        expect(isNonGaVersion(version)).toBe(expected);
+    });
+});
+
+describe('anyVaultIsProd', () => {
+    test('returns false for an empty/undefined list', () => {
+        expect(anyVaultIsProd(undefined)).toBe(false);
+        expect(anyVaultIsProd([])).toBe(false);
+    });
+
+    test('returns false when no vault is PROD', () => {
+        expect(anyVaultIsProd([
+            { vaultId: 'v1', clusterId: 'c1', env: Env.DEV },
+            { vaultId: 'v2', clusterId: 'c2', env: Env.SANDBOX },
+            { vaultId: 'v3', clusterId: 'c3', env: Env.STAGE },
+        ])).toBe(false);
+    });
+
+    test('returns true when at least one of several vaults is PROD', () => {
+        expect(anyVaultIsProd([
+            { vaultId: 'v1', clusterId: 'c1', env: Env.DEV },
+            { vaultId: 'v2', clusterId: 'c2', env: Env.PROD },
+        ])).toBe(true);
+    });
+
+    test('treats an unset env as PROD (matches the default used to build the vault URL)', () => {
+        expect(anyVaultIsProd([{ vaultId: 'v1', clusterId: 'c1' }])).toBe(true);
     });
 });
 
