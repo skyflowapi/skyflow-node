@@ -1,0 +1,259 @@
+import errorMessages from "../messages";
+
+const _SKYFLOW_ERROR_CODE = {
+    CONFIG_MISSING: { httpCode: 400, message: errorMessages.CONFIG_MISSING },
+    INVALID_TYPE_FOR_CONFIG: { httpCode: 400, message: errorMessages.INVALID_TYPE_FOR_CONFIG },
+    EMPTY_VAULT_CONFIG: { httpCode: 400, message: errorMessages.EMPTY_VAULT_CONFIG },
+    EMPTY_CONNECTION_CONFIG: { httpCode: 400, message: errorMessages.EMPTY_CONNECTION_CONFIG },
+    INVALID_SKYFLOW_CONFIG: { httpCode: 400, message: errorMessages.INVALID_SKYFLOW_CONFIG },
+
+    EMPTY_VAULT_ID: { httpCode: 400, message: errorMessages.EMPTY_VAULT_ID },
+    EMPTY_VAULT_ID_VALIDATION: { httpCode: 400, message: errorMessages.EMPTY_VAULT_ID_VALIDATION },
+    INVALID_VAULT_ID: { httpCode: 400, message: errorMessages.INVALID_VAULT_ID },
+    EMPTY_CLUSTER_ID: { httpCode: 400, message: errorMessages.EMPTY_CLUSTER_ID },
+    INVALID_CLUSTER_ID: { httpCode: 400, message: errorMessages.INVALID_CLUSTER_ID },
+
+    INVALID_BEARER_TOKEN: { httpCode: 400, message: errorMessages.INVALID_BEARER_TOKEN },
+    INVALID_PARSED_CREDENTIALS_STRING: { httpCode: 400, message: errorMessages.INVALID_PARSED_CREDENTIALS_STRING },
+    INVALID_KEY: { httpCode: 400, message: errorMessages.INVALID_KEY },
+    INVALID_CREDENTIALS_FILE_PATH: { httpCode: 400, message: errorMessages.INVALID_CREDENTIALS_FILE_PATH },
+    INVALID_TOKEN_URI: { httpCode: 400, message: errorMessages.INVALID_TOKEN_URI },
+    INVALID_TOKEN_URI_WITH_ID: { httpCode: 400, message: errorMessages.INVALID_TOKEN_URI_WITH_ID },
+
+    INVALID_BEARER_TOKEN_WITH_ID: { httpCode: 400, message: errorMessages.INVALID_BEARER_TOKEN_WITH_ID },
+    INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: { httpCode: 400, message: errorMessages.INVALID_PARSED_CREDENTIALS_STRING_WITH_ID },
+    INVALID_KEY_WITH_ID: { httpCode: 400, message: errorMessages.INVALID_KEY_WITH_ID },
+    INVALID_FILE_PATH_WITH_ID: { httpCode: 400, message: errorMessages.INVALID_FILE_PATH_WITH_ID },
+
+    INVALID_TOKEN: { httpCode: 400, message: errorMessages.INVALID_TOKEN },
+    TOKEN_EXPIRED: { httpCode: 400, message: errorMessages.TOKEN_EXPIRED },
+    INVALID_ENV: { httpCode: 400, message: errorMessages.INVALID_ENV },
+    INVALID_LOG_LEVEL: { httpCode: 400, message: errorMessages.INVALID_LOG_LEVEL },
+    EMPTY_CREDENTIAL_FILE_PATH: { httpCode: 400, message: errorMessages.EMPTY_CREDENTIAL_FILE_PATH },
+    INVALID_CREDENTIAL_FILE_PATH: { httpCode: 400, message: errorMessages.INVALID_CREDENTIAL_FILE_PATH },
+
+    EMPTY_CONNECTION_ID: { httpCode: 400, message: errorMessages.EMPTY_CONNECTION_ID },
+    INVALID_CONNECTION_ID: { httpCode: 400, message: errorMessages.INVALID_CONNECTION_ID },
+    EMPTY_CONNECTION_ID_VALIDATION: { httpCode: 400, message: errorMessages.EMPTY_CONNECTION_ID_VALIDATION },
+    EMPTY_CONNECTION_URL: { httpCode: 400, message: errorMessages.EMPTY_CONNECTION_URL },
+    INVALID_CONNECTION_URL: { httpCode: 400, message: errorMessages.INVALID_CONNECTION_URL },
+    
+    VAULT_ID_EXITS_IN_CONFIG_LIST: { httpCode: 400, message: errorMessages.VAULT_ID_EXITS_IN_CONFIG_LIST },
+    CONNECTION_ID_EXITS_IN_CONFIG_LIST: { httpCode: 400, message: errorMessages.CONNECTION_ID_EXITS_IN_CONFIG_LIST },
+    VAULT_ID_NOT_IN_CONFIG_LIST: { httpCode: 400, message: errorMessages.VAULT_ID_NOT_IN_CONFIG_LIST },
+    CONNECTION_ID_NOT_IN_CONFIG_LIST: { httpCode: 400, message: errorMessages.CONNECTION_ID_NOT_IN_CONFIG_LIST },
+
+    INVALID_CREDENTIALS: { httpCode: 400, message: errorMessages.INVALID_CREDENTIALS },
+    CREDENTIALS_WITH_NO_VALID_KEY: { httpCode: 400, message: errorMessages.CREDENTIALS_WITH_NO_VALID_KEY },
+    EMPTY_CREDENTIALS: { httpCode: 400, message: errorMessages.EMPTY_CREDENTIALS },
+    MULTIPLE_CREDENTIALS_PASSED: { httpCode: 400, message: errorMessages.MULTIPLE_CREDENTIALS_PASSED },
+    MULTIPLE_CREDENTIALS_PASSED_WITH_ID: { httpCode: 400, message: errorMessages.MULTIPLE_CREDENTIALS_PASSED_WITH_ID },
+    INVALID_CREDENTIALS_WITH_ID: { httpCode: 400, message: errorMessages.INVALID_CREDENTIALS_WITH_ID },
+
+    FILE_NOT_FOUND: { httpCode: 400, message: errorMessages.FILE_NOT_FOUND },
+    INVALID_JSON_FILE: { httpCode: 400, message: errorMessages.INVALID_JSON_FILE },
+
+    EMPTY_CREDENTIALS_STRING: { httpCode: 400, message: errorMessages.EMPTY_CREDENTIALS_STRING },
+    INVALID_CREDENTIALS_STRING: { httpCode: 400, message: errorMessages.INVALID_CREDENTIALS_STRING },
+
+
+    MISSING_TOKEN_URI: { httpCode: 400, message: errorMessages.MISSING_TOKEN_URI },
+    MISSING_CLIENT_ID: { httpCode: 400, message: errorMessages.MISSING_CLIENT_ID },
+    MISSING_KEY_ID: { httpCode: 400, message: errorMessages.MISSING_KEY_ID },
+    MISSING_PRIVATE_KEY: { httpCode: 400, message: errorMessages.MISSING_PRIVATE_KEY },
+
+    INVALID_ROLES_KEY_TYPE: { httpCode: 400, message: errorMessages.INVALID_ROLES_KEY_TYPE },
+    INVALID_CONTEXT: { httpCode: 400, message: errorMessages.INVALID_CONTEXT },
+    EMPTY_ROLES: { httpCode: 400, message: errorMessages.EMPTY_ROLES },
+
+    INVALID_JSON_FORMAT: { httpCode: 400, message: errorMessages.INVALID_JSON_FORMAT },
+
+    EMPTY_DATA_TOKENS: { httpCode: 400, message: errorMessages.EMPTY_DATA_TOKENS },
+    DATA_TOKEN_KEY_TYPE: { httpCode: 400, message: errorMessages.DATA_TOKEN_KEY_TYPE },
+    TIME_TO_LIVE_KET_TYPE: { httpCode: 400, message: errorMessages.TIME_TO_LIVE_KET_TYPE },
+
+    EMPTY_TABLE_NAME: { httpCode: 400, message: errorMessages.EMPTY_TABLE_NAME },
+    INVALID_TABLE_NAME: { httpCode: 400, message: errorMessages.INVALID_TABLE_NAME },
+
+    EMPTY_REDACTION_TYPE: { httpCode: 400, message: errorMessages.EMPTY_REDACTION_TYPE },
+    INVALID_REDACTION_TYPE: { httpCode: 400, message: errorMessages.INVALID_REDACTION_TYPE },
+
+    INVALID_DELETE_IDS_INPUT: { httpCode: 400, message: errorMessages.INVALID_DELETE_IDS_INPUT },
+    EMPTY_DELETE_IDS: { httpCode: 400, message: errorMessages.EMPTY_DELETE_IDS },
+    EMPTY_ID_IN_DELETE: { httpCode: 400, message: errorMessages.EMPTY_ID_IN_DELETE },
+    INVALID_ID_IN_DELETE: { httpCode: 400, message: errorMessages.INVALID_ID_IN_DELETE },
+    INVALID_DELETE_REQUEST: { httpCode: 400, message: errorMessages.INVALID_DELETE_REQUEST },
+
+    INVALID_TOKENS_TYPE_IN_DETOKENIZE: { httpCode: 400, message: errorMessages.INVALID_TOKENS_TYPE_IN_DETOKENIZE },
+    EMPTY_TOKENS_IN_DETOKENIZE: { httpCode: 400, message: errorMessages.EMPTY_TOKENS_IN_DETOKENIZE },
+    EMPTY_TOKEN_IN_DETOKENIZE: { httpCode: 400, message: errorMessages.EMPTY_TOKEN_IN_DETOKENIZE },
+    INVALID_TOKEN_IN_DETOKENIZE: { httpCode: 400, message: errorMessages.INVALID_TOKEN_IN_DETOKENIZE },
+    INVALID_DETOKENIZE_REQUEST: { httpCode: 400, message: errorMessages.INVALID_DETOKENIZE_REQUEST },
+
+    INVALID_INSERT_REQUEST: { httpCode: 400, message: errorMessages.INVALID_INSERT_REQUEST },
+    INVALID_RECORD_IN_INSERT: { httpCode: 400, message: errorMessages.INVALID_RECORD_IN_INSERT },
+    EMPTY_RECORD_IN_INSERT: { httpCode: 400, message: errorMessages.EMPTY_RECORD_IN_INSERT },
+    EMPTY_DATA_IN_INSERT: { httpCode: 400, message: errorMessages.EMPTY_DATA_IN_INSERT },
+    INVALID_TYPE_OF_DATA_IN_INSERT: { httpCode: 400, message: errorMessages.INVALID_TYPE_OF_DATA_IN_INSERT },
+    INVALID_RECORD_IN_UPDATE: { httpCode: 400, message: errorMessages.INVALID_RECORD_IN_UPDATE },
+
+    MISSING_VALUES_IN_TOKENIZE: { httpCode: 400, message: errorMessages.MISSING_VALUES_IN_TOKENIZE },
+    INVALID_VALUES_TYPE_IN_TOKENIZE: { httpCode: 400, message: errorMessages.INVALID_VALUES_TYPE_IN_TOKENIZE },
+    EMPTY_VALUES_IN_TOKENIZE: { httpCode: 400, message: errorMessages.EMPTY_VALUES_IN_TOKENIZE },
+    EMPTY_DATA_IN_TOKENIZE: { httpCode: 400, message: errorMessages.EMPTY_DATA_IN_TOKENIZE },
+    INVALID_DATA_IN_TOKENIZE: { httpCode: 400, message: errorMessages.INVALID_DATA_IN_TOKENIZE },
+    INVALID_TOKENIZE_REQUEST: { httpCode: 400, message: errorMessages.INVALID_TOKENIZE_REQUEST },
+    INVALID_VALUE_IN_TOKENIZE: { httpCode: 400, message: errorMessages.INVALID_VALUE_IN_TOKENIZE },
+    INVALID_COLUMN_GROUP_IN_TOKENIZE: { httpCode: 400, message: errorMessages.INVALID_COLUMN_GROUP_IN_TOKENIZE },
+    EMPTY_COLUMN_GROUP_IN_TOKENIZE: { httpCode: 400, message: errorMessages.EMPTY_COLUMN_GROUP_IN_TOKENIZE },
+    EMPTY_VALUE_IN_TOKENIZE: { httpCode: 400, message: errorMessages.EMPTY_VALUE_IN_TOKENIZE },
+
+    INVALID_QUERY_REQUEST: { httpCode: 400, message: errorMessages.INVALID_QUERY_REQUEST },
+    INVALID_QUERY: { httpCode: 400, message: errorMessages.INVALID_QUERY },
+    EMPTY_QUERY: { httpCode: 400, message: errorMessages.EMPTY_QUERY },
+
+    MISSING_TABLE_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.MISSING_TABLE_IN_UPLOAD_FILE },
+    INVALID_TABLE_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.INVALID_TABLE_IN_UPLOAD_FILE },
+    MISSING_SKYFLOW_ID_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.MISSING_SKYFLOW_ID_IN_UPLOAD_FILE },
+    INVALID_SKYFLOW_ID_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.INVALID_SKYFLOW_ID_IN_UPLOAD_FILE },
+    MISSING_COLUMN_NAME_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.MISSING_COLUMN_NAME_IN_UPLOAD_FILE },
+    INVALID_COLUMN_NAME_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.INVALID_COLUMN_NAME_IN_UPLOAD_FILE },
+    MISSING_FILE_PATH_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.MISSING_FILE_PATH_IN_UPLOAD_FILE },
+    INVALID_FILE_PATH_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.INVALID_FILE_PATH_IN_UPLOAD_FILE },
+    INVALID_FILE_UPLOAD_REQUEST: { httpCode: 400, message: errorMessages.INVALID_FILE_UPLOAD_REQUEST },
+    MISSING_FILE_SOURCE_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.MISSING_FILE_SOURCE_IN_UPLOAD_FILE },
+    MISSING_FILE_NAME_FOR_BASE64: { httpCode: 400, message: errorMessages.MISSING_FILE_NAME_FOR_BASE64 },
+    INVALID_FILE_OBJECT_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.INVALID_FILE_OBJECT_IN_UPLOAD_FILE },
+    MISSING_FILE_NAME_IN_FILE_OBJECT: { httpCode: 400, message: errorMessages.MISSING_FILE_NAME_IN_FILE_OBJECT },
+    INVALID_BASE64_IN_UPLOAD_FILE: { httpCode: 400, message: errorMessages.INVALID_BASE64_IN_UPLOAD_FILE },
+
+    MISSING_SKYFLOW_ID_IN_UPDATE: { httpCode: 400, message: errorMessages.MISSING_SKYFLOW_ID_IN_UPDATE },
+    INVALID_SKYFLOW_ID_IN_UPDATE: { httpCode: 400, message: errorMessages.INVALID_SKYFLOW_ID_IN_UPDATE },
+    INVALID_TYPE_OF_UPDATE_DATA: { httpCode: 400, message: errorMessages.INVALID_TYPE_OF_UPDATE_DATA },
+    EMPTY_UPDATE_DATA: { httpCode: 400, message: errorMessages.EMPTY_UPDATE_DATA },
+    INVALID_UPDATE_REQUEST: { httpCode: 400, message: errorMessages.INVALID_UPDATE_REQUEST },
+    EMPTY_DATA_IN_UPDATE: { httpCode: 400, message: errorMessages.EMPTY_DATA_IN_UPDATE },
+    INVALID_DATA_IN_UPDATE: { httpCode: 400, message: errorMessages.INVALID_DATA_IN_UPDATE },
+    INVALID_UPDATE_TOKENS: { httpCode: 400, message: errorMessages.INVALID_UPDATE_TOKENS },
+    INVALID_TOKEN_IN_UPDATE: { httpCode: 400, message: errorMessages.INVALID_TOKEN_IN_UPDATE },
+
+    INVALID_GET_REQUEST: { httpCode: 400, message: errorMessages.INVALID_GET_REQUEST },
+    EMPTY_IDS_IN_GET: { httpCode: 400, message: errorMessages.EMPTY_IDS_IN_GET },
+    EMPTY_ID_IN_GET: { httpCode: 400, message: errorMessages.EMPTY_ID_IN_GET },
+    INVALID_ID_IN_GET: { httpCode: 400, message: errorMessages.INVALID_ID_IN_GET },
+    INVALID_TYPE_OF_IDS: { httpCode: 400, message: errorMessages.INVALID_TYPE_OF_IDS },
+
+    EMPTY_COLUMN_NAME: { httpCode: 400, message: errorMessages.EMPTY_COLUMN_NAME },
+    INVALID_COLUMN_NAME: { httpCode: 400, message: errorMessages.INVALID_COLUMN_NAME },
+    INVALID_GET_COLUMN_REQUEST: { httpCode: 400, message: errorMessages.INVALID_GET_COLUMN_REQUEST },
+
+    INVALID_COLUMN_VALUES: { httpCode: 400, message: errorMessages.INVALID_COLUMN_VALUES },
+    EMPTY_COLUMN_VALUES: { httpCode: 400, message: errorMessages.EMPTY_COLUMN_VALUES },
+    INVALID_COLUMN_VALUE: { httpCode: 400, message: errorMessages.INVALID_COLUMN_VALUE },
+    EMPTY_COLUMN_VALUE: { httpCode: 400, message: errorMessages.EMPTY_COLUMN_VALUE },
+
+    EMPTY_URL: { httpCode: 400, message: errorMessages.EMPTY_URL },
+    INVALID_URL: { httpCode: 400, message: errorMessages.INVALID_URL },
+    EMPTY_METHOD_NAME: { httpCode: 400, message: errorMessages.EMPTY_METHOD_NAME },
+    INVALID_METHOD_NAME: { httpCode: 400, message: errorMessages.INVALID_METHOD_NAME },
+    EMPTY_QUERY_PARAMS: { httpCode: 400, message: errorMessages.EMPTY_QUERY_PARAMS },
+    INVALID_QUERY_PARAMS: { httpCode: 400, message: errorMessages.INVALID_QUERY_PARAMS },
+    EMPTY_PATH_PARAMS: { httpCode: 400, message: errorMessages.EMPTY_PATH_PARAMS },
+    INVALID_PATH_PARAMS: { httpCode: 400, message: errorMessages.INVALID_PATH_PARAMS },
+    EMPTY_BODY: { httpCode: 400, message: errorMessages.EMPTY_BODY },
+    INVALID_BODY: { httpCode: 400, message: errorMessages.INVALID_BODY },
+    EMPTY_HEADERS: { httpCode: 400, message: errorMessages.EMPTY_HEADERS },
+    INVALID_HEADERS: { httpCode: 400, message: errorMessages.INVALID_HEADERS },
+    INVALID_INVOKE_CONNECTION_REQUEST: { httpCode: 400, message: errorMessages.INVALID_INVOKE_CONNECTION_REQUEST },
+
+    INVALID_INSERT_TOKENS: { httpCode: 400, message: errorMessages.INVALID_INSERT_TOKENS },
+    EMPTY_INSERT_TOKEN: { httpCode: 400, message: errorMessages.EMPTY_INSERT_TOKEN },
+    INVALID_INSERT_TOKEN: { httpCode: 400, message: errorMessages.INVALID_INSERT_TOKEN },
+    INVALID_TOKEN_MODE: { httpCode: 400, message: errorMessages.INVALID_TOKEN_MODE },
+    INVALID_HOMOGENEOUS: { httpCode: 400, message: errorMessages.INVALID_HOMOGENEOUS },
+    INVALID_TOKEN_STRICT: { httpCode: 400, message: errorMessages.INVALID_TOKEN_STRICT },
+    INVALID_CONTINUE_ON_ERROR: { httpCode: 400, message: errorMessages.INVALID_CONTINUE_ON_ERROR },
+    INVALID_UPSERT: { httpCode: 400, message: errorMessages.INVALID_UPSERT },
+    INVALID_RETURN_TOKEN: { httpCode: 400, message: errorMessages.INVALID_RETURN_TOKEN },
+
+    NO_TOKENS_WITH_TOKEN_MODE: { httpCode: 400, message: errorMessages.NO_TOKENS_WITH_TOKEN_MODE },
+    INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT: { httpCode: 400, message: errorMessages.INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT },
+
+    INVALID_DOWNLOAD_URL: { httpCode: 400, message: errorMessages.INVALID_DOWNLOAD_URL },
+
+    INVALID_FIELD: { httpCode: 400, message: errorMessages.INVALID_FIELD },
+    EMPTY_FIELD: { httpCode: 400, message: errorMessages.EMPTY_FIELD },
+
+    INVALID_OFFSET: { httpCode: 400, message: errorMessages.INVALID_OFFSET },
+    INVALID_LIMIT: { httpCode: 400, message: errorMessages.INVALID_LIMIT },
+
+    INVALID_ORDER_BY: { httpCode: 400, message: errorMessages.INVALID_ORDER_BY },
+    INVALID_FIELDS: { httpCode: 400, message: errorMessages.INVALID_FIELDS },
+
+    EMPTY_VAULT_CLIENTS: { httpCode: 400, message: errorMessages.EMPTY_VAULT_CLIENTS },
+    EMPTY_CONNECTION_CLIENTS: { httpCode: 400, message: errorMessages.EMPTY_CONNECTION_CLIENTS },
+
+    INVALID_TEXT_IN_DEIDENTIFY: { httpCode: 400, message: errorMessages.INVALID_TEXT_IN_DEIDENTIFY },
+    INVALID_ENTITIES_IN_DEIDENTIFY: { httpCode: 400, message: errorMessages.INVALID_ENTITIES_IN_DEIDENTIFY },
+    INVALID_ALLOW_REGEX_LIST: { httpCode: 400, message: errorMessages.INVALID_ALLOW_REGEX_LIST },
+    INVALID_RESTRICT_REGEX_LIST: { httpCode: 400, message: errorMessages.INVALID_RESTRICT_REGEX_LIST },
+    INVALID_TOKEN_FORMAT: { httpCode: 400, message: errorMessages.INVALID_TOKEN_FORMAT },
+    TOKEN_FORMAT_NOT_ALLOWED: { httpCode: 400, message: errorMessages.VAULT_TOKEN_FORMAT_NOT_ALLOWED_FOR_DEIDENTIFY_FILES},
+    INVALID_TRANSFORMATIONS: { httpCode: 400, message: errorMessages.INVALID_TRANSFORMATIONS },
+
+    INVALID_TEXT_IN_REIDENTIFY: { httpCode: 400, message: errorMessages.INVALID_TEXT_IN_REIDENTIFY },
+    INVALID_REDACTED_ENTITIES_IN_REIDENTIFY: { httpCode: 400, message: errorMessages.INVALID_REDACTED_ENTITIES_IN_REIDENTIFY },
+    INVALID_MASKED_ENTITIES_IN_REIDENTIFY: { httpCode: 400, message: errorMessages.INVALID_MASKED_ENTITIES_IN_REIDENTIFY },
+    INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY: { httpCode: 400, message: errorMessages.INVALID_PLAIN_TEXT_ENTITIES_IN_REIDENTIFY },
+
+    INVALID_DEIDENTIFY_FILE_REQUEST: { httpCode: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_REQUEST },
+    INVALID_DEIDENTIFY_FILE_INPUT: { httpCode: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_INPUT },
+    EMPTY_FILE_OBJECT:{ httpCode: 400, message: errorMessages.EMPTY_FILE_OBJECT },
+    INVALID_FILE_FORMAT: { httpCode: 400, message: errorMessages.INVALID_FILE_FORMAT },
+    MISSING_FILE_SOURCE: { httpCode: 400, message: errorMessages.MISSING_FILE_SOURCE },
+    INVALID_BASE64_STRING: { httpCode: 400, message: errorMessages.INVALID_BASE64_STRING },
+    INVALID_DEIDENTIFY_FILE_OPTIONS: { httpCode: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_OPTIONS },
+    INVALID_ENTITIES: { httpCode: 400, message: errorMessages.INVALID_ENTITIES },
+    INVALID_OUTPUT_PROCESSED_IMAGE: { httpCode: 400, message: errorMessages.INVALID_OUTPUT_PROCESSED_IMAGE },
+    INVALID_OUTPUT_OCR_TEXT: { httpCode: 400, message: errorMessages.INVALID_OUTPUT_OCR_TEXT },
+    INVALID_MASKING_METHOD: { httpCode: 400, message: errorMessages.INVALID_MASKING_METHOD },
+    INVALID_PIXEL_DENSITY: { httpCode: 400, message: errorMessages.INVALID_PIXEL_DENSITY },
+    INVALID_MAX_RESOLUTION: { httpCode: 400, message: errorMessages.INVALID_MAX_RESOLUTION },
+    INVALID_OUTPUT_PROCESSED_AUDIO: { httpCode: 400, message: errorMessages.INVALID_OUTPUT_PROCESSED_AUDIO },
+    INVALID_OUTPUT_TRANSCRIPTION: { httpCode: 400, message: errorMessages.INVALID_OUTPUT_TRANSCRIPTION },
+    INVALID_BLEEP:{ httpCode: 400, message: errorMessages.INVALID_BLEEP },
+    INVALID_FILE_OR_ENCODED_FILE:{ httpCode: 400, message: errorMessages.INVALID_FILE_OR_ENCODED_FILE },
+    INVALID_FILE_TYPE:{ httpCode: 400, message: errorMessages.INVALID_FILE_TYPE },
+    INVALID_DEIDENTIFY_FILE_PATH:{ httpCode: 400, message: errorMessages.INVALID_DEIDENTIFY_FILE_PATH },
+    FILE_READ_ERROR:{ httpCode: 400, message: errorMessages.FILE_READ_ERROR },
+    INVALID_BASE64_HEADER:{ httpCode: 400, message: errorMessages.INVALID_BASE64_HEADER },
+    INVALID_WAIT_TIME:{ httpCode: 400, message: errorMessages.INVALID_WAIT_TIME },
+    INVALID_OUTPUT_DIRECTORY:{ httpCode: 400, message: errorMessages.INVALID_OUTPUT_DIRECTORY },
+    INVALID_OUTPUT_DIRECTORY_PATH:{ httpCode: 400, message: errorMessages.INVALID_OUTPUT_DIRECTORY_PATH },
+    EMPTY_RUN_ID:{ httpCode: 400, message: errorMessages.EMPTY_RUN_ID },
+    INVALID_RUN_ID:{ httpCode: 400, message: errorMessages.INVALID_RUN_ID },
+    INTERNAL_SERVER_ERROR: { httpCode: 500, message: errorMessages.INTERNAL_SERVER_ERROR },
+    INVALID_XML_FORMAT: { httpCode: 400, message: errorMessages.INVALID_XML_FORMAT },
+};
+
+// Each access returns an entry whose `message` is resolved lazily from the
+// identity-aware `errorMessages`, so the SDK version/name in error text reflects
+// the live SDK identity (set per layer via setSdkIdentity) at throw time rather
+// than being frozen at module-load. `httpCode` comes from the literal above.
+const SKYFLOW_ERROR_CODE: typeof _SKYFLOW_ERROR_CODE = new Proxy(_SKYFLOW_ERROR_CODE, {
+    get(target, prop) {
+        if (typeof prop === "symbol" || !(prop in target)) {
+            return (target as Record<string | symbol, unknown>)[prop as string];
+        }
+        const key = prop as keyof typeof _SKYFLOW_ERROR_CODE;
+        const httpCode = target[key].httpCode;
+        return {
+            httpCode,
+            get message(): string {
+                return (errorMessages as Record<string, string>)[key as string];
+            },
+        };
+    },
+});
+
+export default SKYFLOW_ERROR_CODE;

@@ -1,0 +1,60 @@
+import { UpdateRequest, UpdateResponse } from '../../src';
+import VaultController from '../../src/controller/vault';
+import { makeFakeClient, resourceMethod, rejectingMethod, REQUEST_ID, silenceConsole } from '../helpers';
+
+silenceConsole();
+
+describe('VaultController.update', () => {
+  it('builds skyflowID/data(+BYOT tokens) records and maps the response', async () => {
+    const updateRecords = resourceMethod({
+      records: [{ skyflowID: 'id1', tokens: { x: 'tok' }, hashedData: { x: 'h' }, tableName: 'cards', httpCode: 200 }],
+    });
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+
+    const req = new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 }, tokens: { x: 'byot' } }]);
+    const resp = await controller.update(req);
+
+    expect(resp).toBeInstanceOf(UpdateResponse);
+    expect(updateRecords).toHaveBeenCalledTimes(1);
+    const [genReq] = updateRecords.mock.calls[0];
+    expect(genReq.vaultID).toBe('vault123');
+    expect(genReq.tableName).toBe('cards');
+    expect(genReq.records).toEqual([{ skyflowID: 'id1', data: { x: 1 }, tokens: { x: 'byot' } }]);
+
+    const record = resp.records[0];
+    expect(record.skyflowId).toBe('id1');
+    expect(record.fields).toEqual({ x: 'tok' }); // tokens preferred over data
+    expect(record.hashedData).toEqual({ x: 'h' });
+    expect(record.tableName).toBe('cards');
+    expect(record.httpCode).toBe(200);
+    expect(record.error).toBeNull();
+    expect(record.requestId).toBeUndefined();
+  });
+
+  it('omits BYOT tokens when not provided; fields fall back to data', async () => {
+    const updateRecords = resourceMethod({ records: [{ skyflowID: 'id1', data: { x: 2 }, httpCode: 200 }] });
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+
+    const resp = await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 2 } }]));
+
+    const [genReq] = updateRecords.mock.calls[0];
+    expect(genReq.records[0].tokens).toBeUndefined();
+    expect(resp.records[0].fields).toEqual({ x: 2 });
+  });
+
+  it('per-record error gets requestId from the header', async () => {
+    const updateRecords = resourceMethod({ records: [{ httpCode: 400, error: 'update failed' }] });
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+    const resp = await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }]));
+    expect(resp.records[0].error).toBe('update failed');
+    expect(resp.records[0].requestId).toBe(REQUEST_ID);
+  });
+
+  it('rejects when the generated method throws', async () => {
+    const updateRecords = rejectingMethod(new Error('boom-update'));
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+    await expect(
+      controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }])),
+    ).rejects.toThrow('boom-update');
+  });
+});

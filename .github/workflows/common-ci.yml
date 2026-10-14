@@ -22,6 +22,11 @@ jobs:
       - name: Run ESLint
         run: npm run eslint
 
+      # One command builds BOTH SDKs (common -> skyvault/flowvault via project references).
+      - name: Build all packages
+        run: npm run build
+
+      # Fans out `npm test` across every workspace (common, skyvault, flowvault).
       - name: Run Tests
         env:
           SA_WITHOUT_CONTEXT: ${{ secrets.SA_WITHOUT_CONTEXT }}
@@ -33,6 +38,6 @@ jobs:
         uses: codecov/codecov-action@v2.1.0
         with:
           token: ${{ secrets.CODECOV_REPO_UPLOAD_TOKEN }}
-          files: coverage/lcov.info
+          files: skyvault/coverage/lcov.info,flowvault/coverage/lcov.info
           name: codecov-skyflow-node
           verbose: true
