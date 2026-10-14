@@ -24,7 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Verify API surface snapshot
+      # Builds every package, bundles the two published dist/ surfaces, then
+      # verifies BOTH SDKs' public-API snapshots (skyflow-node + skyflow-flowvault-node).
+      - name: Verify API surface snapshots (both SDKs)
         run: npm run contract-snapshot-verify
 
       - name: Show API surface diff
@@ -34,12 +36,18 @@ jobs:
           echo "Lines prefixed with '-' were REMOVED from the public API."
           echo "Lines prefixed with '+' were ADDED to the public API."
           echo ""
-          diff -u api-report/skyflow-node.api.md temp/skyflow-node.api.md || true
+          echo "===== skyflow-node (skyvault) ====="
+          diff -u skyvault/api-report/skyflow-node.api.md skyvault/temp/skyflow-node.api.md || true
+          echo ""
+          echo "===== skyflow-flowvault-node (flowvault) ====="
+          diff -u flowvault/api-report/skyflow-flowvault-node.api.md flowvault/temp/skyflow-flowvault-node.api.md || true
 
-      - name: Upload API surface diff on failure
+      - name: Upload API surface diffs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: api-surface-diff
-          path: temp/skyflow-node.api.md
+          name: api-surface-diffs
+          path: |
+            skyvault/temp/skyflow-node.api.md
+            flowvault/temp/skyflow-flowvault-node.api.md
           retention-days: 7

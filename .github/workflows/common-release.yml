@@ -1,16 +1,30 @@
 name: Common Release Workflow
 
+# Reusable release pipeline, parameterized per product.
+#   product      npm package name  (skyflow-node | skyflow-flowvault-node)
+#   package-dir  workspace dir      (skyvault     | flowvault)
+#   release-type public | beta | internal
+#   version      semver to release  (caller strips any tag prefix, e.g. flowvault/1.0.0 -> 1.0.0)
+
 on:
   workflow_call:
     inputs:
-      tag:
+      product:
+        required: true
+        type: string
+      package-dir:
+        required: true
+        type: string
+      release-type:
+        required: true
+        type: string
+      version:
         required: false
         type: string
 
 jobs:
   build-sdk:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,68 +38,68 @@ jobs:
       - name: Install Packages
         run: npm install --ignore-scripts
 
-      - name: Build
-        run: npm run build
+      - name: Resolve Version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "value=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            # Fallback: strip an optional "<dir>/" prefix from the pushed tag.
+            echo "value=${GITHUB_REF_NAME##*/}" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Get Previous Tag
-        id: previoustag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
-        with:
-          fallback: 1.0.0
+      - name: Bump Version (${{ inputs.product }})
+        run: |
+          chmod +x ./scripts/bump_version.sh
+          if [[ "${{ inputs.release-type }}" == "internal" ]]; then
+            ./scripts/bump_version.sh "${{ inputs.product }}" "${{ steps.version.outputs.value }}" "$(git rev-parse --short "$GITHUB_SHA")"
+          else
+            ./scripts/bump_version.sh "${{ inputs.product }}" "${{ steps.version.outputs.value }}"
+          fi
+
+      # Build everything (common -> layers) then bundle the published package
+      # (inlines skyflow-common into a self-contained dist/).
+      - name: Build
+        run: |
+          npm run build
+          npm run build:dist --workspace ${{ inputs.package-dir }}
 
       - name: Resolve Branch Name
         id: resolve-branch
-        if: ${{ inputs.tag == 'beta' || inputs.tag == 'public' }}
+        if: ${{ inputs.release-type == 'beta' || inputs.release-type == 'public' }}
         run: |
           TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref_name }})
-
           BRANCH_NAME=$(git branch -r --contains $TAG_COMMIT | grep -o 'origin/.*' | sed 's|origin/||' | head -n 1)
-
           if [ -z "$BRANCH_NAME" ]; then
             echo "Error: Could not resolve branch for the tag."
             exit 1
           fi
-
-          echo "Resolved Branch Name: $BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
-
-      - name: Bump Version
-        run: |
-          chmod +x ./scripts/bump_version.sh
-          if ${{ inputs.tag == 'internal' }}; then
-            ./scripts/bump_version.sh "${{ steps.previoustag.outputs.tag }}" "$(git rev-parse --short "$GITHUB_SHA")"
-          else
-            ./scripts/bump_version.sh "${{ steps.previoustag.outputs.tag }}"
-          fi
 
       - name: Commit Changes
         run: |
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
-          if [[ "${{ inputs.tag }}" == "beta" || "${{ inputs.tag }}" == "public" ]]; then
+          if [[ "${{ inputs.release-type }}" == "beta" || "${{ inputs.release-type }}" == "public" ]]; then
             git checkout ${{ env.branch_name }}
           fi
-          git add package.json
-          if [[ "${{ inputs.tag }}" == "beta" || "${{ inputs.tag }}" == "public" ]]; then
-            git commit -m "[AUTOMATED] Release - ${{ steps.previoustag.outputs.tag }}"
+          git add ${{ inputs.package-dir }}/package.json ${{ inputs.package-dir }}/src/version.ts
+          if [[ "${{ inputs.release-type }}" == "beta" || "${{ inputs.release-type }}" == "public" ]]; then
+            git commit -m "[AUTOMATED] Release ${{ inputs.product }} - ${{ steps.version.outputs.value }}" || echo "nothing to commit"
             git push origin ${{ env.branch_name }}
-          elif [[ "${{ inputs.tag }}" == "internal" ]]; then
-            git commit -m "[AUTOMATED] Private Release ${{ steps.previoustag.outputs.tag }}-dev.$(git rev-parse --short $GITHUB_SHA)"
+          elif [[ "${{ inputs.release-type }}" == "internal" ]]; then
+            git commit -m "[AUTOMATED] Private Release ${{ inputs.product }} ${{ steps.version.outputs.value }}-dev.$(git rev-parse --short $GITHUB_SHA)" || echo "nothing to commit"
             git push origin ${{ github.ref_name }} -f
           fi
 
       - name: Publish
+        working-directory: ${{ inputs.package-dir }}
         run: |
-          if [[ "${{ inputs.tag }}" == "beta" ]]; then
+          if [[ "${{ inputs.release-type }}" == "beta" ]]; then
             npm publish --tag beta
-          elif [[ "${{ inputs.tag }}" == "public" ]]; then
-            MAJOR_VERSION=$(node -p "require('./package.json').version.split('.')[0]")
-            if [[ "$MAJOR_VERSION" == "1" ]]; then
-              npm publish --tag v1
-            else
-              npm publish
-            fi
-          elif [[ "${{ inputs.tag }}" == "internal" ]]; then
+          elif [[ "${{ inputs.release-type }}" == "public" ]]; then
+            npm publish
+          elif [[ "${{ inputs.release-type }}" == "internal" ]]; then
             JFROG_AUTH=$(echo -n "$JFROG_USERNAME:$JFROG_PASSWORD" | base64 -w 0)
             npm config set registry https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/
             npm config set //prekarilabs.jfrog.io/prekarilabs/api/npm/npm/:_auth "$JFROG_AUTH"

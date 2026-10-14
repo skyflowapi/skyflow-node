@@ -1,5 +1,8 @@
 name: Internal Release
 
+# Branch-namespaced internal (JFrog) builds, routed per product:
+#   flowvault-release/*            -> skyflow-flowvault-node
+#   skyvault-release/* | release/* -> skyflow-node (legacy release/* kept for skyvault)
 on:
   push:
     tags-ignore:
@@ -10,10 +13,14 @@ on:
       - '*.md'
     branches:
       - release/*
+      - skyvault-release/*
+      - flowvault-release/*
 
 jobs:
   call-common-workflow:
     uses: ./.github/workflows/common-release.yml
     with:
-      tag: internal
+      product: ${{ startsWith(github.ref_name, 'flowvault-release/') && 'skyflow-flowvault-node' || 'skyflow-node' }}
+      package-dir: ${{ startsWith(github.ref_name, 'flowvault-release/') && 'flowvault' || 'skyvault' }}
+      release-type: internal
     secrets: inherit
