@@ -177,7 +177,7 @@ class VaultClient {
     const rawResponse = err?.rawResponse;
     const headers = rawResponse?.headers;
     const headerRequestId =
-      headers && typeof headers.get === 'function'
+      headers && headers.get
         ? headers.get(HTTP_HEADER.X_REQUEST_ID) || ''
         : '';
 

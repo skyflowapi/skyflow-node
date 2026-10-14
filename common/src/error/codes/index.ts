@@ -242,7 +242,7 @@ const _SKYFLOW_ERROR_CODE = {
 // than being frozen at module-load. `httpCode` comes from the literal above.
 const SKYFLOW_ERROR_CODE: typeof _SKYFLOW_ERROR_CODE = new Proxy(_SKYFLOW_ERROR_CODE, {
     get(target, prop) {
-        if (typeof prop === "symbol" || !(prop in target)) {
+        if (typeof prop !== "string" || !(prop in target)) {
             return (target as Record<string | symbol, unknown>)[prop as string];
         }
         const key = prop as keyof typeof _SKYFLOW_ERROR_CODE;

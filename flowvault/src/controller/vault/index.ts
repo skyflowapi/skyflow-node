@@ -89,7 +89,7 @@ class VaultController {
   // eslint-disable-next-line class-methods-use-this
   private getRequestId(rawResponse: any): string | undefined {
     const headers = rawResponse?.headers;
-    if (headers && typeof headers.get === 'function') {
+    if (headers && headers.get) {
       return headers.get('x-request-id') || undefined;
     }
     return undefined;
