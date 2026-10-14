@@ -102,6 +102,22 @@ describe('VaultController.get', () => {
     expect(resp.records[0].requestId).toBe(REQUEST_ID);
   });
 
+  it('returns an empty records array when the response has none', async () => {
+    const getRecords = resourceMethod({});
+    const controller = new VaultController(makeFakeClient({ records: { getRecords } }));
+    const resp = await controller.get(new GetRequest('cards', ['id1']));
+    expect(resp.records).toEqual([]);
+  });
+
+  it('sets requestId to null on an errored record when the raw response is absent', async () => {
+    // rawResponse null -> getRequestId short-circuits -> requestId falls back to null.
+    const getRecords = resourceMethod({ records: [{ httpCode: 404, error: 'not found' }] }, null);
+    const controller = new VaultController(makeFakeClient({ records: { getRecords } }));
+    const resp = await controller.get(new GetRequest('cards', ['id1']));
+    expect(resp.records[0].error).toBe('not found');
+    expect(resp.records[0].requestId).toBeNull();
+  });
+
   it('rejects when the generated method throws', async () => {
     const getRecords = rejectingMethod(new Error('boom-get'));
     const controller = new VaultController(makeFakeClient({ records: { getRecords } }));

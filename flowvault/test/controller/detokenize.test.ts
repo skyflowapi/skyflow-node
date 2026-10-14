@@ -1,6 +1,13 @@
 import { DetokenizeRequest, DetokenizeResponse } from '../../src';
 import VaultController from '../../src/controller/vault';
-import { makeFakeClient, resourceMethod, rejectingMethod, REQUEST_ID, silenceConsole } from '../helpers';
+import {
+  makeFakeClient,
+  resourceMethod,
+  rejectingMethod,
+  rawResponseNoHeaders,
+  REQUEST_ID,
+  silenceConsole,
+} from '../helpers';
 
 silenceConsole();
 
@@ -73,6 +80,24 @@ describe('VaultController.detokenize', () => {
     const resp = await controller.detokenize(new DetokenizeRequest(['tok1']));
     expect(resp.records[0].error).toBe('token not found');
     expect(resp.records[0].requestId).toBe(REQUEST_ID);
+  });
+
+  it('returns an empty records array when the generated `response` is absent', async () => {
+    const detokenize = resourceMethod({});
+    const controller = new VaultController(makeFakeClient({ tokens: { detokenize } }));
+    const resp = await controller.detokenize(new DetokenizeRequest(['tok1']));
+    expect(resp.records).toEqual([]);
+  });
+
+  it('sets requestId to null on an errored record when the raw response has no headers', async () => {
+    const detokenize = resourceMethod(
+      { response: [{ token: 'tok1', httpCode: 404, error: 'token not found' }] },
+      rawResponseNoHeaders,
+    );
+    const controller = new VaultController(makeFakeClient({ tokens: { detokenize } }));
+    const resp = await controller.detokenize(new DetokenizeRequest(['tok1']));
+    expect(resp.records[0].error).toBe('token not found');
+    expect(resp.records[0].requestId).toBeNull();
   });
 
   it('rejects when the generated method throws', async () => {

@@ -1,6 +1,13 @@
 import { UpdateRequest, UpdateResponse } from '../../src';
 import VaultController from '../../src/controller/vault';
-import { makeFakeClient, resourceMethod, rejectingMethod, REQUEST_ID, silenceConsole } from '../helpers';
+import {
+  makeFakeClient,
+  resourceMethod,
+  rejectingMethod,
+  rawResponseNoHeaders,
+  REQUEST_ID,
+  silenceConsole,
+} from '../helpers';
 
 silenceConsole();
 
@@ -48,6 +55,21 @@ describe('VaultController.update', () => {
     const resp = await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }]));
     expect(resp.records[0].error).toBe('update failed');
     expect(resp.records[0].requestId).toBe(REQUEST_ID);
+  });
+
+  it('returns an empty records array when the response has none', async () => {
+    const updateRecords = resourceMethod({});
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+    const resp = await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }]));
+    expect(resp.records).toEqual([]);
+  });
+
+  it('sets requestId to null on an errored record when the raw response has no headers', async () => {
+    const updateRecords = resourceMethod({ records: [{ httpCode: 400, error: 'update failed' }] }, rawResponseNoHeaders);
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+    const resp = await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }]));
+    expect(resp.records[0].error).toBe('update failed');
+    expect(resp.records[0].requestId).toBeNull();
   });
 
   it('rejects when the generated method throws', async () => {

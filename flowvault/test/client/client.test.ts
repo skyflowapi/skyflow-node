@@ -137,6 +137,14 @@ describe('VaultClient.getCredentials', () => {
     expect(client.getCredentials()).toEqual({ apiKey: 'sky-common' });
   });
 
+  it('falls through to stored credentials for an unrecognized cached auth type', () => {
+    // Defensive: an authInfo.type the switch does not handle hits the `default`
+    // arm and falls back to the configured credentials.
+    const client = newClient({ apiKey: 'sky-individual' });
+    (client as unknown as { authInfo: unknown }).authInfo = { key: 'sky-cached', type: 'MYSTERY' as never };
+    expect(client.getCredentials()).toEqual({ apiKey: 'sky-individual' });
+  });
+
   it('skips reuse right after updateSkyflowCredentials (updateTriggered), then resumes', () => {
     const client = newClient({ apiKey: 'sky-individual' });
     (client as unknown as { authInfo: unknown }).authInfo = { key: 'sky-cached', type: AuthType.API_KEY };
@@ -169,5 +177,16 @@ describe('VaultClient config updates', () => {
     const client = newClient({ apiKey: 'sky-x' });
     client.setLogLevel(LogLevel.WARN);
     expect(client.getLogLevel()).toBe(LogLevel.WARN);
+  });
+
+  it('defaults the log level to ERROR when the constructor gets none', () => {
+    const client = new VaultClient(URL, 'vault123', { apiKey: 'sky-x' } as never);
+    expect(client.getLogLevel()).toBe(LogLevel.ERROR);
+  });
+
+  it('updateClientConfig defaults the log level to ERROR when none is provided', () => {
+    const client = newClient({ apiKey: 'sky-x' });
+    client.updateClientConfig(URL, 'vault123', { apiKey: 'sky-y' } as never, undefined, undefined);
+    expect(client.getLogLevel()).toBe(LogLevel.ERROR);
   });
 });

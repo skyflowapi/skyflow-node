@@ -44,6 +44,13 @@ describe('VaultController.query', () => {
     expect(resp.requestId).toBe('');
   });
 
+  it('returns empty fields when the response has no records', async () => {
+    const executeQuery = resourceMethod({ metadata: { columns: [] } });
+    const controller = new VaultController(makeFakeClient({ query: { executeQuery } }));
+    const resp = await controller.query(new QueryRequest('SELECT 1'));
+    expect(resp.fields).toEqual([]);
+  });
+
   it('rejects when the generated method throws', async () => {
     const executeQuery = rejectingMethod(new Error('boom-query'));
     const controller = new VaultController(makeFakeClient({ query: { executeQuery } }));

@@ -3,7 +3,14 @@ jest.mock('fs/promises', () => ({ readFile: jest.fn() }));
 import * as fsPromises from 'fs/promises';
 import { UploadFilesRequest, UploadFilesResponse } from '../../src';
 import VaultController from '../../src/controller/vault';
-import { makeFakeClient, resourceMethod, rejectingMethod, REQUEST_ID, silenceConsole } from '../helpers';
+import {
+  makeFakeClient,
+  resourceMethod,
+  rejectingMethod,
+  rawResponseNoHeaders,
+  REQUEST_ID,
+  silenceConsole,
+} from '../helpers';
 
 silenceConsole();
 
@@ -215,6 +222,86 @@ describe('VaultController.uploadFiles', () => {
     const cols = resp.records[0].columns;
     expect(cols.find((c) => c.column === 'a')?.uploadStatus).toBe('UPLOADED');
     expect(cols.find((c) => c.column === 'b')?.uploadStatus).toBe('SKIPPED');
+  });
+
+  it('FAILED (stringified) when the signed-URL PUT rejects with a non-Error', async () => {
+    fetchMock.mockRejectedValue('socket hang up'); // a thrown string, not an Error
+    const uploadFiles = resourceMethod({
+      records: [{ skyflowID: 'id1', tableName: 't', data: { resume: 'https://signed/resume' }, httpCode: 200 }],
+    });
+    const controller = new VaultController(makeFakeClient({ files: { uploadFiles } }));
+
+    const resp = await controller.uploadFiles(
+      new UploadFilesRequest([{ tableName: 't', columns: [{ column: 'resume', base64: 'aGk=', fileName: 'r.pdf' }] }]),
+    );
+
+    const col = resp.records[0].columns[0];
+    expect(col.uploadStatus).toBe('FAILED');
+    expect(col.error).toBe('socket hang up');
+  });
+
+  it('infers octet-stream for a file with no name and for a trailing-dot name', async () => {
+    const uploadFiles = resourceMethod({
+      records: [{ skyflowID: 'id1', tableName: 't', data: { a: 'https://signed/a', b: 'https://signed/b' }, httpCode: 200 }],
+    });
+    const controller = new VaultController(makeFakeClient({ files: { uploadFiles } }));
+
+    await controller.uploadFiles(
+      new UploadFilesRequest([
+        {
+          tableName: 't',
+          columns: [
+            // File-like with an undefined name and no explicit fileName -> fileName stays undefined.
+            { column: 'a', file: fakeFile([1], undefined as unknown as string) },
+            // A trailing-dot name -> extension resolves to '' -> octet-stream.
+            { column: 'b', base64: 'aGk=', fileName: 'weird.' },
+          ],
+        },
+      ]),
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    for (const [, init] of fetchMock.mock.calls) {
+      expect(init.headers['Content-Type']).toBe('application/octet-stream');
+    }
+  });
+
+  it('tolerates a response record with no matching prepared columns (prepared index absent)', async () => {
+    // Server returns MORE records than were sent -> prepared[1] is undefined -> [].
+    const uploadFiles = resourceMethod({
+      records: [
+        { skyflowID: 'id1', tableName: 't', data: {}, httpCode: 200 },
+        { skyflowID: 'id2', tableName: 't', data: {}, httpCode: 200 },
+      ],
+    });
+    const controller = new VaultController(makeFakeClient({ files: { uploadFiles } }));
+
+    const resp = await controller.uploadFiles(
+      new UploadFilesRequest([{ tableName: 't', columns: [{ column: 'resume', base64: 'aGk=', fileName: 'r.pdf' }] }]),
+    );
+
+    expect(resp.records).toHaveLength(2);
+    expect(resp.records[1].columns).toEqual([]); // no prepared columns for the extra record
+  });
+
+  it('returns an empty records array when the response has none', async () => {
+    const uploadFiles = resourceMethod({});
+    const controller = new VaultController(makeFakeClient({ files: { uploadFiles } }));
+    const resp = await controller.uploadFiles(
+      new UploadFilesRequest([{ tableName: 't', columns: [{ column: 'resume', base64: 'aGk=', fileName: 'r.pdf' }] }]),
+    );
+    expect(resp.records).toEqual([]);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('sets requestId to null on an errored record when the raw response has no headers', async () => {
+    const uploadFiles = resourceMethod({ records: [{ tableName: 't', httpCode: 400, error: 'row rejected' }] }, rawResponseNoHeaders);
+    const controller = new VaultController(makeFakeClient({ files: { uploadFiles } }));
+    const resp = await controller.uploadFiles(
+      new UploadFilesRequest([{ tableName: 't', columns: [{ column: 'resume', base64: 'aGk=', fileName: 'r.pdf' }] }]),
+    );
+    expect(resp.records[0].error).toBe('row rejected');
+    expect(resp.records[0].requestId).toBeNull();
   });
 
   it('rejects when the generated uploadFiles method throws', async () => {

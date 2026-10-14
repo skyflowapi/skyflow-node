@@ -1,6 +1,13 @@
 import { DeleteRequest, DeleteResponse } from '../../src';
 import VaultController from '../../src/controller/vault';
-import { makeFakeClient, resourceMethod, rejectingMethod, REQUEST_ID, silenceConsole } from '../helpers';
+import {
+  makeFakeClient,
+  resourceMethod,
+  rejectingMethod,
+  rawResponseNoHeaders,
+  REQUEST_ID,
+  silenceConsole,
+} from '../helpers';
 
 silenceConsole();
 
@@ -46,6 +53,21 @@ describe('VaultController.delete', () => {
     const resp = await controller.delete(new DeleteRequest('cards', ['id1']));
     expect(resp.records[0].error).toBe('missing');
     expect(resp.records[0].requestId).toBe(REQUEST_ID);
+  });
+
+  it('returns an empty records array when the response has none', async () => {
+    const deleteRecords = resourceMethod({});
+    const controller = new VaultController(makeFakeClient({ records: { deleteRecords } }));
+    const resp = await controller.delete(new DeleteRequest('cards', ['id1']));
+    expect(resp.records).toEqual([]);
+  });
+
+  it('sets requestId to null on an errored record when the raw response has no headers', async () => {
+    const deleteRecords = resourceMethod({ records: [{ skyflowID: 'id1', httpCode: 404, error: 'missing' }] }, rawResponseNoHeaders);
+    const controller = new VaultController(makeFakeClient({ records: { deleteRecords } }));
+    const resp = await controller.delete(new DeleteRequest('cards', ['id1']));
+    expect(resp.records[0].error).toBe('missing');
+    expect(resp.records[0].requestId).toBeNull();
   });
 
   it('rejects when the generated method throws', async () => {

@@ -1,6 +1,13 @@
 import { GetTokensRequest, GetTokensResponse } from '../../src';
 import VaultController from '../../src/controller/vault';
-import { makeFakeClient, resourceMethod, rejectingMethod, REQUEST_ID, silenceConsole } from '../helpers';
+import {
+  makeFakeClient,
+  resourceMethod,
+  rejectingMethod,
+  rawResponseNoHeaders,
+  REQUEST_ID,
+  silenceConsole,
+} from '../helpers';
 
 silenceConsole();
 
@@ -46,6 +53,24 @@ describe('VaultController.getTokens', () => {
     const resp = await controller.getTokens(new GetTokensRequest([{ value: '4111', tokenGroupName: 'cards' }]));
     expect(resp.records[0].error).toBe('tokenize failed');
     expect(resp.records[0].requestId).toBe(REQUEST_ID);
+  });
+
+  it('returns an empty records array when the response has none', async () => {
+    const getTokens = resourceMethod({});
+    const controller = new VaultController(makeFakeClient({ tokens: { getTokens } }));
+    const resp = await controller.getTokens(new GetTokensRequest([{ value: '4111', tokenGroupName: 'cards' }]));
+    expect(resp.records).toEqual([]);
+  });
+
+  it('sets requestId to null on an errored record when the raw response has no headers', async () => {
+    const getTokens = resourceMethod(
+      { records: [{ value: '4111', tokenGroupName: 'cards', httpCode: 400, error: 'tokenize failed' }] },
+      rawResponseNoHeaders,
+    );
+    const controller = new VaultController(makeFakeClient({ tokens: { getTokens } }));
+    const resp = await controller.getTokens(new GetTokensRequest([{ value: '4111', tokenGroupName: 'cards' }]));
+    expect(resp.records[0].error).toBe('tokenize failed');
+    expect(resp.records[0].requestId).toBeNull();
   });
 
   it('rejects when the generated method throws', async () => {

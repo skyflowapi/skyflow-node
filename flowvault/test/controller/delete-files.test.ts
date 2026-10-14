@@ -1,6 +1,13 @@
 import { DeleteFilesRequest, DeleteFilesResponse } from '../../src';
 import VaultController from '../../src/controller/vault';
-import { makeFakeClient, resourceMethod, rejectingMethod, REQUEST_ID, silenceConsole } from '../helpers';
+import {
+  makeFakeClient,
+  resourceMethod,
+  rejectingMethod,
+  rawResponseNoHeaders,
+  REQUEST_ID,
+  silenceConsole,
+} from '../helpers';
 
 silenceConsole();
 
@@ -81,6 +88,28 @@ describe('VaultController.deleteFiles', () => {
       new DeleteFilesRequest([{ tableName: 't', columns: ['resume'], skyflowId: 'id1' }]),
     );
     expect(resp.records[0].columns).toEqual([{ column: 'resume', status: null }]);
+  });
+
+  it('returns an empty records array when the response has none', async () => {
+    const deleteFiles = resourceMethod({});
+    const controller = new VaultController(makeFakeClient({ files: { deleteFiles } }));
+    const resp = await controller.deleteFiles(
+      new DeleteFilesRequest([{ tableName: 't', columns: ['c'], skyflowId: 'id1' }]),
+    );
+    expect(resp.records).toEqual([]);
+  });
+
+  it('sets requestId to null on an errored record when the raw response has no headers', async () => {
+    const deleteFiles = resourceMethod(
+      { records: [{ skyflowID: 'id1', tableName: 't', httpCode: 404, error: 'not found' }] },
+      rawResponseNoHeaders,
+    );
+    const controller = new VaultController(makeFakeClient({ files: { deleteFiles } }));
+    const resp = await controller.deleteFiles(
+      new DeleteFilesRequest([{ tableName: 't', columns: ['c'], skyflowId: 'id1' }]),
+    );
+    expect(resp.records[0].error).toBe('not found');
+    expect(resp.records[0].requestId).toBeNull();
   });
 
   it('rejects when the generated method throws', async () => {
