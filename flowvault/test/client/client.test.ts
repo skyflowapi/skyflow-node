@@ -184,6 +184,19 @@ describe('VaultClient config updates', () => {
     expect(client.getLogLevel()).toBe(LogLevel.ERROR);
   });
 
+  it('stores timeout and maxRetries from httpConfig (undefined when omitted)', () => {
+    const configured = new VaultClient(URL, 'vault123', { apiKey: 'sky-x' } as never, undefined, LogLevel.ERROR, {
+      timeout: 45,
+      maxRetries: 3,
+    });
+    expect(configured.timeout).toBe(45);
+    expect(configured.maxRetries).toBe(3);
+
+    const unconfigured = new VaultClient(URL, 'vault123', { apiKey: 'sky-x' } as never);
+    expect(unconfigured.timeout).toBeUndefined();
+    expect(unconfigured.maxRetries).toBeUndefined();
+  });
+
   it('updateClientConfig defaults the log level to ERROR when none is provided', () => {
     const client = newClient({ apiKey: 'sky-x' });
     client.updateClientConfig(URL, 'vault123', { apiKey: 'sky-y' } as never, undefined, undefined);

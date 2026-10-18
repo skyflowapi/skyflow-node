@@ -50,6 +50,12 @@ class VaultClient {
 
   logLevel: LogLevel;
 
+  /** Overall per-call timeout in seconds; undefined -> generated default (60s). */
+  timeout?: number;
+
+  /** Retry attempts after the first failure; undefined -> generated default. */
+  maxRetries?: number;
+
   authInfo?: AuthInfo;
 
   private updateTriggered = false;
@@ -60,12 +66,15 @@ class VaultClient {
     individualCredentials?: Credentials,
     skyflowCredentials?: Credentials,
     logLevel?: LogLevel,
+    httpConfig?: { timeout?: number; maxRetries?: number },
   ) {
     this.url = url;
     this.vaultId = vaultId;
     this.individualCredentials = individualCredentials;
     this.skyflowCredentials = skyflowCredentials;
     this.logLevel = logLevel || LogLevel.ERROR;
+    this.timeout = httpConfig?.timeout;
+    this.maxRetries = httpConfig?.maxRetries;
   }
 
   updateClientConfig(

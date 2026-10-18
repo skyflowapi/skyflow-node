@@ -155,3 +155,34 @@ describe('Skyflow facade — SDK identity', () => {
     expect(getSdkIdentity()).toEqual({ name: 'skyflow-flowvault-node', version: '1.0.0' });
   });
 });
+
+describe('Skyflow facade — timeout / retry / vaultUrl config', () => {
+  it('passes vaultUrl override, timeout, and maxRetries to the vault client', () => {
+    const sky = new Skyflow({
+      vaultConfigs: [{
+        vaultId: 'v1',
+        clusterId: 'abc-cluster',
+        env: Env.PROD,
+        credentials: { apiKey: 'sky-dummy-key' },
+        vaultUrl: 'https://custom.example.com',
+        timeout: 30,
+        maxRetries: 2,
+      }],
+      logLevel: LogLevel.ERROR,
+    });
+    const client = (sky as unknown as {
+      vaultClients: Record<string, { client: { url: string; timeout?: number; maxRetries?: number } }>;
+    }).vaultClients.v1.client;
+    expect(client.url).toBe('https://custom.example.com');
+    expect(client.timeout).toBe(30);
+    expect(client.maxRetries).toBe(2);
+  });
+
+  it('derives the vault URL from clusterId/env when vaultUrl is not set', () => {
+    const sky = newSkyflow(['vault123']);
+    const client = (sky as unknown as {
+      vaultClients: Record<string, { client: { url: string } }>;
+    }).vaultClients.vault123.client;
+    expect(client.url).toContain('abc-cluster');
+  });
+});

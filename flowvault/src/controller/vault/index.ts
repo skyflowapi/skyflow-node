@@ -10,6 +10,7 @@ import {
   removeSDKVersion,
   SkyflowError,
   logs,
+  BaseOptions,
 } from 'skyflow-common';
 import VaultClient from '../../client';
 import InsertRequest from '../../model/request/insert';
@@ -27,6 +28,11 @@ import QueryRequest from '../../model/request/query';
 import QueryResponse from '../../model/response/query';
 import DetokenizeRequest from '../../model/request/detokenize';
 import DetokenizeOptions from '../../model/options/detokenize';
+import DeleteOptions from '../../model/options/delete';
+import QueryOptions from '../../model/options/query';
+import GetTokensOptions from '../../model/options/get-tokens';
+import UploadFilesOptions from '../../model/options/upload-files';
+import DeleteFilesOptions from '../../model/options/delete-files';
 import DetokenizeResponse from '../../model/response/detokenize';
 import GetTokensRequest from '../../model/request/get-tokens';
 import GetTokensResponse from '../../model/response/get-tokens';
@@ -86,6 +92,24 @@ class VaultController {
     return { [SDK.METRICS_HEADER_KEY]: JSON.stringify(generateSDKMetrics(this.logLevel)) };
   }
 
+  /**
+   * Request options for every generated call: the SDK metrics header merged with
+   * any per-call custom headers (options.setRequestHeaders), plus the vault's
+   * configured timeout (seconds) and retry count, when set.
+   */
+  private requestOptions(callOptions?: BaseOptions): {
+    headers: Record<string, string>;
+    timeoutInSeconds?: number;
+    maxRetries?: number;
+  } {
+    const result: { headers: Record<string, string>; timeoutInSeconds?: number; maxRetries?: number } = {
+      headers: { ...this.sdkHeaders(), ...(callOptions?.getRequestHeaders() ?? {}) },
+    };
+    if (this.client.timeout !== undefined) result.timeoutInSeconds = this.client.timeout;
+    if (this.client.maxRetries !== undefined) result.maxRetries = this.client.maxRetries;
+    return result;
+  }
+
   // eslint-disable-next-line class-methods-use-this
   private getRequestId(rawResponse: any): string | undefined {
     const headers = rawResponse?.headers;
@@ -135,7 +159,7 @@ class VaultController {
       }
 
       const { data, rawResponse } = await this.client.records
-        .insertRecords(genReq, { headers: this.sdkHeaders() })
+        .insertRecords(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.INSERT_DATA_SUCCESS, MessageType.LOG, this.logLevel);
@@ -208,7 +232,7 @@ class VaultController {
       if (offset !== undefined) genReq.offset = offset;
 
       const { data, rawResponse } = await this.client.records
-        .getRecords(genReq, { headers: this.sdkHeaders() })
+        .getRecords(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.logLevel);
@@ -261,7 +285,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.records
-        .updateRecords(genReq, { headers: this.sdkHeaders() })
+        .updateRecords(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.logLevel);
@@ -297,7 +321,7 @@ class VaultController {
   }
 
   // ---------------------------------------------------------------- delete
-  async delete(request: DeleteRequest): Promise<DeleteResponse> {
+  async delete(request: DeleteRequest, options?: DeleteOptions): Promise<DeleteResponse> {
     try {
       printLog(logs.infoLogs.DELETE_TRIGGERED, MessageType.LOG, this.logLevel);
       printLog(logs.infoLogs.VALIDATE_DELETE_INPUT, MessageType.LOG, this.logLevel);
@@ -317,7 +341,7 @@ class VaultController {
       }
 
       const { data, rawResponse } = await this.client.records
-        .deleteRecords(genReq, { headers: this.sdkHeaders() })
+        .deleteRecords(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.DELETE_SUCCESS, MessageType.LOG, this.logLevel);
@@ -349,7 +373,7 @@ class VaultController {
   }
 
   // ----------------------------------------------------------------- query
-  async query(request: QueryRequest): Promise<QueryResponse> {
+  async query(request: QueryRequest, options?: QueryOptions): Promise<QueryResponse> {
     try {
       printLog(logs.infoLogs.QUERY_TRIGGERED, MessageType.LOG, this.logLevel);
       printLog(logs.infoLogs.VALIDATE_QUERY_INPUT, MessageType.LOG, this.logLevel);
@@ -362,7 +386,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.query
-        .executeQuery(genReq, { headers: this.sdkHeaders() })
+        .executeQuery(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse) ?? '';
       printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.logLevel);
@@ -404,7 +428,7 @@ class VaultController {
       }
 
       const { data, rawResponse } = await this.client.tokens
-        .detokenize(genReq, { headers: this.sdkHeaders() })
+        .detokenize(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.DETOKENIZE_SUCCESS, MessageType.LOG, this.logLevel);
@@ -446,7 +470,7 @@ class VaultController {
   }
 
   // ------------------------------------------------------------- getTokens
-  async getTokens(request: GetTokensRequest): Promise<GetTokensResponse> {
+  async getTokens(request: GetTokensRequest, options?: GetTokensOptions): Promise<GetTokensResponse> {
     try {
       printLog(logs.infoLogs.TOKENIZE_TRIGGERED, MessageType.LOG, this.logLevel);
       printLog(logs.infoLogs.VALIDATE_TOKENIZE_INPUT, MessageType.LOG, this.logLevel);
@@ -462,7 +486,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.tokens
-        .getTokens(genReq, { headers: this.sdkHeaders() })
+        .getTokens(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.TOKENIZE_SUCCESS, MessageType.LOG, this.logLevel);
@@ -496,7 +520,7 @@ class VaultController {
   }
 
   // ----------------------------------------------------------- uploadFiles
-  async uploadFiles(request: UploadFilesRequest): Promise<UploadFilesResponse> {
+  async uploadFiles(request: UploadFilesRequest, options?: UploadFilesOptions): Promise<UploadFilesResponse> {
     try {
       printLog(logs.infoLogs.UPLOAD_FILE_TRIGGERED, MessageType.LOG, this.logLevel);
       printLog(logs.infoLogs.VALIDATE_FILE_UPLOAD_INPUT, MessageType.LOG, this.logLevel);
@@ -527,7 +551,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.files
-        .uploadFiles(genReq, { headers: this.sdkHeaders() })
+        .uploadFiles(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.logLevel);
@@ -650,7 +674,7 @@ class VaultController {
   }
 
   // ----------------------------------------------------------- deleteFiles
-  async deleteFiles(request: DeleteFilesRequest): Promise<DeleteFilesResponse> {
+  async deleteFiles(request: DeleteFilesRequest, options?: DeleteFilesOptions): Promise<DeleteFilesResponse> {
     try {
       printLog(logs.infoLogs.UPLOAD_FILE_TRIGGERED, MessageType.LOG, this.logLevel);
       printLog(logs.infoLogs.VALIDATE_FILE_UPLOAD_INPUT, MessageType.LOG, this.logLevel);
@@ -673,7 +697,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.files
-        .deleteFiles(genReq, { headers: this.sdkHeaders() })
+        .deleteFiles(genReq, this.requestOptions(options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.logLevel);

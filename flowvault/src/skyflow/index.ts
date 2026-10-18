@@ -36,13 +36,14 @@ class Skyflow extends BaseSkyflow<ClientEntry> {
 
   protected buildVaultEntry(config: VaultConfig): ClientEntry {
     const env = config.env || Env.PROD;
-    const vaultUrl = getVaultURL(config.clusterId, env);
+    const vaultUrl = config.vaultUrl || getVaultURL(config.clusterId, env);
     const client = new VaultClient(
       vaultUrl,
       config.vaultId,
       config?.credentials,
       this.commonCredentials,
       this.logLevel,
+      { timeout: config.timeout, maxRetries: config.maxRetries },
     );
     const vaultController = new VaultController(client);
     return { config, client, vaultController };

@@ -256,6 +256,26 @@ options.setRequestHeaders({ 'x-request-id': 'correlation-id' });
 await vault.insert(req, options);
 ```
 
+## Timeouts and retries
+
+Configure per-vault timeout and retry behaviour on the vault config:
+
+```typescript
+const skyflowClient = new Skyflow({
+  vaultConfigs: [{
+    vaultId: 'vault-id',
+    clusterId: 'cluster-id',
+    credentials: { token: 'bearer-token' },
+    timeout: 30,        // overall per-call timeout in seconds (incl. retries). Default 60.
+    maxRetries: 2,      // retry attempts after the first failure (408/429/5xx). Default off.
+    vaultUrl: 'https://cluster-id.vault.skyflowapis.com', // optional — override the derived URL
+  }],
+});
+```
+
+Retries use exponential backoff with jitter. The connect/read/write timeouts and the backoff
+delays are fixed in the SDK's request layer and are not individually configurable.
+
 ## Error handling
 
 There are two layers:

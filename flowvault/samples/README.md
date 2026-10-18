@@ -50,11 +50,12 @@ npx ts-node flowvault/samples/vault-api/insert-records.ts
 | [upload-files.ts](vault-api/upload-files.ts) | Upload files to file columns (`filePath` / `base64` / `file`) |
 | [delete-files.ts](vault-api/delete-files.ts) | Delete files from file columns (by `skyflowId` or `uniqueValues`) |
 
-## Custom headers
+## Custom headers & HTTP config
 
 | Sample | Demonstrates |
 |---|---|
 | [custom-header-example.ts](vault-api/custom-header-example.ts) | Attach custom headers via `options.setRequestHeaders(...)` |
+| [timeout-and-retry-config-example.ts](vault-api/timeout-and-retry-config-example.ts) | Per-vault `timeout` / `maxRetries` / `vaultUrl` config |
 
 ## Service account (token generation)
 
