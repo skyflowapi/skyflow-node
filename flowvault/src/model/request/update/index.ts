@@ -5,11 +5,14 @@ import { UpdateRecord } from '../../../types';
 class UpdateRequest extends BaseUpdateRequest {
   private _tableName: string;
   private _records: UpdateRecord[];
+  // Request-level update type (e.g. "UPDATE" | "REPLACE"); mirrors Java/Python flowvault.
+  private _updateType?: string;
 
-  constructor(tableName: string, records: UpdateRecord[]) {
+  constructor(tableName: string, records: UpdateRecord[], updateType?: string) {
     super();
     this._tableName = tableName;
     this._records = records;
+    this._updateType = updateType;
   }
 
   public get tableName(): string {
@@ -26,6 +29,14 @@ class UpdateRequest extends BaseUpdateRequest {
 
   public set records(value: UpdateRecord[]) {
     this._records = value;
+  }
+
+  public get updateType(): string | undefined {
+    return this._updateType;
+  }
+
+  public set updateType(value: string | undefined) {
+    this._updateType = value;
   }
 }
 

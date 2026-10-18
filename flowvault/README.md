@@ -145,10 +145,13 @@ import { InsertRequest, InsertOptions } from 'skyflow-flowvault-node';
 
 const req = new InsertRequest('cards', [
   { data: { card_number: '4111111111111111' } },
-  // Per-record table enables inserting into multiple tables in one call:
-  // { data: { name: 'Jane' }, table: 'contacts' },
+  // Per-record table + upsert — insert across tables in one call. When any record
+  // sets its own upsert, the request-level upsert below is ignored:
+  // { data: { email: 'jane@example.com' }, table: 'contacts',
+  //   upsert: { updateType: 'UPDATE', uniqueColumns: ['email'] } },
 ]);
 
+// Request-level upsert (applies to all records unless a record sets its own):
 const options = new InsertOptions();
 // options.setUpsert({ updateType: 'UPDATE', uniqueColumns: ['email'] });
 
@@ -161,11 +164,19 @@ const res = await vault.insert(req, options);
 ```typescript
 import { GetRequest, GetOptions } from 'skyflow-flowvault-node';
 
+// single-table — table + ids, with optional columns / redactions / unique values / limit / offset
 const req = new GetRequest('cards', ['skyflow-id-1', 'skyflow-id-2']);
 const options = new GetOptions();
 // options.setFields(['card_number']);
 // options.setColumnRedactions([{ columnName: 'card_number', redaction: 'MASKED' }]);
+// options.setUniqueValues([{ email: 'jane@example.com' }]);
 const res = await vault.get(req, options);
+
+// multi-table batch — each record carries its own table + lookup/column fields:
+// const res = await vault.get(new GetRequest('', [], [
+//   { tableName: 'cards', ids: ['skyflow-id-1'], columns: ['card_number'] },
+//   { tableName: 'contacts', ids: [], uniqueValues: [{ email: 'jane@example.com' }] },
+// ]));
 ```
 
 ### Update
@@ -173,9 +184,10 @@ const res = await vault.get(req, options);
 ```typescript
 import { UpdateRequest } from 'skyflow-flowvault-node';
 
+// updateType (optional, request-level): 'UPDATE' (merge columns) or 'REPLACE' (overwrite record).
 const req = new UpdateRequest('cards', [
   { skyflowId: 'skyflow-id', data: { cardholder_name: 'Jane Doe' } },
-]);
+], 'UPDATE');
 const res = await vault.update(req);
 ```
 

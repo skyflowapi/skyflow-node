@@ -27,10 +27,11 @@ async function performSecureDataUpdate(): Promise<void> {
     });
 
     // Each record needs a skyflowId. Set `table` on a record to target a
-    // different table in the same call; `tokens` enables BYOT.
+    // different table in the same call; `tokens` enables BYOT. The optional 3rd
+    // arg is a request-level updateType: 'UPDATE' (merge) or 'REPLACE' (overwrite).
     const updateRequest = new UpdateRequest('<SENSITIVE_DATA_TABLE>', [
       { skyflowId: '<SKYFLOW_ID>', data: { name: 'Jane Doe' } },
-    ]);
+    ], 'UPDATE');
 
     const response = await skyflowClient
       .vault('<YOUR_VAULT_ID>')

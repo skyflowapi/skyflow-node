@@ -32,10 +32,16 @@ async function performSecureDataInsertion(): Promise<void> {
     // table applies. `tokens` enables BYOT (bring your own token).
     const insertRequest = new InsertRequest('<SENSITIVE_DATA_TABLE>', [
       { data: { name: 'John Doe', email: 'john@example.com' } },
-      // { data: { name: 'Jane Doe', email: 'jane@example.com' }, table: '<OTHER_TABLE>' },
+      // Per-record table + upsert (insert across tables in one call). When any
+      // record sets its own upsert, the request-level upsert below is ignored.
+      // {
+      //   data: { name: 'Jane Doe', email: 'jane@example.com' },
+      //   table: '<OTHER_TABLE>',
+      //   upsert: { updateType: 'UPDATE', uniqueColumns: ['email'] },
+      // },
     ]);
 
-    // Upsert: update the record when a matching value exists in a unique column.
+    // Request-level upsert: update when a matching value exists in a unique column.
     const insertOptions = new InsertOptions();
     // insertOptions.setUpsert({ updateType: 'UPDATE', uniqueColumns: ['email'] });
 

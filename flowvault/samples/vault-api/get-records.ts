@@ -31,9 +31,10 @@ async function performSecureDataRetrieval(): Promise<void> {
     const getRequest = new GetRequest('<SENSITIVE_DATA_TABLE>', ['<SKYFLOW_ID1>', '<SKYFLOW_ID2>']);
 
     // Multi-table batch: leave table/ids empty and pass per-table records instead.
+    // Each record can carry its own columns / columnRedactions / uniqueValues.
     // const getRequest = new GetRequest('', [], [
-    //   { tableName: '<TABLE_A>', ids: ['<ID_A1>'] },
-    //   { tableName: '<TABLE_B>', ids: ['<ID_B1>'] },
+    //   { tableName: '<TABLE_A>', ids: ['<ID_A1>'], columns: ['<COLUMN>'] },
+    //   { tableName: '<TABLE_B>', ids: [], uniqueValues: [{ email: '<EMAIL>' }] },
     // ]);
 
     // Optional: limit columns, redact per column, or look up by unique values.

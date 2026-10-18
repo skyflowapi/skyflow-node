@@ -310,6 +310,9 @@ class VaultController {
           return genRecord;
         }),
       };
+      if (request.updateType) {
+        genReq.updateType = request.updateType as Gen.UpdateRequestUpdateType;
+      }
 
       const { data, rawResponse } = await this.client.records
         .updateRecords(genReq, this.requestOptions(options))

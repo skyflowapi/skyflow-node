@@ -67,6 +67,26 @@ describe('VaultController.update', () => {
     ]);
   });
 
+  it('sends a request-level updateType when set', async () => {
+    const updateRecords = resourceMethod({ records: [] });
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+
+    await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }], 'REPLACE'));
+
+    const [genReq] = updateRecords.mock.calls[0];
+    expect(genReq.updateType).toBe('REPLACE');
+  });
+
+  it('omits updateType when not set', async () => {
+    const updateRecords = resourceMethod({ records: [] });
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+
+    await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }]));
+
+    const [genReq] = updateRecords.mock.calls[0];
+    expect(genReq.updateType).toBeUndefined();
+  });
+
   it('per-record error gets requestId from the header', async () => {
     const updateRecords = resourceMethod({ records: [{ httpCode: 400, error: 'update failed' }] });
     const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));

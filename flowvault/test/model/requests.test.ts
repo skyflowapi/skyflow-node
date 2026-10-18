@@ -49,6 +49,11 @@ describe('FlowVault request models', () => {
     req.records = [{ skyflowId: 'id2', data: { y: 2 }, tokens: { y: 'tok' } }];
     expect(req.tableName).toBe('people');
     expect(req.records[0].tokens).toEqual({ y: 'tok' });
+
+    expect(req.updateType).toBeUndefined();
+    req.updateType = 'REPLACE';
+    expect(req.updateType).toBe('REPLACE');
+    expect(new UpdateRequest('cards', [], 'UPDATE').updateType).toBe('UPDATE');
   });
 
   it('DeleteRequest: ctor, getters and setters (ids + uniqueValues)', () => {

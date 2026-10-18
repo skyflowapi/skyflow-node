@@ -455,13 +455,16 @@ export interface UpdateRecord {
 
 // @public
 export class UpdateRequest extends BaseUpdateRequest {
-    constructor(tableName: string, records: UpdateRecord[]);
+    constructor(tableName: string, records: UpdateRecord[], updateType?: string);
     // (undocumented)
     get records(): UpdateRecord[];
     set records(value: UpdateRecord[]);
     // (undocumented)
     get tableName(): string;
     set tableName(value: string);
+    // (undocumented)
+    get updateType(): string | undefined;
+    set updateType(value: string | undefined);
 }
 
 // @public
