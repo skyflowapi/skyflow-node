@@ -324,6 +324,8 @@ export interface InsertRecord {
     // (undocumented)
     data: Record<string, unknown>;
     // (undocumented)
+    table?: string;
+    // (undocumented)
     tokens?: Record<string, unknown>;
 }
 
@@ -350,9 +352,9 @@ export class InsertResponse extends BaseInsertResponse {
 // @public (undocumented)
 export interface InsertResponseRecord {
     // (undocumented)
-    error?: string | null;
+    data?: Record<string, unknown> | null;
     // (undocumented)
-    fields?: Record<string, unknown> | null;
+    error?: string | null;
     // (undocumented)
     hashedData?: Record<string, unknown> | null;
     // (undocumented)
@@ -363,6 +365,8 @@ export interface InsertResponseRecord {
     skyflowId?: string | null;
     // (undocumented)
     tableName?: string | null;
+    // (undocumented)
+    tokens?: Record<string, unknown> | null;
 }
 
 // @public
@@ -437,6 +441,8 @@ export interface UpdateRecord {
     // (undocumented)
     skyflowId: string;
     // (undocumented)
+    table?: string;
+    // (undocumented)
     tokens?: Record<string, unknown>;
 }
 
@@ -463,9 +469,9 @@ export class UpdateResponse extends BaseUpdateResponse {
 // @public (undocumented)
 export interface UpdateResponseRecord {
     // (undocumented)
-    error?: string | null;
+    data?: Record<string, unknown> | null;
     // (undocumented)
-    fields?: Record<string, unknown> | null;
+    error?: string | null;
     // (undocumented)
     hashedData?: Record<string, unknown> | null;
     // (undocumented)
@@ -476,6 +482,8 @@ export interface UpdateResponseRecord {
     skyflowId?: string | null;
     // (undocumented)
     tableName?: string | null;
+    // (undocumented)
+    tokens?: Record<string, unknown> | null;
 }
 
 // @public

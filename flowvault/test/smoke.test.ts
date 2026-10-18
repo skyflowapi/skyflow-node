@@ -124,7 +124,7 @@ describe('VaultController maps generated responses', () => {
     expect(resp).toBeInstanceOf(InsertResponse);
     expect(insertRecords).toHaveBeenCalledTimes(1);
     expect(resp.records[0].skyflowId).toBe('id1');
-    expect(resp.records[0].fields).toEqual({ card_number: 'tok_1' });
+    expect(resp.records[0].tokens).toEqual({ card_number: 'tok_1' });
     expect(resp.records[0].tableName).toBe('cards');
     expect(resp.records[0].httpCode).toBe(200);
     expect(resp.records[0].error).toBeNull();

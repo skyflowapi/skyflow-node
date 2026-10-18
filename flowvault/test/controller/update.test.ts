@@ -30,7 +30,8 @@ describe('VaultController.update', () => {
 
     const record = resp.records[0];
     expect(record.skyflowId).toBe('id1');
-    expect(record.fields).toEqual({ x: 'tok' }); // tokens preferred over data
+    expect(record.tokens).toEqual({ x: 'tok' });
+    expect(record.data).toBeNull();
     expect(record.hashedData).toEqual({ x: 'h' });
     expect(record.tableName).toBe('cards');
     expect(record.httpCode).toBe(200);
@@ -46,7 +47,24 @@ describe('VaultController.update', () => {
 
     const [genReq] = updateRecords.mock.calls[0];
     expect(genReq.records[0].tokens).toBeUndefined();
-    expect(resp.records[0].fields).toEqual({ x: 2 });
+    expect(resp.records[0].data).toEqual({ x: 2 });
+    expect(resp.records[0].tokens).toBeNull();
+  });
+
+  it('sends a per-record tableName when records carry their own table (falls back to request table)', async () => {
+    const updateRecords = resourceMethod({ records: [] });
+    const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
+
+    await controller.update(new UpdateRequest('cards', [
+      { skyflowId: 'id1', data: { x: 1 }, table: 'cards' },
+      { skyflowId: 'id2', data: { y: 2 } }, // no per-record table -> request table 'cards'
+    ]));
+
+    const [genReq] = updateRecords.mock.calls[0];
+    expect(genReq.records).toEqual([
+      { skyflowID: 'id1', data: { x: 1 }, tableName: 'cards' },
+      { skyflowID: 'id2', data: { y: 2 }, tableName: 'cards' },
+    ]);
   });
 
   it('per-record error gets requestId from the header', async () => {

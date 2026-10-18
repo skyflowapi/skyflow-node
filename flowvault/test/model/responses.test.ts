@@ -13,7 +13,7 @@ import {
 describe('FlowVault response models', () => {
   it('InsertResponse holds its records', () => {
     const records = [
-      { tableName: 'cards', skyflowId: 'id1', fields: { card_number: 'tok' }, hashedData: null, httpCode: 200, error: null },
+      { tableName: 'cards', skyflowId: 'id1', tokens: { card_number: 'tok' }, data: null, hashedData: null, httpCode: 200, error: null },
     ];
     const resp = new InsertResponse({ records });
     expect(resp.records).toBe(records);
@@ -30,10 +30,10 @@ describe('FlowVault response models', () => {
 
   it('UpdateResponse holds its records', () => {
     const records = [
-      { skyflowId: 'id1', tableName: 'cards', fields: { x: 1 }, hashedData: null, httpCode: 200, error: null },
+      { skyflowId: 'id1', tableName: 'cards', tokens: { x: 1 }, data: null, hashedData: null, httpCode: 200, error: null },
     ];
     const resp = new UpdateResponse({ records });
-    expect(resp.records[0].fields).toEqual({ x: 1 });
+    expect(resp.records[0].tokens).toEqual({ x: 1 });
   });
 
   it('DeleteResponse holds its records (no tableName field)', () => {

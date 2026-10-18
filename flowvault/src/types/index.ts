@@ -4,10 +4,14 @@
 
 import { SkyflowRecordError } from 'skyflow-common';
 
-/** A single record to insert. `tokens` enables BYOT (bring your own token). */
+/** A single record to insert. `tokens` enables BYOT (bring your own token).
+ * `table` is an optional per-record table name — when any record sets it, the
+ * records can target multiple tables in a single insert call (matches the
+ * Java/Python flowvault SDKs). */
 export interface InsertRecord {
   data: Record<string, unknown>;
   tokens?: Record<string, unknown>;
+  table?: string;
 }
 
 /** Upsert configuration for insert operations. */
@@ -22,11 +26,13 @@ export interface ColumnRedaction {
   redaction: string;
 }
 
-/** A single record to update. */
+/** A single record to update. `table` is an optional per-record table name
+ * (lets a single update call target multiple tables, like insert). */
 export interface UpdateRecord {
   skyflowId: string;
   data: Record<string, unknown>;
   tokens?: Record<string, unknown>;
+  table?: string;
 }
 
 /** Token group redaction used by detokenize. */
@@ -76,7 +82,10 @@ export type UploadStatus = 'UPLOADED' | 'FAILED' | 'SKIPPED';
 export interface InsertResponseRecord {
   tableName?: string | null;
   skyflowId?: string | null;
-  fields?: Record<string, unknown> | null;
+  // tokens and data are surfaced separately (matches the Java/Python flowvault
+  // SDKs); either may be present depending on the vault configuration.
+  tokens?: Record<string, unknown> | null;
+  data?: Record<string, unknown> | null;
   hashedData?: Record<string, unknown> | null;
   httpCode: number;
   error?: string | null;
@@ -97,7 +106,8 @@ export interface GetResponseRecord {
 export interface UpdateResponseRecord {
   skyflowId?: string | null;
   tableName?: string | null;
-  fields?: Record<string, unknown> | null;
+  tokens?: Record<string, unknown> | null;
+  data?: Record<string, unknown> | null;
   hashedData?: Record<string, unknown> | null;
   httpCode: number;
   error?: string | null;

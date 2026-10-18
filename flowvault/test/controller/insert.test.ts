@@ -46,7 +46,8 @@ describe('VaultController.insert', () => {
     // Response mapped field-by-field.
     const record = resp.records[0];
     expect(record.skyflowId).toBe('id1');
-    expect(record.fields).toEqual({ card_number: 'tok_1' }); // tokens preferred over data
+    expect(record.tokens).toEqual({ card_number: 'tok_1' });
+    expect(record.data).toBeNull();
     expect(record.hashedData).toEqual({ card_number: 'hash_1' });
     expect(record.tableName).toBe('cards');
     expect(record.httpCode).toBe(200);
@@ -66,7 +67,40 @@ describe('VaultController.insert', () => {
     expect(genReq.records[0]).toEqual({ data: { card_number: '4111' } });
     expect(genReq.records[0].tokens).toBeUndefined();
     expect(genReq.upsert).toBeUndefined();
-    expect(resp.records[0].fields).toEqual({ card_number: '4111' }); // data used when no tokens
+    expect(resp.records[0].data).toEqual({ card_number: '4111' }); // data used when no tokens
+    expect(resp.records[0].tokens).toBeNull();
+  });
+
+  it('sends a per-record tableName when records carry their own table (multi-table insert)', async () => {
+    const insertRecords = resourceMethod({ records: [] });
+    const controller = new VaultController(makeFakeClient({ records: { insertRecords } }));
+
+    await controller.insert(new InsertRequest('cards', [
+      { data: { a: 1 }, table: 'cards' },
+      { data: { b: 2 }, table: 'contacts' },
+    ]));
+
+    const [genReq] = insertRecords.mock.calls[0];
+    expect(genReq.records).toEqual([
+      { data: { a: 1 }, tableName: 'cards' },
+      { data: { b: 2 }, tableName: 'contacts' },
+    ]);
+  });
+
+  it('falls back to the request table for a record with no table of its own', async () => {
+    const insertRecords = resourceMethod({ records: [] });
+    const controller = new VaultController(makeFakeClient({ records: { insertRecords } }));
+
+    await controller.insert(new InsertRequest('cards', [
+      { data: { a: 1 }, table: 'contacts' },
+      { data: { b: 2 } }, // no per-record table -> request table 'cards'
+    ]));
+
+    const [genReq] = insertRecords.mock.calls[0];
+    expect(genReq.records).toEqual([
+      { data: { a: 1 }, tableName: 'contacts' },
+      { data: { b: 2 }, tableName: 'cards' },
+    ]);
   });
 
   it('populates error + requestId (from header) on a per-record error', async () => {
@@ -78,7 +112,8 @@ describe('VaultController.insert', () => {
     expect(resp.records[0].error).toBe('bad record');
     expect(resp.records[0].requestId).toBe(REQUEST_ID);
     expect(resp.records[0].skyflowId).toBeNull();
-    expect(resp.records[0].fields).toBeNull();
+    expect(resp.records[0].tokens).toBeNull();
+    expect(resp.records[0].data).toBeNull();
   });
 
   it('sets requestId to null on an errored record when the raw response has no headers', async () => {

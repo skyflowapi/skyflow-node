@@ -110,12 +110,18 @@ class VaultController {
       validateInsertRequest(request, options, this.logLevel);
       await this.client.getToken();
 
+      // When any record carries its own table, send a per-record tableName so a
+      // single insert can target multiple tables (matches Java/Python flowvault).
+      const insertPerRecordTable = request.records.some(
+        (record) => record.table !== undefined && record.table !== null,
+      );
       const genReq: Gen.InsertRequest = {
         vaultID: this.client.vaultId,
         tableName: request.tableName,
         records: request.records.map((record) => {
           const genRecord: Gen.InsertRecordData = { data: record.data };
           if (record.tokens) genRecord.tokens = record.tokens; // BYOT
+          if (insertPerRecordTable) genRecord.tableName = record.table ?? request.tableName;
           return genRecord;
         }),
       };
@@ -152,7 +158,8 @@ class VaultController {
     const result: InsertResponseRecord = {
       tableName: record.tableName ?? null,
       skyflowId: record.skyflowID ?? null,
-      fields: (record.tokens ?? record.data) ?? null,
+      tokens: record.tokens ?? null,
+      data: record.data ?? null,
       hashedData: record.hashedData ?? null,
       httpCode: record.httpCode,
       error: hasError ? record.error : null,
@@ -239,12 +246,16 @@ class VaultController {
       validateUpdateRequest(request, options, this.logLevel);
       await this.client.getToken();
 
+      const updatePerRecordTable = request.records.some(
+        (record) => record.table !== undefined && record.table !== null,
+      );
       const genReq: Gen.UpdateRequest = {
         vaultID: this.client.vaultId,
         tableName: request.tableName,
         records: request.records.map((record) => {
           const genRecord: Gen.UpdateRecordData = { skyflowID: record.skyflowId, data: record.data };
           if (record.tokens) genRecord.tokens = record.tokens; // BYOT
+          if (updatePerRecordTable) genRecord.tableName = record.table ?? request.tableName;
           return genRecord;
         }),
       };
@@ -273,7 +284,8 @@ class VaultController {
     const result: UpdateResponseRecord = {
       skyflowId: record.skyflowID ?? null,
       tableName: record.tableName ?? null,
-      fields: (record.tokens ?? record.data) ?? null,
+      tokens: record.tokens ?? null,
+      data: record.data ?? null,
       hashedData: record.hashedData ?? null,
       httpCode: record.httpCode,
       error: hasError ? record.error : null,
