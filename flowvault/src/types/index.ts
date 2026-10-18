@@ -12,6 +12,8 @@ export interface InsertRecord {
   data: Record<string, unknown>;
   tokens?: Record<string, unknown>;
   table?: string;
+  /** Per-record upsert; when any record sets it, request-level upsert is ignored. */
+  upsert?: UpsertOptions;
 }
 
 /** Upsert configuration for insert operations. */

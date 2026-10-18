@@ -103,6 +103,27 @@ describe('VaultController.insert', () => {
     ]);
   });
 
+  it('sends per-record upsert when records carry it and drops the request-level upsert', async () => {
+    const insertRecords = resourceMethod({ records: [] });
+    const controller = new VaultController(makeFakeClient({ records: { insertRecords } }));
+
+    const options = new InsertOptions();
+    options.setUpsert({ updateType: 'UPDATE', uniqueColumns: ['req'] }); // request-level — used as fallback
+
+    await controller.insert(
+      new InsertRequest('cards', [
+        { data: { a: 1 }, upsert: { updateType: 'UPDATE', uniqueColumns: ['email'] } },
+        { data: { b: 2 } }, // no per-record upsert -> falls back to the request-level one
+      ]),
+      options,
+    );
+
+    const [genReq] = insertRecords.mock.calls[0];
+    expect(genReq.upsert).toBeUndefined(); // request-level dropped once any record has its own
+    expect(genReq.records[0].upsert).toEqual({ updateType: 'UPDATE', uniqueColumns: ['email'] });
+    expect(genReq.records[1].upsert).toEqual({ updateType: 'UPDATE', uniqueColumns: ['req'] });
+  });
+
   it('populates error + requestId (from header) on a per-record error', async () => {
     const insertRecords = resourceMethod({ records: [{ httpCode: 400, error: 'bad record' }] });
     const controller = new VaultController(makeFakeClient({ records: { insertRecords } }));

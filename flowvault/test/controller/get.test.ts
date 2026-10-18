@@ -59,6 +59,33 @@ describe('VaultController.get', () => {
     expect(genReq.skyflowIDs).toBeUndefined();
   });
 
+  it('multi-table: carries per-record columns / columnRedactions / uniqueValues', async () => {
+    const getRecords = resourceMethod({ records: [] });
+    const controller = new VaultController(makeFakeClient({ records: { getRecords } }));
+
+    const req = new GetRequest('', [], [
+      {
+        tableName: 't1',
+        ids: ['a'],
+        columns: ['name'],
+        columnRedactions: [{ columnName: 'ssn', redaction: 'MASKED' }],
+        uniqueValues: [{ email: 'x@y.com' }],
+      },
+      { tableName: 't2', ids: ['b'] }, // no per-record fields -> only tableName/skyflowIDs
+    ]);
+    await controller.get(req);
+
+    const [genReq] = getRecords.mock.calls[0];
+    expect(genReq.records[0]).toEqual({
+      tableName: 't1',
+      skyflowIDs: ['a'],
+      columns: ['name'],
+      columnRedactions: [{ columnName: 'ssn', redaction: 'MASKED' }],
+      uniqueValues: [{ data: { email: 'x@y.com' } }],
+    });
+    expect(genReq.records[1]).toEqual({ tableName: 't2', skyflowIDs: ['b'] });
+  });
+
   it('maps options: columns, columnRedactions, uniqueValues->{data}, limit, offset', async () => {
     const getRecords = resourceMethod({ records: [] });
     const controller = new VaultController(makeFakeClient({ records: { getRecords } }));

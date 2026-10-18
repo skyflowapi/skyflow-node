@@ -1,9 +1,14 @@
 import { BaseGetRequest } from 'skyflow-common';
+import { ColumnRedaction } from '../../../types';
 
-/** A single table/ids entry for a multi-table get request. */
+/** A single table/ids entry for a multi-table get request, with optional
+ * per-record column selection / redaction / unique-value lookup. */
 export interface GetRecord {
   tableName: string;
   ids: string[];
+  columns?: string[];
+  columnRedactions?: ColumnRedaction[];
+  uniqueValues?: Record<string, unknown>[];
 }
 
 /** Request to fetch records by Skyflow ID, optionally across tables. */

@@ -216,9 +216,15 @@ export class GetOptions extends BaseOptions {
 // @public
 export interface GetRecord {
     // (undocumented)
+    columnRedactions?: ColumnRedaction[];
+    // (undocumented)
+    columns?: string[];
+    // (undocumented)
     ids: string[];
     // (undocumented)
     tableName: string;
+    // (undocumented)
+    uniqueValues?: Record<string, unknown>[];
 }
 
 // @public
@@ -327,6 +333,7 @@ export interface InsertRecord {
     table?: string;
     // (undocumented)
     tokens?: Record<string, unknown>;
+    upsert?: UpsertOptions;
 }
 
 // @public

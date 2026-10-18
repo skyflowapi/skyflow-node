@@ -51,6 +51,7 @@ import {
   UploadFilesResponseColumn,
   UploadFilesResponseRecord,
   DeleteFilesResponseRecord,
+  UpsertOptions,
 } from '../../types';
 import {
   validateInsertRequest,
@@ -126,6 +127,13 @@ class VaultController {
     return this.client.failureResponse(error);
   }
 
+  private static toGenUpsert(upsert: UpsertOptions): Gen.Upsert {
+    return {
+      updateType: upsert.updateType as Gen.UpsertUpdateType,
+      uniqueColumns: upsert.uniqueColumns,
+    };
+  }
+
   // ---------------------------------------------------------------- insert
   async insert(request: InsertRequest, options?: InsertOptions): Promise<InsertResponse> {
     try {
@@ -139,6 +147,12 @@ class VaultController {
       const insertPerRecordTable = request.records.some(
         (record) => record.table !== undefined && record.table !== null,
       );
+      const requestUpsert = options?.getUpsert();
+      // When any record carries its own upsert, send per-record upsert and drop
+      // the request-level one (matches Java/Python flowvault).
+      const insertPerRecordUpsert = request.records.some(
+        (record) => record.upsert !== undefined && record.upsert !== null,
+      );
       const genReq: Gen.InsertRequest = {
         vaultID: this.client.vaultId,
         tableName: request.tableName,
@@ -146,16 +160,16 @@ class VaultController {
           const genRecord: Gen.InsertRecordData = { data: record.data };
           if (record.tokens) genRecord.tokens = record.tokens; // BYOT
           if (insertPerRecordTable) genRecord.tableName = record.table ?? request.tableName;
+          if (insertPerRecordUpsert) {
+            const recordUpsert = record.upsert ?? requestUpsert;
+            if (recordUpsert) genRecord.upsert = VaultController.toGenUpsert(recordUpsert);
+          }
           return genRecord;
         }),
       };
 
-      const upsert = options?.getUpsert();
-      if (upsert) {
-        genReq.upsert = {
-          updateType: upsert.updateType as Gen.UpsertUpdateType,
-          uniqueColumns: upsert.uniqueColumns,
-        };
+      if (!insertPerRecordUpsert && requestUpsert) {
+        genReq.upsert = VaultController.toGenUpsert(requestUpsert);
       }
 
       const { data, rawResponse } = await this.client.records
@@ -204,10 +218,23 @@ class VaultController {
 
       const genReq: Gen.GetRequest = { vaultID: this.client.vaultId };
       if (request.records && request.records.length > 0) {
-        genReq.records = request.records.map((record) => ({
-          tableName: record.tableName,
-          skyflowIDs: record.ids,
-        }));
+        genReq.records = request.records.map((record) => {
+          const genRecord: Gen.GetRequestData = {
+            tableName: record.tableName,
+            skyflowIDs: record.ids,
+          };
+          if (record.columns) genRecord.columns = record.columns;
+          if (record.columnRedactions) {
+            genRecord.columnRedactions = record.columnRedactions.map((redaction) => ({
+              columnName: redaction.columnName,
+              redaction: redaction.redaction,
+            }));
+          }
+          if (record.uniqueValues) {
+            genRecord.uniqueValues = record.uniqueValues.map((data) => ({ data }));
+          }
+          return genRecord;
+        });
       } else {
         genReq.tableName = request.table;
         genReq.skyflowIDs = request.ids;
