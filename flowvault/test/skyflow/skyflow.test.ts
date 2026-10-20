@@ -178,11 +178,12 @@ describe('Skyflow facade — timeout / retry / vaultUrl config', () => {
     expect(client.maxRetries).toBe(2);
   });
 
-  it('derives the vault URL from clusterId/env when vaultUrl is not set', () => {
-    const sky = newSkyflow(['vault123']);
+  it('derives the FlowVault (skyvault.*) URL from clusterId/env when vaultUrl is not set', () => {
+    const sky = newSkyflow(['vault123']); // vaultConfig uses clusterId 'abc-cluster', env PROD
     const client = (sky as unknown as {
       vaultClients: Record<string, { client: { url: string } }>;
     }).vaultClients.vault123.client;
-    expect(client.url).toContain('abc-cluster');
+    // FlowVault is on skyvault.*, NOT the shared vault.* host.
+    expect(client.url).toBe('https://abc-cluster.skyvault.skyflowapis.com');
   });
 });

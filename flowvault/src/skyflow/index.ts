@@ -5,7 +5,6 @@ import {
   MessageType,
   SkyflowConfig,
   VaultConfig,
-  getVaultURL,
   logs,
   printLog,
   setSdkIdentity,
@@ -16,6 +15,23 @@ import { SDK_NAME, SDK_VERSION } from '../version';
 
 // Stamp the SDK identity so telemetry and errors self-report FlowVault.
 setSdkIdentity({ name: SDK_NAME, version: SDK_VERSION });
+
+// FlowVault (v3) is hosted on the `skyvault.*` subdomain, a DIFFERENT host than
+// the shared `getVaultURL` (`vault.*`, used by skyvault). All four confirmed.
+function getFlowVaultURL(clusterId: string, env: Env): string {
+  switch (env) {
+    case Env.PROD:
+      return `https://${clusterId}.skyvault.skyflowapis.com`;
+    case Env.SANDBOX:
+      return `https://${clusterId}.skyvault.skyflowapis-preview.com`;
+    case Env.DEV:
+      return `https://${clusterId}.skyvault.skyflowapis.dev`;
+    case Env.STAGE:
+      return `https://${clusterId}.skyvault.skyflowapis.tech`;
+    default:
+      return `https://${clusterId}.skyvault.skyflowapis.com`;
+  }
+}
 
 interface ClientEntry extends BaseVaultEntry<VaultClient> {
   vaultController: VaultController;
@@ -36,7 +52,7 @@ class Skyflow extends BaseSkyflow<ClientEntry> {
 
   protected buildVaultEntry(config: VaultConfig): ClientEntry {
     const env = config.env || Env.PROD;
-    const vaultUrl = config.vaultUrl || getVaultURL(config.clusterId, env);
+    const vaultUrl = config.vaultUrl || getFlowVaultURL(config.clusterId, env);
     const client = new VaultClient(
       vaultUrl,
       config.vaultId,
