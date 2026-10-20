@@ -81,6 +81,7 @@ describe('VaultController.insert', () => {
     ]));
 
     const [genReq] = insertRecords.mock.calls[0];
+    expect(genReq.tableName).toBeUndefined(); // table lives per-record, not at request level
     expect(genReq.records).toEqual([
       { data: { a: 1 }, tableName: 'cards' },
       { data: { b: 2 }, tableName: 'contacts' },
@@ -97,6 +98,7 @@ describe('VaultController.insert', () => {
     ]));
 
     const [genReq] = insertRecords.mock.calls[0];
+    expect(genReq.tableName).toBeUndefined();
     expect(genReq.records).toEqual([
       { data: { a: 1 }, tableName: 'contacts' },
       { data: { b: 2 }, tableName: 'cards' },

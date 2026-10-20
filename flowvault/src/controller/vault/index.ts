@@ -134,6 +134,29 @@ class VaultController {
     };
   }
 
+  // Per-record failures can come back with a 4xx HTTP status whose body carries a
+  // records/response array (e.g. a delete/get/update of a non-existent id). Pull
+  // those out so they surface as a normal response instead of a thrown error.
+  private static unaryErrorRecords(error: unknown): unknown[] | null {
+    const body = (error as { body?: { records?: unknown; response?: unknown } })?.body;
+    if (body && typeof body === 'object') {
+      if (Array.isArray(body.records)) return body.records;
+      if (Array.isArray(body.response)) return body.response;
+    }
+    return null;
+  }
+
+  // Surface per-record failures from an error body as a normal response (matches
+  // Java/Python flowvault); re-throw genuine whole-call errors.
+  private unaryError<T>(error: unknown, build: (records: unknown[], requestId?: string) => T): T {
+    const errorRecords = VaultController.unaryErrorRecords(error);
+    if (errorRecords) {
+      const requestId = this.getRequestId((error as { rawResponse?: unknown }).rawResponse);
+      return build(errorRecords, requestId);
+    }
+    throw this.handleError(error);
+  }
+
   // ---------------------------------------------------------------- insert
   async insert(request: InsertRequest, options?: InsertOptions): Promise<InsertResponse> {
     try {
@@ -155,7 +178,6 @@ class VaultController {
       );
       const genReq: Gen.InsertRequest = {
         vaultID: this.client.vaultId,
-        tableName: request.tableName,
         records: request.records.map((record) => {
           const genRecord: Gen.InsertRecordData = { data: record.data };
           if (record.tokens) genRecord.tokens = record.tokens; // BYOT
@@ -166,7 +188,13 @@ class VaultController {
           }
           return genRecord;
         }),
-      };
+      } as Gen.InsertRequest;
+
+      // The API requires tableName in exactly ONE place. Send it at the request
+      // level only when no record carries its own; otherwise it is per-record.
+      if (!insertPerRecordTable) {
+        genReq.tableName = request.tableName;
+      }
 
       if (!insertPerRecordUpsert && requestUpsert) {
         genReq.upsert = VaultController.toGenUpsert(requestUpsert);
@@ -183,7 +211,10 @@ class VaultController {
       );
       return new InsertResponse({ records });
     } catch (error) {
-      throw this.handleError(error);
+      return this.unaryError(error, (errorRecords, requestId) =>
+        new InsertResponse({
+          records: errorRecords.map((record) => this.mapInsertRecord(record as Gen.RecordResponseObject, requestId)),
+        }));
     }
   }
 
@@ -267,7 +298,10 @@ class VaultController {
       const records = (data.records ?? []).map((record) => this.mapGetRecord(record, requestId));
       return new GetResponse({ records });
     } catch (error) {
-      throw this.handleError(error);
+      return this.unaryError(error, (errorRecords, requestId) =>
+        new GetResponse({
+          records: errorRecords.map((record) => this.mapGetRecord(record as Gen.RecordResponseObject, requestId)),
+        }));
     }
   }
 
@@ -302,14 +336,17 @@ class VaultController {
       );
       const genReq: Gen.UpdateRequest = {
         vaultID: this.client.vaultId,
-        tableName: request.tableName,
         records: request.records.map((record) => {
           const genRecord: Gen.UpdateRecordData = { skyflowID: record.skyflowId, data: record.data };
           if (record.tokens) genRecord.tokens = record.tokens; // BYOT
           if (updatePerRecordTable) genRecord.tableName = record.table ?? request.tableName;
           return genRecord;
         }),
-      };
+      } as Gen.UpdateRequest;
+      // Table in exactly ONE place — request level only when not per-record.
+      if (!updatePerRecordTable) {
+        genReq.tableName = request.tableName;
+      }
       if (request.updateType) {
         genReq.updateType = request.updateType as Gen.UpdateRequestUpdateType;
       }
@@ -325,7 +362,10 @@ class VaultController {
       );
       return new UpdateResponse({ records });
     } catch (error) {
-      throw this.handleError(error);
+      return this.unaryError(error, (errorRecords, requestId) =>
+        new UpdateResponse({
+          records: errorRecords.map((record) => this.mapUpdateRecord(record as Gen.RecordResponseObject, requestId)),
+        }));
     }
   }
 
@@ -381,7 +421,10 @@ class VaultController {
       );
       return new DeleteResponse({ records });
     } catch (error) {
-      throw this.handleError(error);
+      return this.unaryError(error, (errorRecords, requestId) =>
+        new DeleteResponse({
+          records: errorRecords.map((record) => this.mapDeleteRecord(record as Gen.DeleteResponseObject, requestId)),
+        }));
     }
   }
 
@@ -469,7 +512,10 @@ class VaultController {
       );
       return new DetokenizeResponse({ records });
     } catch (error) {
-      throw this.handleError(error);
+      return this.unaryError(error, (errorRecords, requestId) =>
+        new DetokenizeResponse({
+          records: errorRecords.map((record) => this.mapDetokenizeRecord(record as Gen.DetokenizeResponseObject, requestId)),
+        }));
     }
   }
 
@@ -526,7 +572,10 @@ class VaultController {
       );
       return new GetTokensResponse({ records });
     } catch (error) {
-      throw this.handleError(error);
+      return this.unaryError(error, (errorRecords, requestId) =>
+        new GetTokensResponse({
+          records: errorRecords.map((record) => this.mapGetTokensRecord(record as Gen.TokenizeResponseObject, requestId)),
+        }));
     }
   }
 
@@ -737,7 +786,10 @@ class VaultController {
       );
       return new DeleteFilesResponse({ records });
     } catch (error) {
-      throw this.handleError(error);
+      return this.unaryError(error, (errorRecords, requestId) =>
+        new DeleteFilesResponse({
+          records: errorRecords.map((record) => this.mapDeleteFilesRecord(record as Gen.FileDeleteResponseObject, requestId)),
+        }));
     }
   }
 

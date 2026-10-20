@@ -61,6 +61,7 @@ describe('VaultController.update', () => {
     ]));
 
     const [genReq] = updateRecords.mock.calls[0];
+    expect(genReq.tableName).toBeUndefined();
     expect(genReq.records).toEqual([
       { skyflowID: 'id1', data: { x: 1 }, tableName: 'cards' },
       { skyflowID: 'id2', data: { y: 2 }, tableName: 'cards' },
