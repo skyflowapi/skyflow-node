@@ -7,6 +7,7 @@ import {
 } from 'skyflow-common';
 import InsertRequest from '../model/request/insert';
 import GetRequest from '../model/request/get';
+import GetOptions from '../model/options/get';
 import UpdateRequest from '../model/request/update';
 import DeleteRequest from '../model/request/delete';
 import QueryRequest from '../model/request/query';
@@ -49,7 +50,7 @@ export const validateInsertRequest = (
 
 export const validateGetRequest = (
   request: GetRequest,
-  _options?: unknown,
+  options?: GetOptions,
   logLevel?: LogLevel,
 ): void => {
   if (!request || !(request instanceof GetRequest)) {
@@ -60,7 +61,10 @@ export const validateGetRequest = (
     if (!isNonEmptyString(request.table)) {
       fail(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME, logLevel);
     }
-    if (!isNonEmptyArray(request.ids)) {
+    // Single-table lookup is by ids OR by unique values (unique values live on
+    // GetOptions); require at least one of them.
+    const hasUniqueValues = isNonEmptyArray(options?.getUniqueValues());
+    if (!isNonEmptyArray(request.ids) && !hasUniqueValues) {
       fail(SKYFLOW_ERROR_CODE.EMPTY_IDS_IN_GET, logLevel);
     }
   }

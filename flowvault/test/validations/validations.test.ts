@@ -3,6 +3,7 @@ import {
   SKYFLOW_ERROR_CODE,
   InsertRequest,
   GetRequest,
+  GetOptions,
   UpdateRequest,
   DeleteRequest,
   QueryRequest,
@@ -69,6 +70,12 @@ describe('validateGetRequest', () => {
   it('does not throw for valid single-table or multi-table input', () => {
     expect(() => validateGetRequest(new GetRequest('t', ['id']))).not.toThrow();
     expect(() => validateGetRequest(new GetRequest('', [], [{ tableName: 't', ids: ['i'] }]))).not.toThrow();
+  });
+
+  it('allows empty ids when uniqueValues are provided on GetOptions', () => {
+    const options = new GetOptions();
+    options.setUniqueValues([{ email: 'jane@example.com' }]);
+    expect(() => validateGetRequest(new GetRequest('t', []), options)).not.toThrow();
   });
 });
 
