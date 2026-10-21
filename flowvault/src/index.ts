@@ -17,6 +17,12 @@ export { default as GetTokensRequest } from './model/request/get-tokens';
 export { default as UploadFilesRequest } from './model/request/upload-files';
 export { default as DeleteFilesRequest } from './model/request/delete-files';
 
+// Custom request headers (typed interceptor + supported header keys).
+export { CustomHeaderKey } from './enums/custom-header-key';
+export { RequestContext } from './model/request-context';
+export type { RequestInterceptor } from './model/request-context';
+export { FlowVaultOptions } from './model/options/base';
+
 // Options classes.
 export { default as InsertOptions } from './model/options/insert';
 export { default as GetOptions } from './model/options/get';

@@ -1,7 +1,7 @@
-import { BaseOptions } from 'skyflow-common';
+import { FlowVaultOptions } from '../base';
 
 /** Options for a detokenize operation. */
-class DetokenizeOptions extends BaseOptions {
+class DetokenizeOptions extends FlowVaultOptions {
   constructor() {
     super();
   }

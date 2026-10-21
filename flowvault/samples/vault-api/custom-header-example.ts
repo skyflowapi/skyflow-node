@@ -6,13 +6,16 @@ import {
   SkyflowError,
   InsertRequest,
   InsertOptions,
+  CustomHeaderKey,
   Credentials,
 } from 'skyflow-flowvault-node';
 
 /**
- * Attach custom request headers to a call. Every *Options class extends
- * BaseOptions, which provides setRequestHeaders() / getRequestHeaders() — use it
- * to add per-call headers such as a correlation / request id.
+ * Attach custom request headers to a call. The SDK supports a fixed set of
+ * headers (see CustomHeaderKey): SKYFLOW_ACCOUNT_ID (x-skyflow-account-id),
+ * SKYFLOW_ACCOUNT_NAME (x-skyflow-account-name) and REQUEST_ID_HEADER
+ * (x-request-id). Register an interceptor on the *Options object; it runs once
+ * per request and receives a RequestContext whose `operation` names the call.
  */
 async function performInsertWithCustomHeaders(): Promise<void> {
   try {
@@ -40,7 +43,10 @@ async function performInsertWithCustomHeaders(): Promise<void> {
     console.log('request id =>', requestId);
 
     const insertOptions = new InsertOptions();
-    insertOptions.setRequestHeaders({ 'x-request-id': requestId });
+    insertOptions.setInterceptor((ctx) => {
+      // pass the request id (or any supported CustomHeaderKey) here
+      ctx.addHeader(CustomHeaderKey.REQUEST_ID_HEADER, requestId);
+    });
 
     const response = await skyflowClient
       .vault('<YOUR_VAULT_ID>')

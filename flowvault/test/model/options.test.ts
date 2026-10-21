@@ -8,17 +8,22 @@ import {
   GetTokensOptions,
   UploadFilesOptions,
   DeleteFilesOptions,
+  CustomHeaderKey,
 } from '../../src';
 
 describe('FlowVault options models', () => {
-  it('InsertOptions: upsert setter/getter + inherited request headers', () => {
+  it('InsertOptions: upsert setter/getter + inherited interceptor', () => {
     const opts = new InsertOptions();
     expect(opts.getUpsert()).toBeUndefined();
     opts.setUpsert({ updateType: 'UPDATE', uniqueColumns: ['email'] });
     expect(opts.getUpsert()).toEqual({ updateType: 'UPDATE', uniqueColumns: ['email'] });
 
-    opts.setRequestHeaders({ 'x-custom': 'v' });
-    expect(opts.getRequestHeaders()).toEqual({ 'x-custom': 'v' });
+    expect(opts.getInterceptor()).toBeUndefined();
+    const interceptor = (ctx: { addHeader: (k: CustomHeaderKey, v: string) => void }) => {
+      ctx.addHeader(CustomHeaderKey.REQUEST_ID_HEADER, 'v');
+    };
+    opts.setInterceptor(interceptor);
+    expect(opts.getInterceptor()).toBe(interceptor);
   });
 
   it('GetOptions: all setters/getters round-trip', () => {
@@ -42,7 +47,7 @@ describe('FlowVault options models', () => {
     expect(opts.getOffset()).toBe(2);
   });
 
-  it('the remaining options classes construct empty and inherit request headers', () => {
+  it('the remaining options classes construct empty and inherit the interceptor', () => {
     const classes = [
       new UpdateOptions(),
       new DeleteOptions(),
@@ -53,9 +58,12 @@ describe('FlowVault options models', () => {
       new DeleteFilesOptions(),
     ];
     classes.forEach((opts) => {
-      expect(opts.getRequestHeaders()).toBeUndefined();
-      opts.setRequestHeaders({ 'x-trace': 'abc' });
-      expect(opts.getRequestHeaders()).toEqual({ 'x-trace': 'abc' });
+      expect(opts.getInterceptor()).toBeUndefined();
+      const interceptor = (ctx: { addHeader: (k: CustomHeaderKey, v: string) => void }) => {
+        ctx.addHeader(CustomHeaderKey.SKYFLOW_ACCOUNT_NAME, 'abc');
+      };
+      opts.setInterceptor(interceptor);
+      expect(opts.getInterceptor()).toBe(interceptor);
     });
   });
 });

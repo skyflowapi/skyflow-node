@@ -1,7 +1,7 @@
-import { BaseOptions } from 'skyflow-common';
+import { FlowVaultOptions } from '../base';
 
 /** Options for a delete operation. */
-class DeleteOptions extends BaseOptions {
+class DeleteOptions extends FlowVaultOptions {
   constructor() {
     super();
   }

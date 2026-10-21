@@ -1,7 +1,7 @@
-import { BaseOptions } from 'skyflow-common';
+import { FlowVaultOptions } from '../base';
 
 /** Options for a getTokens operation. */
-class GetTokensOptions extends BaseOptions {
+class GetTokensOptions extends FlowVaultOptions {
   constructor() {
     super();
   }

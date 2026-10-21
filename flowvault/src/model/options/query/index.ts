@@ -1,7 +1,7 @@
-import { BaseOptions } from 'skyflow-common';
+import { FlowVaultOptions } from '../base';
 
 /** Options for a query operation. */
-class QueryOptions extends BaseOptions {
+class QueryOptions extends FlowVaultOptions {
   constructor() {
     super();
   }

@@ -54,7 +54,7 @@ npx ts-node flowvault/samples/vault-api/insert-records.ts
 
 | Sample | Demonstrates |
 |---|---|
-| [custom-header-example.ts](vault-api/custom-header-example.ts) | Attach custom headers via `options.setRequestHeaders(...)` |
+| [custom-header-example.ts](vault-api/custom-header-example.ts) | Attach supported custom headers via `options.setInterceptor(...)` and `CustomHeaderKey` |
 | [timeout-and-retry-config-example.ts](vault-api/timeout-and-retry-config-example.ts) | Per-vault `timeout` / `maxRetries` / `vaultUrl` config |
 
 ## Service account (token generation)

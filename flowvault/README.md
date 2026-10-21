@@ -259,14 +259,30 @@ const res = await vault.deleteFiles(req);
 
 ## Custom request headers
 
-Every `*Options` class extends `BaseOptions`, which provides `setRequestHeaders()` /
-`getRequestHeaders()` for per-call headers:
+The SDK supports a fixed set of custom headers, listed on the `CustomHeaderKey`
+enum. Attach them per call by registering an interceptor on the `*Options`
+object — it runs once per request and receives a `RequestContext`:
+
+| `CustomHeaderKey`      | Header sent            |
+| ---------------------- | ---------------------- |
+| `SKYFLOW_ACCOUNT_ID`   | `x-skyflow-account-id` |
+| `SKYFLOW_ACCOUNT_NAME` | `x-skyflow-account-name` |
+| `REQUEST_ID_HEADER`    | `x-request-id`         |
 
 ```typescript
+import { InsertOptions, CustomHeaderKey } from 'skyflow-flowvault-node';
+import { randomUUID } from 'crypto';
+
 const options = new InsertOptions();
-options.setRequestHeaders({ 'x-request-id': 'correlation-id' });
+options.setInterceptor((ctx) => {
+  // ctx.operation names the call ('INSERT', 'GET', ...), so headers can vary per operation.
+  ctx.addHeader(CustomHeaderKey.REQUEST_ID_HEADER, randomUUID());
+});
+
 await vault.insert(req, options);
 ```
+
+Only the keys above are accepted; arbitrary header names are not supported.
 
 ## Timeouts and retries
 

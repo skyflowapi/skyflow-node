@@ -1,7 +1,7 @@
-import { BaseOptions } from 'skyflow-common';
+import { FlowVaultOptions } from '../base';
 
 /** Options for an uploadFiles operation. */
-class UploadFilesOptions extends BaseOptions {
+class UploadFilesOptions extends FlowVaultOptions {
   constructor() {
     super();
   }

@@ -10,9 +10,10 @@ import {
   removeSDKVersion,
   SkyflowError,
   logs,
-  BaseOptions,
 } from 'skyflow-common';
 import VaultClient from '../../client';
+import { FlowVaultOptions } from '../../model/options/base';
+import { RequestContext } from '../../model/request-context';
 import InsertRequest from '../../model/request/insert';
 import InsertOptions from '../../model/options/insert';
 import InsertResponse from '../../model/response/insert';
@@ -73,6 +74,23 @@ interface PreparedColumn {
 }
 
 /**
+ * Operation names handed to a request interceptor via {@link RequestContext}.
+ * Kept identical to the Python/Java FlowVault SDKs so interceptor logic ports
+ * across languages.
+ */
+const Operation = {
+  INSERT: 'INSERT',
+  GET: 'GET',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  DETOKENIZE: 'DETOKENIZE',
+  QUERY: 'QUERY',
+  GET_TOKENS: 'GET_TOKENS',
+  UPLOAD_FILES: 'UPLOAD_FILES',
+  DELETE_FILES: 'DELETE_FILES',
+} as const;
+
+/**
  * VaultController holds the 9 unary FlowVault operations. Each validates its
  * input, ensures a bearer token, calls the generated client, and maps the
  * generated response onto the hand-written Response shape. Whole-call
@@ -95,20 +113,38 @@ class VaultController {
 
   /**
    * Request options for every generated call: the SDK metrics header merged with
-   * any per-call custom headers (options.setRequestHeaders), plus the vault's
+   * any per-call custom headers (from the options' interceptor), plus the vault's
    * configured timeout (seconds) and retry count, when set.
    */
-  private requestOptions(callOptions?: BaseOptions): {
+  private requestOptions(operation: string, callOptions?: FlowVaultOptions): {
     headers: Record<string, string>;
     timeoutInSeconds?: number;
     maxRetries?: number;
   } {
     const result: { headers: Record<string, string>; timeoutInSeconds?: number; maxRetries?: number } = {
-      headers: { ...this.sdkHeaders(), ...(callOptions?.getRequestHeaders() ?? {}) },
+      headers: { ...this.sdkHeaders(), ...this.customHeaders(operation, callOptions) },
     };
     if (this.client.timeout !== undefined) result.timeoutInSeconds = this.client.timeout;
     if (this.client.maxRetries !== undefined) result.maxRetries = this.client.maxRetries;
     return result;
+  }
+
+  /**
+   * Run the caller's interceptor (if any) against a fresh {@link RequestContext}
+   * and turn the headers it set into wire headers. Each header key is a
+   * {@link CustomHeaderKey} whose value is already the header name.
+   */
+  // eslint-disable-next-line class-methods-use-this
+  private customHeaders(operation: string, callOptions?: FlowVaultOptions): Record<string, string> {
+    const interceptor = callOptions?.getInterceptor();
+    if (!interceptor) return {};
+    const context = new RequestContext(operation);
+    interceptor(context);
+    const headers: Record<string, string> = {};
+    context.headers.forEach((value, key) => {
+      headers[key] = value;
+    });
+    return headers;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -201,7 +237,7 @@ class VaultController {
       }
 
       const { data, rawResponse } = await this.client.records
-        .insertRecords(genReq, this.requestOptions(options))
+        .insertRecords(genReq, this.requestOptions(Operation.INSERT, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.INSERT_DATA_SUCCESS, MessageType.LOG, this.logLevel);
@@ -290,7 +326,7 @@ class VaultController {
       if (offset !== undefined) genReq.offset = offset;
 
       const { data, rawResponse } = await this.client.records
-        .getRecords(genReq, this.requestOptions(options))
+        .getRecords(genReq, this.requestOptions(Operation.GET, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.GET_SUCCESS, MessageType.LOG, this.logLevel);
@@ -352,7 +388,7 @@ class VaultController {
       }
 
       const { data, rawResponse } = await this.client.records
-        .updateRecords(genReq, this.requestOptions(options))
+        .updateRecords(genReq, this.requestOptions(Operation.UPDATE, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.UPDATE_SUCCESS, MessageType.LOG, this.logLevel);
@@ -411,7 +447,7 @@ class VaultController {
       }
 
       const { data, rawResponse } = await this.client.records
-        .deleteRecords(genReq, this.requestOptions(options))
+        .deleteRecords(genReq, this.requestOptions(Operation.DELETE, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.DELETE_SUCCESS, MessageType.LOG, this.logLevel);
@@ -459,7 +495,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.query
-        .executeQuery(genReq, this.requestOptions(options))
+        .executeQuery(genReq, this.requestOptions(Operation.QUERY, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse) ?? '';
       printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.logLevel);
@@ -501,7 +537,7 @@ class VaultController {
       }
 
       const { data, rawResponse } = await this.client.tokens
-        .detokenize(genReq, this.requestOptions(options))
+        .detokenize(genReq, this.requestOptions(Operation.DETOKENIZE, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.DETOKENIZE_SUCCESS, MessageType.LOG, this.logLevel);
@@ -562,7 +598,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.tokens
-        .getTokens(genReq, this.requestOptions(options))
+        .getTokens(genReq, this.requestOptions(Operation.GET_TOKENS, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.TOKENIZE_SUCCESS, MessageType.LOG, this.logLevel);
@@ -630,7 +666,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.files
-        .uploadFiles(genReq, this.requestOptions(options))
+        .uploadFiles(genReq, this.requestOptions(Operation.UPLOAD_FILES, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.logLevel);
@@ -776,7 +812,7 @@ class VaultController {
       };
 
       const { data, rawResponse } = await this.client.files
-        .deleteFiles(genReq, this.requestOptions(options))
+        .deleteFiles(genReq, this.requestOptions(Operation.DELETE_FILES, options))
         .withRawResponse();
       const requestId = this.getRequestId(rawResponse);
       printLog(logs.infoLogs.FILE_UPLOAD_DATA_SUCCESS, MessageType.LOG, this.logLevel);

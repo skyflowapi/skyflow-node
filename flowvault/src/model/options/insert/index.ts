@@ -1,8 +1,8 @@
-import { BaseOptions } from 'skyflow-common';
+import { FlowVaultOptions } from '../base';
 import { UpsertOptions } from '../../../types';
 
 /** Options for an insert operation. */
-class InsertOptions extends BaseOptions {
+class InsertOptions extends FlowVaultOptions {
   private upsert?: UpsertOptions;
 
   constructor() {

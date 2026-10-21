@@ -17,7 +17,6 @@ import { BaseGetTokensRequest } from 'skyflow-common';
 import { BaseGetTokensResponse } from 'skyflow-common';
 import { BaseInsertRequest } from 'skyflow-common';
 import { BaseInsertResponse } from 'skyflow-common';
-import { BaseOptions } from 'skyflow-common';
 import { BaseQueryRequest } from 'skyflow-common';
 import { BaseQueryResponse } from 'skyflow-common';
 import { BaseSkyflow } from 'skyflow-common';
@@ -42,7 +41,17 @@ export interface ColumnRedaction {
 }
 
 // @public
-export class DeleteFilesOptions extends BaseOptions {
+export enum CustomHeaderKey {
+    // (undocumented)
+    REQUEST_ID_HEADER = "x-request-id",
+    // (undocumented)
+    SKYFLOW_ACCOUNT_ID = "x-skyflow-account-id",
+    // (undocumented)
+    SKYFLOW_ACCOUNT_NAME = "x-skyflow-account-name"
+}
+
+// @public
+export class DeleteFilesOptions extends FlowVaultOptions {
     constructor();
 }
 
@@ -100,7 +109,7 @@ export interface DeleteFilesResponseRecord {
 }
 
 // @public
-export class DeleteOptions extends BaseOptions {
+export class DeleteOptions extends FlowVaultOptions {
     constructor();
 }
 
@@ -140,7 +149,7 @@ export interface DeleteResponseRecord {
 }
 
 // @public
-export class DetokenizeOptions extends BaseOptions {
+export class DetokenizeOptions extends FlowVaultOptions {
     constructor();
 }
 
@@ -186,10 +195,16 @@ export interface DetokenizeResponseRecord {
 }
 
 // @public
+export class FlowVaultOptions {
+    getInterceptor(): RequestInterceptor | undefined;
+    setInterceptor(interceptor: RequestInterceptor): void;
+}
+
+// @public
 export type FlowVaultRecordError = SkyflowRecordError;
 
 // @public
-export class GetOptions extends BaseOptions {
+export class GetOptions extends FlowVaultOptions {
     constructor();
     // (undocumented)
     getColumnRedactions(): ColumnRedaction[] | undefined;
@@ -271,7 +286,7 @@ export interface GetResponseRecord {
 }
 
 // @public
-export class GetTokensOptions extends BaseOptions {
+export class GetTokensOptions extends FlowVaultOptions {
     constructor();
 }
 
@@ -317,7 +332,7 @@ export interface GetTokensResponseRecord {
 }
 
 // @public
-export class InsertOptions extends BaseOptions {
+export class InsertOptions extends FlowVaultOptions {
     constructor();
     // (undocumented)
     getUpsert(): UpsertOptions | undefined;
@@ -377,7 +392,7 @@ export interface InsertResponseRecord {
 }
 
 // @public
-export class QueryOptions extends BaseOptions {
+export class QueryOptions extends FlowVaultOptions {
     constructor();
 }
 
@@ -413,6 +428,20 @@ export interface QueryResponseMetadata {
     columns: string[];
 }
 
+// @public
+export class RequestContext {
+    constructor(operation: string, batchIndex?: number, totalBatches?: number);
+    addHeader(key: CustomHeaderKey, value: string): void;
+    readonly batchIndex: number;
+    get headers(): Map<CustomHeaderKey, string>;
+    // (undocumented)
+    readonly operation: string;
+    readonly totalBatches: number;
+}
+
+// @public
+export type RequestInterceptor = (context: RequestContext) => void;
+
 // Warning: (ae-forgotten-export) The symbol "ClientEntry" needs to be exported by the entry point index.d.ts
 //
 // @public
@@ -437,7 +466,7 @@ export interface TokenGroupRedaction {
 }
 
 // @public
-export class UpdateOptions extends BaseOptions {
+export class UpdateOptions extends FlowVaultOptions {
     constructor();
 }
 
@@ -511,7 +540,7 @@ export interface UploadFilesColumn {
 }
 
 // @public
-export class UploadFilesOptions extends BaseOptions {
+export class UploadFilesOptions extends FlowVaultOptions {
     constructor();
 }
 

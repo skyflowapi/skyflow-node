@@ -1,8 +1,8 @@
-import { BaseOptions } from 'skyflow-common';
+import { FlowVaultOptions } from '../base';
 import { ColumnRedaction } from '../../../types';
 
 /** Options for a get operation. */
-class GetOptions extends BaseOptions {
+class GetOptions extends FlowVaultOptions {
   private fields?: string[];
   private columnRedactions?: ColumnRedaction[];
   private uniqueValues?: Record<string, unknown>[];
