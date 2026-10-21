@@ -34,7 +34,7 @@ async function performWithTimeoutAndRetry(): Promise<void> {
           credentials,
           timeout: 30, // seconds
           maxRetries: 2,
-          // vaultUrl: 'https://<CLUSTER_ID>.vault.skyflowapis.com', // optional URL override
+          // vaultUrl: 'https://<CLUSTER_ID>.skyvault.skyflowapis.com', // optional URL override
         },
       ],
       logLevel: LogLevel.ERROR,

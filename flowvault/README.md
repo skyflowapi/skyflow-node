@@ -296,7 +296,7 @@ const skyflowClient = new Skyflow({
     credentials: { token: 'bearer-token' },
     timeout: 30,        // overall per-call timeout in seconds (incl. retries). Default 60.
     maxRetries: 2,      // retry attempts after the first failure (408/429/5xx). Default off.
-    vaultUrl: 'https://cluster-id.vault.skyflowapis.com', // optional — override the derived URL
+    vaultUrl: 'https://cluster-id.skyvault.skyflowapis.com', // optional — override the derived URL
   }],
 });
 ```
