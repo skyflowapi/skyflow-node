@@ -99,9 +99,14 @@ jobs:
           elif [[ "${{ inputs.release-type }}" == "public" ]]; then
             npm publish
           elif [[ "${{ inputs.release-type }}" == "internal" ]]; then
+            # Point npm at the JFrog registry with auth via a local .npmrc.
+            # `npm config set` cannot run from inside a workspace package dir
+            # (npm errors with ENOWORKSPACES), so write the config file directly.
             JFROG_AUTH=$(echo -n "$JFROG_USERNAME:$JFROG_PASSWORD" | base64 -w 0)
-            npm config set registry https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/
-            npm config set //prekarilabs.jfrog.io/prekarilabs/api/npm/npm/:_auth "$JFROG_AUTH"
+            {
+              echo "registry=https://prekarilabs.jfrog.io/prekarilabs/api/npm/npm/"
+              echo "//prekarilabs.jfrog.io/prekarilabs/api/npm/npm/:_auth=${JFROG_AUTH}"
+            } > .npmrc
             npm publish
           fi
         env:
