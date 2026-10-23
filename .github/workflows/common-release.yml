@@ -76,21 +76,20 @@ jobs:
           fi
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
 
+      # Only public/beta record the released version back on the source branch.
+      # Internal (JFrog) builds publish the bumped working tree directly and do
+      # NOT push back: the branch needs no mutation, pushing would need write
+      # access to the release branch, and src/version.ts is not path-ignored so
+      # a push-back would re-trigger this workflow in a loop.
       - name: Commit Changes
+        if: ${{ inputs.release-type == 'beta' || inputs.release-type == 'public' }}
         run: |
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
-          if [[ "${{ inputs.release-type }}" == "beta" || "${{ inputs.release-type }}" == "public" ]]; then
-            git checkout ${{ env.branch_name }}
-          fi
+          git checkout ${{ env.branch_name }}
           git add ${{ inputs.package-dir }}/package.json ${{ inputs.package-dir }}/src/version.ts
-          if [[ "${{ inputs.release-type }}" == "beta" || "${{ inputs.release-type }}" == "public" ]]; then
-            git commit -m "[AUTOMATED] Release ${{ inputs.product }} - ${{ steps.version.outputs.value }}" || echo "nothing to commit"
-            git push origin ${{ env.branch_name }}
-          elif [[ "${{ inputs.release-type }}" == "internal" ]]; then
-            git commit -m "[AUTOMATED] Private Release ${{ inputs.product }} ${{ steps.version.outputs.value }}-dev.$(git rev-parse --short $GITHUB_SHA)" || echo "nothing to commit"
-            git push origin ${{ github.ref_name }} -f
-          fi
+          git commit -m "[AUTOMATED] Release ${{ inputs.product }} - ${{ steps.version.outputs.value }}" || echo "nothing to commit"
+          git push origin ${{ env.branch_name }}
 
       - name: Publish
         working-directory: ${{ inputs.package-dir }}
