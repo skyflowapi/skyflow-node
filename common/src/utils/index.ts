@@ -1,0 +1,653 @@
+import SkyflowError from "../error";
+import { getSdkIdentity } from "../identity";
+import { generateBearerToken, generateBearerTokenFromCreds } from "../service-account";
+import type { BearerTokenOptions } from "../service-account";
+import Credentials, { ApiKeyCredentials, PathCredentials, StringCredentials, TokenCredentials } from "../config/credentials";
+import dotenv from "dotenv";
+import logs from "./logs";
+import os from 'os';
+import process from "process";
+import SKYFLOW_ERROR_CODE from "../error/codes";
+import { isExpired } from "./jwt-utils";
+import { isValidAPIKey } from "../validations";
+import { StringKeyValueMapType } from "../types";
+
+dotenv.config();
+
+export const SDK = {
+    METRICS_HEADER_KEY: "sky-metadata",
+} as const;
+
+export const SKYFLOW = {
+    ID: "skyflowId",
+    LEGACY_ID: "skyflow_id",
+    AUTH_HEADER_KEY: "x-skyflow-authorization",
+} as const;
+
+export const BAD_REQUEST = "Bad Request";
+
+export const REQUEST = {
+    ID_KEY: "x-request-id",
+} as const;
+
+export const CONFIG = {
+    LOGLEVEL: "loglevel",
+    CREDENTIALS: "credentials",
+    VAULT_ID: "vaultId",
+    CONNECTION_ID: "connectionId",
+    VAULT: "vault",
+    CONNECTION: "connection",
+} as const;
+
+export enum TokenMode {
+    DISABLE = 'DISABLE',
+    ENABLE = 'ENABLE',
+    ENABLE_STRICT = 'ENABLE_STRICT'
+};
+
+export enum LogLevel {
+    WARN = 'WARN',
+    INFO = 'INFO',
+    DEBUG = 'DEBUG',
+    ERROR = 'ERROR',
+    OFF = 'OFF'
+}
+
+export enum AuthType {
+    TOKEN = 'TOKEN',
+    API_KEY = 'API_KEY'
+}
+
+export enum MessageType {
+    LOG = 'LOG',
+    WARN = 'WARN',
+    ERROR = 'ERROR',
+}
+
+export enum RequestMethod {
+    POST = 'POST',
+    GET = 'GET',
+    PUT = 'PUT',
+    PATCH = 'PATCH',
+}
+
+export enum Env {
+    DEV = 'DEV',
+    STAGE = 'STAGE',
+    SANDBOX = 'SANDBOX',
+    PROD = 'PROD',
+}
+
+export enum RedactionType {
+    DEFAULT = 'DEFAULT',
+    PLAIN_TEXT = 'PLAIN_TEXT',
+    MASKED = 'MASKED',
+    REDACTED = 'REDACTED',
+}
+
+export enum OrderByEnum {
+    ASCENDING = 'ASCENDING',
+    DESCENDING = 'DESCENDING',
+    NONE = 'NONE'
+};
+
+export const TYPES = {
+    INSERT: 'INSERT',
+    INSERT_BATCH: 'INSERT_BATCH',
+    DETOKENIZE: 'DETOKENIZE',
+    TOKENIZE: 'TOKENIZE',
+    DELETE: 'DELETE',
+    UPDATE: 'UPDATE',
+    GET: 'GET',
+    FILE_UPLOAD: 'FILE_UPLOAD',
+    QUERY: 'QUERY',
+    DETECT: 'DETECT',
+    INVOKE_CONNECTION: 'INVOKE_CONNECTION',
+    DEIDENTIFY_TEXT: 'DEIDENTIFY_TEXT',
+    REIDENTIFY_TEXT: 'REIDENTIFY_TEXT',
+    DEIDENTIFY_FILE: 'DEIDENTIFY_FILE',
+    DETECT_RUN: 'DETECT_RUN',
+};
+
+export enum DeidenitfyFileRequestTypes {
+    IMAGE= "IMAGE",
+    FILE= 'FILE', 
+    AUDIO= 'AUDIO', 
+    PPT= 'PPT', 
+    DOCUMENT= 'DOCUMENT',
+    PDF= 'PDF', 
+    SPREADSHEET= 'SPREADSHEET', 
+    STRUCTURED_TEXT= 'STRUCTURED_TEXT',
+    TEXT='TEXT'
+}
+
+export const CONTROLLER_TYPES = {
+    DETECT: 'DETECT',
+    VAULT: 'VAULT',
+    CONNECTION: 'CONNECTION',
+}
+
+
+export enum DetectOutputTranscription {
+    DIARIZED_TRANSCRIPTION = "diarized_transcription",
+    MEDICAL_DIARIZED_TRANSCRIPTION = "medical_diarized_transcription",
+    MEDICAL_TRANSCRIPTION = "medical_transcription",
+    PLAINTEXT_TRANSCRIPTION = "plaintext_transcription",
+    TRANSCRIPTION = "transcription",
+}
+
+export enum MaskingMethod{
+    Blackbox= "blackbox",
+    Blur= "blur",
+}
+
+export enum DetectEntities {
+    ACCOUNT_NUMBER = "account_number",
+    AGE = 'age',
+    ALL = 'all',
+    BANK_ACCOUNT = 'bank_account',
+    BLOOD_TYPE = 'blood_type',
+    CONDITION = 'condition',
+    CORPORATE_ACTION = 'corporate_action',
+    CREDIT_CARD = 'credit_card',
+    CREDIT_CARD_EXPIRATION = 'credit_card_expiration',
+    CVV = 'cvv',
+    DAY = 'day',
+    DATE = 'date',
+    DATE_INTERVAL = 'date_interval',
+    DOB = 'dob',
+    DOSE = 'dose',
+    DRIVER_LICENSE = 'driver_license',
+    DRUG = 'drug',
+    DURATION = 'duration',
+    EFFECT = 'effect',
+    EMAIL_ADDRESS = 'email_address',
+    EVENT = 'event',
+    FILENAME = 'filename',
+    FINANCIAL_METRIC = 'financial_metric',
+    GENDER = 'gender',
+    HEALTHCARE_NUMBER = 'healthcare_number',
+    INJURY = 'injury',
+    IP_ADDRESS = 'ip_address',
+    LANGUAGE = 'language',
+    LOCATION = 'location',
+    LOCATION_ADDRESS = 'location_address',
+    LOCATION_ADDRESS_STREET = 'location_address_street',
+    LOCATION_CITY = 'location_city',
+    LOCATION_COORDINATE = 'location_coordinate',
+    LOCATION_COUNTRY = 'location_country',
+    LOCATION_STATE = 'location_state',
+    LOCATION_ZIP = 'location_zip',
+    MARITAL_STATUS = 'marital_status',
+    MEDICAL_CODE = 'medical_code',
+    MEDICAL_PROCESS = 'medical_process',
+    MONEY = 'money',
+    MONTH = 'month',
+    NAME = 'name',
+    NAME_FAMILY = 'name_family',
+    NAME_GIVEN = 'name_given',
+    NAME_MEDICAL_PROFESSIONAL = 'name_medical_professional',
+    NUMERICAL_PII = 'numerical_pii',
+    OCCUPATION = 'occupation',
+    ORGANIZATION = 'organization',
+    ORGANIZATION_ID = 'organization_id',
+    ORGANIZATION_MEDICAL_FACILITY = 'organization_medical_facility',
+    ORIGIN = 'origin',
+    PASSPORT_NUMBER = 'passport_number',
+    PASSWORD = 'password',
+    PHONE_NUMBER = 'phone_number',
+    PROJECT = 'project',
+    PHYSICAL_ATTRIBUTE = 'physical_attribute',
+    POLITICAL_AFFILIATION = 'political_affiliation',
+    PRODUCT = 'product',
+    RELIGION = 'religion',
+    ROUTING_NUMBER = 'routing_number',
+    SEXUALITY = 'sexuality',
+    SSN = 'ssn',
+    STATISTICS = 'statistics',
+    TIME = 'time',
+    TREND = 'trend',
+    URL = 'url',
+    USERNAME = 'username',
+    VEHICLE_ID = 'vehicle_id',
+    ZODIAC_SIGN = 'zodiac_sign',
+}
+
+export enum TokenType {
+    ENTITY_UNIQUE_COUNTER = 'entity_unq_counter',
+    ENTITY_ONLY = 'entity_only',
+    VAULT_TOKEN = 'vault_token'
+}
+
+
+// HTTP Status Codes
+export const HTTP_STATUS_CODE = {
+    OK: 200,
+    BAD_REQUEST: 400,
+    INTERNAL_SERVER_ERROR: 500,
+} as const;
+
+// Content Types
+export const CONTENT_TYPE = {
+    APPLICATION_JSON: 'application/json',
+    APPLICATION_X_WWW_FORM_URLENCODED: 'application/x-www-form-urlencoded',
+    TEXT_PLAIN: 'text/plain',
+    MULTIPART_FORM_DATA: 'multipart/form-data',
+    TEXT_XML: 'text/xml',
+    APPLICATION_XML: 'application/xml',
+    TEXT_HTML: 'text/html',
+} as const;
+
+// HTTP Headers
+const _CONTENT_TYPE_HEADER = 'Content-Type';
+export const HTTP_HEADER = {
+    CONTENT_TYPE: _CONTENT_TYPE_HEADER,
+    CONTENT_TYPE_LOWER: _CONTENT_TYPE_HEADER.toLowerCase(),
+    X_REQUEST_ID: 'x-request-id',
+    ERROR_FROM_CLIENT: 'error-from-client',
+} as const;
+
+// Detect API Status Values
+export const DETECT_STATUS = {
+    IN_PROGRESS: 'IN_PROGRESS',
+    SUCCESS: 'SUCCESS',
+    FAILED: 'FAILED',
+} as const;
+
+// File Extensions
+export const FILE_EXTENSION = {
+    JSON: 'json',
+    MP3: 'mp3',
+    WAV: 'wav',
+} as const;
+
+// File Format Types
+export const FILE_FORMAT_TYPE = {
+    TXT: 'txt',
+    PDF: 'pdf',
+} as const;
+
+// File Processing
+export const FILE_PROCESSING = {
+    PROCESSED_PREFIX: 'processed-',
+    DEIDENTIFIED_PREFIX: 'deidentified.',
+    ENTITIES: 'entities',
+} as const;
+
+// Encoding Types
+export const ENCODING_TYPE = {
+    UTF8: 'utf8',
+    BASE64: 'base64',
+    BINARY: 'binary',
+} as const;
+
+// JWT Constants
+export const JWT = {
+    ALGORITHM_RS256: 'RS256',
+    GRANT_TYPE_JWT_BEARER: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+    ISSUER_SDK: 'sdk',
+    SIGNED_TOKEN_PREFIX: 'signed_token_',
+    ROLE_PREFIX: 'role:',
+} as const;
+
+// API Key Prefix
+export const API_KEY = {
+    PREFIX: 'sky-',
+} as const;
+
+// URL Protocol
+export const URL_PROTOCOL = {
+    HTTPS: 'https',
+} as const;
+
+// Boolean String Values
+export const BOOLEAN_STRING = {
+    TRUE: 'true',
+} as const;
+
+
+export interface ISkyflowError {
+    httpStatus?: string | number | null,
+    /** @deprecated Use httpStatus instead. Will be removed in v3. */
+    http_status?: string | number | null,
+    grpcCode?: string | number | null,
+    /** @deprecated Use grpcCode instead. Will be removed in v3. */
+    grpc_code?: string | number | null,
+    httpCode?: string | number | null | undefined,
+    /** @deprecated Use httpCode instead. Will be removed in v3. */
+    http_code?: string | number | null | undefined,
+    message: string,
+    requestId?: string | null,
+    /** @deprecated Use requestId instead. Will be removed in v3. */
+    request_ID?: string | null,
+    details?: Array<string> | null,
+}
+
+export interface SkyflowRecordError {
+    error: string,
+    requestId: string | null,
+    /** @deprecated Use requestId instead. Will be removed in v3. */
+    request_ID?: string | null,
+    httpCode?: string | number | null,
+    requestIndex?: number | null,
+    token?: string | null,
+}
+
+export interface AuthInfo {
+    key: string,
+    type: AuthType
+}
+
+export function getVaultURL(clusterId: string, env: Env) {
+    switch (env) {
+        case Env.PROD:
+            return `https://${clusterId}.vault.skyflowapis.com`;
+        case Env.SANDBOX:
+            return `https://${clusterId}.vault.skyflowapis-preview.com`;
+        case Env.DEV:
+            return `https://${clusterId}.vault.skyflowapis.dev`;
+        case Env.STAGE:
+            return `https://${clusterId}.vault.skyflowapis.tech`;
+        default:
+            return `https://${clusterId}.vault.skyflowapis.com`;
+    }
+}
+
+export function getConnectionBaseURL(clusterId: string, env: Env) {
+    switch (env) {
+        case Env.PROD:
+            return `https://${clusterId}.gateway.skyflowapis.com`;
+        case Env.SANDBOX:
+            return `https://${clusterId}.gateway.skyflowapis-preview.com`;
+        case Env.DEV:
+            return `https://${clusterId}.gateway.skyflowapis.dev`;
+        case Env.STAGE:
+            return `https://${clusterId}.gateway.skyflowapis.tech`;
+        default:
+            return `https://${clusterId}.gateway.skyflowapis.com`;
+    }
+}
+
+export function validateToken(token: string) {
+    if (isExpired(token)) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.TOKEN_EXPIRED);
+    }
+    return token;
+}
+
+export function removeSDKVersion(message: string): string {
+    const sdkVersionPattern = /Skyflow Node SDK v[\d\.a-zA-Z\-]+/;
+    const cleanedMessage = message.replace(sdkVersionPattern, '').trim();
+    return cleanedMessage;
+}
+
+// Helper function to generate token based on credentials
+export async function getToken(credentials: Credentials, logLevel?: LogLevel): Promise<{ accessToken: string }> {
+    if ('credentialsString' in credentials) {
+        const stringCred = credentials as StringCredentials;
+        printLog(logs.infoLogs.USING_CREDENTIALS_STRING, MessageType.LOG, logLevel);
+        
+        const options: BearerTokenOptions = {
+            roleIds: stringCred.roles,
+            ctx: stringCred.context,
+            logLevel,
+        };
+
+        if (stringCred.tokenUri !== undefined) {
+            options.tokenUri = stringCred.tokenUri;
+        }
+
+        return generateBearerTokenFromCreds(stringCred.credentialsString, options);
+    }
+
+    if ('path' in credentials) {
+        const pathCred = credentials as PathCredentials;
+        printLog(logs.infoLogs.USING_PATH, MessageType.LOG, logLevel);
+        
+        const options: BearerTokenOptions = {
+            roleIds: pathCred.roles,
+            ctx: pathCred.context,
+            logLevel,
+        };
+
+        if (pathCred.tokenUri !== undefined) {
+            options.tokenUri = pathCred.tokenUri;
+        }
+
+        return generateBearerToken(pathCred.path, options);
+    }
+
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS);
+}
+
+export async function getBearerToken(credentials?: Credentials, logLevel?: LogLevel): Promise<AuthInfo> {
+    try {
+        // If no credentials and no environment variable, throw error
+        if (!credentials && process.env.SKYFLOW_CREDENTIALS === undefined) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.EMPTY_CREDENTIALS);
+        }
+
+        // If credentials are missing but environment variable exists, use it
+        if (!credentials && process.env.SKYFLOW_CREDENTIALS) {
+            printLog(logs.infoLogs.USING_SKYFLOW_CREDENTIALS_ENV, MessageType.LOG, logLevel);
+            credentials = {
+                credentialsString: process.env.SKYFLOW_CREDENTIALS
+            } as StringCredentials;
+        }
+
+        // Handle ApiKeyCredentials
+        if ('apiKey' in credentials!) {
+            const apiKeyCred = credentials as ApiKeyCredentials;
+            if (apiKeyCred.apiKey.trim().length > 0 && isValidAPIKey(apiKeyCred.apiKey)) {
+                printLog(logs.infoLogs.USING_KEY, MessageType.LOG, logLevel);
+                return { type: AuthType.API_KEY, key: apiKeyCred.apiKey };
+            }
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_KEY);
+        }
+
+        // Handle TokenCredentials
+        if ('token' in credentials!) {
+            const tokenCred = credentials as TokenCredentials;
+            printLog(logs.infoLogs.USING_BEARER_TOKEN, MessageType.LOG, logLevel);
+            return { type: AuthType.TOKEN, key: validateToken(tokenCred.token) };
+        }
+
+        printLog(logs.infoLogs.BEARER_TOKEN_LISTENER, MessageType.LOG, logLevel);
+
+        // Generate token based on provided credentials
+        const token = await getToken(credentials!, logLevel);
+
+        printLog(logs.infoLogs.BEARER_TOKEN_RESOLVED, MessageType.LOG, logLevel);
+
+        return { type: AuthType.TOKEN, key: token.accessToken };
+
+    } catch (err) {
+        throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CREDENTIALS);
+    }
+}
+
+export function getBaseUrl(url: string): string {
+    try {
+        const parsedUrl = new URL(url);
+        return `${parsedUrl.protocol}//${parsedUrl.hostname}`;
+    } catch (error) {
+        return '';
+    }
+}
+
+export function fillUrlWithPathAndQueryParams(url: string,
+    pathParams?: StringKeyValueMapType,
+    queryParams?: StringKeyValueMapType) {
+    let filledUrl = url;
+    if (pathParams) {
+        Object.entries(pathParams).forEach(([key, value]) => {
+            filledUrl = filledUrl.replace(`{${key}}`, String(value));
+        });
+        }
+    if (queryParams) {
+        filledUrl += '?';
+        Object.entries(queryParams).forEach(([key, value]) => {
+            filledUrl += `${key}=${value}&`;
+        });
+        filledUrl = filledUrl.substring(0, filledUrl.length - 1);
+    }
+    return filledUrl;
+}
+
+export const LogLevelOptions = {
+    DEBUG: {
+        showDebugLogs: true, showInfoLogs: true, showWarnLogs: true, showErrorLogs: true,
+    },
+    INFO: {
+        showDebugLogs: false, showInfoLogs: true, showWarnLogs: true, showErrorLogs: true,
+    },
+    WARN: {
+        showDebugLogs: false, showInfoLogs: false, showWarnLogs: true, showErrorLogs: true,
+    },
+    ERROR: {
+        showDebugLogs: false, showInfoLogs: false, showWarnLogs: false, showErrorLogs: true,
+    },
+    OFF: {
+        showDebugLogs: false, showInfoLogs: false, showWarnLogs: false, showErrorLogs: false,
+    }
+};
+
+
+export const printLog = (message: string, messageType: MessageType, logLevel: LogLevel = LogLevel.ERROR) => {
+    const {
+        showDebugLogs, showInfoLogs, showWarnLogs, showErrorLogs,
+    } = LogLevelOptions[logLevel];
+    const version = getSdkIdentity().version ? `v${getSdkIdentity().version}` : '';
+    if (messageType === MessageType.LOG && showDebugLogs) {
+        // eslint-disable-next-line no-console
+        console.log(`DEBUG: [Skyflow Node SDK ${version}] ` + message);
+    } else if (messageType === MessageType.LOG && showInfoLogs) {
+        // eslint-disable-next-line no-console
+        console.log(`INFO: [Skyflow Node SDK ${version}] ` + message);
+    } else if (messageType === MessageType.WARN && showWarnLogs) {
+        // eslint-disable-next-line no-console
+        console.warn(`WARN: [Skyflow Node SDK ${version}] ` + message);
+    } else if (messageType === MessageType.ERROR && showErrorLogs) {
+        // eslint-disable-next-line no-console
+        console.error(`ERROR: [Skyflow Node SDK ${version}] ` + message);
+    }
+};
+
+export const parameterizedString = (message: string, ...args: Array<string | number | number[] | LogLevel | LogLevel[] | string[]>) => {
+    const str = message;
+    if (!str) return '';
+    return str.replace(/%s[0-9]+/g, (matchedStr: string | number) => {
+        const variableIndex = parseInt((matchedStr as string).replace('%s', '')) - 1;
+        return args[variableIndex] as string;
+    });
+};
+
+export const generateSDKMetrics = (logLevel?: LogLevel) => {
+    let sdkNameVersion = "";
+    let clientDeviceModel = "";
+    let clientOSDetails = "";
+    let runtimeDetails = "";
+    try {
+        sdkNameVersion = `${getSdkIdentity().name ? `${getSdkIdentity().name}@` : ""}${getSdkIdentity().version ? getSdkIdentity().version : ""
+            }`;
+    } catch (err) {
+        printLog(
+            parameterizedString(logs.infoLogs.UNABLE_TO_GENERATE_SDK_METRIC, "sdkNameVersion")
+            , MessageType.LOG,
+            logLevel
+        );
+        sdkNameVersion = "";
+    }
+
+    try {
+        clientDeviceModel = `${process.platform ? `${process.platform}` : ""} ${process.arch ? process.arch : ""
+            }`;
+    } catch (err) {
+        printLog(
+            parameterizedString(logs.infoLogs.UNABLE_TO_GENERATE_SDK_METRIC, "clientDeviceModel")
+            , MessageType.LOG,
+            logLevel
+        );
+        clientDeviceModel = "";
+    }
+
+    try {
+        clientOSDetails = `${os.release() && os.platform() ? os.platform() + '-' + os.release() : ""}`;
+    } catch (err) {
+        printLog(
+            parameterizedString(logs.infoLogs.UNABLE_TO_GENERATE_SDK_METRIC, "clientOSDetails")
+            , MessageType.LOG,
+            logLevel
+        );
+        clientOSDetails = "";
+    }
+
+    try {
+        runtimeDetails = `${process.version ? `Node@${process.version}` : ""}`;
+    } catch (err) {
+        printLog(
+            parameterizedString(logs.infoLogs.UNABLE_TO_GENERATE_SDK_METRIC, "runtimeDetails")
+            , MessageType.LOG,
+            logLevel
+        );
+        runtimeDetails = "";
+    }
+
+    return {
+        sdk_name_version: sdkNameVersion,
+        sdk_client_device_model: clientDeviceModel,
+        sdk_client_os_details: clientOSDetails,
+        sdk_runtime_details: runtimeDetails,
+    };
+};
+
+export const isValidURL = (url: string) => {
+    if (url && url.substring(0, 5).toLowerCase() !== URL_PROTOCOL.HTTPS) {
+        return false;
+    }
+    try {
+        const tempUrl = new URL(url);
+        if (tempUrl) return true;
+    } catch (err) {
+        return false;
+    }
+};
+
+
+export function objectToXML(obj: any, rootName: string = "root"): string {
+  if (obj === null || obj === undefined) return '';
+  function convertToXML(data: any, nodeName: string): string {
+    if (data === null || data === undefined) {
+      return `<${nodeName}/>`;
+    }
+
+    if (typeof data === "object" && !Array.isArray(data)) {
+      let xml = `<${nodeName}>`;
+      for (const [key, value] of Object.entries(data)) {
+        xml += convertToXML(value, key);
+      }
+      xml += `</${nodeName}>`;
+      return xml;
+    }
+
+    if (Array.isArray(data)) {
+      return data.map((item) => convertToXML(item, nodeName)).join("");
+    }
+
+    // Escape special XML characters
+    const escapedValue = String(data)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+
+    return `<${nodeName}>${escapedValue}</${nodeName}>`;
+  }
+
+  const xmlContent = Object.entries(obj)
+    .map(([key, value]) => convertToXML(value, key))
+    .join("");
+
+  return `<?xml version="1.0" encoding="UTF-8"?><${rootName}>${xmlContent}</${rootName}>`;
+}

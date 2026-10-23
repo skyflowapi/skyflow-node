@@ -1,4 +1,7 @@
 node_modules
 lib
+dist
+*.tsbuildinfo
 .vscode
 coverage
+temp
