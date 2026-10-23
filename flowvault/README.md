@@ -17,6 +17,7 @@ detokenize, tokenize, and attach files to records in a Flow DB vault.
 - [Initialize the client](#initialize-the-client)
 - [Vault operations](#vault-operations)
 - [Custom request headers](#custom-request-headers)
+- [Timeouts and retries](#timeouts-and-retries)
 - [Error handling](#error-handling)
 - [Samples](#samples)
 - [License](#license)
@@ -45,7 +46,7 @@ import { Skyflow, InsertRequest, Env, LogLevel, SkyflowError } from 'skyflow-flo
 const skyflowClient = new Skyflow({
   vaultConfigs: [{
     vaultId: 'your-vault-id',
-    clusterId: 'your-cluster-id',   // from the vault URL: https://{clusterId}.vault.skyflowapis.com
+    clusterId: 'your-cluster-id',   // from the vault URL: https://{clusterId}.skyvault.skyflowapis.com
     env: Env.PROD,                  // DEV, STAGE, SANDBOX, or PROD
     credentials: { token: 'your-bearer-token' },
   }],
@@ -294,8 +295,8 @@ const skyflowClient = new Skyflow({
     vaultId: 'vault-id',
     clusterId: 'cluster-id',
     credentials: { token: 'bearer-token' },
-    timeout: 30,        // overall per-call timeout in seconds (incl. retries). Default 60.
-    maxRetries: 2,      // retry attempts after the first failure (408/429/5xx). Default off.
+    timeout: 30,        // timeout in seconds for each attempt, applied again to each retry. Default 60.
+    maxRetries: 2,      // retry attempts after the first failure (408/429/5xx). Default 2; 0 turns retries off.
     vaultUrl: 'https://cluster-id.skyvault.skyflowapis.com', // optional — override the derived URL
   }],
 });

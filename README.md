@@ -6,6 +6,8 @@
 
 Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
 
+> **Using a Flow DB vault?** This README covers the `skyflow-node` package. For FlowVault, install `skyflow-flowvault-node` instead and follow the [FlowVault Node SDK README](flowvault/README.md). Install only one of the two packages.
+
 [![CI](https://img.shields.io/static/v1?label=CI&message=passing&color=green?style=plastic&logo=github)](https://github.com/skyflowapi/skyflow-node/actions)
 [![GitHub release](https://badge.fury.io/js/skyflow-node.svg)](https://www.npmjs.com/package/skyflow-node)
 [![License](https://img.shields.io/github/license/skyflowapi/skyflow-node)](https://github.com/skyflowapi/skyflow-node/blob/main/LICENSE)

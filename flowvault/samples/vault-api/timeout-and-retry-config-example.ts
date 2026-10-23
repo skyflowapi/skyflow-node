@@ -11,8 +11,8 @@ import {
  *
  * The flowvault SDK honors these VaultConfig fields (applied to the generated
  * client's request layer at client construction):
- *   timeout     overall per-call timeout in seconds, incl. retries + backoff. Default 60.
- *   maxRetries  retry attempts after the first failure (408/429/5xx). Default off.
+ *   timeout     timeout in seconds for each attempt, applied again to each retry. Default 60.
+ *   maxRetries  retry attempts after the first failure (408/429/5xx). Default 2; 0 turns retries off.
  *   vaultUrl    override the vault URL derived from clusterId/env.
  *
  * NOTE: the finer-grained connect/read/write timeouts and retry-delay knobs from
