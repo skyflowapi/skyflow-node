@@ -1,3 +1,6 @@
 
 # npm pack artifacts (local)
 *.tgz
+
+# Local-only sample runner (real creds in .env — never commit)
+samples-local/
