@@ -114,7 +114,7 @@ describe('Skyflow facade', () => {
 describe('VaultController maps generated responses', () => {
   it('insert maps records to InsertResponse', async () => {
     const insertRecords = resourceMethod({
-      records: [{ skyflowID: 'id1', tokens: { card_number: 'tok_1' }, httpCode: 200, tableName: 'cards' }],
+      records: [{ skyflowID: 'id1', tokens: { card_number: [{ token: 'tok_1', tokenGroupName: 'deterministic_string' }] }, httpCode: 200, tableName: 'cards' }],
     });
     const controller = new VaultController(
       makeFakeClient({ records: { insertRecords } }) as any,
@@ -124,7 +124,7 @@ describe('VaultController maps generated responses', () => {
     expect(resp).toBeInstanceOf(InsertResponse);
     expect(insertRecords).toHaveBeenCalledTimes(1);
     expect(resp.records[0].skyflowId).toBe('id1');
-    expect(resp.records[0].tokens).toEqual({ card_number: 'tok_1' });
+    expect(resp.records[0].tokens).toEqual({ card_number: [{ token: 'tok_1', tokenGroupName: 'deterministic_string' }] });
     expect(resp.records[0].tableName).toBe('cards');
     expect(resp.records[0].httpCode).toBe(200);
     expect(resp.records[0].error).toBeNull();

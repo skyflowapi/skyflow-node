@@ -157,6 +157,8 @@ const options = new InsertOptions();
 
 const res = await vault.insert(req, options);
 // res.records[i]: { tableName, skyflowId, tokens, data, hashedData, httpCode, error, requestId }
+// tokens is keyed by column: Record<column, Token[]>, where Token is
+// { token, tokenGroupName, path? } — same shape as the Java/Python SDKs.
 ```
 
 ### Get

@@ -17,7 +17,7 @@ describe('VaultController.insert', () => {
       records: [
         {
           skyflowID: 'id1',
-          tokens: { card_number: 'tok_1' },
+          tokens: { card_number: [{ token: 'tok_1', tokenGroupName: 'deterministic_string', path: 'p1' }] },
           hashedData: { card_number: 'hash_1' },
           httpCode: 200,
           tableName: 'cards',
@@ -46,7 +46,8 @@ describe('VaultController.insert', () => {
     // Response mapped field-by-field.
     const record = resp.records[0];
     expect(record.skyflowId).toBe('id1');
-    expect(record.tokens).toEqual({ card_number: 'tok_1' });
+    // tokens are parsed into typed Token[] per column (path preserved when present).
+    expect(record.tokens).toEqual({ card_number: [{ token: 'tok_1', tokenGroupName: 'deterministic_string', path: 'p1' }] });
     expect(record.data).toBeNull();
     expect(record.hashedData).toEqual({ card_number: 'hash_1' });
     expect(record.tableName).toBe('cards');
@@ -69,6 +70,34 @@ describe('VaultController.insert', () => {
     expect(genReq.upsert).toBeUndefined();
     expect(resp.records[0].data).toEqual({ card_number: '4111' }); // data used when no tokens
     expect(resp.records[0].tokens).toBeNull();
+  });
+
+  it('parses token wire shapes: list of maps, bare value, and multiple groups per column', async () => {
+    const insertRecords = resourceMethod({
+      records: [
+        {
+          skyflowID: 'id1',
+          httpCode: 200,
+          tokens: {
+            // list of token maps (the common case)
+            ssn: [{ token: 't1', tokenGroupName: 'g1', path: 'p1' }],
+            // a bare value -> token-only entry, wrapped in a one-element list (matches Java)
+            email: 'bare-tok',
+            // two groups for one column
+            name: [{ token: 'a', tokenGroupName: 'g1' }, { token: 'b', tokenGroupName: 'g2' }],
+          },
+        },
+      ],
+    });
+    const controller = new VaultController(makeFakeClient({ records: { insertRecords } }));
+
+    const resp = await controller.insert(new InsertRequest('cards', [{ data: { ssn: '1' } }]));
+
+    expect(resp.records[0].tokens).toEqual({
+      ssn: [{ token: 't1', tokenGroupName: 'g1', path: 'p1' }],
+      email: [{ token: 'bare-tok' }],
+      name: [{ token: 'a', tokenGroupName: 'g1' }, { token: 'b', tokenGroupName: 'g2' }],
+    });
   });
 
   it('sends a per-record tableName when records carry their own table (multi-table insert)', async () => {

@@ -13,7 +13,7 @@ describe('VaultController.get', () => {
           tableName: 'cards',
           data: { name: 'alice' },
           hashedData: { name: 'h' },
-          tokens: { name: 'tok' },
+          tokens: { name: [{ token: 'tok', tokenGroupName: 'deterministic_string' }] },
           httpCode: 200,
         },
       ],
@@ -34,7 +34,7 @@ describe('VaultController.get', () => {
     expect(record.skyflowId).toBe('id1');
     expect(record.data).toEqual({ name: 'alice' });
     expect(record.hashedData).toEqual({ name: 'h' });
-    expect(record.tokens).toEqual({ name: 'tok' });
+    expect(record.tokens).toEqual({ name: [{ token: 'tok', tokenGroupName: 'deterministic_string' }] });
     expect(record.httpCode).toBe(200);
     expect(record.error).toBeNull();
     expect(record.requestId).toBeUndefined();

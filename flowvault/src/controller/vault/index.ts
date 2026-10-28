@@ -53,6 +53,7 @@ import {
   UploadFilesResponseRecord,
   DeleteFilesResponseRecord,
   UpsertOptions,
+  Token,
 } from '../../types';
 import {
   validateInsertRequest,
@@ -71,6 +72,55 @@ interface PreparedColumn {
   fileName?: string;
   bytes: Uint8Array;
   contentType: string;
+}
+
+/** The data plane names the system primary-key column `skyflowID` on the wire;
+ * the SDK surfaces it as `skyflowId` everywhere else. */
+const WIRE_SKYFLOW_ID = 'skyflowID';
+const SKYFLOW_ID = 'skyflowId';
+
+/** Parse one wire token entry into a typed {@link Token}. Mirrors the Java/Python
+ * flowvault `toToken`: a map yields token/tokenGroupName/path; a bare value
+ * (a column tokenized against a single unnamed group) yields a token-only entry. */
+function toToken(entry: unknown): Token | null {
+  if (entry !== null && typeof entry === 'object' && !Array.isArray(entry)) {
+    const map = entry as Record<string, unknown>;
+    const token: Token = {};
+    if (map.token != null) token.token = String(map.token);
+    if (map.tokenGroupName != null) token.tokenGroupName = String(map.tokenGroupName);
+    if (map.path != null) token.path = String(map.path);
+    return token;
+  }
+  if (entry != null) return { token: String(entry) };
+  return null;
+}
+
+/** Parse a single column's wire value (a list of entries, or one entry) into Token[]. */
+function parseTokenEntries(rawValue: unknown): Token[] | null {
+  if (rawValue == null) return null;
+  const parsed: Token[] = [];
+  const entries = Array.isArray(rawValue) ? rawValue : [rawValue];
+  for (const entry of entries) {
+    const token = toToken(entry);
+    if (token) parsed.push(token);
+  }
+  return parsed;
+}
+
+/**
+ * Parse the generic wire token map (`column -> value`) into `column -> Token[]`.
+ * Mirrors `Token.parseTokens` in the Java/Python flowvault SDKs so insert/get/
+ * update responses surface typed tokens instead of untyped maps. Returns null
+ * when there are no tokens.
+ */
+function parseTokens(raw: unknown): Record<string, Token[]> | null {
+  if (raw == null || typeof raw !== 'object') return null;
+  const parsed: Record<string, Token[]> = {};
+  for (const [column, value] of Object.entries(raw as Record<string, unknown>)) {
+    const tokens = parseTokenEntries(value);
+    if (tokens != null) parsed[column] = tokens;
+  }
+  return parsed;
 }
 
 /**
@@ -263,7 +313,7 @@ class VaultController {
     const result: InsertResponseRecord = {
       tableName: record.tableName ?? null,
       skyflowId: record.skyflowID ?? null,
-      tokens: record.tokens ?? null,
+      tokens: parseTokens(record.tokens),
       data: record.data ?? null,
       hashedData: record.hashedData ?? null,
       httpCode: record.httpCode,
@@ -349,7 +399,7 @@ class VaultController {
       tableName: record.tableName ?? null,
       data: record.data ?? null,
       hashedData: record.hashedData ?? null,
-      tokens: record.tokens ?? null,
+      tokens: parseTokens(record.tokens),
       httpCode: record.httpCode,
       error: hasError ? record.error : null,
     };
@@ -414,7 +464,7 @@ class VaultController {
     const result: UpdateResponseRecord = {
       skyflowId: record.skyflowID ?? null,
       tableName: record.tableName ?? null,
-      tokens: record.tokens ?? null,
+      tokens: parseTokens(record.tokens),
       data: record.data ?? null,
       hashedData: record.hashedData ?? null,
       httpCode: record.httpCode,
@@ -500,12 +550,21 @@ class VaultController {
       const requestId = this.getRequestId(rawResponse) ?? '';
       printLog(logs.infoLogs.QUERY_SUCCESS, MessageType.LOG, this.logLevel);
 
-      const fields = (data.records ?? []).map((record) => record.data ?? {});
+      // The query data plane returns the system primary-key column as
+      // `skyflowID`; normalize it to `skyflowId` so query rows (and the column
+      // list) use the same key as every other operation's response records.
+      const normalizeKey = (key: string): string => (key === WIRE_SKYFLOW_ID ? SKYFLOW_ID : key);
+      const fields = (data.records ?? []).map((record) => {
+        const row = record.data ?? {};
+        const normalized: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(row)) normalized[normalizeKey(key)] = value;
+        return normalized;
+      });
       // NOTE: generated ExecuteQueryResponse has no per-record errors block.
       return new QueryResponse({
         fields,
         errors: null,
-        metadata: { columns: data.metadata?.columns ?? [] },
+        metadata: { columns: (data.metadata?.columns ?? []).map(normalizeKey) },
         requestId,
       });
     } catch (error) {

@@ -14,7 +14,7 @@ silenceConsole();
 describe('VaultController.update', () => {
   it('builds skyflowID/data(+BYOT tokens) records and maps the response', async () => {
     const updateRecords = resourceMethod({
-      records: [{ skyflowID: 'id1', tokens: { x: 'tok' }, hashedData: { x: 'h' }, tableName: 'cards', httpCode: 200 }],
+      records: [{ skyflowID: 'id1', tokens: { x: [{ token: 'tok', tokenGroupName: 'deterministic_string' }] }, hashedData: { x: 'h' }, tableName: 'cards', httpCode: 200 }],
     });
     const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
 
@@ -30,7 +30,7 @@ describe('VaultController.update', () => {
 
     const record = resp.records[0];
     expect(record.skyflowId).toBe('id1');
-    expect(record.tokens).toEqual({ x: 'tok' });
+    expect(record.tokens).toEqual({ x: [{ token: 'tok', tokenGroupName: 'deterministic_string' }] });
     expect(record.data).toBeNull();
     expect(record.hashedData).toEqual({ x: 'h' });
     expect(record.tableName).toBe('cards');

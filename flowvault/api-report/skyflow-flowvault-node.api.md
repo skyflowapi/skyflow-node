@@ -282,7 +282,7 @@ export interface GetResponseRecord {
     // (undocumented)
     tableName?: string | null;
     // (undocumented)
-    tokens?: Record<string, unknown> | null;
+    tokens?: Record<string, Token[]> | null;
 }
 
 // @public
@@ -388,7 +388,7 @@ export interface InsertResponseRecord {
     // (undocumented)
     tableName?: string | null;
     // (undocumented)
-    tokens?: Record<string, unknown> | null;
+    tokens?: Record<string, Token[]> | null;
 }
 
 // @public
@@ -458,6 +458,16 @@ export { Skyflow }
 export default Skyflow;
 
 // @public
+export interface Token {
+    // (undocumented)
+    path?: string;
+    // (undocumented)
+    token?: string;
+    // (undocumented)
+    tokenGroupName?: string;
+}
+
+// @public
 export interface TokenGroupRedaction {
     // (undocumented)
     redaction: string;
@@ -522,7 +532,7 @@ export interface UpdateResponseRecord {
     // (undocumented)
     tableName?: string | null;
     // (undocumented)
-    tokens?: Record<string, unknown> | null;
+    tokens?: Record<string, Token[]> | null;
 }
 
 // @public

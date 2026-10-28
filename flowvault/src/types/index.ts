@@ -76,6 +76,19 @@ export interface DeleteFilesRecord {
 /** Result of uploading a file to a single column. */
 export type UploadStatus = 'UPLOADED' | 'FAILED' | 'SKIPPED';
 
+/**
+ * A single parsed token, surfaced per column in insert/get/update responses.
+ * Mirrors the `Token` type in the Java/Python flowvault SDKs. The SDK parses the
+ * generic wire token map into `Record<column, Token[]>`. `path` is populated only
+ * when the vault returns a token path; a column tokenized against a single
+ * unnamed group can come back as a bare value (then only `token` is set).
+ */
+export interface Token {
+  token?: string;
+  tokenGroupName?: string;
+  path?: string;
+}
+
 // ---------------------------------------------------------------------------
 // Unified response records. Every record carries httpCode and an optional
 // error. requestId is populated only when error is present.
@@ -86,7 +99,7 @@ export interface InsertResponseRecord {
   skyflowId?: string | null;
   // tokens and data are surfaced separately (matches the Java/Python flowvault
   // SDKs); either may be present depending on the vault configuration.
-  tokens?: Record<string, unknown> | null;
+  tokens?: Record<string, Token[]> | null;
   data?: Record<string, unknown> | null;
   hashedData?: Record<string, unknown> | null;
   httpCode: number;
@@ -99,7 +112,7 @@ export interface GetResponseRecord {
   tableName?: string | null;
   data?: Record<string, unknown> | null;
   hashedData?: Record<string, unknown> | null;
-  tokens?: Record<string, unknown> | null;
+  tokens?: Record<string, Token[]> | null;
   httpCode: number;
   error?: string | null;
   requestId?: string | null;
@@ -108,7 +121,7 @@ export interface GetResponseRecord {
 export interface UpdateResponseRecord {
   skyflowId?: string | null;
   tableName?: string | null;
-  tokens?: Record<string, unknown> | null;
+  tokens?: Record<string, Token[]> | null;
   data?: Record<string, unknown> | null;
   hashedData?: Record<string, unknown> | null;
   httpCode: number;

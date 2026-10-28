@@ -33,6 +33,19 @@ describe('VaultController.query', () => {
     expect(resp.requestId).toBe(REQUEST_ID);
   });
 
+  it('normalizes the data plane skyflowID key to skyflowId in rows and columns', async () => {
+    const executeQuery = resourceMethod({
+      records: [{ data: { skyflowID: 'id-1', name: 'alice' } }],
+      metadata: { columns: ['skyflowID', 'name'] },
+    });
+    const controller = new VaultController(makeFakeClient({ query: { executeQuery } }));
+
+    const resp = await controller.query(new QueryRequest('SELECT * FROM cards'));
+
+    expect(resp.fields).toEqual([{ skyflowId: 'id-1', name: 'alice' }]);
+    expect(resp.metadata.columns).toEqual(['skyflowId', 'name']);
+  });
+
   it('defaults fields to {} and columns to [] when absent; requestId falls back to ""', async () => {
     const executeQuery = resourceMethod({ records: [{}, { data: null }] }, rawResponseNoId);
     const controller = new VaultController(makeFakeClient({ query: { executeQuery } }));

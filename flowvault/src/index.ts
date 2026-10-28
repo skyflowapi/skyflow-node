@@ -48,6 +48,7 @@ export { default as DeleteFilesResponse } from './model/response/delete-files';
 // Record / helper types.
 export type { GetRecord } from './model/request/get';
 export type {
+  Token,
   InsertRecord,
   UpsertOptions,
   ColumnRedaction,
