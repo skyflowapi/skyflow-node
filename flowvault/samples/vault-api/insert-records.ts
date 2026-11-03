@@ -19,7 +19,7 @@ async function performSecureDataInsertion(): Promise<void> {
       vaultConfigs: [
         {
           vaultId: '<YOUR_VAULT_ID>',
-          clusterId: '<YOUR_CLUSTER_ID>', // from the vault URL: https://{clusterId}.vault.skyflowapis.com
+          clusterId: '<YOUR_CLUSTER_ID>', // from the vault URL: https://{clusterId}.skyvault.skyflowapis.com
           env: Env.PROD, // DEV, STAGE, SANDBOX, or PROD
           credentials,
         },
