@@ -91,7 +91,7 @@ The Skyflow SDK enables you to connect to your Skyflow Vault(s) to securely hand
 
 ## Installation
 
-Requires Node v12.22.12 and above.
+Requires Node.js v18 and above. File operations (`uploadFile`, `deidentifyFile`) require Node.js v20 and above.
 
 ```sh
 npm install skyflow-node
@@ -293,7 +293,7 @@ For all `InsertOptions` setters and `TokenMode` values, see [InsertOptions](docs
 
 Convert tokens back into plaintext values (or masked values) using the `.detokenize()` method. Detokenization accepts tokens and returns values.
 
-Create a detokenization request with the [`DetokenizeRequest`](docs/api_reference.md#detokenizerequest) class, which requires a list of tokens and column groups as input.
+Create a detokenization request with the [`DetokenizeRequest`](docs/api_reference.md#detokenizerequest) class, which requires a list of tokens as input, each with an optional redaction type.
 
 Provide optional parameters such as the redaction type and the option to continue on error.
 
@@ -304,6 +304,7 @@ import {
   DetokenizeOptions,
   DetokenizeRequest,
   DetokenizeResponse,
+  RedactionType,
 } from "skyflow-node";
 
 const detokenizeRequest = new DetokenizeRequest([
@@ -733,15 +734,19 @@ De-identify files using the `deidentifyFile` method. Create a de-identify file r
 > File de-identification requires Node.js v20.x or above.
 
 ```typescript
+import fs from 'fs';
 import {
   DeidentifyFileRequest,
   DeidentifyFileOptions,
-  DeidentifyFileResponse
+  DeidentifyFileResponse,
   SkyflowError,
   DetectEntities,
   MaskingMethod,
   DetectOutputTranscription,
-  Bleep
+  Bleep,
+  FileInput,
+  TokenFormat,
+  TokenType,
 } from 'skyflow-node';
 
 // Prepare the file to be deidentified
@@ -765,8 +770,6 @@ options.setTokenFormat(tokenFormat);
 options.setOutputDirectory('<OUTPUT_DIRECTORY_PATH>');  // Output directory for saving the deidentified file. Not supported in Cloudflare workers.
 options.setWaitTime(64);   // Wait time for polling (max 64 seconds; returns runId + status if exceeded)
 
-
-tifyFile
 const response: DeidentifyFileResponse = await skyflowClient
   .detect(primaryVaultConfig.vaultId)
   .deidentifyFile(fileReq, options);
@@ -808,14 +811,11 @@ Retrieve the results of a previously started file de-identification operation (o
 import {
   GetDetectRunRequest,
   DeidentifyFileResponse,
-  DeidentifyFileResponse
-  SkyflowError
+  SkyflowError,
 } from 'skyflow-node';
 
 // Prepare the GetDetectRunRequest with the runId from a previous deidentifyFile call
-const request = new GetDetectRunRequest({
-  runId: '<RUN_ID_FROM_DEIDENTIFY_FILE>', // Replace with the runId you received earlier
-});
+const request = new GetDetectRunRequest('<RUN_ID_FROM_DEIDENTIFY_FILE>'); // Replace with the runId you received earlier
 
 // Step 2: Call getDetectRun
 const response: DeidentifyFileResponse = await skyflowClient
@@ -837,7 +837,7 @@ Get Detect Run Response: { status: 'SUCCESS', runId: 'run-abc123', fileBase64: '
 
 ## Connections
 
-Securely send and receive data between your systems and first- or third-party services using Skyflow Connections, a gateway service that uses tokenization. The [connections](https://github.com/skyflowapi/skyflow-node/tree/v2/src/vault/controller/connections) module invokes both inbound and outbound connections.
+Securely send and receive data between your systems and first- or third-party services using Skyflow Connections, a gateway service that uses tokenization. The [connections](https://github.com/skyflowapi/skyflow-node/tree/main/src/vault/controller/connections) module invokes both inbound and outbound connections.
 
 - **Inbound connections**: Act as intermediaries between your client and server, tokenizing sensitive data before it reaches your backend, ensuring downstream services handle only tokenized data.
 - **Outbound connections**: Enable secure extraction of data from the vault and transfer it to third-party services via your backend server, such as processing checkout or card issuance flows.
@@ -900,7 +900,7 @@ Invoke connection response: { data: { status: 'success', transaction_id: 'txn_ab
 **pathParams, queryParams, header, body** are the JSON objects represented as dictionaries that will be sent through the connection integration url.
 
 > [!TIP]
-> See the full example in the samples directory: [scoped-token-generation-example.ts](samples/vault-api/invoke-connection.ts)  
+> See the full example in the samples directory: [invoke-connection.ts](samples/vault-api/invoke-connection.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on integrations with Connections, Functions, and Pipelines.
 
 ## Authentication & authorization
@@ -957,7 +957,7 @@ Generate and manage bearer tokens to authenticate API calls. This section covers
 
 #### Generate a bearer token
 
-Generate service account tokens using the [Service Account](https://github.com/skyflowapi/skyflow-node/tree/v2/src/service-account) Node package with a service account credentials file provided when a service account is created. Tokens generated by this module are valid for 60 minutes and can be used to make API calls to the [Data](https://docs.skyflow.com/record/) and [Management](https://docs.skyflow.com/management/) APIs, depending on the permissions assigned to the service account.
+Generate service account tokens using the [Service Account](https://github.com/skyflowapi/skyflow-node/tree/main/src/service-account) Node package with a service account credentials file provided when a service account is created. Tokens generated by this module are valid for 60 minutes and can be used to make API calls to the [Data](https://docs.skyflow.com/record/) and [Management](https://docs.skyflow.com/management/) APIs, depending on the permissions assigned to the service account.
 
 ##### `generateBearerToken(filepath)`
 
@@ -1019,7 +1019,7 @@ if (expired) {
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [token-generation-example.ts](http://github.com/skyflowapi/skyflow-node/blob/v2/samples/service-account/token-generation-example.ts)
+> See the full example in the samples directory: [token-generation-example.ts](samples/service-account/token-generation-example.ts)
 
 #### Generate bearer tokens scoped to certain roles
 
@@ -1278,7 +1278,7 @@ Most first-run problems come from configuration mismatches. Every error thrown b
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `npm install skyflow-node` fails | Unsupported Node version | Requires Node v12.22.12 or above. |
+| `npm install skyflow-node` fails | Unsupported Node version | Requires Node.js v18 or above. |
 | Connection/DNS failures, or 404 on every call | Wrong `clusterId` | `clusterId` is the first segment of your vault URL: `https://{clusterId}.vault.skyflowapis.com`. |
 | Requests hit the wrong host / unexpected auth failures | Wrong `env` | Match `env` to where your vault runs (`Env.PROD`, `Env.SANDBOX`, `Env.DEV`, `Env.STAGE`). |
 | `401 Unauthorized` | Invalid or expired credentials | Verify your API key or service-account credentials. Regenerate if needed. |

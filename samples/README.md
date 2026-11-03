@@ -5,7 +5,7 @@ Explore working examples that demonstrate common SDK operations. Start with basi
 ## Prerequisites
 
 - A Skyflow account. If you don't have one, register for one on the [Try Skyflow](https://skyflow.com/try-skyflow) page.
-- [Node 7.6.0](https://nodejs.org/en/) and above.
+- [Node.js](https://nodejs.org/en/) v18 and above. File-upload and de-identify-file samples require Node.js v20 and above.
 
 ## Prepare
 
