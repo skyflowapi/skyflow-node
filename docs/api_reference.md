@@ -1,6 +1,6 @@
 # API Reference
 
-A reference for the public Skyflow Node SDK surface: client-management methods, request classes, options classes, response classes, enums, Detect helper classes, and service-account functions. For task-oriented usage and examples, see the [README](../README.md).
+A reference for the public Skyflow Node SDK surface: client-management methods, request classes, options classes, response classes, enums, the Detect API (shared with the flowvault SDK), and service-account functions. For task-oriented usage and examples, see the [README](../README.md).
 
 All properties, setters, and enum values below are taken directly from the SDK source.
 
@@ -11,7 +11,7 @@ All properties, setters, and enum values below are taken directly from the SDK s
 - [Options classes](#options-classes)
 - [Response classes](#response-classes)
 - [Enums](#enums)
-- [Detect helper classes](#detect-helper-classes)
+- [Detect API](#detect-api)
 - [Service account functions](#service-account-functions)
 
 ---
@@ -23,7 +23,7 @@ The `Skyflow` client exposes the following methods to manage configuration at ru
 | Method | Description |
 |--------|-------------|
 | `vault(vaultId?)` | Return a `VaultController` for the given vault ID. Defaults to the first configured vault. |
-| `detect(vaultId?)` | Return a `DetectController` for the given vault ID. |
+| `detect(vaultId?)` | Return a `DetectController` for the given vault ID. See [Detect API](#detect-api). |
 | `connection(connectionId?)` | Return a `ConnectionController` for the given connection ID. |
 | `addVaultConfig(config)` | Add a vault configuration after initialization. Throws if the vault ID already exists. |
 | `updateVaultConfig(config)` | Update an existing vault configuration. |
@@ -141,52 +141,6 @@ Passed to `vault().uploadFile()`. Use [`FileUploadOptions`](#fileuploadoptions) 
 | `table` | `string` | Target table name. |
 | `columnName` | `string` | File column name. |
 
-### `DeidentifyTextRequest`
-
-Passed to `detect().deidentifyText()`.
-
-| Constructor argument | Type | Description |
-|---|---|---|
-| `text` | `string` | Text to de-identify. |
-
-Configure additional behavior with [`DeidentifyTextOptions`](#deidentifytextoptions).
-
-### `ReidentifyTextRequest`
-
-Passed to `detect().reidentifyText()`.
-
-| Constructor argument | Type | Description |
-|---|---|---|
-| `text` | `string` | The redacted/de-identified text to re-identify. |
-
-Configure additional behavior with [`ReidentifyTextOptions`](#reidentifytextoptions).
-
-### `FileInput`
-
-Passed as the constructor argument to `DeidentifyFileRequest`. Provide **exactly one** source.
-
-| Variant | Shape | Description |
-|---|---|---|
-| `FileObject` | `{ file: File }` | An in-memory `File` object. |
-| `Filepath` | `{ filePath: string }` | Path to a file on disk. |
-
-### `DeidentifyFileRequest`
-
-Passed to `detect().deidentifyFile()`. Provide either a `File` object or a file path — not both.
-
-| Constructor argument | Type | Description |
-|---|---|---|
-| `fileInput` | [`FileInput`](#fileinput) | `{ file: File }` or `{ filePath: string }`. |
-
-Configure additional behavior with [`DeidentifyFileOptions`](#deidentifyfileoptions).
-
-### `GetDetectRunRequest`
-
-Passed to `detect().getDetectRun()`.
-
-| Constructor argument | Type | Description |
-|---|---|---|
-| `options` | `{ runId: string }` | The `runId` returned by a prior `deidentifyFile` call. |
 
 ### `InvokeConnectionRequest`
 
@@ -258,43 +212,6 @@ Provide **exactly one** file source: `setFileObject`, `setFilePath`, or `setBase
 | `setBase64(data)` | `string` | Base64-encoded file content. Use with `setFileName`. |
 | `setFileName(name)` | `string` | Filename for base64 uploads (e.g. `"document.pdf"`). |
 
-### `DeidentifyTextOptions`
-
-| Setter | Type | Description |
-|---|---|---|
-| `setEntities(entities)` | `DetectEntities[]` | Entity types to detect and de-identify. |
-| `setAllowRegexList(patterns)` | `string[]` | Regex patterns that always match as entities. |
-| `setRestrictRegexList(patterns)` | `string[]` | Regex patterns that never match as entities. |
-| `setTokenFormat(format)` | `TokenFormat` | Token format per entity type. See [`TokenFormat`](#tokenformat). |
-| `setTransformations(t)` | `Transformations` | Custom transformations. See [`Transformations`](#transformations). |
-
-### `ReidentifyTextOptions`
-
-| Setter | Type | Description |
-|---|---|---|
-| `setRedactedEntities(entities)` | `DetectEntities[]` | Entity types to keep redacted. |
-| `setMaskedEntities(entities)` | `DetectEntities[]` | Entity types to mask. |
-| `setPlainTextEntities(entities)` | `DetectEntities[]` | Entity types to reveal as plain text. |
-
-### `DeidentifyFileOptions`
-
-| Setter | Type | Description |
-|---|---|---|
-| `setEntities(entities)` | `DetectEntities[]` | Entity types to detect. |
-| `setAllowRegexList(patterns)` | `string[]` | Regex patterns to always treat as detectable. |
-| `setRestrictRegexList(patterns)` | `string[]` | Regex patterns to exclude from detection. |
-| `setTokenFormat(format)` | `TokenFormat` | Token format per entity type. |
-| `setTransformations(t)` | `Transformations` | Custom transformations (not supported for Documents, Images, or PDFs). |
-| `setOutputDirectory(path)` | `string` | Directory to write the processed file. Not supported in Cloudflare Workers. |
-| `setWaitTime(seconds)` | `number` | Max seconds to poll (≤ 64). Returns `runId` + `status` if exceeded. |
-| `setOutputProcessedImage(bool)` | `boolean` | Include the processed image in the response. Images only. |
-| `setOutputOcrText(bool)` | `boolean` | Include OCR-extracted text. Images only. |
-| `setMaskingMethod(method)` | `MaskingMethod` | Masking method for image entities. See [`MaskingMethod`](#maskingmethod). |
-| `setPixelDensity(dpi)` | `number` | DPI for image rendering. Images/PDFs only. |
-| `setMaxResolution(px)` | `number` | Maximum pixel dimension of the output. Images/PDFs only. |
-| `setOutputProcessedAudio(bool)` | `boolean` | Include processed audio in the response. Audio only. |
-| `setOutputTranscription(format)` | `DetectOutputTranscription` | Transcription format. See [`DetectOutputTranscription`](#detectoutputtranscription). Audio only. |
-| `setBleep(bleep)` | `Bleep` | Bleep tone config for redacted audio spans. See [`Bleep`](#bleep). Audio only. |
 
 ---
 
@@ -386,46 +303,6 @@ Returned by `connection().invoke()`.
 | `metadata` | `{ requestId: string } \| undefined` | Response metadata including the server-side `requestId`. |
 | `errors` | `SkyflowRecordError[] \| null` | See note above. |
 
-### `DeidentifyTextResponse`
-
-Returned by `detect().deidentifyText()`.
-
-| Field | Type | Description |
-|---|---|---|
-| `processedText` | `string` | The de-identified text. |
-| `entities` | `Array<{token, value, textIndex: IndexRange, processedIndex: IndexRange, entity, scores}>` | Detected entities. |
-| `wordCount` | `number` | Word count of the input text. |
-| `charCount` | `number` | Character count of the input text. |
-| `errors` | `SkyflowRecordError[] \| null` | See note above. |
-
-### `ReidentifyTextResponse`
-
-Returned by `detect().reidentifyText()`.
-
-| Field | Type | Description |
-|---|---|---|
-| `processedText` | `string` | The re-identified text. |
-
-### `DeidentifyFileResponse`
-
-Returned by `detect().deidentifyFile()` and `detect().getDetectRun()`. All fields are optional — populated based on file type and processing status. When processing exceeds `setWaitTime`, only `runId` and `status` are set; poll with `getDetectRun`.
-
-| Field | Type | Description |
-|---|---|---|
-| `fileBase64` | `string \| undefined` | The processed file as a base64 string. |
-| `file` | `File \| undefined` | The processed `File` object. |
-| `type` | `string \| undefined` | MIME type of the processed file. |
-| `extension` | `string \| undefined` | File extension of the processed file. |
-| `wordCount` | `number \| undefined` | Word count (text-bearing files). |
-| `charCount` | `number \| undefined` | Character count (text-bearing files). |
-| `sizeInKb` | `number \| undefined` | Size of the processed file in KB. |
-| `durationInSeconds` | `number \| undefined` | Duration in seconds (audio files). |
-| `pageCount` | `number \| undefined` | Page count (PDF/document files). |
-| `slideCount` | `number \| undefined` | Slide count (presentation files). |
-| `entities` | `Array<{file: string; extension: string}>` | Detected entity files. Defaults to `[]`. |
-| `runId` | `string \| undefined` | Run identifier; pass to `getDetectRun` to poll. |
-| `status` | `string \| undefined` | Processing status (`IN_PROGRESS`, `SUCCESS`, `FAILED`). |
-| `errors` | `SkyflowRecordError[] \| null` | See note above. |
 
 ### `SkyflowRecordError`
 
@@ -481,15 +358,6 @@ BYOT mode for `InsertOptions` and `UpdateOptions`.
 | `TokenMode.ENABLE` | Caller-supplied tokens accepted as-is. |
 | `TokenMode.ENABLE_STRICT` | Caller-supplied tokens validated before accepting. |
 
-### `TokenType`
-
-Token format used in `TokenFormat.setDefault()`.
-
-| Value | Description |
-|---|---|
-| `TokenType.VAULT_TOKEN` | Standard vault token. |
-| `TokenType.ENTITY_UNIQUE_COUNTER` | Entity-unique counter token. |
-| `TokenType.ENTITY_ONLY` | Entity label only (no token value). |
 
 ### `OrderByEnum`
 
@@ -507,66 +375,306 @@ HTTP method for `InvokeConnectionRequest`.
 
 Values: `GET`, `POST`, `PUT`, `PATCH`.
 
-### `MaskingMethod`
-
-Image masking method for `DeidentifyFileOptions.setMaskingMethod()`.
-
-Values: `Blackbox`, `Blur`.
-
-### `DetectOutputTranscription`
-
-Audio transcription format for `DeidentifyFileOptions.setOutputTranscription()`.
-
-Values: `DIARIZED_TRANSCRIPTION`, `MEDICAL_DIARIZED_TRANSCRIPTION`, `MEDICAL_TRANSCRIPTION`, `TRANSCRIPTION`, `PLAINTEXT_TRANSCRIPTION`.
-
-### `DetectEntities`
-
-Entity types Skyflow Detect can identify — e.g. `SSN`, `CREDIT_CARD`, `NAME`, `DOB`, `PHONE_NUMBER`, `EMAIL`, `ACCOUNT_NUMBER`, and more. Import from `'skyflow-node'`.
 
 ---
 
-## Detect helper classes
+## Detect API
 
-All importable from `'skyflow-node'`.
+Shared by the `skyflow-node` and `skyflow-flowvault-node` SDKs: every class, interface and enum below is importable from either package. `skyflowClient.detect()` and `skyflowClient.detect(vaultId)` return a `DetectController`. Usage and examples: [skyvault README](../README.md#detect), [flowvault README](../flowvault/README.md#detect).
 
-### `TokenFormat`
+| Method | Request | Response |
+|--------|---------|----------|
+| `deidentifyString` | [`DeidentifyStringRequest`](#deidentifystringrequest) | [`DeidentifyStringResponse`](#deidentifystringresponse) |
+| `deidentifyFile` | [`DeidentifyFileRequest`](#deidentifyfilerequest) | [`DeidentifyFileResponse`](#deidentifyfileresponse) |
+| `reidentifyString` | [`ReidentifyStringRequest`](#reidentifystringrequest) | [`ReidentifyStringResponse`](#reidentifystringresponse) |
+| `reidentifyFile` | [`ReidentifyFileRequest`](#reidentifyfilerequest) | [`ReidentifyFileResponse`](#reidentifyfileresponse) |
+| `getRun` | [`GetRunRequest`](#getrunrequest) | [`GetRunResponse`](#getrunresponse) |
+| `checkGuardrails` | [`CheckGuardrailsRequest`](#checkguardrailsrequest) | [`CheckGuardrailsResponse`](#checkguardrailsresponse) |
 
-Controls the token representation per entity type in de-identification. Pass to `DeidentifyTextOptions.setTokenFormat()` or `DeidentifyFileOptions.setTokenFormat()`.
+Configuration and helper types: [`DetectConfiguration`](#detectconfiguration), [`Detect`](#detect), [`Entity`](#entity), [`Transformation` and `ShiftDates`](#transformation-and-shiftdates), [`CustomType`](#customtype), [`ObjectEntity`](#objectentity), [`FileMapping`](#filemapping), [`Media`](#media) (with `Audio`, `Bleep`, `Document`, `Pdf`, `Image`), [`PollOptions`](#polloptions), [`RedactionLevel`](#redactionlevel), [`DetectedEntity`](#detectedentity), [`EntityLocation`](#entitylocation), [`Metrics`](#metrics), [`FileOutput`](#fileoutput). Enums: [Detect enums](#detect-enums).
 
-| Setter | Type | Description |
-|---|---|---|
-| `setDefault(type)` | `TokenType` | Default token format for all detected entities. |
-| `setVaultToken(entities)` | `DetectEntities[]` | Use vault tokens for these specific entity types. |
-| `setEntityUniqueCounter(entities)` | `DetectEntities[]` | Use entity-unique counter tokens for these types. |
-| `setEntityOnly(entities)` | `DetectEntities[]` | Use entity-only (no token) for these types. |
+Request classes take their required fields as constructor arguments and their optional fields in a trailing object; every field is also exposed as a settable property. Response classes are read-only data containers.
 
-### `Transformations`
+### `DeidentifyStringRequest`
 
-Specifies custom transformations applied to detected entities during de-identification. Pass to `DeidentifyTextOptions.setTransformations()`.
-
-| Setter | Type | Description |
-|---|---|---|
-| `setShiftDays(config)` | `{ max: number; min: number; entities: DetectEntities[] }` | Shift date entities by a random number of days within `[min, max]`. |
-
-### `Bleep`
-
-Audio bleep tone configuration. Pass to `DeidentifyFileOptions.setBleep()`.
-
-| Setter | Type | Description |
-|---|---|---|
-| `setGain(value)` | `number` | Volume of the bleep tone (0.0 – 1.0). |
-| `setFrequency(hz)` | `number` | Frequency in hertz. |
-| `setStartPadding(seconds)` | `number` | Silence padding before the bleep. |
-| `setStopPadding(seconds)` | `number` | Silence padding after the bleep. |
-
-### `IndexRange`
-
-Character position range within text. Used in `DeidentifyTextResponse.entities[].textIndex` and `.processedIndex`.
+`new DeidentifyStringRequest(text, fields?)` — passed to `detect().deidentifyString()`.
 
 | Field | Type | Description |
 |---|---|---|
-| `start` | `number \| undefined` | Start offset. |
-| `end` | `number \| undefined` | End offset. |
+| `text` | `string` | **Required.** Text to de-identify. |
+| `configurationId` | `string` | Id of a Detect configuration created through the management API. Sending it together with `configuration` is rejected by the API. |
+| `configuration` | [`DetectConfiguration`](#detectconfiguration) | Inline configuration. With neither this nor `configurationId` set, the SDK sends only the vault id and the server applies the vault's defaults. |
+
+### `DeidentifyFileRequest`
+
+`new DeidentifyFileRequest(fields)` — passed to `detect().deidentifyFile()`. Supply the file through exactly one of `value` (with a `dataSource`), `file` or `filePath`.
+
+| Field | Type | Description |
+|---|---|---|
+| `dataSource` | [`DeidentifySourceType`](#detect-enums) | How `value` supplies the file, as your SDK's enum: `BASE64` or `PRESIGNED_URL`; the skyvault SDK also offers `SKYFLOW_ID`. |
+| `value` | `string` | Base64 content, a skyflow id, or a presigned URL, per `dataSource`. |
+| `file` | `File` | In-memory `File`; read and base64-encoded when sent, `dataSource` set to `BASE64`. Requires Node.js v20+. |
+| `filePath` | `string` | Path to a local file; same handling as `file`. |
+| `dataFormat` | [`FileDataFormat`](#detect-enums) | File format. Inferred from the file name's extension when omitted for a local file. |
+| `configurationId` | `string` | Id of a stored Detect configuration. Sending it together with `configuration` is rejected by the API. |
+| `configuration` | [`DetectConfiguration`](#detectconfiguration) | Inline configuration. With neither this nor `configurationId` set, the server applies the vault's defaults. |
+| `pollOptions` | [`PollOptions`](#polloptions) | Poll the run after submitting. Omit to submit only and return the run id. |
+| `outputDirectory` | `string` | Where outputs are written on success. Requires `pollOptions` and a local file; setting it without `pollOptions` fails client-side validation. Defaults to the working directory. |
+
+### `ReidentifyStringRequest`
+
+`new ReidentifyStringRequest(text, fields?)` — passed to `detect().reidentifyString()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `text` | `string` | **Required.** The de-identified text to re-identify. |
+| `redactionLevel` | [`RedactionLevel[]`](#redactionlevel) | Per-entity redaction rules. Without rules every token is replaced by its original value. |
+
+### `ReidentifyFileRequest`
+
+`new ReidentifyFileRequest(dataSource, value, fields?)` — passed to `detect().reidentifyFile()`. Synchronous: the re-identified file comes back in the response.
+
+| Field | Type | Description |
+|---|---|---|
+| `dataSource` | [`ReidentifySourceType`](#detect-enums) | **Required.** Your SDK's enum: `BASE64` or `PRESIGNED_URL`. Re-identification does not accept a skyflow id as the source. |
+| `value` | `string` | **Required.** Base64 content or a presigned URL, per `dataSource`. |
+| `dataFormat` | [`FileDataFormat`](#detect-enums) | Limited to the formats that support `VAULT_TOKEN`: `TXT`, `CSV`, `JSON`, `JSONL`, `XML`, `DOCX`, `XLSX` or `PPTX`. |
+| `redactionLevel` | [`RedactionLevel[]`](#redactionlevel) | Redaction rules. |
+
+### `GetRunRequest`
+
+`new GetRunRequest(runId)` — passed to `detect().getRun()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `runId` | `string` | **Required.** The run id returned by a prior `deidentifyFile` call. |
+
+### `CheckGuardrailsRequest`
+
+`new CheckGuardrailsRequest(text, fields?)` — passed to `detect().checkGuardrails()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `text` | `string` | **Required.** Text to screen. |
+| `checkToxicity` | `boolean` | Whether to check for toxicity. Sent only when set. |
+| `denyTopics` | `string[]` | Topics to deny. Sent only when set. |
+
+### `DeidentifyStringResponse`
+
+Returned by `detect().deidentifyString()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `processedText` | `string \| null` | The de-identified text with entity values replaced by tokens. |
+| `entities` | [`DetectedEntity[]`](#detectedentity) | Detected entities, never `null`. |
+| `metrics` | [`Metrics`](#metrics)` \| null` | Word and character counts. |
+
+### `ReidentifyStringResponse`
+
+Returned by `detect().reidentifyString()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `processedText` | `string \| null` | The re-identified text. |
+| `metrics` | [`Metrics`](#metrics)` \| null` | Word and character counts. |
+
+### `DeidentifyFileResponse`
+
+Returned by `detect().deidentifyFile()`. Without `pollOptions` only `runId` is set.
+
+| Field | Type | Description |
+|---|---|---|
+| `runId` | `string \| null` | Run id, always present once the run was submitted. |
+| `status` | [`DetectRunStatus`](#detect-enums)` \| null` | Run status when polled, `null` when submit only. |
+| `outputType` | [`DeidentifySourceType`](#detect-enums)` \| null` | The run's output type resolved onto your SDK's enum; `null` until the run completes or when the value is not one the SDK offers. |
+| `output` | [`FileOutput[]`](#fileoutput) | Every output of the run, empty until complete, never `null`. |
+| `metrics` | [`Metrics`](#metrics)` \| null` | Size, counts, pages, slides, duration. `null` until complete. |
+| `message` | `string \| null` | Failure detail when the status is `FAILED`. |
+
+### `ReidentifyFileResponse`
+
+Returned by `detect().reidentifyFile()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `status` | [`DetectRunStatus`](#detect-enums) | Status of the re-identification. |
+| `outputType` | [`ReidentifySourceType`](#detect-enums)` \| null` | The output type resolved onto your SDK's enum; `null` when the value is not one the SDK offers. |
+| `output` | [`FileOutput[]`](#fileoutput) | Re-identified file outputs, never `null`. |
+| `metrics` | [`Metrics`](#metrics)` \| null` | Size and counts. |
+
+### `GetRunResponse`
+
+Returned by `detect().getRun()`. Same fields as [`DeidentifyFileResponse`](#deidentifyfileresponse).
+
+### `CheckGuardrailsResponse`
+
+Returned by `detect().checkGuardrails()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `text` | `string \| null` | The screened text. |
+| `validation` | [`GuardrailsValidation`](#detect-enums) | `PASSED` or `FAILED`; `UNKNOWN` for a value this SDK version does not know. |
+| `toxic` | `boolean \| null` | Whether the text was judged toxic, `null` when the check did not run. |
+| `deniedTopic` | `boolean \| null` | Whether a denied topic was found, `null` when no topics were supplied. |
+
+### `DetectConfiguration`
+
+Inline Detect policy for `deidentifyString` and `deidentifyFile`. A plain interface: write it as an object literal.
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | `string` | Configuration name. |
+| `description` | `string` | Configuration description. |
+| `detect` | [`Detect`](#detect) | What to detect and how to de-identify it. |
+| `fileMapping` | [`FileMapping[]`](#filemapping) | Per-column handling for structured files. File inputs only. |
+| `media` | [`Media`](#media) | Audio, document and image options for file calls. File inputs only. |
+
+### `Detect`
+
+| Field | Type | Description |
+|---|---|---|
+| `entities` | [`Entity[]`](#entity) | Entities to detect, each with its own de-identification type. |
+| `objectEntities` | [`ObjectEntity[]`](#objectentity) | Visual objects to detect in images. |
+| `restrict` | `string[]` | Regexes to always treat as sensitive. |
+| `skip` | `string[]` | Regexes to never treat as sensitive. |
+| `customTypes` | [`CustomType[]`](#customtype) | Regex-defined entity types. |
+| `returnEntities` | `ReturnEntitiesType` | Whether raw values come back in the response. Server default `EXCLUDE_SENSITIVE_DATA`. |
+
+### `Entity`
+
+| Field | Type | Description |
+|---|---|---|
+| `entityType` | `EntityType` | Entity type. Server default `ALL`. |
+| `deidentificationType` | `DeidentificationType` | How the value is replaced. Server default `ENTITY_UNIQUE_COUNTER`. |
+| `destination` | `string` | For `VAULT_TOKEN`: where the value is stored. A `table.column` on skyvault vaults, a token group name on flowvault vaults. Must already exist. |
+| `transformation` | [`Transformation`](#transformation-and-shiftdates) | Date shifting. |
+
+### `Transformation` and `ShiftDates`
+
+`{ shiftDates?: { minDays?: number; maxDays?: number } }`. Dates are shifted by a random amount within the range.
+
+### `CustomType`
+
+| Field | Type | Description |
+|---|---|---|
+| `label` | `string` | Becomes the entity type on the response. |
+| `match` | `string[]` | Regexes that define the type. |
+
+### `ObjectEntity`
+
+| Field | Type | Description |
+|---|---|---|
+| `entityType` | `ObjectEntityType` | `FACE`, `LICENSE_PLATE`, `LOGO`, `SIGNATURE` or `ALL`. |
+| `deidentificationType` | `ObjectDeidentificationType` | `REDACT` or `UNREDACT`. |
+
+### `FileMapping`
+
+| Field | Description |
+|---|---|
+| `source` | Source column. |
+| `destination` | Destination column. |
+| `outputFileNameSuffix` | Suffix added to the output file name. |
+| `entitiesDestination` | Column that receives the detected entities. |
+| `objectEntitiesDestination` | Column that receives the detected object entities. |
+
+### `Media`
+
+`{ audio?: Audio; document?: Document; image?: Image }`.
+
+| Interface | Fields |
+|-------|-----------------|
+| `Audio` | `outputProcessedAudio?: boolean`, `outputTranscription?: OutputTranscriptionType`, `bleep?: Bleep` |
+| `Bleep` | `startPadding?: number`, `stopPadding?: number`, `frequency?: number`, `gain?: number` |
+| `Document` | `pdf?: Pdf` |
+| `Pdf` | `processingMode?: PdfProcessingMode`, `density?: number`, `maxResolution?: number` |
+| `Image` | `outputProcessedImage?: boolean`, `outputOcrText?: boolean`, `maskingMethod?: MaskingMethod` |
+
+### `PollOptions`
+
+Opts `deidentifyFile` into submit-and-poll mode. The SDK polls with exponential backoff (1, 2, 4, 8, 16, then 32 seconds). The limits are exported as `POLL_OPTIONS`.
+
+| Field | Default | Description |
+|---|---|---|
+| `waitTime` | `60` | Maximum total seconds to keep polling, 1 to 300. |
+| `maxAttempts` | `23` | Maximum number of run lookups, 1 to 23. |
+
+### `RedactionLevel`
+
+Element of `redactionLevel` on `ReidentifyStringRequest` and `ReidentifyFileRequest`. Each SDK ships its own `RedactionLevel` with the pair its vault understands; the shared request models accept it through the `RedactionRule` contract in `skyflow-common`. Every field is optional on the API; the server rejects invalid combinations.
+
+skyvault SDK (`skyflow-node`):
+
+| Field | Type | Description |
+|---|---|---|
+| `entityName` | `EntityType` | Entity type the rule applies to. |
+| `redactionType` | [`RedactionType`](#redactiontype) | `PLAIN_TEXT`, `MASKED`, `REDACTED` or `DEFAULT`. |
+
+flowvault SDK (`skyflow-flowvault-node`):
+
+| Field | Type | Description |
+|---|---|---|
+| `tokenGroupName` | `string` | Token group the rule applies to. |
+| `redactionPattern` | `string` | Name of a redaction pattern configured in the vault. |
+
+### `DetectedEntity`
+
+Element of `DeidentifyStringResponse.entities`.
+
+| Field | Type | Description |
+|---|---|---|
+| `token` | `string \| null` | The token that replaced the value, e.g. `NAME_1`. |
+| `value` | `string \| null` | The original value; empty unless `returnEntities` is `ALL`. |
+| `location` | [`EntityLocation`](#entitylocation)` \| null` | Offsets in the original and processed text. |
+| `entityType` | `string \| null` | Entity type label, including custom type labels. |
+| `entityScores` | `Record<string, number>` | Confidence scores per entity type. |
+
+### `EntityLocation`
+
+| Field | Type | Description |
+|---|---|---|
+| `startIndex` / `endIndex` | `number \| null` | Offsets into the original text. |
+| `startIndexProcessed` / `endIndexProcessed` | `number \| null` | Offsets into the processed text. |
+
+### `Metrics`
+
+| Field | Type | Description |
+|---|---|---|
+| `size` | `number \| null` | Size in kilobytes. |
+| `wordCount` | `number \| null` | Word count. |
+| `characterCount` | `number \| null` | Character count. |
+| `pages` | `number \| null` | Page count, documents only. |
+| `slides` | `number \| null` | Slide count, presentations only. |
+| `duration` | `number \| null` | Duration in seconds, audio only. |
+
+### `FileOutput`
+
+Element of `output` on the file responses.
+
+| Field | Type | Description |
+|---|---|---|
+| `processedFile` | `string \| null` | Base64 content or a presigned URL, per the response's `outputType`. |
+| `processedFileType` | `string \| null` | `REDACTED_FILE`, `ENTITIES`, `OBJECT_ENTITIES`, `REDACTED_TEXT`, and so on. |
+| `processedFileExtension` | `FileDataFormat \| null` | Extension of the output. |
+
+### Detect enums
+
+All string enums whose values match the wire values.
+
+| Enum | Values |
+|------|--------|
+| `EntityType` | the 70 entity types (`NAME`, `EMAIL_ADDRESS`, `SSN`, `CREDIT_CARD`, `DOB`, ...), plus `ALL` and `NONE` |
+| `DeidentificationType` | `ENTITY_UNIQUE_COUNTER` _(server default)_, `ENTITY_ONLY`, `VAULT_TOKEN`, `MASK`, `UNKNOWN` |
+| `DeidentifySourceType` | Per SDK: skyvault `BASE64`, `SKYFLOW_ID`, `PRESIGNED_URL`; flowvault `BASE64`, `PRESIGNED_URL`. Input source for `deidentifyFile`, and the `outputType` of `DeidentifyFileResponse` and `GetRunResponse`. |
+| `ReidentifySourceType` | Per SDK, `BASE64`, `PRESIGNED_URL` on both. Input source for `reidentifyFile` and the `outputType` of `ReidentifyFileResponse`. |
+| `FileDataFormat` | `BMP`, `CSV`, `DCM`, `DOC`, `DOCX`, `GIF`, `JPEG`, `JPG`, `JSON`, `JSONL`, `MP3`, `PDF`, `PNG`, `PPT`, `PPTX`, `TIF`, `TIFF`, `TXT`, `WAV`, `XLS`, `XLSX`, `XML`, `ZIP` |
+| `DetectRunStatus` | `QUEUED`, `IN_PROGRESS`, `SUCCESS`, `FAILED`, `UNKNOWN`. `SUCCESS`, `FAILED` and `UNKNOWN` end polling. |
+| `ReturnEntitiesType` | `EXCLUDE_SENSITIVE_DATA` _(server default)_, `ALL`, `NONE` |
+| `MaskingMethod` | `NONE`, `BLUR`, `BLACKBOX` |
+| `OutputTranscriptionType` | `NONE`, `TRANSCRIPTION`, `MEDICAL_TRANSCRIPTION`, `DIARIZED_TRANSCRIPTION`, `MEDICAL_DIARIZED_TRANSCRIPTION` |
+| `PdfProcessingMode` | `NONE`, `OCR`, `TEXT_LAYER` |
+| `ObjectEntityType` | `NONE`, `FACE`, `LICENSE_PLATE`, `LOGO`, `SIGNATURE`, `ALL` |
+| `ObjectDeidentificationType` | `UNKNOWN`, `REDACT`, `UNREDACT` |
+| `GuardrailsValidation` | `PASSED`, `FAILED`, `UNKNOWN` |
 
 ---
 

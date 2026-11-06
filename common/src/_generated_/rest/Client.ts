@@ -8,13 +8,17 @@ import * as Skyflow from "./api/index";
 import urlJoin from "url-join";
 import * as errors from "./errors/index";
 import { Authentication } from "./api/resources/authentication/client/Client";
+import { TokenExchange } from "./api/resources/tokenExchange/client/Client";
+import { FilesV2 } from "./api/resources/filesV2/client/Client";
+import { StringsV2 } from "./api/resources/stringsV2/client/Client";
+import { GuardrailsV2 } from "./api/resources/guardrailsV2/client/Client";
 
 export declare namespace SkyflowClient {
     export interface Options {
         environment?: core.Supplier<environments.SkyflowEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
-        token: core.Supplier<core.BearerToken>;
+        token?: core.Supplier<core.BearerToken | undefined>;
         fetcher?: core.FetchFunction;
     }
 
@@ -32,11 +36,31 @@ export declare namespace SkyflowClient {
 
 export class SkyflowClient {
     protected _authentication: Authentication | undefined;
+    protected _tokenExchange: TokenExchange | undefined;
+    protected _filesV2: FilesV2 | undefined;
+    protected _stringsV2: StringsV2 | undefined;
+    protected _guardrailsV2: GuardrailsV2 | undefined;
 
-    constructor(protected readonly _options: SkyflowClient.Options) {}
+    constructor(protected readonly _options: SkyflowClient.Options = {}) {}
 
     public get authentication(): Authentication {
         return (this._authentication ??= new Authentication(this._options));
+    }
+
+    public get tokenExchange(): TokenExchange {
+        return (this._tokenExchange ??= new TokenExchange(this._options));
+    }
+
+    public get filesV2(): FilesV2 {
+        return (this._filesV2 ??= new FilesV2(this._options));
+    }
+
+    public get stringsV2(): StringsV2 {
+        return (this._stringsV2 ??= new StringsV2(this._options));
+    }
+
+    public get guardrailsV2(): GuardrailsV2 {
+        return (this._guardrailsV2 ??= new GuardrailsV2(this._options));
     }
 
     /**
@@ -113,7 +137,12 @@ export class SkyflowClient {
         }
     }
 
-    protected async _getAuthorizationHeader(): Promise<string> {
-        return `Bearer ${await core.Supplier.get(this._options.token)}`;
+    protected async _getAuthorizationHeader(): Promise<string | undefined> {
+        const bearer = await core.Supplier.get(this._options.token);
+        if (bearer != null) {
+            return `Bearer ${bearer}`;
+        }
+
+        return undefined;
     }
 }

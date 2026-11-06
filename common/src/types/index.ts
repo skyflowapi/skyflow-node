@@ -10,18 +10,6 @@ export interface SkyflowConfig {
     logLevel?: LogLevel;
 }
 
-export type FileInput =
-    | Filepath
-    | FileObject
-
-export interface Filepath {
-    filePath: string;
-}
-
-export interface FileObject {
-    file: File;
-}
-
 export interface InsertResponseType {
     skyflowId: string;
     /** @deprecated Renamed to skyflowId. Will be removed in v3. */
@@ -44,11 +32,6 @@ export interface StringKeyValueMapType {
 export interface TokenizeRequestType {
     columnGroup: string;
     value: string;
-}
-
-export interface IndexRange {
-    start?: number;
-    end?: number;
 }
 
 export type ServiceAccountResponseError = {

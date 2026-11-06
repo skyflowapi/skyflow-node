@@ -2,7 +2,8 @@
 
 The FlowVault (v2) Node.js SDK for Skyflow's data privacy vault — a unary, strongly-typed client
 for the v2 vault data plane. With it you can securely insert, retrieve, update, delete, query,
-detokenize, tokenize, and attach files to records in a Flow DB vault.
+detokenize, tokenize, and attach files to records in a Flow DB vault, and de-identify and
+re-identify sensitive data in text and files with Skyflow Detect.
 
 > This is a **separate product** from `skyflow-node` (the SkyVault SDK). Install exactly one:
 > `npm i skyflow-flowvault-node` **or** `npm i skyflow-node`. A lower `flowvault` version number
@@ -16,6 +17,7 @@ detokenize, tokenize, and attach files to records in a Flow DB vault.
 - [Authenticate](#authenticate)
 - [Initialize the client](#initialize-the-client)
 - [Vault operations](#vault-operations)
+- [Detect](#detect)
 - [Custom request headers](#custom-request-headers)
 - [Error handling](#error-handling)
 - [Samples](#samples)
@@ -27,7 +29,10 @@ detokenize, tokenize, and attach files to records in a Flow DB vault.
   or async variants.
 - **Unified responses.** Each response carries a single `records` list, with per-record `httpCode`,
   `error`, and `requestId`. Whole-call failures throw a `SkyflowError`.
-- **Multi-vault.** One client can hold several vault configs; pick one per call with `vault(vaultId)`.
+- **Multi-vault.** One client can hold several vault configs; pick one per call with `vault(vaultId)`
+  or `detect(vaultId)`.
+- **Detect.** The same Detect V2 API as the SkyVault SDK, scoped to a Flow DB vault — see
+  [Detect](#detect).
 
 ## Install
 
@@ -258,6 +263,291 @@ const req = new DeleteFilesRequest([
 ]);
 const res = await vault.deleteFiles(req);
 ```
+
+## Detect
+
+Skyflow Detect finds and de-identifies sensitive data in free text and files, then re-identifies it on demand. The SDK exposes the Detect V2 API through `DetectController`, returned by `skyflowClient.detect()` and `skyflowClient.detect(vaultId)`. Every request is scoped to that vault, and the controller honours the same credentials, [timeouts and retries](#timeouts-and-retries) as `vault()`.
+
+Detect configurations are created in Studio or through the management API. The SDK does not create, update or delete them.
+
+| Method | Request | Response | Description |
+|--------|---------|----------|-------------|
+| `deidentifyString(request)` | [`DeidentifyStringRequest`](../docs/api_reference.md#deidentifystringrequest) | [`DeidentifyStringResponse`](../docs/api_reference.md#deidentifystringresponse) | Detect and replace sensitive data in a string |
+| `deidentifyFile(request)` | [`DeidentifyFileRequest`](../docs/api_reference.md#deidentifyfilerequest) | [`DeidentifyFileResponse`](../docs/api_reference.md#deidentifyfileresponse) | Submit a file for de-identification, optionally polling the run to completion |
+| `reidentifyString(request)` | [`ReidentifyStringRequest`](../docs/api_reference.md#reidentifystringrequest) | [`ReidentifyStringResponse`](../docs/api_reference.md#reidentifystringresponse) | Replace tokens in a string with their original or redacted values |
+| `reidentifyFile(request)` | [`ReidentifyFileRequest`](../docs/api_reference.md#reidentifyfilerequest) | [`ReidentifyFileResponse`](../docs/api_reference.md#reidentifyfileresponse) | Replace tokens in a file with their original or redacted values |
+| `getRun(request)` | [`GetRunRequest`](../docs/api_reference.md#getrunrequest) | [`GetRunResponse`](../docs/api_reference.md#getrunresponse) | Retrieve the status and outputs of a Detect file run |
+| `checkGuardrails(request)` | [`CheckGuardrailsRequest`](../docs/api_reference.md#checkguardrailsrequest) | [`CheckGuardrailsResponse`](../docs/api_reference.md#checkguardrailsresponse) | Screen text for toxicity and denied topics |
+
+**Before you start**
+
+- **Role.** The service account needs the Detect Invoker, Detect Manager or Vault Owner role on the vault. Re-identifying values stored as `VAULT_TOKEN` is governed like detokenization: the caller also needs a policy that grants the Detokenization action on the destination, unless it is a Vault Owner.
+- **Configuration.** `configurationId` is the id of a Detect configuration created through the management API. The alternative is an inline `DetectConfiguration` passed as `configuration` (see [Detect configuration](#detect-configuration)). Both are optional: with neither set the SDK sends only the vault id and the run uses the vault's default Detect settings. Sending both is rejected by the API with HTTP 400.
+- **Destination for vault tokens.** An entity de-identified with `VAULT_TOKEN` stores its value in the token group named by `destination`. That token group must already exist in the vault; Detect writes into it but does not create it.
+- **API reference.** Every Detect request, response and configuration type is listed in the [API reference](../docs/api_reference.md#detect-api).
+
+### De-identify a string: `.deidentifyString(request)`
+
+`DeidentifyStringRequest` takes the text plus, optionally, `configurationId` (a stored Detect configuration) or `configuration` (an inline `DetectConfiguration`). The SDK fills the vault id into the configuration from the controller.
+
+```typescript
+import {
+  DeidentifyStringRequest,
+  DeidentifyStringResponse,
+  DetectConfiguration,
+  EntityType,
+  DeidentificationType,
+  ReturnEntitiesType,
+  SkyflowError,
+} from 'skyflow-flowvault-node';
+
+// Stored configuration
+const stored = new DeidentifyStringRequest(
+  'My name is John Doe, and my email is johndoe@acme.com.',
+  { configurationId: '<CONFIGURATION_ID>' },
+);
+const response: DeidentifyStringResponse = await skyflowClient.detect().deidentifyString(stored);
+console.log(response.processedText);
+// My name is [NAME_1], and my email is [EMAIL_ADDRESS_1].
+
+// Inline configuration
+const configuration: DetectConfiguration = {
+  detect: {
+    entities: [
+      {
+        entityType: EntityType.NAME,
+        deidentificationType: DeidentificationType.VAULT_TOKEN,
+        destination: '<TOKEN_GROUP_NAME>', // token group that stores the value
+      },
+      { entityType: EntityType.ALL, deidentificationType: DeidentificationType.ENTITY_UNIQUE_COUNTER },
+    ],
+    skip: ['Skyflow'],
+    returnEntities: ReturnEntitiesType.EXCLUDE_SENSITIVE_DATA,
+  },
+};
+const inline = new DeidentifyStringRequest(
+  'My name is John Doe, and my email is johndoe@acme.com.',
+  { configuration },
+);
+const inlineResponse = await skyflowClient.detect().deidentifyString(inline);
+for (const entity of inlineResponse.entities) {
+  console.log(entity.entityType, entity.token, entity.location?.startIndex, entity.location?.endIndex);
+}
+console.log(inlineResponse.metrics?.wordCount);
+```
+
+`DeidentifyStringResponse` carries `processedText`, `entities` (a `DetectedEntity[]` with token, entity type, location and confidence scores; never `null`) and `metrics`.
+
+> [!TIP]
+> See the full example in the samples directory: [deidentify-string.ts](samples/detect-api/deidentify-string.ts)
+
+### Detect configuration
+
+`DetectConfiguration` is the inline form of a stored configuration and accepts the same options. `detect` applies to string and file inputs; `fileMapping` and `media` apply to file inputs only. All of these are plain TypeScript interfaces, so write them as object literals.
+
+| Type | Fields | Notes |
+|------|--------|-------|
+| `Detect` | `entities`, `objectEntities`, `restrict`, `skip`, `customTypes`, `returnEntities` | `restrict` and `skip` are regexes that are always, respectively never, treated as sensitive. `returnEntities` is `EXCLUDE_SENSITIVE_DATA` (server default), `ALL` or `NONE`. |
+| `Entity` | `entityType`, `deidentificationType`, `destination`, `transformation` | `entityType` defaults to `ALL`. `deidentificationType` is `ENTITY_UNIQUE_COUNTER` (server default), `ENTITY_ONLY`, `MASK` or `VAULT_TOKEN`. `destination` is used only with `VAULT_TOKEN`. |
+| `Transformation` / `ShiftDates` | `shiftDates`; `minDays`, `maxDays` | Shifts detected dates by a random number of days within the range. |
+| `CustomType` | `label`, `match` | A regex-defined entity type. `label` is reported as the entity type of its matches. |
+| `ObjectEntity` | `entityType`, `deidentificationType` | Visual objects in images: `FACE`, `LICENSE_PLATE`, `LOGO`, `SIGNATURE` or `ALL`, handled with `REDACT` or `UNREDACT`. File inputs only. |
+| `FileMapping` | `source`, `destination`, `outputFileNameSuffix`, `entitiesDestination`, `objectEntitiesDestination` | Where the processed file and the entity files are written. File inputs only. |
+| `Media` | `audio`, `document`, `image` | Media-type options. File inputs only. |
+| `Audio` / `Bleep` | `outputProcessedAudio`, `outputTranscription`, `bleep`; `startPadding`, `stopPadding`, `frequency`, `gain` | `outputTranscription` is an `OutputTranscriptionType`. `Bleep` is the tone laid over detected speech; paddings are in seconds, frequency in Hz. |
+| `Document` / `Pdf` | `pdf`; `processingMode`, `density`, `maxResolution` | `processingMode` is a `PdfProcessingMode` (`NONE`, `OCR` or `TEXT_LAYER`). `density` is the rendering DPI. |
+| `Image` | `outputProcessedImage`, `outputOcrText`, `maskingMethod` | `maskingMethod` is a `MaskingMethod` (`NONE`, `BLUR` or `BLACKBOX`). |
+
+```typescript
+import {
+  DetectConfiguration,
+  EntityType,
+  DeidentificationType,
+  ObjectEntityType,
+  ObjectDeidentificationType,
+  MaskingMethod,
+  PdfProcessingMode,
+  OutputTranscriptionType,
+} from 'skyflow-flowvault-node';
+
+const configuration: DetectConfiguration = {
+  detect: {
+    entities: [
+      {
+        entityType: EntityType.DOB,
+        deidentificationType: DeidentificationType.ENTITY_UNIQUE_COUNTER,
+        transformation: { shiftDates: { minDays: 10, maxDays: 30 } },
+      },
+      { entityType: EntityType.ALL },
+    ],
+    objectEntities: [{ entityType: ObjectEntityType.FACE, deidentificationType: ObjectDeidentificationType.REDACT }],
+    customTypes: [{ label: 'EMPLOYEE_ID', match: ['EMP-[0-9]{6}'] }],
+    restrict: ['[0-9]{3}-[0-9]{2}-[0-9]{4}'],
+  },
+  media: {
+    image: { maskingMethod: MaskingMethod.BLUR, outputOcrText: true },
+    document: { pdf: { processingMode: PdfProcessingMode.OCR } },
+    audio: {
+      outputTranscription: OutputTranscriptionType.TRANSCRIPTION,
+      bleep: { startPadding: 0.5, stopPadding: 0.5 },
+    },
+  },
+};
+```
+
+### De-identify a file: `.deidentifyFile(request)`
+
+File de-identification is asynchronous on the API: the submit call returns a run id and the result is retrieved from the run. `deidentifyFile` exposes both modes.
+
+- **Submit only** (default): one call, returns `runId`. `status` is `null` and nothing is written to disk. Retrieve the result later with [`getRun`](#get-run-getrunrequest).
+- **Submit and poll**: set `pollOptions`. The SDK polls the run with exponential backoff (1, 2, 4, 8, 16, then 32 seconds between lookups) until it is `SUCCESS`, `FAILED` or `UNKNOWN`, or until `waitTime` (default 60 s, max 300) or `maxAttempts` (default 23, max 23) is used up. If the budget runs out the response carries the run id with `IN_PROGRESS` or `QUEUED` so you can resume with `getRun`.
+
+The file is supplied in one of three ways: a `dataSource` plus `value` (`DeidentifySourceType.BASE64` content or a `DeidentifySourceType.PRESIGNED_URL`; flowvault vaults do not take a skyflow id as a source), a `file` (a web `File`, Node.js 20+), or a `filePath`. A local file is read, base64-encoded, and its `dataFormat` inferred from the extension. Supply exactly one of `value`, `file` or `filePath`. `configurationId` and `configuration` follow the same rules as for strings.
+
+`dataFormat` accepts every `FileDataFormat`: `BMP`, `CSV`, `DCM`, `DOC`, `DOCX`, `GIF`, `JPEG`, `JPG`, `JSON`, `JSONL`, `MP3`, `PDF`, `PNG`, `PPT`, `PPTX`, `TIF`, `TIFF`, `TXT`, `WAV`, `XLS`, `XLSX`, `XML` and `ZIP`. The `VAULT_TOKEN` de-identification type is supported only for `TXT`, `CSV`, `JSON`, `JSONL`, `XML`, `DOCX`, `XLSX` and `PPTX`.
+
+`outputDirectory` is meaningful only when polling. Setting it without `pollOptions` fails client-side validation before any request is sent.
+
+```typescript
+import { DeidentifyFileRequest, DeidentifyFileResponse, DetectRunStatus } from 'skyflow-flowvault-node';
+
+// Submit only
+const submitted: DeidentifyFileResponse = await skyflowClient.detect().deidentifyFile(
+  new DeidentifyFileRequest({
+    filePath: '/data/intake/patient-notes.pdf', // sent as BASE64, format inferred as PDF
+    configurationId: '<CONFIGURATION_ID>',
+  }),
+);
+const runId = submitted.runId;
+
+// Submit and poll
+const response = await skyflowClient.detect().deidentifyFile(
+  new DeidentifyFileRequest({
+    filePath: '/data/intake/patient-notes.pdf',
+    configurationId: '<CONFIGURATION_ID>',
+    pollOptions: { waitTime: 120 },
+    outputDirectory: '/data/processed', // optional
+  }),
+);
+
+switch (response.status) {
+  case DetectRunStatus.SUCCESS:
+    // For local-file requests the outputs are already on disk:
+    //   /data/processed/processed-patient-notes.pdf            the redacted file
+    //   /data/processed/processed-entities-patient-notes.json  the detected entities
+    // response.output and response.metrics carry the same data.
+    break;
+  case DetectRunStatus.FAILED:
+    console.error(response.message);
+    break;
+  default: // IN_PROGRESS or QUEUED: budget ran out, resume with getRun(runId)
+    break;
+}
+```
+
+Outputs are written only when polling reached `SUCCESS`, the request was built from a local file, and the run delivered them as base64. A request built from a `PRESIGNED_URL` has no local name to derive from, and presigned-URL outputs are not fetched, so in those cases read `output` and write the files yourself. Files are named `processed-<input name>.<extension>`, with the entities output as `processed-entities-<input name>.json`; `outputDirectory` is created if missing and defaults to the working directory. Writing outputs needs the Node.js file system and is not supported in Cloudflare Workers.
+
+> [!TIP]
+> See the full examples in the samples directory: [deidentify-file.ts](samples/detect-api/deidentify-file.ts) and [deidentify-file-async.ts](samples/detect-api/deidentify-file-async.ts)
+
+### Re-identify a string: `.reidentifyString(request)`
+
+Re-identification looks tokens up in the vault, so it applies to values that were de-identified with `VAULT_TOKEN`. Placeholders produced by `ENTITY_UNIQUE_COUNTER`, `ENTITY_ONLY` or `MASK` are not stored anywhere and cannot be re-identified.
+
+`ReidentifyStringRequest` takes the tokenized text and an optional list of `RedactionLevel` rules. For flowvault vaults each rule targets a `tokenGroupName` and applies a named `redactionPattern` configured in the vault. Without rules every token is replaced by its original value.
+
+```typescript
+import { ReidentifyStringRequest, ReidentifyStringResponse } from 'skyflow-flowvault-node';
+
+const response: ReidentifyStringResponse = await skyflowClient.detect().reidentifyString(
+  new ReidentifyStringRequest('My name is [NAME_1].', {
+    redactionLevel: [{ tokenGroupName: '<TOKEN_GROUP_NAME>', redactionPattern: '<REDACTION_PATTERN>' }],
+  }),
+);
+console.log(response.processedText);
+// My name is J**n D*e.
+```
+
+`RedactionLevel` is the flowvault SDK's own type and has only `tokenGroupName` and `redactionPattern`; the `entityName` and `redactionType` rules of the skyvault SDK do not exist here. Both fields are optional on the API, so the SDK passes the list through as given and the server rejects invalid combinations.
+
+> [!TIP]
+> See the full example in the samples directory: [reidentify-string.ts](samples/detect-api/reidentify-string.ts)
+
+### Re-identify a file: `.reidentifyFile(request)`
+
+`reidentifyFile` is synchronous: the re-identified file comes back in the response, not through a run id. `ReidentifyFileRequest` takes a `dataSource` (`ReidentifySourceType.BASE64` or `PRESIGNED_URL`), the matching `value`, an optional `dataFormat` and the same optional `RedactionLevel` rules as `reidentifyString`. `dataFormat` is limited to the formats that support `VAULT_TOKEN`: `TXT`, `CSV`, `JSON`, `JSONL`, `XML`, `DOCX`, `XLSX` and `PPTX`.
+
+```typescript
+import * as fs from 'fs';
+import { ReidentifyFileRequest, ReidentifySourceType, FileDataFormat, DetectRunStatus } from 'skyflow-flowvault-node';
+
+const content = fs.readFileSync('tokenized.txt').toString('base64');
+
+const response = await skyflowClient.detect().reidentifyFile(
+  new ReidentifyFileRequest(ReidentifySourceType.BASE64, content, { dataFormat: FileDataFormat.TXT }),
+);
+
+if (response.status === DetectRunStatus.SUCCESS) {
+  for (const output of response.output) {
+    // output.processedFile is base64 or a presigned URL, per response.outputType
+    const processed = Buffer.from(output.processedFile ?? '', 'base64');
+  }
+}
+```
+
+`ReidentifyFileResponse` carries `status`, `outputType`, `output` (never `null`) and `metrics`.
+
+> [!TIP]
+> See the full example in the samples directory: [reidentify-file.ts](samples/detect-api/reidentify-file.ts)
+
+### Get run: `.getRun(request)`
+
+File de-identification is asynchronous: the submit call returns a run id, and `getRun` retrieves the run's status and, once it has succeeded, its outputs. `output` is empty and `outputType` and `metrics` are `null` until the run completes.
+
+```typescript
+import { GetRunRequest, GetRunResponse, DetectRunStatus } from 'skyflow-flowvault-node';
+
+const run: GetRunResponse = await skyflowClient.detect().getRun(new GetRunRequest('<RUN_ID>'));
+
+switch (run.status) {
+  case DetectRunStatus.SUCCESS:
+    for (const output of run.output) {
+      // output.processedFile is base64 or a presigned URL, per run.outputType
+      // output.processedFileType is e.g. REDACTED_FILE or ENTITIES
+      // output.processedFileExtension is a FileDataFormat such as PDF
+    }
+    break;
+  case DetectRunStatus.FAILED:
+    console.error(run.message);
+    break;
+  default: // QUEUED, IN_PROGRESS, UNKNOWN: poll again later
+    break;
+}
+```
+
+> [!TIP]
+> See the full example in the samples directory: [get-run.ts](samples/detect-api/get-run.ts)
+
+### Check guardrails: `.checkGuardrails(request)`
+
+`checkGuardrails` screens text for toxicity and for a list of denied topics, which makes it a natural pre-LLM check. `checkToxicity` and `denyTopics` are optional: the SDK sends each one only when you set it. The response is passed through as returned, so `toxic`, `deniedTopic` and `validation` carry exactly what the API sent back.
+
+```typescript
+import { CheckGuardrailsRequest, GuardrailsValidation } from 'skyflow-flowvault-node';
+
+const response = await skyflowClient.detect().checkGuardrails(
+  new CheckGuardrailsRequest(userPrompt, { checkToxicity: true, denyTopics: ['politics', 'medical advice'] }),
+);
+
+if (response.validation === GuardrailsValidation.FAILED) {
+  throw new Error(`blocked: toxic=${response.toxic} deniedTopic=${response.deniedTopic}`);
+}
+```
+
+All Detect methods throw `SkyflowError` as described in [Error handling](#error-handling). Client-side validation fails before any network call.
+
+> [!TIP]
+> See the full example in the samples directory: [check-guardrails.ts](samples/detect-api/check-guardrails.ts)
 
 ## Custom request headers
 

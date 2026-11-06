@@ -51,6 +51,8 @@ Sample files are organized by API type:
    | `<VALUE>` | Actual values to insert into your vault |
    | `<TOKEN1>`, `<TOKEN2>`, etc. | Actual tokens from your vault |
    | `<CONNECTION_URL>` | Your connection URL |
+   | `<CONFIGURATION_ID>` | The id of a Detect configuration created through the management API |
+   | `<RUN_ID>` | A run id returned by a prior `deidentifyFile` call |
 
 3. Run the sample:
 
@@ -80,12 +82,13 @@ Sample files are organized by API type:
 - [`data-residency.ts`](vault-api/data-residency.ts) - Multi-region vault configuration
 
 **Detect API samples** ([`detect-api/`](detect-api/)):
-- [`deidentify-text.ts`](detect-api/deidentify-text.ts) - Anonymize text data
-- [`deidentify-file.ts`](detect-api/deidentify-file.ts) - Anonymize a file using a File object
-- [`deidentify-file-with-filepath.ts`](detect-api/deidentify-file-with-filepath.ts) - Anonymize a file using a file path
-- [`deidentify-file-with-filepath-async.ts`](detect-api/deidentify-file-with-filepath-async.ts) - Anonymize a file asynchronously (poll for result)
-- [`reidentify-text.ts`](detect-api/reidentify-text.ts) - Restore original values from de-identified text
-- [`get-detect-run.ts`](detect-api/get-detect-run.ts) - Check the status of an async de-identify operation
+- [`deidentify-string.ts`](detect-api/deidentify-string.ts) - De-identify text with a stored or inline Detect configuration
+- [`deidentify-file.ts`](detect-api/deidentify-file.ts) - Submit a file (local path, skyflow id or presigned URL) and get a run id
+- [`deidentify-file-async.ts`](detect-api/deidentify-file-async.ts) - Submit a file and let the SDK poll the run, writing outputs to disk
+- [`reidentify-string.ts`](detect-api/reidentify-string.ts) - Restore original values from de-identified text, with redaction rules
+- [`reidentify-file.ts`](detect-api/reidentify-file.ts) - Restore original values in a tokenized file
+- [`get-run.ts`](detect-api/get-run.ts) - Check the status and outputs of a file de-identification run
+- [`check-guardrails.ts`](detect-api/check-guardrails.ts) - Screen text for toxicity and denied topics
 
 **Service Account samples** ([`service-account/`](service-account/)):
 - [`token-generation-example.ts`](service-account/token-generation-example.ts) - Generate bearer tokens
