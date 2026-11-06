@@ -1,12 +1,10 @@
-// imports 
-import { Files } from "../../ _generated_/rest/api/resources/files/client/Client";
+// imports
 import { Query } from "../../ _generated_/rest/api/resources/query/client/Client";
 import { Records } from "../../ _generated_/rest/api/resources/records/client/Client";
-import { Strings } from "../../ _generated_/rest/api/resources/strings/client/Client";
 import { Tokens } from "../../ _generated_/rest/api/resources/tokens/client/Client";
 import { SkyflowError } from "skyflow-common";
 import { errorMessages } from "skyflow-common";
-import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES, HTTP_HEADER, CONTENT_TYPE, BOOLEAN_STRING, HTTP_STATUS_CODE } from "skyflow-common";
+import { AuthInfo, AuthType, LogLevel, MessageType, printLog, TYPES, HTTP_HEADER, CONTENT_TYPE, BOOLEAN_STRING, HTTP_STATUS_CODE, getBearerToken } from "skyflow-common";
 import { isExpired } from "skyflow-common";
 import { logs } from "skyflow-common";
 import { Credentials } from "skyflow-common";
@@ -25,10 +23,6 @@ class VaultClient {
     tokensAPI!: Tokens;
 
     queryAPI!: Query;
-
-    stringsAPI!: Strings;
-
-    filesAPI!: Files;
 
     individualCredentials?: Credentials;
 
@@ -91,23 +85,22 @@ class VaultClient {
             case TYPES.QUERY:
                 if (!this.queryAPI) {
                     this.queryAPI = new Query(this.supplierOptions());
-                } 
-                break;
-            case TYPES.DEIDENTIFY_TEXT:
-            case TYPES.REIDENTIFY_TEXT:
-                if (!this.stringsAPI) {
-                    this.stringsAPI = new Strings(this.supplierOptions());
-                }
-                break;
-            case TYPES.DEIDENTIFY_FILE:
-            case TYPES.DETECT_RUN:
-                if (!this.filesAPI) {
-                    this.filesAPI = new Files(this.supplierOptions());
                 }
                 break;
             default:
                 break;
         }
+    }
+
+    /**
+     * Resolves the bearer token or API key for the next call, reusing the cached
+     * one while it is valid and regenerating it otherwise. Used by the shared
+     * Detect controller, which builds its own generated clients.
+     */
+    async resolveAuthToken(): Promise<string> {
+        const authInfo = await getBearerToken(this.getCredentials(), this.logLevel);
+        this.initConfig(authInfo);
+        return authInfo.key;
     }
 
     getCredentials(): Credentials | undefined {

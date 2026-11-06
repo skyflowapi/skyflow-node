@@ -9,6 +9,7 @@ import { BaseDeleteFilesRequest } from 'skyflow-common';
 import { BaseDeleteFilesResponse } from 'skyflow-common';
 import { BaseDeleteRequest } from 'skyflow-common';
 import { BaseDeleteResponse } from 'skyflow-common';
+import { BaseDetectController } from 'skyflow-common';
 import { BaseDetokenizeRequest } from 'skyflow-common';
 import { BaseDetokenizeResponse } from 'skyflow-common';
 import { BaseGetRequest } from 'skyflow-common';
@@ -449,6 +450,10 @@ class Skyflow extends BaseSkyflow<ClientEntry> {
     constructor(config: SkyflowConfig);
     // (undocumented)
     protected buildVaultEntry(config: VaultConfig): ClientEntry;
+    // Warning: (ae-forgotten-export) The symbol "DetectController" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    detect(vaultId?: string): DetectController;
     // Warning: (ae-forgotten-export) The symbol "VaultController" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)

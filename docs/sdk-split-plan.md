@@ -41,6 +41,13 @@ Everything that is not tied to a specific wire contract:
   `skyflow-node`.
 - `base/` — `BaseOptions` + `Base<Op>Request` / `Base<Op>Response` marker classes (shared
   extension points).
+- `detect/` — the **Detect V2** surface shared by both SDKs (mirrors Java's `com.skyflow.detect`):
+  request/response models, the inline-configuration types and enums, client-side validation,
+  request/response mappers, the run poller, the output writer, and **`BaseDetectController`**,
+  which drives the generated `stringsV2` / `filesV2` / `guardrailsV2` clients. Each layer's
+  `DetectController` extends it and supplies only its `VaultClient` (URL, vault id, token
+  resolution via `resolveAuthToken()`, log level, timeout/retry overrides). The v1 detect
+  interfaces that used to live in skyvault were removed when this landed.
 - `skyflow/base.ts` — **`BaseSkyflow`**, the shared facade base (vault-client registry, common
   credentials, log level, and the `addVaultConfig`/`updateVaultConfig`/`getVaultConfig`/
   `removeVaultConfig`/`setLogLevel`/`updateLogLevel`/`getLogLevel`/`updateSkyflowCredentials`/
@@ -49,8 +56,9 @@ Everything that is not tied to a specific wire contract:
   `common` `BaseSkyflow`.
 
 ### `skyvault` (→ `skyflow-node`)
-The original contract, unchanged behavior: vault data plane (insert/get/update/delete/
-detokenize/tokenize/query/file-upload) + connections + detect. Its `Skyflow` **extends
+The original contract: vault data plane (insert/get/update/delete/
+detokenize/tokenize/query/file-upload) + connections + Detect V2 (the shared controller from
+`common`). Its `Skyflow` **extends
 `BaseSkyflow`** (adding the detect controller per vault + the connection registry/`connection()`);
 its `VaultClient`, controllers and models import shared code from `skyflow-common`; its concrete
 model classes extend the `common` `Base*` classes; the per-request validators live here. It keeps
@@ -58,9 +66,10 @@ its existing data-plane generated client under `skyvault/src/ _generated_`.
 
 ### `flowvault` (→ `skyflow-flowvault-node`)
 The new v2 contract (unary only): insert/get/update/delete/query/detokenize/getTokens/uploadFiles/
-deleteFiles. Its `Skyflow` **extends `BaseSkyflow`** (just `buildVaultEntry` + `vault()`); its
-models/options extend the same `Base*` classes; it wires to its own generated client at
-`flowvault/_generated_/rest/src` (`.records`/`.tokens`/`.files`/`.query`). No connections/detect.
+deleteFiles, plus Detect V2 through the shared controller. Its `Skyflow` **extends `BaseSkyflow`**
+(`buildVaultEntry` + `vault()` + `detect()`); its models/options extend the same `Base*` classes;
+it wires to its own generated client at `flowvault/_generated_/rest/src`
+(`.records`/`.tokens`/`.files`/`.query`). No connections.
 
 ## Consumer experience (one import per SDK)
 
@@ -137,7 +146,8 @@ runtime value) and the full type surface is preserved in the `.d.ts`; marking th
 ## Generated code (maintainer-owned)
 
 The OpenAPI spec is split and the client/transport code is generated **per module**:
-`common/src/_generated_/` (auth), `skyvault/src/ _generated_` (v1 data plane),
+`common/src/_generated_/` (auth, token exchange, and the shared Detect v2 `stringsV2` /
+`filesV2` / `guardrailsV2` clients), `skyvault/src/ _generated_` (v1 data plane),
 `flowvault/_generated_/rest/src` (v2 data plane). Generated directories are treated as **provided
 inputs** — not generated, moved, renamed, or hand-edited by the split. Where the hand-written
 layer needs something the generated surface doesn't provide, it is **flagged** for the maintainer

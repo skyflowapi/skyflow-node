@@ -11,6 +11,7 @@ import {
 } from 'skyflow-common';
 import VaultClient from '../client';
 import VaultController from '../controller/vault';
+import DetectController from '../controller/detect';
 import { SDK_NAME, SDK_VERSION } from '../version';
 
 // Stamp the SDK identity so telemetry and errors self-report FlowVault.
@@ -35,13 +36,14 @@ function getFlowVaultURL(clusterId: string, env: Env): string {
 
 interface ClientEntry extends BaseVaultEntry<VaultClient> {
   vaultController: VaultController;
+  detectController: DetectController;
 }
 
 /**
  * Skyflow is the FlowVault SDK facade. Vault-config / credential / log-level
- * management comes from the shared `BaseSkyflow` in `common`; this layer only
- * builds its own VaultClient + VaultController and exposes `vault(vaultId?)`.
- * (FlowVault has no connections or detect.)
+ * management comes from the shared `BaseSkyflow` in `common`; this layer
+ * builds its own VaultClient plus the vault and detect controllers and exposes
+ * `vault(vaultId?)` and `detect(vaultId?)`. (FlowVault has no connections.)
  */
 class Skyflow extends BaseSkyflow<ClientEntry> {
   constructor(config: SkyflowConfig) {
@@ -62,11 +64,16 @@ class Skyflow extends BaseSkyflow<ClientEntry> {
       { timeout: config.timeout, maxRetries: config.maxRetries },
     );
     const vaultController = new VaultController(client);
-    return { config, client, vaultController };
+    const detectController = new DetectController(client);
+    return { config, client, vaultController, detectController };
   }
 
   vault(vaultId?: string): VaultController {
     return this.resolveVaultEntry(vaultId).vaultController;
+  }
+
+  detect(vaultId?: string): DetectController {
+    return this.resolveVaultEntry(vaultId).detectController;
   }
 }
 

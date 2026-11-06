@@ -6,6 +6,11 @@ export * from 'skyflow-common';
 // FlowVault facade.
 export { default as Skyflow, default } from './skyflow';
 
+// Detect V2 types whose values depend on the vault type (the shared request, response and
+// configuration models come from skyflow-common above).
+export { DeidentifySourceType, ReidentifySourceType } from './detect/types';
+export type { RedactionLevel } from './detect/types';
+
 // Request classes.
 export { default as InsertRequest } from './model/request/insert';
 export { default as GetRequest } from './model/request/get';

@@ -10,10 +10,7 @@ import { printLog, OrderByEnum, RedactionType } from "skyflow-common";
 import DetokenizeOptions from "../../../src/vault/model/options/detokenize";
 import GetOptions from "../../../src/vault/model/options/get";
 import FileUploadRequest from "../../../src/vault/model/request/file-upload";
-import { Bleep } from "../../../src/vault/model/options/deidentify-file/bleep-audio";
 import FileUploadOptions from "../../../src/vault/model/options/fileUpload";
-import DeidentifyTextResponse from "../../../src/vault/model/response/deidentify-text";
-import DeidentifyFileResponse from "../../../src/vault/model/response/deidentify-file";
 
 beforeEach(() => {
   printLog.mockClear();
@@ -153,42 +150,6 @@ describe("GetOptions deprecated methods", () => {
   test("getDownloadURL returns undefined when not set", () => {
     const opts = new GetOptions();
     expect(opts.getDownloadURL()).toBeUndefined();
-  });
-});
-
-describe("Bleep", () => {
-  test("setStartPadding stores value retrieved by getStartPadding", () => {
-    const b = new Bleep();
-    b.setStartPadding(0.5);
-    expect(b.getStartPadding()).toBe(0.5);
-  });
-
-  test("getStartPadding returns undefined when not set", () => {
-    const b = new Bleep();
-    expect(b.getStartPadding()).toBeUndefined();
-  });
-
-  test("setStopPadding stores value retrieved by getStopPadding", () => {
-    const b = new Bleep();
-    b.setStopPadding(1.2);
-    expect(b.getStopPadding()).toBe(1.2);
-  });
-
-  test("getStopPadding returns undefined when not set", () => {
-    const b = new Bleep();
-    expect(b.getStopPadding()).toBeUndefined();
-  });
-
-  test("setGain stores value retrieved by getGain", () => {
-    const b = new Bleep();
-    b.setGain(0.8);
-    expect(b.getGain()).toBe(0.8);
-  });
-
-  test("setFrequency stores value retrieved by getFrequency", () => {
-    const b = new Bleep();
-    b.setFrequency(440);
-    expect(b.getFrequency()).toBe(440);
   });
 });
 
@@ -393,58 +354,5 @@ describe("FileUploadRequest full coverage", () => {
   test("getLegacySkyflowId returns skyflowId for 3-arg constructor", () => {
     const req = new FileUploadRequest("tbl", "sky-999", "col");
     expect(req.getLegacySkyflowId()).toBe("sky-999");
-  });
-});
-
-describe("DeidentifyTextResponse errors branch", () => {
-  test("errors defaults to null when not provided", () => {
-    const r = new DeidentifyTextResponse({
-      processedText: "text",
-      entities: [],
-      wordCount: 1,
-      charCount: 4,
-    });
-    expect(r.errors).toBeNull();
-  });
-
-  test("errors is set when provided as array", () => {
-    const err = { requestId: "req-1", description: "fail" };
-    const r = new DeidentifyTextResponse({
-      processedText: "text",
-      entities: [],
-      wordCount: 1,
-      charCount: 4,
-      errors: [err],
-    });
-    expect(r.errors).toEqual([err]);
-  });
-
-  test("errors is null when explicitly passed null", () => {
-    const r = new DeidentifyTextResponse({
-      processedText: "text",
-      entities: [],
-      wordCount: 1,
-      charCount: 4,
-      errors: null,
-    });
-    expect(r.errors).toBeNull();
-  });
-});
-
-describe("DeidentifyFileResponse errors branch", () => {
-  test("errors defaults to null when not provided", () => {
-    const r = new DeidentifyFileResponse({});
-    expect(r.errors).toBeNull();
-  });
-
-  test("errors is set when provided as array", () => {
-    const err = { requestId: "req-2", description: "fail" };
-    const r = new DeidentifyFileResponse({ errors: [err] });
-    expect(r.errors).toEqual([err]);
-  });
-
-  test("errors is null when explicitly passed null", () => {
-    const r = new DeidentifyFileResponse({ errors: null });
-    expect(r.errors).toBeNull();
   });
 });

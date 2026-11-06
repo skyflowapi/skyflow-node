@@ -27,7 +27,7 @@ jest.mock('../../src/service-account/client', () => {
     __esModule: true,
     default: jest.fn().mockImplementation(() => ({
       authApi: {
-        authenticationServiceGetAuthToken: jest.fn(() => ({
+        getBearerToken: jest.fn(() => ({
           withRawResponse: jest.fn().mockResolvedValueOnce({
             data: {
               accessToken: 'mocked_access_token',
@@ -375,7 +375,7 @@ describe('getToken Tests', () => {
     beforeEach(() => {
         mockClient = {
             authApi: {
-                authenticationServiceGetAuthToken: jest.fn(),
+                getBearerToken: jest.fn(),
             },
         };
         jest.spyOn(jwt, 'sign').mockReturnValue('mocked_token');
@@ -396,7 +396,7 @@ describe('getToken Tests', () => {
 
     test("should get Bearer Token with valid credentials", async () => {
         const filePath = 'test/demo-credentials/valid.json';
-        mockClient.authApi.authenticationServiceGetAuthToken.mockImplementation(() => ({
+        mockClient.authApi.getBearerToken.mockImplementation(() => ({
             withRawResponse: jest.fn().mockResolvedValueOnce({
                 data: mockTokenResponse,
                 rawResponse: { headers: { get: jest.fn().mockReturnValue('request-id-123') } }
@@ -506,7 +506,7 @@ describe('getToken and getSignedTokens tokenUri override tests', () => {
         const Client = jest.requireMock('../../src/service-account/client').default;
         Client.mockImplementationOnce(() => ({
             authApi: {
-                authenticationServiceGetAuthToken: jest.fn(() => ({
+                getBearerToken: jest.fn(() => ({
                     withRawResponse: jest.fn().mockRejectedValueOnce(new Error('API rejection'))
                 }))
             }
@@ -524,7 +524,7 @@ describe('getToken and getSignedTokens tokenUri override tests', () => {
         const Client = jest.requireMock('../../src/service-account/client').default;
         Client.mockImplementationOnce(() => ({
             authApi: {
-                authenticationServiceGetAuthToken: jest.fn(() => ({
+                getBearerToken: jest.fn(() => ({
                     withRawResponse: jest.fn().mockResolvedValueOnce({
                         data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
                         rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } }
@@ -546,7 +546,7 @@ describe('getToken and getSignedTokens tokenUri override tests', () => {
         const Client = jest.requireMock('../../src/service-account/client').default;
         Client.mockImplementationOnce(() => ({
             authApi: {
-                authenticationServiceGetAuthToken: jest.fn(() => ({
+                getBearerToken: jest.fn(() => ({
                     withRawResponse: jest.fn().mockResolvedValueOnce({
                         data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
                         rawResponse: { headers: { get: jest.fn().mockReturnValue('req-id') } }
@@ -730,7 +730,7 @@ describe('deprecated BearerTokenOptions.roleIDs normalization', () => {
         const Client = jest.requireMock('../../src/service-account/client').default;
         Client.mockImplementationOnce(() => ({
             authApi: {
-                authenticationServiceGetAuthToken: jest.fn(() => ({
+                getBearerToken: jest.fn(() => ({
                     withRawResponse: jest.fn().mockResolvedValueOnce({
                         data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
                         rawResponse: {
@@ -759,7 +759,7 @@ describe('deprecated BearerTokenOptions.roleIDs normalization', () => {
         const Client = jest.requireMock('../../src/service-account/client').default;
         Client.mockImplementationOnce(() => ({
             authApi: {
-                authenticationServiceGetAuthToken: jest.fn(() => ({
+                getBearerToken: jest.fn(() => ({
                     withRawResponse: jest.fn().mockResolvedValueOnce({
                         data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
                         rawResponse: {
@@ -790,7 +790,7 @@ describe('deprecated BearerTokenOptions.roleIDs normalization', () => {
         const Client = jest.requireMock('../../src/service-account/client').default;
         Client.mockImplementationOnce(() => ({
             authApi: {
-                authenticationServiceGetAuthToken: jest.fn(() => ({
+                getBearerToken: jest.fn(() => ({
                     withRawResponse: jest.fn().mockResolvedValueOnce({
                         data: { accessToken: 'mocked_access_token', tokenType: 'Bearer' },
                         rawResponse: {

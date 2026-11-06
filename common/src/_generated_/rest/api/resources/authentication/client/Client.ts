@@ -13,7 +13,7 @@ export declare namespace Authentication {
         environment?: core.Supplier<environments.SkyflowEnvironment | string>;
         /** Specify a custom URL to connect the client to. */
         baseUrl?: core.Supplier<string>;
-        token: core.Supplier<core.BearerToken>;
+        token?: core.Supplier<core.BearerToken | undefined>;
         fetcher?: core.FetchFunction;
     }
 
@@ -30,35 +30,36 @@ export declare namespace Authentication {
 }
 
 export class Authentication {
-    constructor(protected readonly _options: Authentication.Options) {}
+    constructor(protected readonly _options: Authentication.Options = {}) {}
 
     /**
-     * <p>Generates a Bearer Token to authenticate with Skyflow. This method doesn't require the <code>Authorization</code> header.</p><p><b>Note:</b> For recommended ways to authenticate, see <a href='/api-authentication/'>API authentication</a>.</p>
+     * Generates a Bearer Token to authenticate with Skyflow.
      *
-     * @param {Skyflow.V1GetAuthTokenRequest} request
+     * @param {Skyflow.GetAuthTokenRequest} request
      * @param {Authentication.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Skyflow.BadRequestError}
      * @throws {@link Skyflow.UnauthorizedError}
      * @throws {@link Skyflow.NotFoundError}
+     * @throws {@link Skyflow.InternalServerError}
      *
      * @example
-     *     await client.authentication.authenticationServiceGetAuthToken({
-     *         grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-     *         assertion: "eyLhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaXNzIjoiY29tcGFueSIsImV4cCI6MTYxNTE5MzgwNywiaWF0IjoxNjE1MTY1MDQwLCJhdWQiOiKzb21lYXVkaWVuY2UifQ.4pcPyMDQ9o1PSyXnrXCjTwXyr4BSezdI1AVTmud2fU3"
+     *     await client.authentication.getBearerToken({
+     *         grant_type: "grant_type",
+     *         assertion: "assertion"
      *     })
      */
-    public authenticationServiceGetAuthToken(
-        request: Skyflow.V1GetAuthTokenRequest,
+    public getBearerToken(
+        request: Skyflow.GetAuthTokenRequest,
         requestOptions?: Authentication.RequestOptions,
-    ): core.HttpResponsePromise<Skyflow.V1GetAuthTokenResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__authenticationServiceGetAuthToken(request, requestOptions));
+    ): core.HttpResponsePromise<Skyflow.GetAuthTokenResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getBearerToken(request, requestOptions));
     }
 
-    private async __authenticationServiceGetAuthToken(
-        request: Skyflow.V1GetAuthTokenRequest,
+    private async __getBearerToken(
+        request: Skyflow.GetAuthTokenRequest,
         requestOptions?: Authentication.RequestOptions,
-    ): Promise<core.WithRawResponse<Skyflow.V1GetAuthTokenResponse>> {
+    ): Promise<core.WithRawResponse<Skyflow.GetAuthTokenResponse>> {
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: urlJoin(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -85,24 +86,29 @@ export class Authentication {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return { data: _response.body as Skyflow.V1GetAuthTokenResponse, rawResponse: _response.rawResponse };
+            return { data: _response.body as Skyflow.GetAuthTokenResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
                     throw new Skyflow.BadRequestError(
-                        _response.error.body as Record<string, unknown>,
+                        _response.error.body as Skyflow.ErrorResponse,
                         _response.rawResponse,
                     );
                 case 401:
                     throw new Skyflow.UnauthorizedError(
-                        _response.error.body as Record<string, unknown>,
+                        _response.error.body as Skyflow.ErrorResponse,
                         _response.rawResponse,
                     );
                 case 404:
                     throw new Skyflow.NotFoundError(
-                        _response.error.body as Record<string, unknown>,
+                        _response.error.body as Skyflow.ErrorResponse,
+                        _response.rawResponse,
+                    );
+                case 500:
+                    throw new Skyflow.InternalServerError(
+                        _response.error.body as Skyflow.ErrorResponse,
                         _response.rawResponse,
                     );
                 default:
@@ -131,7 +137,12 @@ export class Authentication {
         }
     }
 
-    protected async _getAuthorizationHeader(): Promise<string> {
-        return `Bearer ${await core.Supplier.get(this._options.token)}`;
+    protected async _getAuthorizationHeader(): Promise<string | undefined> {
+        const bearer = await core.Supplier.get(this._options.token);
+        if (bearer != null) {
+            return `Bearer ${bearer}`;
+        }
+
+        return undefined;
     }
 }

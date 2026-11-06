@@ -9,9 +9,7 @@ import {
     VaultConfig, 
     SkyflowConfig, 
     InsertResponse, 
-    SkyflowError, 
-    TokenCredentials
-} from 'skyflow-node';
+    SkyflowError} from 'skyflow-node';
 
 /**
  * Skyflow Insert with BYOT Example

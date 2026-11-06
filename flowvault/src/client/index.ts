@@ -137,6 +137,15 @@ class VaultClient {
     this.currentToken = authInfo.key;
   }
 
+  /**
+   * Resolve the bearer token or API key for the next call and return it. Used
+   * by the shared Detect controller, which builds its own generated clients.
+   */
+  async resolveAuthToken(): Promise<string> {
+    await this.getToken();
+    return this.currentToken;
+  }
+
   private supplierOptions(): Records.Options {
     return {
       baseUrl: () => this.url,
