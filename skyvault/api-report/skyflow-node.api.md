@@ -5,9 +5,11 @@
 ```ts
 
 import { ApiKeyCredentials } from 'skyflow-common';
+import { Audio as Audio_2 } from 'skyflow-common';
 import { AuthInfo } from 'skyflow-common';
 import { BaseDeleteRequest } from 'skyflow-common';
 import { BaseDeleteResponse } from 'skyflow-common';
+import { BaseDetectController } from 'skyflow-common';
 import { BaseDetokenizeRequest } from 'skyflow-common';
 import { BaseDetokenizeResponse } from 'skyflow-common';
 import { BaseFileUploadRequest } from 'skyflow-common';
@@ -28,13 +30,34 @@ import { BaseUpdateRequest } from 'skyflow-common';
 import { BaseUpdateResponse } from 'skyflow-common';
 import { BaseVaultEntry } from 'skyflow-common';
 import { BearerTokenOptions } from 'skyflow-common';
+import { Bleep } from 'skyflow-common';
 import { Blob as Blob_2 } from 'buffer';
+import { CheckGuardrailsRequest } from 'skyflow-common';
+import { CheckGuardrailsRequestFields } from 'skyflow-common';
+import { CheckGuardrailsResponse } from 'skyflow-common';
 import { ConnectionConfig } from 'skyflow-common';
 import { Credentials } from 'skyflow-common';
-import { DetectEntities } from 'skyflow-common';
-import { DetectOutputTranscription } from 'skyflow-common';
+import { CustomType } from 'skyflow-common';
+import { DeidentificationType } from 'skyflow-common';
+import { DeidentifyFileRequest } from 'skyflow-common';
+import { DeidentifyFileRequestFields } from 'skyflow-common';
+import { DeidentifyFileResponse } from 'skyflow-common';
+import { DeidentifyStringRequest } from 'skyflow-common';
+import { DeidentifyStringRequestFields } from 'skyflow-common';
+import { DeidentifyStringResponse } from 'skyflow-common';
+import { Detect } from 'skyflow-common';
+import { DetectConfiguration } from 'skyflow-common';
+import { DetectedEntity } from 'skyflow-common';
+import { DetectRunFields } from 'skyflow-common';
+import { DetectRunStatus } from 'skyflow-common';
+import { Document as Document_2 } from 'skyflow-common';
+import { Entity } from 'skyflow-common';
+import { EntityLocation } from 'skyflow-common';
+import { EntityType } from 'skyflow-common';
 import { Env } from 'skyflow-common';
-import { FileInput } from 'skyflow-common';
+import { FileDataFormat } from 'skyflow-common';
+import { FileMapping } from 'skyflow-common';
+import { FileOutput } from 'skyflow-common';
 import * as fs from 'fs';
 import { generateBearerToken } from 'skyflow-common';
 import { generateBearerTokenFromCreds } from 'skyflow-common';
@@ -42,16 +65,39 @@ import { generateSignedDataTokens } from 'skyflow-common';
 import { generateSignedDataTokensFromCreds } from 'skyflow-common';
 import { GenerateTokenOptions } from 'skyflow-common';
 import { GetResponseData } from 'skyflow-common';
-import { IndexRange } from 'skyflow-common';
+import { GetRunRequest } from 'skyflow-common';
+import { GetRunResponse } from 'skyflow-common';
+import { GuardrailsValidation } from 'skyflow-common';
+import { Image as Image_2 } from 'skyflow-common';
+import { IncludePrefix } from 'skyflow-common';
 import { InsertResponseType } from 'skyflow-common';
 import { isExpired } from 'skyflow-common';
 import { LogLevel } from 'skyflow-common';
 import { MaskingMethod } from 'skyflow-common';
+import { Media } from 'skyflow-common';
+import { Metrics } from 'skyflow-common';
+import { ObjectDeidentificationType } from 'skyflow-common';
+import { ObjectEntity } from 'skyflow-common';
+import { ObjectEntityType } from 'skyflow-common';
 import { OrderByEnum } from 'skyflow-common';
+import { OutputTranscriptionType } from 'skyflow-common';
 import { PathCredentials } from 'skyflow-common';
+import { Pdf } from 'skyflow-common';
+import { PdfProcessingMode } from 'skyflow-common';
+import { POLL_OPTIONS } from 'skyflow-common';
+import { PollOptions } from 'skyflow-common';
 import { QueryResponseType } from 'skyflow-common';
+import { RedactionRule } from 'skyflow-common';
 import { RedactionType } from 'skyflow-common';
+import { ReidentifyFileRequest } from 'skyflow-common';
+import { ReidentifyFileRequestFields } from 'skyflow-common';
+import { ReidentifyFileResponse } from 'skyflow-common';
+import { ReidentifyStringRequest } from 'skyflow-common';
+import { ReidentifyStringRequestFields } from 'skyflow-common';
+import { ReidentifyStringResponse } from 'skyflow-common';
 import { RequestMethod } from 'skyflow-common';
+import { ReturnEntitiesType } from 'skyflow-common';
+import { ShiftDates } from 'skyflow-common';
 import { SignedDataTokensOptions } from 'skyflow-common';
 import { SkyflowConfig } from 'skyflow-common';
 import { SkyflowError } from 'skyflow-common';
@@ -61,231 +107,52 @@ import { StringKeyValueMapType } from 'skyflow-common';
 import { TokenCredentials } from 'skyflow-common';
 import { TokenizeRequestType } from 'skyflow-common';
 import { TokenMode } from 'skyflow-common';
-import { TokenType } from 'skyflow-common';
+import { Transformation } from 'skyflow-common';
 import { VaultConfig } from 'skyflow-common';
 
 export { ApiKeyCredentials }
 
+export { Audio_2 as Audio }
+
 export { BearerTokenOptions }
 
-// @public (undocumented)
-export class Bleep {
-    // (undocumented)
-    getFrequency(): number | undefined;
-    // (undocumented)
-    getGain(): number | undefined;
-    // (undocumented)
-    getStartPadding(): number | undefined;
-    // (undocumented)
-    getStopPadding(): number | undefined;
-    // (undocumented)
-    setFrequency(frequency: number): void;
-    // (undocumented)
-    setGain(gain: number): void;
-    // (undocumented)
-    setStartPadding(startPadding: number): void;
-    // (undocumented)
-    setStopPadding(stopPadding: number): void;
-}
+export { Bleep }
+
+export { CheckGuardrailsRequest }
+
+export { CheckGuardrailsRequestFields }
+
+export { CheckGuardrailsResponse }
 
 export { ConnectionConfig }
 
 export { Credentials }
 
-// @public (undocumented)
-export class DeidentifyFileOptions {
-    constructor();
+export { CustomType }
+
+export { DeidentificationType }
+
+export { DeidentifyFileRequest }
+
+export { DeidentifyFileRequestFields }
+
+export { DeidentifyFileResponse }
+
+// @public
+export enum DeidentifySourceType {
     // (undocumented)
-    getAllowRegexList(): string[] | undefined;
+    BASE64 = "BASE64",
     // (undocumented)
-    getBleep(): Bleep | undefined;
+    PRESIGNED_URL = "PRESIGNED_URL",
     // (undocumented)
-    getEntities(): string[] | undefined;
-    // (undocumented)
-    getMaskingMethod(): MaskingMethod | undefined;
-    // (undocumented)
-    getMaxResolution(): number | undefined;
-    // (undocumented)
-    getOutputDirectory(): string | undefined;
-    // (undocumented)
-    getOutputOcrText(): boolean | undefined;
-    // (undocumented)
-    getOutputProcessedAudio(): boolean | undefined;
-    // (undocumented)
-    getOutputProcessedImage(): boolean | undefined;
-    // (undocumented)
-    getOutputTranscription(): DetectOutputTranscription | undefined;
-    // (undocumented)
-    getPixelDensity(): number | undefined;
-    // (undocumented)
-    getRestrictRegexList(): string[] | undefined;
-    // (undocumented)
-    getTokenFormat(): TokenFormat | undefined;
-    // (undocumented)
-    getTransformations(): Transformations | undefined;
-    // (undocumented)
-    getWaitTime(): number | undefined;
-    // (undocumented)
-    setAllowRegexList(allowRegexList: string[]): void;
-    // (undocumented)
-    setBleep(bleep: Bleep | undefined): void;
-    // (undocumented)
-    setEntities(entities: DetectEntities[]): void;
-    // (undocumented)
-    setMaskingMethod(maskingMethod: MaskingMethod | undefined): void;
-    // (undocumented)
-    setMaxResolution(maxResolution: number | undefined): void;
-    // (undocumented)
-    setOutputDirectory(outputDirectory: string | undefined): void;
-    // (undocumented)
-    setOutputOcrText(outputOcrText: boolean | undefined): void;
-    // (undocumented)
-    setOutputProcessedAudio(outputProcessedAudio: boolean | undefined): void;
-    // (undocumented)
-    setOutputProcessedImage(value: boolean | undefined): void;
-    // (undocumented)
-    setOutputTranscription(outputTranscription: DetectOutputTranscription | undefined): void;
-    // (undocumented)
-    setPixelDensity(pixelDensity: number | undefined): void;
-    // (undocumented)
-    setRestrictRegexList(restrictRegexList: string[]): void;
-    // (undocumented)
-    setTokenFormat(tokenFormat: TokenFormat): void;
-    // (undocumented)
-    setTransformations(transformations: Transformations): void;
-    // (undocumented)
-    setWaitTime(waitTime: number | undefined): void;
+    SKYFLOW_ID = "SKYFLOW_ID"
 }
 
-// @public (undocumented)
-export class DeidentifyFileRequest {
-    constructor(file: FileInput);
-    // (undocumented)
-    getFile(): FileInput;
-    // (undocumented)
-    setFile(file: FileInput): void;
-}
+export { DeidentifyStringRequest }
 
-// @public (undocumented)
-export class DeidentifyFileResponse {
-    constructor(input: {
-        fileBase64?: string;
-        file?: File;
-        type?: string;
-        extension?: string;
-        wordCount?: number;
-        charCount?: number;
-        sizeInKb?: number;
-        durationInSeconds?: number;
-        pageCount?: number;
-        slideCount?: number;
-        entities?: Array<{
-            file: string;
-            extension: string;
-        }>;
-        runId?: string;
-        status?: string;
-        errors?: Array<SkyflowRecordError> | null;
-    });
-    // (undocumented)
-    charCount?: number;
-    // (undocumented)
-    durationInSeconds?: number;
-    // (undocumented)
-    entities?: Array<{
-        file: string;
-        extension: string;
-    }>;
-    // (undocumented)
-    errors: Array<SkyflowRecordError> | null;
-    // (undocumented)
-    extension?: string;
-    // (undocumented)
-    file?: File;
-    // (undocumented)
-    fileBase64?: string;
-    // (undocumented)
-    pageCount?: number;
-    // (undocumented)
-    runId?: string;
-    // (undocumented)
-    sizeInKb?: number;
-    // (undocumented)
-    slideCount?: number;
-    // (undocumented)
-    status?: string;
-    // (undocumented)
-    type?: string;
-    // (undocumented)
-    wordCount?: number;
-}
+export { DeidentifyStringRequestFields }
 
-// @public (undocumented)
-export class DeidentifyTextOptions {
-    // (undocumented)
-    getAllowRegexList(): string[] | undefined;
-    // (undocumented)
-    getEntities(): DetectEntities[] | undefined;
-    // (undocumented)
-    getRestrictRegexList(): string[] | undefined;
-    // (undocumented)
-    getTokenFormat(): TokenFormat | undefined;
-    // (undocumented)
-    getTransformations(): Transformations | undefined;
-    // (undocumented)
-    setAllowRegexList(allowRegexList: string[]): void;
-    // (undocumented)
-    setEntities(entities: DetectEntities[]): void;
-    // (undocumented)
-    setRestrictRegexList(restrictRegexList: string[]): void;
-    // (undocumented)
-    setTokenFormat(tokenFormat: TokenFormat): void;
-    // (undocumented)
-    setTransformations(transformations: Transformations): void;
-}
-
-// @public (undocumented)
-export class DeidentifyTextRequest {
-    constructor(text: string);
-    // (undocumented)
-    get text(): string;
-    set text(value: string);
-}
-
-// @public (undocumented)
-export class DeidentifyTextResponse {
-    constructor(input: {
-        processedText: string;
-        entities: Array<{
-            token?: string;
-            value?: string;
-            textIndex?: IndexRange;
-            processedIndex?: IndexRange;
-            entity?: string;
-            scores?: Record<string, number>;
-        }>;
-        wordCount: number;
-        charCount: number;
-        errors?: Array<SkyflowRecordError> | null;
-    });
-    // (undocumented)
-    charCount: number;
-    // (undocumented)
-    entities: Array<{
-        token?: string;
-        value?: string;
-        textIndex?: IndexRange;
-        processedIndex?: IndexRange;
-        entity?: string;
-        scores?: Record<string, number>;
-    }>;
-    // (undocumented)
-    errors: Array<SkyflowRecordError> | null;
-    // (undocumented)
-    processedText: string;
-    // (undocumented)
-    wordCount: number;
-}
+export { DeidentifyStringResponse }
 
 // @public (undocumented)
 export class DeleteRequest extends BaseDeleteRequest {
@@ -311,9 +178,15 @@ export class DeleteResponse extends BaseDeleteResponse {
     errors: Array<SkyflowRecordError> | null;
 }
 
-export { DetectEntities }
+export { Detect }
 
-export { DetectOutputTranscription }
+export { DetectConfiguration }
+
+export { DetectedEntity }
+
+export { DetectRunFields }
+
+export { DetectRunStatus }
 
 // @public (undocumented)
 export interface DetokenizeData {
@@ -362,9 +235,21 @@ export class DetokenizeResponse extends BaseDetokenizeResponse {
     errors: Array<SkyflowRecordError> | null;
 }
 
+export { Document_2 as Document }
+
+export { Entity }
+
+export { EntityLocation }
+
+export { EntityType }
+
 export { Env }
 
-export { FileInput }
+export { FileDataFormat }
+
+export { FileMapping }
+
+export { FileOutput }
 
 // @public (undocumented)
 export class FileUploadOptions extends BaseOptions {
@@ -442,14 +327,6 @@ export class GetColumnRequest {
 }
 
 // @public (undocumented)
-export class GetDetectRunRequest {
-    constructor(runId: string);
-    // (undocumented)
-    get runId(): string;
-    set runId(value: string);
-}
-
-// @public (undocumented)
 export class GetOptions extends BaseOptions {
     constructor();
     // (undocumented)
@@ -519,7 +396,15 @@ export class GetResponse extends BaseGetResponse {
 
 export { GetResponseData }
 
-export { IndexRange }
+export { GetRunRequest }
+
+export { GetRunResponse }
+
+export { GuardrailsValidation }
+
+export { Image_2 as Image }
+
+export { IncludePrefix }
 
 // @public (undocumented)
 export class InsertOptions extends BaseOptions {
@@ -612,9 +497,29 @@ export { LogLevel }
 
 export { MaskingMethod }
 
+export { Media }
+
+export { Metrics }
+
+export { ObjectDeidentificationType }
+
+export { ObjectEntity }
+
+export { ObjectEntityType }
+
 export { OrderByEnum }
 
+export { OutputTranscriptionType }
+
 export { PathCredentials }
+
+export { Pdf }
+
+export { PdfProcessingMode }
+
+export { POLL_OPTIONS }
+
+export { PollOptions }
 
 // @public (undocumented)
 export class QueryRequest extends BaseQueryRequest {
@@ -638,42 +543,43 @@ export class QueryResponse extends BaseQueryResponse {
 
 export { QueryResponseType }
 
+// @public
+export interface RedactionLevel extends RedactionRule {
+    entityName?: EntityType;
+    // (undocumented)
+    redactionPattern?: never;
+    redactionType?: RedactionType;
+    // (undocumented)
+    tokenGroupName?: never;
+}
+
 export { RedactionType }
 
-// @public (undocumented)
-export class ReidentifyTextOptions {
+export { ReidentifyFileRequest }
+
+export { ReidentifyFileRequestFields }
+
+export { ReidentifyFileResponse }
+
+// @public
+export enum ReidentifySourceType {
     // (undocumented)
-    getMaskedEntities(): DetectEntities[] | undefined;
+    BASE64 = "BASE64",
     // (undocumented)
-    getPlainTextEntities(): DetectEntities[] | undefined;
-    // (undocumented)
-    getRedactedEntities(): DetectEntities[] | undefined;
-    // (undocumented)
-    setMaskedEntities(maskedEntities: DetectEntities[]): void;
-    // (undocumented)
-    setPlainTextEntities(plainTextEntities: DetectEntities[]): void;
-    // (undocumented)
-    setRedactedEntities(redactedEntities: DetectEntities[]): void;
+    PRESIGNED_URL = "PRESIGNED_URL"
 }
 
-// @public (undocumented)
-export class ReidentifyTextRequest {
-    constructor(text: string);
-    // (undocumented)
-    get text(): string;
-    set text(value: string);
-}
+export { ReidentifyStringRequest }
 
-// @public (undocumented)
-export class ReidentifyTextResponse {
-    constructor(input: {
-        processedText: string;
-    });
-    // (undocumented)
-    processedText: string;
-}
+export { ReidentifyStringRequestFields }
+
+export { ReidentifyStringResponse }
 
 export { RequestMethod }
+
+export { ReturnEntitiesType }
+
+export { ShiftDates }
 
 export { SignedDataTokensOptions }
 
@@ -723,26 +629,6 @@ export { StringKeyValueMapType }
 export { TokenCredentials }
 
 // @public (undocumented)
-export class TokenFormat {
-    // (undocumented)
-    getDefault(): string | undefined;
-    // (undocumented)
-    getEntityOnly(): string[] | undefined;
-    // (undocumented)
-    getEntityUniqueCounter(): string[] | undefined;
-    // (undocumented)
-    getVaultToken(): string[] | undefined;
-    // (undocumented)
-    setDefault(defaultToken: TokenType): void;
-    // (undocumented)
-    setEntityOnly(entityOnly: DetectEntities[]): void;
-    // (undocumented)
-    setEntityUniqueCounter(entityUniqueCounter: DetectEntities[]): void;
-    // (undocumented)
-    setVaultToken(vaultToken: DetectEntities[]): void;
-}
-
-// @public (undocumented)
 export class TokenizeRequest extends BaseTokenizeRequest {
     constructor(values: Array<TokenizeRequestType>);
     // (undocumented)
@@ -766,23 +652,7 @@ export class TokenizeResponse extends BaseTokenizeResponse {
 
 export { TokenMode }
 
-export { TokenType }
-
-// @public (undocumented)
-export class Transformations {
-    // (undocumented)
-    getShiftDays(): {
-        max: number;
-        min: number;
-        entities: DetectEntities[];
-    } | undefined;
-    // (undocumented)
-    setShiftDays(shiftDays: {
-        max: number;
-        min: number;
-        entities: DetectEntities[];
-    }): void;
-}
+export { Transformation }
 
 // @public (undocumented)
 export class UpdateOptions extends BaseOptions {

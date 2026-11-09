@@ -93,6 +93,17 @@ export enum DeidentificationType {
 }
 
 /**
+ * Whether the entity label is included as a prefix in a generated vault token. Applies to
+ * `VAULT_TOKEN` only. `INCLUDE_PREFIX_UNSPECIFIED` leaves the field unset so the server applies
+ * its default, which is `YES`. `NO` returns the raw vault token, which cannot be re-identified.
+ */
+export enum IncludePrefix {
+    INCLUDE_PREFIX_UNSPECIFIED = "INCLUDE_PREFIX_UNSPECIFIED",
+    YES = "YES",
+    NO = "NO",
+}
+
+/**
  * Contract for the source of a `deidentifyFile` input and the delivery of a run's outputs.
  * Each SDK exposes its own `DeidentifySourceType` enum with the values its vault supports
  * (`BASE64` and `PRESIGNED_URL` on flowvault, plus `SKYFLOW_ID` on skyvault); a request takes
@@ -226,12 +237,37 @@ export interface Entity {
      */
     destination?: string;
     transformation?: Transformation;
+    /**
+     * Used only with `VAULT_TOKEN`: whether the entity label prefixes the token, as in
+     * `[NAME_<token>]`. Server default `YES`. `NO` returns the raw vault token, which cannot
+     * be re-identified. `INCLUDE_PREFIX_UNSPECIFIED` leaves the field unset.
+     */
+    includePrefix?: IncludePrefix;
+    /**
+     * Used only with `VAULT_TOKEN`: replaces the entity-type prefix in the token, for example
+     * `NAAM` gives `[NAAM_<token>]`. Not valid together with `includePrefix: NO`.
+     */
+    prefixOverride?: string;
 }
 
-/** A regex-defined entity type. `label` is reported as the entity type of its matches. */
+/**
+ * A regex-defined entity type. `label` is reported as the entity type of its matches and is
+ * the default token prefix. Matches are de-identified like any other entity.
+ */
 export interface CustomType {
     label?: string;
     match?: string[];
+    /** Defaults to `ENTITY_UNIQUE_COUNTER` on the server. */
+    deidentificationType?: DeidentificationType;
+    /**
+     * Required with `VAULT_TOKEN`: where matches are stored. A `table.column` on skyvault
+     * vaults, a token group name on flowvault vaults. Must exist.
+     */
+    destination?: string;
+    /** Used only with `VAULT_TOKEN`: whether the label prefixes the token. Server default `YES`. */
+    includePrefix?: IncludePrefix;
+    /** Used only with `VAULT_TOKEN`: replaces the label as the token prefix. Not valid with `includePrefix: NO`. */
+    prefixOverride?: string;
 }
 
 /** A visual object type to detect in images and how to handle it. */

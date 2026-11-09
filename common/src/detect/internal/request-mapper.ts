@@ -10,7 +10,9 @@ import {
     Detect as DetectV2,
     DetectConfigV2,
     DetectCustomTypes,
+    DetectCustomTypesIncludePrefix,
     DetectEntity,
+    DetectEntityIncludePrefix,
     DetectGuardrailsRequestV2,
     DetectObjectEntity,
     DocumentV2,
@@ -39,6 +41,7 @@ import {
     FileDataFormat,
     FileMapping,
     Image,
+    IncludePrefix,
     Media,
     ObjectEntity,
     RedactionRule,
@@ -242,12 +245,24 @@ function toDetect(detect: Detect): DetectV2 {
     });
 }
 
+/**
+ * The REST enum has only YES and NO. INCLUDE_PREFIX_UNSPECIFIED (or an unset field) is omitted from the
+ * request so the server applies its default, which is YES.
+ */
+function toIncludePrefix(includePrefix?: IncludePrefix): DetectEntityIncludePrefix | undefined {
+    return includePrefix === undefined || includePrefix === IncludePrefix.INCLUDE_PREFIX_UNSPECIFIED
+        ? undefined
+        : (includePrefix as string as DetectEntityIncludePrefix);
+}
+
 function toEntity(entity: Entity): DetectEntity {
     return compact<DetectEntity>({
         entityType: entity.entityType,
         deidentificationType: entity.deidentificationType,
         destination: entity.destination,
         transformation: entity.transformation ? toTransformation(entity.transformation) : undefined,
+        includePrefix: toIncludePrefix(entity.includePrefix),
+        prefixOverride: entity.prefixOverride,
     });
 }
 
@@ -259,7 +274,14 @@ function toTransformation(transformation: Transformation): EntityTransformation 
 }
 
 function toCustomType(customType: CustomType): DetectCustomTypes {
-    return compact<DetectCustomTypes>({ label: customType.label, match: customType.match });
+    return compact<DetectCustomTypes>({
+        label: customType.label,
+        match: customType.match,
+        deidentificationType: customType.deidentificationType,
+        destination: customType.destination,
+        includePrefix: toIncludePrefix(customType.includePrefix) as DetectCustomTypesIncludePrefix | undefined,
+        prefixOverride: customType.prefixOverride,
+    });
 }
 
 function toObjectEntity(objectEntity: ObjectEntity): DetectObjectEntity {

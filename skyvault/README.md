@@ -2,7 +2,9 @@
 
 > **This is the current, recommended version of the Skyflow SDK.** V2.1.0 brings flexible auth, multi-vault support, builder patterns, native data types, and rich error diagnostics.
 >
-> Migrating from v1? See the **[Migration Guide](docs/migrate_to_v2.md)** for step-by-step instructions. V1 is in maintenance mode and will reach End of Life on October 31, 2026.
+> Meant for **Privacy DB** vaults. Working with a Flow DB vault? Use the [FlowVault SDK](../flowvault/README.md) (`skyflow-flowvault-node`) instead.
+>
+> Migrating from v1? See the **[Migration Guide](../docs/migrate_to_v2.md)** for step-by-step instructions. V1 is in maintenance mode and will reach End of Life on October 31, 2026.
 
 Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
 
@@ -85,12 +87,12 @@ Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow 
 The Skyflow SDK enables you to connect to your Skyflow Vault(s) to securely handle sensitive data at rest, in-transit, and in-use.
 
 > [!TIP]
-> Looking for the full list of request parameters, options setters, response fields, enums, and Detect helper classes? See the **[API Reference](docs/api_reference.md)**.
+> Looking for the full list of request parameters, options setters, response fields, enums, and Detect helper classes? See the **[API Reference](../docs/api_reference.md)**.
 
 > [!IMPORTANT]  
 > This readme documents SDK version 2.  
 > For version 1 see the [v1.14.2 README](https://github.com/skyflowapi/skyflow-node/tree/1.14.2).  
-> For more information on how to migrate see [MIGRATE_TO_V2.md](docs/migrate_to_v2.md).
+> For more information on how to migrate see [MIGRATE_TO_V2.md](../docs/migrate_to_v2.md).
 
 ## Installation
 
@@ -197,13 +199,13 @@ const skyflowConfig: SkyflowConfig = {
 const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 ```
 
-See [docs/advanced_initialization.md](docs/advanced_initialization.md) for advanced initialization examples including multiple vaults and different credential types.
+See [docs/advanced_initialization.md](../docs/advanced_initialization.md) for advanced initialization examples including multiple vaults and different credential types.
 
 ### Insert data into the vault, get tokens back
 
 Insert data into your vault using the `insert` method. Set `insertOptions.setReturnTokens(true)` to ensure values are tokenized in the response.
 
-Create an insert request with the [`InsertRequest`](docs/api_reference.md#insertrequest) class, which includes the values to be inserted as a list of records. 
+Create an insert request with the [`InsertRequest`](../docs/api_reference.md#insertrequest) class, which includes the values to be inserted as a list of records. 
 
 Below is a simple example to get started. See the [Insert and tokenize data](#insert-and-tokenize-data-insertrequest) section for advanced options.
 
@@ -226,7 +228,7 @@ const insertResponse = await skyflowClient
 console.log("Insert response:", insertResponse);
 ```
 
-Returns an [`InsertResponse`](docs/api_reference.md#insertresponse) (`insertedFields`, `errors`). With `setReturnTokens(true)`, each entry includes the `skyflowId` and a token per column:
+Returns an [`InsertResponse`](../docs/api_reference.md#insertresponse) (`insertedFields`, `errors`). With `setReturnTokens(true)`, each entry includes the `skyflowId` and a token per column:
 
 ```text
 Insert response: { insertedFields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', card_number: '5391-4629-3722-7102', cardholder_name: '0f6b8a2c-90ab-4cde-9def-567890abcdef' }], errors: null }
@@ -234,7 +236,7 @@ Insert response: { insertedFields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f
 
 ## Upgrade from v1 to v2
 
-Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.md](docs/migrate_to_v2.md).
+Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.md](../docs/migrate_to_v2.md).
 
 ## Vault
 
@@ -265,7 +267,7 @@ const response: InsertResponse = await skyflowClient
 console.log('Insert response:', response);
 ```
 
-Returns an [`InsertResponse`](docs/api_reference.md#insertresponse) (`insertedFields`, `errors`). With `setContinueOnError(true)`, `insertedFields` contains successful records and `errors` contains per-record failures:
+Returns an [`InsertResponse`](../docs/api_reference.md#insertresponse) (`insertedFields`, `errors`). With `setContinueOnError(true)`, `insertedFields` contains successful records and `errors` contains per-record failures:
 
 ```text
 Insert response: { insertedFields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', '<FIELD_NAME_1>': '<TOKEN_1>', '<FIELD_NAME_2>': '<TOKEN_2>' }], errors: null }
@@ -278,7 +280,7 @@ Insert response: { insertedFields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f
 Set the `continueOnError` flag to `true` to allow insert operations to proceed despite encountering partial errors.
 
 > [!TIP]
-> See the full example in the samples directory: [insert-continue-on-error.ts](samples/vault-api/insert-continue-on-error.ts)
+> See the full example in the samples directory: [insert-continue-on-error.ts](../samples/vault-api/insert-continue-on-error.ts)
 
 #### Upsert request
 
@@ -290,13 +292,13 @@ Turn an insert into an 'update-or-insert' operation using the upsert option. The
 insertOptions.setUpsertColumn("cardholder_name");
 ```
 
-For all `InsertOptions` setters and `TokenMode` values, see [InsertOptions](docs/api_reference.md#insertoptions) in the API reference.
+For all `InsertOptions` setters and `TokenMode` values, see [InsertOptions](../docs/api_reference.md#insertoptions) in the API reference.
 
 ### Detokenize: `.detokenize(request, options)`
 
 Convert tokens back into plaintext values (or masked values) using the `.detokenize()` method. Detokenization accepts tokens and returns values.
 
-Create a detokenization request with the [`DetokenizeRequest`](docs/api_reference.md#detokenizerequest) class, which requires a list of tokens and column groups as input.
+Create a detokenization request with the [`DetokenizeRequest`](../docs/api_reference.md#detokenizerequest) class, which requires a list of tokens and column groups as input.
 
 Provide optional parameters such as the redaction type and the option to continue on error.
 
@@ -325,18 +327,18 @@ const response: DetokenizeResponse = await skyflowClient
 console.log("Detokenization response:", response);
 ```
 
-Returns a [`DetokenizeResponse`](docs/api_reference.md#detokenizeresponse) (`detokenizedFields`, `errors`):
+Returns a [`DetokenizeResponse`](../docs/api_reference.md#detokenizeresponse) (`detokenizedFields`, `errors`):
 
 ```text
 Detokenization response: { detokenizedFields: [{ token: '5391-4629-3722-7102', value: '4111111111111112', type: 'STRING' }], errors: null }
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [detokenzie-records.ts](samples/vault-api/detokenzie-records.ts)
+> See the full example in the samples directory: [detokenzie-records.ts](../samples/vault-api/detokenzie-records.ts)
 
 ### Get Record(s): `.get(request, options)`
 
-Retrieve data using Skyflow IDs or unique column values with the get method. Create a get request with the [`GetRequest`](docs/api_reference.md#getrequest) class, specifying parameters such as the table name, redaction type, Skyflow IDs, column names, and column values. 
+Retrieve data using Skyflow IDs or unique column values with the get method. Create a get request with the [`GetRequest`](../docs/api_reference.md#getrequest) class, specifying parameters such as the table name, redaction type, Skyflow IDs, column names, and column values. 
 
 > [!NOTE]
 > You can't use both Skyflow IDs and column name/value pairs in the same request. Use the `GetOptions` class to specify whether to return tokens.
@@ -358,7 +360,7 @@ const response: GetResponse = await skyflowClient
 console.log("Get response:", response);
 ```
 
-Returns a [`GetResponse`](docs/api_reference.md#getresponse) (`data`, `errors`):
+Returns a [`GetResponse`](../docs/api_reference.md#getresponse) (`data`, `errors`):
 
 ```text
 Get response: { data: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', card_number: '4111111111111112', cardholder_name: 'John Doe' }], errors: null }
@@ -414,7 +416,7 @@ getOptions.setReturnTokens(true); // Set to `true` to get tokens
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [get-records.ts](samples/vault-api/get-records.ts)
+> See the full example in the samples directory: [get-records.ts](../samples/vault-api/get-records.ts)
 
 #### Get by column name and column values
 
@@ -429,7 +431,7 @@ const getRequest: GetColumnRequest = new GetColumnRequest(
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [get-column-values.ts](samples/vault-api/get-column-values.ts)
+> See the full example in the samples directory: [get-column-values.ts](../samples/vault-api/get-column-values.ts)
 
 #### Redaction Types
 
@@ -448,11 +450,11 @@ Use redaction types to control how sensitive data displays when retrieved from t
 - Use `MASKED` to provide partial visibility of sensitive data for less critical use cases.
 - Use `PLAIN_TEXT` for internal, authorized access where full data visibility is necessary.
 
-For all `GetOptions` setters and `OrderByEnum` values, see [GetOptions](docs/api_reference.md#getoptions) in the API reference.
+For all `GetOptions` setters and `OrderByEnum` values, see [GetOptions](../docs/api_reference.md#getoptions) in the API reference.
 
 ### Update Records
 
-Update data in your vault using the `update` method. Create an update request with the [`UpdateRequest`](docs/api_reference.md#updaterequest) class, specifying parameters such as the table name and data (as a dictionary). 
+Update data in your vault using the `update` method. Create an update request with the [`UpdateRequest`](../docs/api_reference.md#updaterequest) class, specifying parameters such as the table name and data (as a dictionary). 
 
 Configure update options using the `UpdateOptions` class to control returnTokens, tokens, and tokenMode. When `returnTokens` is `true`, Skyflow returns tokens for the updated records. When `false`, Skyflow returns IDs for the updated records.
 
@@ -477,7 +479,7 @@ const response: UpdateResponse = await skyflowClient
 console.log('Update response:', response);
 ```
 
-Returns an [`UpdateResponse`](docs/api_reference.md#updateresponse) (`updatedField`, `errors`). With the default `setReturnTokens(false)`, `updatedField` contains only `skyflowId`:
+Returns an [`UpdateResponse`](../docs/api_reference.md#updateresponse) (`updatedField`, `errors`). With the default `setReturnTokens(false)`, `updatedField` contains only `skyflowId`:
 
 ```text
 Update response: { updatedField: { skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c' }, errors: null }
@@ -485,14 +487,14 @@ Update response: { updatedField: { skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5
 
 > **Note:** The response key is `skyflowId`. The legacy `skyflow_id` key is deprecated and will be removed in an upcoming release.
 
-For all `UpdateOptions` setters and `TokenMode` values, see [UpdateOptions](docs/api_reference.md#updateoptions) in the API reference.
+For all `UpdateOptions` setters and `TokenMode` values, see [UpdateOptions](../docs/api_reference.md#updateoptions) in the API reference.
 
 > [!TIP]
-> See the full example in the samples directory: [update-record.ts](samples/vault-api/update-record.ts)
+> See the full example in the samples directory: [update-record.ts](../samples/vault-api/update-record.ts)
 
 ### Delete Records
 
-Delete records using Skyflow IDs with the `delete` method. Create a delete request with the [`DeleteRequest`](docs/api_reference.md#deleterequest) class, which accepts a list of Skyflow IDs:
+Delete records using Skyflow IDs with the `delete` method. Create a delete request with the [`DeleteRequest`](../docs/api_reference.md#deleterequest) class, which accepts a list of Skyflow IDs:
 
 ```typescript
 import { DeleteRequest, DeleteResponse } from "skyflow-node";
@@ -510,18 +512,18 @@ const response: DeleteResponse = await skyflowClient
 console.log("Delete response:", response);
 ```
 
-Returns a [`DeleteResponse`](docs/api_reference.md#deleteresponse) (`deletedIds`, `errors`):
+Returns a [`DeleteResponse`](../docs/api_reference.md#deleteresponse) (`deletedIds`, `errors`):
 
 ```text
 Delete response: { deletedIds: ['a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c'], errors: null }
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [delete-records.ts](samples/vault-api/delete-records.ts)
+> See the full example in the samples directory: [delete-records.ts](../samples/vault-api/delete-records.ts)
 
 ### Query
 
-Retrieve data with SQL queries using the `query` method. Create a query request with the [`QueryRequest`](docs/api_reference.md#queryrequest) class, which takes the `query` parameter as follows:
+Retrieve data with SQL queries using the `query` method. Create a query request with the [`QueryRequest`](../docs/api_reference.md#queryrequest) class, which takes the `query` parameter as follows:
 
 
 
@@ -539,20 +541,20 @@ const response: QueryResponse = await skyflowClient
 console.log("Query response:", response);
 ```
 
-Returns a [`QueryResponse`](docs/api_reference.md#queryresponse) (`fields`, `errors`). Each record also includes a `tokenizedData` map:
+Returns a [`QueryResponse`](../docs/api_reference.md#queryresponse) (`fields`, `errors`). Each record also includes a `tokenizedData` map:
 
 ```text
 Query response: { fields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', card_number: '4111111111111112', tokenizedData: { card_number: '5391-4629-3722-7102' } }], errors: null }
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [query-records.ts](samples/vault-api/query-records.ts)
+> See the full example in the samples directory: [query-records.ts](../samples/vault-api/query-records.ts)
 
 Refer to [Query your data](https://docs.skyflow.com/query-data/) and [Execute Query](https://docs.skyflow.com/record/#QueryService_ExecuteQuery) for guidelines and restrictions on supported SQL statements, operators, and keywords.
 
 ### Upload File
 
-Upload files to a Skyflow vault using the `uploadFile` method. Requires Node.js v20 or above. Create a [`FileUploadRequest`](docs/api_reference.md#fileuploadrequest) with the table name and column name, then configure a `FileUploadOptions` with the file source and optionally a Skyflow ID.
+Upload files to a Skyflow vault using the `uploadFile` method. Requires Node.js v20 or above. Create a [`FileUploadRequest`](../docs/api_reference.md#fileuploadrequest) with the table name and column name, then configure a `FileUploadOptions` with the file source and optionally a Skyflow ID.
 
 **Attach a file to an existing record:**
 
@@ -587,20 +589,20 @@ const response: FileUploadResponse = await skyflowClient
 console.log("File upload:", response);
 ```
 
-Both forms return a [`FileUploadResponse`](docs/api_reference.md#fileuploadresponse) (`skyflowId`, `errors`):
+Both forms return a [`FileUploadResponse`](../docs/api_reference.md#fileuploadresponse) (`skyflowId`, `errors`):
 
 ```text
 File upload: { skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', errors: null }
 ```
 
-For all `FileUploadOptions` setters, see [FileUploadOptions](docs/api_reference.md#fileuploadoptions) in the API reference.
+For all `FileUploadOptions` setters, see [FileUploadOptions](../docs/api_reference.md#fileuploadoptions) in the API reference.
 
 > [!TIP]
-> See the full example in the samples directory: [file-upload.ts](samples/vault-api/file-upload.ts)
+> See the full example in the samples directory: [file-upload.ts](../samples/vault-api/file-upload.ts)
 
 ### Retrieve Existing Tokens: `.tokenize(request)`
 
-Retrieve tokens for values that already exist in the vault using the `.tokenize()` method. This method returns existing tokens only and does not generate new tokens. Build the request with the [`TokenizeRequest`](docs/api_reference.md#tokenizerequest) class.
+Retrieve tokens for values that already exist in the vault using the `.tokenize()` method. This method returns existing tokens only and does not generate new tokens. Build the request with the [`TokenizeRequest`](../docs/api_reference.md#tokenizerequest) class.
 
 #### Construct a `.tokenize()` request
 
@@ -619,14 +621,14 @@ const response: TokenizeResponse = await skyflowClient
 console.log("Tokenization Result:", response);
 ```
 
-Returns a [`TokenizeResponse`](docs/api_reference.md#tokenizeresponse) (`tokens`, `errors`):
+Returns a [`TokenizeResponse`](../docs/api_reference.md#tokenizeresponse) (`tokens`, `errors`):
 
 ```text
 Tokenization Result: { tokens: ['5391-4629-3722-7102', '0f6b8a2c-90ab-4cde-9def-567890abcdef'], errors: null }
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [tokenize-records.ts](samples/vault-api/tokenize-records.ts)
+> See the full example in the samples directory: [tokenize-records.ts](../samples/vault-api/tokenize-records.ts)
 
 ## Detect
 
@@ -636,19 +638,19 @@ Detect configurations are created in Studio or through the management API. The S
 
 | Method | Request | Response | Description |
 |--------|---------|----------|-------------|
-| `deidentifyString(request)` | [`DeidentifyStringRequest`](docs/api_reference.md#deidentifystringrequest) | [`DeidentifyStringResponse`](docs/api_reference.md#deidentifystringresponse) | Detect and replace sensitive data in a string |
-| `deidentifyFile(request)` | [`DeidentifyFileRequest`](docs/api_reference.md#deidentifyfilerequest) | [`DeidentifyFileResponse`](docs/api_reference.md#deidentifyfileresponse) | Submit a file for de-identification, optionally polling the run to completion |
-| `reidentifyString(request)` | [`ReidentifyStringRequest`](docs/api_reference.md#reidentifystringrequest) | [`ReidentifyStringResponse`](docs/api_reference.md#reidentifystringresponse) | Replace tokens in a string with their original or redacted values |
-| `reidentifyFile(request)` | [`ReidentifyFileRequest`](docs/api_reference.md#reidentifyfilerequest) | [`ReidentifyFileResponse`](docs/api_reference.md#reidentifyfileresponse) | Replace tokens in a file with their original or redacted values |
-| `getRun(request)` | [`GetRunRequest`](docs/api_reference.md#getrunrequest) | [`GetRunResponse`](docs/api_reference.md#getrunresponse) | Retrieve the status and outputs of a Detect file run |
-| `checkGuardrails(request)` | [`CheckGuardrailsRequest`](docs/api_reference.md#checkguardrailsrequest) | [`CheckGuardrailsResponse`](docs/api_reference.md#checkguardrailsresponse) | Screen text for toxicity and denied topics |
+| `deidentifyString(request)` | [`DeidentifyStringRequest`](../docs/api_reference.md#deidentifystringrequest) | [`DeidentifyStringResponse`](../docs/api_reference.md#deidentifystringresponse) | Detect and replace sensitive data in a string |
+| `deidentifyFile(request)` | [`DeidentifyFileRequest`](../docs/api_reference.md#deidentifyfilerequest) | [`DeidentifyFileResponse`](../docs/api_reference.md#deidentifyfileresponse) | Submit a file for de-identification, optionally polling the run to completion |
+| `reidentifyString(request)` | [`ReidentifyStringRequest`](../docs/api_reference.md#reidentifystringrequest) | [`ReidentifyStringResponse`](../docs/api_reference.md#reidentifystringresponse) | Replace tokens in a string with their original or redacted values |
+| `reidentifyFile(request)` | [`ReidentifyFileRequest`](../docs/api_reference.md#reidentifyfilerequest) | [`ReidentifyFileResponse`](../docs/api_reference.md#reidentifyfileresponse) | Replace tokens in a file with their original or redacted values |
+| `getRun(request)` | [`GetRunRequest`](../docs/api_reference.md#getrunrequest) | [`GetRunResponse`](../docs/api_reference.md#getrunresponse) | Retrieve the status and outputs of a Detect file run |
+| `checkGuardrails(request)` | [`CheckGuardrailsRequest`](../docs/api_reference.md#checkguardrailsrequest) | [`CheckGuardrailsResponse`](../docs/api_reference.md#checkguardrailsresponse) | Screen text for toxicity and denied topics |
 
 **Before you start**
 
 - **Role.** The service account needs the Detect Invoker, Detect Manager or Vault Owner role on the vault. Re-identifying values stored as `VAULT_TOKEN` is governed like detokenization: the caller also needs a policy that grants the Detokenization action on the destination table and columns, unless it is a Vault Owner.
 - **Configuration.** `configurationId` is the id of a Detect configuration created through the management API. The alternative is an inline `DetectConfiguration` passed as `configuration` (see [Detect configuration](#detect-configuration)). Both are optional: with neither set the SDK sends only the vault id and the run uses the vault's default Detect settings. Sending both is rejected by the API with HTTP 400.
 - **Destination for vault tokens.** An entity de-identified with `VAULT_TOKEN` stores its value in the `table.column` named by `destination`. That table and column must already exist in the vault.
-- **API reference.** Every Detect request, response and configuration type is listed in the [API reference](docs/api_reference.md#detect-api).
+- **API reference.** Every Detect request, response and configuration type is listed in the [API reference](../docs/api_reference.md#detect-api).
 
 ### De-identify a string: `.deidentifyString(request)`
 
@@ -703,7 +705,7 @@ console.log(inlineResponse.metrics?.wordCount);
 `DeidentifyStringResponse` carries `processedText`, `entities` (a `DetectedEntity[]` with token, entity type, location and confidence scores; never `null`) and `metrics`.
 
 > [!TIP]
-> See the full example in the samples directory: [deidentify-string.ts](samples/detect-api/deidentify-string.ts)
+> See the full example in the samples directory: [deidentify-string.ts](../samples/detect-api/deidentify-string.ts)
 
 ### Detect configuration
 
@@ -712,9 +714,9 @@ console.log(inlineResponse.metrics?.wordCount);
 | Type | Fields | Notes |
 |------|--------|-------|
 | `Detect` | `entities`, `objectEntities`, `restrict`, `skip`, `customTypes`, `returnEntities` | `restrict` and `skip` are regexes that are always, respectively never, treated as sensitive. `returnEntities` is `EXCLUDE_SENSITIVE_DATA` (server default), `ALL` or `NONE`. |
-| `Entity` | `entityType`, `deidentificationType`, `destination`, `transformation` | `entityType` defaults to `ALL`. `deidentificationType` is `ENTITY_UNIQUE_COUNTER` (server default), `ENTITY_ONLY`, `MASK` or `VAULT_TOKEN`. `destination` is used only with `VAULT_TOKEN`. |
+| `Entity` | `entityType`, `deidentificationType`, `destination`, `transformation`, `includePrefix`, `prefixOverride` | `entityType` defaults to `ALL`. `deidentificationType` is `ENTITY_UNIQUE_COUNTER` (server default), `ENTITY_ONLY`, `MASK` or `VAULT_TOKEN`. `destination`, `includePrefix` and `prefixOverride` apply only with `VAULT_TOKEN`: `includePrefix` is `YES` (server default), `NO` (raw token, cannot be re-identified) or `INCLUDE_PREFIX_UNSPECIFIED` (field omitted); `prefixOverride` replaces the entity-type prefix in the token and is not valid with `includePrefix` `NO`. |
 | `Transformation` / `ShiftDates` | `shiftDates`; `minDays`, `maxDays` | Shifts detected dates by a random number of days within the range. |
-| `CustomType` | `label`, `match` | A regex-defined entity type. `label` is reported as the entity type of its matches. |
+| `CustomType` | `label`, `match`, `deidentificationType`, `destination`, `includePrefix`, `prefixOverride` | A regex-defined entity type. `label` is reported as the entity type of its matches and is the default token prefix. The remaining fields work as on `Entity`; `destination` is required with `VAULT_TOKEN`. |
 | `ObjectEntity` | `entityType`, `deidentificationType` | Visual objects in images: `FACE`, `LICENSE_PLATE`, `LOGO`, `SIGNATURE` or `ALL`, handled with `REDACT` or `UNREDACT`. File inputs only. |
 | `FileMapping` | `source`, `destination`, `outputFileNameSuffix`, `entitiesDestination`, `objectEntitiesDestination` | Where the processed file and the entity files are written. File inputs only. |
 | `Media` | `audio`, `document`, `image` | Media-type options. File inputs only. |
@@ -812,7 +814,7 @@ switch (response.status) {
 Outputs are written only when polling reached `SUCCESS`, the request was built from a local file, and the run delivered them as base64. A request built from a `SKYFLOW_ID` or `PRESIGNED_URL` has no local name to derive from, and presigned-URL outputs are not fetched, so in those cases read `output` and write the files yourself. Files are named `processed-<input name>.<extension>`, with the entities output as `processed-entities-<input name>.json`; `outputDirectory` is created if missing and defaults to the working directory. Writing outputs needs the Node.js file system and is not supported in Cloudflare Workers.
 
 > [!TIP]
-> See the full examples in the samples directory: [deidentify-file.ts](samples/detect-api/deidentify-file.ts) and [deidentify-file-async.ts](samples/detect-api/deidentify-file-async.ts)
+> See the full examples in the samples directory: [deidentify-file.ts](../samples/detect-api/deidentify-file.ts) and [deidentify-file-async.ts](../samples/detect-api/deidentify-file-async.ts)
 
 ### Re-identify a string: `.reidentifyString(request)`
 
@@ -835,7 +837,7 @@ console.log(response.processedText);
 `RedactionLevel` is the skyvault SDK's own type and has only `entityName` and `redactionType`; the `tokenGroupName` and `redactionPattern` rules of the flowvault SDK do not exist here. Both fields are optional on the API, so the SDK passes the list through as given and the server rejects invalid combinations.
 
 > [!TIP]
-> See the full example in the samples directory: [reidentify-string.ts](samples/detect-api/reidentify-string.ts)
+> See the full example in the samples directory: [reidentify-string.ts](../samples/detect-api/reidentify-string.ts)
 
 ### Re-identify a file: `.reidentifyFile(request)`
 
@@ -862,7 +864,7 @@ if (response.status === DetectRunStatus.SUCCESS) {
 `ReidentifyFileResponse` carries `status`, `outputType`, `output` (never `null`) and `metrics`.
 
 > [!TIP]
-> See the full example in the samples directory: [reidentify-file.ts](samples/detect-api/reidentify-file.ts)
+> See the full example in the samples directory: [reidentify-file.ts](../samples/detect-api/reidentify-file.ts)
 
 ### Get run: `.getRun(request)`
 
@@ -890,7 +892,7 @@ switch (run.status) {
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [get-run.ts](samples/detect-api/get-run.ts)
+> See the full example in the samples directory: [get-run.ts](../samples/detect-api/get-run.ts)
 
 ### Check guardrails: `.checkGuardrails(request)`
 
@@ -911,7 +913,7 @@ if (response.validation === GuardrailsValidation.FAILED) {
 All Detect methods throw `SkyflowError` as described in [Error handling](#error-handling). Client-side validation fails before any network call.
 
 > [!TIP]
-> See the full example in the samples directory: [check-guardrails.ts](samples/detect-api/check-guardrails.ts)
+> See the full example in the samples directory: [check-guardrails.ts](../samples/detect-api/check-guardrails.ts)
 
 ## Connections
 
@@ -936,7 +938,7 @@ const connectionConfig: ConnectionConfig = {
 
 ### Invoke a connection
 
-Invoke a connection using the `invoke` method of the Skyflow client. Build the request with the [`InvokeConnectionRequest`](docs/api_reference.md#invokeconnectionrequest) class.
+Invoke a connection using the `invoke` method of the Skyflow client. Build the request with the [`InvokeConnectionRequest`](../docs/api_reference.md#invokeconnectionrequest) class.
 
 #### Construct an invoke connection request
 
@@ -962,13 +964,13 @@ const response: InvokeConnectionResponse = await skyflowClient
 console.log("Invoke connection response:", response);
 ```
 
-Returns an [`InvokeConnectionResponse`](docs/api_reference.md#invokeconnectionresponse) (`data`, `metadata`, `errors`):
+Returns an [`InvokeConnectionResponse`](../docs/api_reference.md#invokeconnectionresponse) (`data`, `metadata`, `errors`):
 
 ```text
 Invoke connection response: { data: { status: 'success', transaction_id: 'txn_abc123' }, metadata: { requestId: 'req-xyz-456' }, errors: null }
 ```
 
-`method` supports the following methods (see [`RequestMethod`](docs/api_reference.md#requestmethod)):
+`method` supports the following methods (see [`RequestMethod`](../docs/api_reference.md#requestmethod)):
 
 - `GET`
 - `POST`
@@ -978,7 +980,7 @@ Invoke connection response: { data: { status: 'success', transaction_id: 'txn_ab
 **pathParams, queryParams, header, body** are the JSON objects represented as dictionaries that will be sent through the connection integration url.
 
 > [!TIP]
-> See the full example in the samples directory: [scoped-token-generation-example.ts](samples/vault-api/invoke-connection.ts)  
+> See the full example in the samples directory: [scoped-token-generation-example.ts](../samples/vault-api/invoke-connection.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on integrations with Connections, Functions, and Pipelines.
 
 ## Authentication & authorization
@@ -1110,7 +1112,7 @@ const options: BearerTokenOptions = {
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [scoped-token-generation-example.ts](samples/service-account/scoped-token-generation-example.ts)  
+> See the full example in the samples directory: [scoped-token-generation-example.ts](../samples/service-account/scoped-token-generation-example.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
 #### Generate bearer tokens with `ctx` for context-aware authorization
@@ -1165,7 +1167,7 @@ const credentials: PathCredentials = {
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [token-generation-with-context-example.ts](samples/service-account/token-generation-with-context-example.ts)
+> See the full example in the samples directory: [token-generation-with-context-example.ts](../samples/service-account/token-generation-with-context-example.ts)
 > See Skyflow's [context-aware authorization](https://docs.skyflow.com) and [conditional data access](https://docs.skyflow.com) docs for policy variable syntax like `request.context.*`.
 
 #### Generate signed data tokens
@@ -1222,12 +1224,12 @@ type SignedDataTokensOptions = {
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [signed-token-generation-example.ts](samples/service-account/signed-token-generation-example.ts)
+> See the full example in the samples directory: [signed-token-generation-example.ts](../samples/service-account/signed-token-generation-example.ts)
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
 ## Client management
 
-After initializing the `Skyflow` client, you can add, update, retrieve, and remove vault and connection configurations at any time without recreating the client. For the full list of methods, see [Client management methods](docs/api_reference.md#client-management-methods) in the API reference.
+After initializing the `Skyflow` client, you can add, update, retrieve, and remove vault and connection configurations at any time without recreating the client. For the full list of methods, see [Client management methods](../docs/api_reference.md#client-management-methods) in the API reference.
 
 ## Using the client in production
 
@@ -1347,7 +1349,7 @@ message: Authentication failed. Bearer token is expired. Use a valid bearer toke
 If you encounter this kind of error, retry the request. During the retry the SDK detects that the previous bearer token has expired and generates a new one for the current and subsequent requests.
 
 > [!TIP]
-> See the full example in the samples directory: [bearer-token-expiry-example.ts](samples/service-account/bearer-token-expiry-example.ts)  
+> See the full example in the samples directory: [bearer-token-expiry-example.ts](../samples/service-account/bearer-token-expiry-example.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
 ## Troubleshooting
@@ -1370,7 +1372,7 @@ If you're stuck, set `logLevel: LogLevel.DEBUG` during development for detailed 
 
 ## TypeScript types reference
 
-For the full reference of all exported types, interfaces, enums, request/response fields, and options setters, see the **[API Reference](docs/api_reference.md)**.
+For the full reference of all exported types, interfaces, enums, request/response fields, and options setters, see the **[API Reference](../docs/api_reference.md)**.
 
 The most commonly imported TypeScript types are:
 

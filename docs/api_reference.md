@@ -1,6 +1,6 @@
 # API Reference
 
-A reference for the public Skyflow Node SDK surface: client-management methods, request classes, options classes, response classes, enums, the Detect API (shared with the flowvault SDK), and service-account functions. For task-oriented usage and examples, see the [README](../README.md).
+A reference for the public Skyflow Node SDK surface: client-management methods, request classes, options classes, response classes, enums, the Detect API (shared with the flowvault SDK), and service-account functions. For task-oriented usage and examples, see the [skyvault README](../skyvault/README.md).
 
 All properties, setters, and enum values below are taken directly from the SDK source.
 
@@ -335,7 +335,7 @@ Deployment environment.
 
 ### `LogLevel`
 
-`DEBUG` < `INFO` < `WARN` < `ERROR` < `OFF`. Default is `ERROR`. See [Logging](../README.md#logging).
+`DEBUG` < `INFO` < `WARN` < `ERROR` < `OFF`. Default is `ERROR`. See [Logging](../skyvault/README.md#logging).
 
 ### `RedactionType`
 
@@ -380,7 +380,7 @@ Values: `GET`, `POST`, `PUT`, `PATCH`.
 
 ## Detect API
 
-Shared by the `skyflow-node` and `skyflow-flowvault-node` SDKs: every class, interface and enum below is importable from either package. `skyflowClient.detect()` and `skyflowClient.detect(vaultId)` return a `DetectController`. Usage and examples: [skyvault README](../README.md#detect), [flowvault README](../flowvault/README.md#detect).
+Shared by the `skyflow-node` and `skyflow-flowvault-node` SDKs: every class, interface and enum below is importable from either package. `skyflowClient.detect()` and `skyflowClient.detect(vaultId)` return a `DetectController`. Usage and examples: [skyvault README](../skyvault/README.md#detect), [flowvault README](../flowvault/README.md#detect).
 
 | Method | Request | Response |
 |--------|---------|----------|
@@ -548,6 +548,8 @@ Inline Detect policy for `deidentifyString` and `deidentifyFile`. A plain interf
 | `deidentificationType` | `DeidentificationType` | How the value is replaced. Server default `ENTITY_UNIQUE_COUNTER`. |
 | `destination` | `string` | For `VAULT_TOKEN`: where the value is stored. A `table.column` on skyvault vaults, a token group name on flowvault vaults. Must already exist. |
 | `transformation` | [`Transformation`](#transformation-and-shiftdates) | Date shifting. |
+| `includePrefix` | `IncludePrefix` | For `VAULT_TOKEN`: whether the entity label prefixes the token (`[NAME_<token>]`). Server default `YES`. `NO` returns the raw vault token, which cannot be re-identified. `INCLUDE_PREFIX_UNSPECIFIED` leaves the field unset. |
+| `prefixOverride` | `string` | For `VAULT_TOKEN`: replaces the entity-type prefix, for example `NAAM` gives `[NAAM_<token>]`. Not valid with `includePrefix: NO`. |
 
 ### `Transformation` and `ShiftDates`
 
@@ -557,8 +559,12 @@ Inline Detect policy for `deidentifyString` and `deidentifyFile`. A plain interf
 
 | Field | Type | Description |
 |---|---|---|
-| `label` | `string` | Becomes the entity type on the response. |
+| `label` | `string` | Becomes the entity type on the response and the default token prefix. |
 | `match` | `string[]` | Regexes that define the type. |
+| `deidentificationType` | `DeidentificationType` | How matches are replaced. Server default `ENTITY_UNIQUE_COUNTER`. |
+| `destination` | `string` | For `VAULT_TOKEN`: where matches are stored. A `table.column` on skyvault vaults, a token group name on flowvault vaults. Required with `VAULT_TOKEN`. |
+| `includePrefix` | `IncludePrefix` | For `VAULT_TOKEN`: whether the label prefixes the token. Server default `YES`. `NO` returns the raw vault token, which cannot be re-identified. |
+| `prefixOverride` | `string` | For `VAULT_TOKEN`: replaces the label as the token prefix. Not valid with `includePrefix: NO`. |
 
 ### `ObjectEntity`
 
@@ -664,6 +670,7 @@ All string enums whose values match the wire values.
 |------|--------|
 | `EntityType` | the 70 entity types (`NAME`, `EMAIL_ADDRESS`, `SSN`, `CREDIT_CARD`, `DOB`, ...), plus `ALL` and `NONE` |
 | `DeidentificationType` | `ENTITY_UNIQUE_COUNTER` _(server default)_, `ENTITY_ONLY`, `VAULT_TOKEN`, `MASK`, `UNKNOWN` |
+| `IncludePrefix` | `YES` _(server default)_, `NO`, `INCLUDE_PREFIX_UNSPECIFIED` _(field omitted)_. `VAULT_TOKEN` only. |
 | `DeidentifySourceType` | Per SDK: skyvault `BASE64`, `SKYFLOW_ID`, `PRESIGNED_URL`; flowvault `BASE64`, `PRESIGNED_URL`. Input source for `deidentifyFile`, and the `outputType` of `DeidentifyFileResponse` and `GetRunResponse`. |
 | `ReidentifySourceType` | Per SDK, `BASE64`, `PRESIGNED_URL` on both. Input source for `reidentifyFile` and the `outputType` of `ReidentifyFileResponse`. |
 | `FileDataFormat` | `BMP`, `CSV`, `DCM`, `DOC`, `DOCX`, `GIF`, `JPEG`, `JPG`, `JSON`, `JSONL`, `MP3`, `PDF`, `PNG`, `PPT`, `PPTX`, `TIF`, `TIFF`, `TXT`, `WAV`, `XLS`, `XLSX`, `XML`, `ZIP` |
@@ -680,7 +687,7 @@ All string enums whose values match the wire values.
 
 ## Service account functions
 
-All importable from `'skyflow-node'`. See [Authentication & authorization](../README.md#authentication--authorization) for full usage of `generateBearerToken`, `generateBearerTokenFromCreds`, and `generateSignedDataTokens`.
+All importable from `'skyflow-node'`. See [Authentication & authorization](../skyvault/README.md#authentication--authorization) for full usage of `generateBearerToken`, `generateBearerTokenFromCreds`, and `generateSignedDataTokens`.
 
 ### `isExpired(token)`
 

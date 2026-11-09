@@ -28,6 +28,7 @@ import { BaseUploadFilesResponse } from 'skyflow-common';
 import { BaseVaultEntry } from 'skyflow-common';
 import { Credentials } from 'skyflow-common';
 import { LogLevel } from 'skyflow-common';
+import { RedactionRule } from 'skyflow-common';
 import { SkyflowConfig } from 'skyflow-common';
 import { SkyflowError } from 'skyflow-common';
 import { SkyflowRecordError } from 'skyflow-common';
@@ -49,6 +50,14 @@ export enum CustomHeaderKey {
     SKYFLOW_ACCOUNT_ID = "x-skyflow-account-id",
     // (undocumented)
     SKYFLOW_ACCOUNT_NAME = "x-skyflow-account-name"
+}
+
+// @public
+export enum DeidentifySourceType {
+    // (undocumented)
+    BASE64 = "BASE64",
+    // (undocumented)
+    PRESIGNED_URL = "PRESIGNED_URL"
 }
 
 // @public
@@ -427,6 +436,24 @@ export class QueryResponse extends BaseQueryResponse {
 export interface QueryResponseMetadata {
     // (undocumented)
     columns: string[];
+}
+
+// @public
+export interface RedactionLevel extends RedactionRule {
+    // (undocumented)
+    entityName?: never;
+    redactionPattern?: string;
+    // (undocumented)
+    redactionType?: never;
+    tokenGroupName?: string;
+}
+
+// @public
+export enum ReidentifySourceType {
+    // (undocumented)
+    BASE64 = "BASE64",
+    // (undocumented)
+    PRESIGNED_URL = "PRESIGNED_URL"
 }
 
 // @public

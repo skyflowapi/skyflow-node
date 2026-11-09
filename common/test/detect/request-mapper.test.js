@@ -22,6 +22,7 @@ import {
     DeidentificationType,
     EntityType,
     FileDataFormat,
+    IncludePrefix,
     MaskingMethod,
     ObjectDeidentificationType,
     ObjectEntityType,
@@ -86,13 +87,29 @@ describe('toDetectConfig', () => {
                             deidentificationType: DeidentificationType.ENTITY_UNIQUE_COUNTER,
                             transformation: { shiftDates: { minDays: 10, maxDays: 30 } },
                         },
-                        { entityType: EntityType.NAME, deidentificationType: DeidentificationType.VAULT_TOKEN, destination: 'pii.name' },
+                        {
+                            entityType: EntityType.NAME,
+                            deidentificationType: DeidentificationType.VAULT_TOKEN,
+                            destination: 'pii.name',
+                            includePrefix: IncludePrefix.YES,
+                            prefixOverride: 'NAAM',
+                        },
                         null,
                     ],
                     objectEntities: [{ entityType: ObjectEntityType.FACE, deidentificationType: ObjectDeidentificationType.REDACT }],
                     restrict: ['[0-9]{3}'],
                     skip: ['Skyflow'],
-                    customTypes: [{ label: 'EMPLOYEE_ID', match: ['EMP-[0-9]{6}'] }],
+                    customTypes: [
+                        { label: 'EMPLOYEE_ID', match: ['EMP-[0-9]{6}'] },
+                        {
+                            label: 'PRODUCT',
+                            match: ['PRD-[0-9]{4}'],
+                            deidentificationType: DeidentificationType.VAULT_TOKEN,
+                            destination: 'productTokenGroup',
+                            includePrefix: IncludePrefix.NO,
+                            prefixOverride: 'PRODUKT',
+                        },
+                    ],
                     returnEntities: ReturnEntitiesType.ALL,
                 },
                 fileMapping: [{ source: 'a', destination: 'b', outputFileNameSuffix: '_x', entitiesDestination: 'e', objectEntitiesDestination: 'o' }],
@@ -111,12 +128,28 @@ describe('toDetectConfig', () => {
             detect: {
                 entities: [
                     { entityType: 'DOB', deidentificationType: 'ENTITY_UNIQUE_COUNTER', transformation: { shiftDates: { minDays: 10, maxDays: 30 } } },
-                    { entityType: 'NAME', deidentificationType: 'VAULT_TOKEN', destination: 'pii.name' },
+                    {
+                        entityType: 'NAME',
+                        deidentificationType: 'VAULT_TOKEN',
+                        destination: 'pii.name',
+                        includePrefix: 'YES',
+                        prefixOverride: 'NAAM',
+                    },
                 ],
                 objectEntities: [{ entityType: 'FACE', deidentificationType: 'REDACT' }],
                 restrict: ['[0-9]{3}'],
                 skip: ['Skyflow'],
-                customTypes: [{ label: 'EMPLOYEE_ID', match: ['EMP-[0-9]{6}'] }],
+                customTypes: [
+                    { label: 'EMPLOYEE_ID', match: ['EMP-[0-9]{6}'] },
+                    {
+                        label: 'PRODUCT',
+                        match: ['PRD-[0-9]{4}'],
+                        deidentificationType: 'VAULT_TOKEN',
+                        destination: 'productTokenGroup',
+                        includePrefix: 'NO',
+                        prefixOverride: 'PRODUKT',
+                    },
+                ],
                 returnEntities: 'ALL',
             },
             fileMapping: [{ source: 'a', destination: 'b', outputFileNameSuffix: '_x', entitiesDestination: 'e', objectEntitiesDestination: 'o' }],
@@ -130,6 +163,34 @@ describe('toDetectConfig', () => {
     test('an empty transformation / media / detect maps to empty objects', () => {
         const out = toDetectConfig({ detect: { entities: [{ transformation: {} }] }, media: {} }, VAULT);
         expect(out).toEqual({ vaultId: VAULT, detect: { entities: [{ transformation: {} }] }, media: {} });
+    });
+    test('INCLUDE_PREFIX_UNSPECIFIED and an unset includePrefix are omitted; YES and NO are sent', () => {
+        const entities = (includePrefix) =>
+            toDetectConfig({ detect: { entities: [includePrefix === null ? {} : { includePrefix }] } }, VAULT).detect.entities;
+        expect(entities(IncludePrefix.INCLUDE_PREFIX_UNSPECIFIED)).toEqual([{}]);
+        expect(entities(null)).toEqual([{}]);
+        expect(entities(IncludePrefix.YES)).toEqual([{ includePrefix: 'YES' }]);
+        expect(entities(IncludePrefix.NO)).toEqual([{ includePrefix: 'NO' }]);
+
+        const customTypes = (includePrefix) =>
+            toDetectConfig({ detect: { customTypes: [{ label: 'ID', includePrefix }] } }, VAULT).detect.customTypes;
+        expect(customTypes(IncludePrefix.INCLUDE_PREFIX_UNSPECIFIED)).toEqual([{ label: 'ID' }]);
+        expect(customTypes(IncludePrefix.NO)).toEqual([{ label: 'ID', includePrefix: 'NO' }]);
+    });
+    test('a custom type with only label and match carries no vault-token fields', () => {
+        const out = toDetectConfig({ detect: { customTypes: [{ label: 'ID', match: ['[0-9]+'] }] } }, VAULT);
+        expect(out.detect.customTypes).toEqual([{ label: 'ID', match: ['[0-9]+'] }]);
+        expect(Object.keys(out.detect.customTypes[0])).toEqual(['label', 'match']);
+    });
+    test('every DeidentificationType maps for entities and custom types', () => {
+        Object.values(DeidentificationType).forEach((type) => {
+            const out = toDetectConfig(
+                { detect: { entities: [{ deidentificationType: type }], customTypes: [{ deidentificationType: type }] } },
+                VAULT,
+            );
+            expect(out.detect.entities).toEqual([{ deidentificationType: type }]);
+            expect(out.detect.customTypes).toEqual([{ deidentificationType: type }]);
+        });
     });
 });
 
