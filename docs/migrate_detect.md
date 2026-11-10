@@ -268,7 +268,7 @@ before.file;            // File, first output only
 before.entities;        // [{ file, extension }]
 before.pageCount;
 
-// Replacement: same behaviour, opt in to polling
+// Replacement: same behavior, opt in to polling
 const after = await skyflowClient.detect().deidentifyFile(
   new DeidentifyFileRequest({
     filePath: '/data/intake/patient-notes.pdf',
@@ -316,19 +316,20 @@ const runId = submitted.runId;             // status is null, nothing written to
 | `errors` | Removed. Failures reject with `SkyflowError`; a run that failed while processing has `status: FAILED` and `message` |
 | — | `outputType`, `message` |
 
-### Behaviour differences to check
+### Behavior differences to check
 
 - **Polling is opt in.** Without `pollOptions` the call resolves with the run id immediately. Callers that relied on the
   result being complete must add `pollOptions`.
 - **Budget limits changed.** `waitTime` defaults to 60 and tops out at 300, where the old method defaulted to 64 and
   capped at 64. `maxAttempts` is new, default and maximum 23.
-- **Elapsed time is measured by the clock.** The old loop counted only its planned delays. The new one measures real
-  elapsed time and never exceeds `waitTime`.
+- **The budget counts the pauses between lookups.** Like the old loop, the time spent inside each status call is not
+  charged to `waitTime`, so wall-clock time can exceed it by the latency of the lookups. The final pause is trimmed so
+  the pauses alone never exceed `waitTime`.
 - **Output file names.** The redacted file is `processed-<input name>.<extension>` and the entities file is
   `processed-entities-<input name>.json`, written under `outputDirectory` (or the working directory when none is set)
   only for local file inputs that reached `SUCCESS` with base64 outputs.
 - **All outputs are returned.** The old response surfaced only the first output. `output` holds the full list.
-- **`UNKNOWN` ends polling.** The old method kept calling the run endpoint on any status it did not recognise. The new one
+- **`UNKNOWN` ends polling.** The old method kept calling the run endpoint on any status it did not recognize. The new one
   stops and returns `UNKNOWN`; check for it and call `getRun` later.
 - **Validation is stricter.** `waitTime` and `maxAttempts` out of range, `outputDirectory` without `pollOptions`, and
   supplying more than one of `file`, `filePath` and `value` reject before any network call.

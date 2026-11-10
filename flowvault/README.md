@@ -437,7 +437,7 @@ File de-identification is asynchronous on the API: the submit call returns a run
 
 The file is supplied in one of three ways: a `dataSource` plus `value` (`DeidentifySourceType.BASE64` content or a `DeidentifySourceType.PRESIGNED_URL`; flowvault vaults do not take a skyflow id as a source), a `file` (a web `File`, Node.js 20+), or a `filePath`. A local file is read, base64-encoded, and its `dataFormat` inferred from the extension. Supply exactly one of `value`, `file` or `filePath`. `configurationId` and `configuration` follow the same rules as for strings.
 
-`dataFormat` accepts every `FileDataFormat`: `BMP`, `CSV`, `DCM`, `DOC`, `DOCX`, `GIF`, `JPEG`, `JPG`, `JSON`, `JSONL`, `MP3`, `PDF`, `PNG`, `PPT`, `PPTX`, `TIF`, `TIFF`, `TXT`, `WAV`, `XLS`, `XLSX`, `XML` and `ZIP`. The `VAULT_TOKEN` de-identification type is supported only for `TXT`, `CSV`, `JSON`, `JSONL`, `XML`, `DOCX`, `XLSX` and `PPTX`.
+`dataFormat` accepts every `DeidentifyFileDataFormat`: `BMP`, `CSV`, `DCM`, `DOC`, `DOCX`, `GIF`, `JPEG`, `JPG`, `JSON`, `JSONL`, `MP3`, `PDF`, `PNG`, `PPT`, `PPTX`, `TIF`, `TIFF`, `TXT`, `WAV`, `XLS`, `XLSX`, `XML` and `ZIP`. The `VAULT_TOKEN` de-identification type is supported only for `TXT`, `CSV`, `JSON`, `JSONL`, `XML`, `DOCX`, `XLSX` and `PPTX`.
 
 `outputDirectory` is meaningful only when polling. Setting it without `pollOptions` fails client-side validation before any request is sent.
 
@@ -575,12 +575,12 @@ console.log(rendered.processedText);
 
 ```typescript
 import * as fs from 'fs';
-import { ReidentifyFileRequest, ReidentifySourceType, FileDataFormat, DetectRunStatus } from 'skyflow-flowvault-node';
+import { ReidentifyFileRequest, ReidentifySourceType, ReidentifyFileDataFormat, DetectRunStatus } from 'skyflow-flowvault-node';
 
 const content = fs.readFileSync('tokenized.txt').toString('base64');
 
 const response = await skyflowClient.detect().reidentifyFile(
-  new ReidentifyFileRequest(ReidentifySourceType.BASE64, content, { dataFormat: FileDataFormat.TXT }),
+  new ReidentifyFileRequest(ReidentifySourceType.BASE64, content, { dataFormat: ReidentifyFileDataFormat.TXT }),
 );
 
 if (response.status === DetectRunStatus.SUCCESS) {
@@ -625,7 +625,7 @@ switch (run.status) {
   case DetectRunStatus.SUCCESS:
     for (const output of run.output) {
       // output.processedFileType is e.g. REDACTED_FILE or ENTITIES
-      // output.processedFileExtension is a FileDataFormat such as PDF
+      // output.processedFileExtension is a DeidentifyFileDataFormat such as PDF
       if (run.outputType === DeidentifySourceType.BASE64) {
         const bytes = Buffer.from(output.processedFile ?? '', 'base64');
         fs.writeFileSync(`processed-${output.processedFileType}.${output.processedFileExtension?.toLowerCase()}`, bytes);

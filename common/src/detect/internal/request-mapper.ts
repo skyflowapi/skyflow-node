@@ -38,7 +38,7 @@ import {
     DetectConfiguration,
     Document,
     Entity,
-    FileDataFormat,
+    DeidentifyFileDataFormat,
     FileMapping,
     Image,
     IncludePrefix,
@@ -108,13 +108,13 @@ async function encodeLocalFile(request: DeidentifyFileRequest, logLevel: LogLeve
 }
 
 /** The format matching the file extension, or undefined when unknown so the server infers it. @internal */
-export function inferFormat(fileName: string | null): FileDataFormat | undefined {
+export function inferFormat(fileName: string | null): DeidentifyFileDataFormat | undefined {
     if (!fileName) {
         return undefined;
     }
     const ext = path.extname(fileName).replace(/^\./, "").toUpperCase();
-    return ext && Object.prototype.hasOwnProperty.call(FileDataFormat, ext)
-        ? (FileDataFormat as Record<string, FileDataFormat>)[ext]
+    return ext && Object.prototype.hasOwnProperty.call(DeidentifyFileDataFormat, ext)
+        ? (DeidentifyFileDataFormat as Record<string, DeidentifyFileDataFormat>)[ext]
         : undefined;
 }
 

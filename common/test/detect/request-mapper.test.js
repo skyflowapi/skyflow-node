@@ -18,18 +18,7 @@ import DeidentifyFileRequest from '../../src/detect/model/request/deidentify-fil
 import ReidentifyStringRequest from '../../src/detect/model/request/reidentify-string';
 import ReidentifyFileRequest from '../../src/detect/model/request/reidentify-file';
 import CheckGuardrailsRequest from '../../src/detect/model/request/check-guardrails';
-import {
-    DeidentificationType,
-    EntityType,
-    FileDataFormat,
-    IncludePrefix,
-    MaskingMethod,
-    ObjectDeidentificationType,
-    ObjectEntityType,
-    OutputTranscriptionType,
-    PdfProcessingMode,
-    ReturnEntitiesType,
-} from '../../src/detect/types';
+import { DeidentificationType, EntityType, ReidentifyFileDataFormat, IncludePrefix, MaskingMethod, ObjectDeidentificationType, ObjectEntityType, OutputTranscriptionType, PdfProcessingMode, ReturnEntitiesType, DeidentifyFileDataFormat } from '../../src/detect/types';
 import { TestDeidentifySourceType as DeidentifySourceType, TestReidentifySourceType as ReidentifySourceType } from './test-types';
 import { RedactionType } from '../../src/utils';
 import SkyflowError from '../../src/error';
@@ -209,7 +198,7 @@ describe('toDeidentifyFileRequest', () => {
             new DeidentifyFileRequest({
                 dataSource: DeidentifySourceType.SKYFLOW_ID,
                 value: 'sid',
-                dataFormat: FileDataFormat.DOCX,
+                dataFormat: DeidentifyFileDataFormat.DOCX,
                 configurationId: 'cfg',
             }),
             VAULT,
@@ -226,7 +215,7 @@ describe('toDeidentifyFileRequest', () => {
     test('File request is encoded from arrayBuffer and an explicit dataFormat wins over inference', async () => {
         const file = { name: 'x.txt', arrayBuffer: async () => Uint8Array.from(Buffer.from('hello')).buffer };
         const out = await toDeidentifyFileRequest(
-            new DeidentifyFileRequest({ file, dataFormat: FileDataFormat.CSV, dataSource: DeidentifySourceType.PRESIGNED_URL }),
+            new DeidentifyFileRequest({ file, dataFormat: DeidentifyFileDataFormat.CSV, dataSource: DeidentifySourceType.PRESIGNED_URL }),
             VAULT,
         );
         expect(out.dataSource).toBe('BASE64'); // local file always wins
@@ -254,8 +243,8 @@ describe('toDeidentifyFileRequest', () => {
 
 describe('inferFormat / localFileName', () => {
     test('inferFormat maps known extensions case-insensitively and returns undefined otherwise', () => {
-        expect(inferFormat('a.PDF')).toBe(FileDataFormat.PDF);
-        expect(inferFormat('a.jsonl')).toBe(FileDataFormat.JSONL);
+        expect(inferFormat('a.PDF')).toBe(DeidentifyFileDataFormat.PDF);
+        expect(inferFormat('a.jsonl')).toBe(DeidentifyFileDataFormat.JSONL);
         expect(inferFormat('a.unknown')).toBeUndefined();
         expect(inferFormat('noext')).toBeUndefined();
         expect(inferFormat(null)).toBeUndefined();
@@ -293,7 +282,7 @@ describe('reidentify / guardrails mappers', () => {
     test('toReidentifyFileRequest lower-cases the format and maps redaction levels', () => {
         const out = toReidentifyFileRequest(
             new ReidentifyFileRequest(ReidentifySourceType.BASE64, 'abc', {
-                dataFormat: FileDataFormat.TXT,
+                dataFormat: ReidentifyFileDataFormat.TXT,
                 redactionLevel: [{ tokenGroupName: 'g' }],
             }),
             VAULT,

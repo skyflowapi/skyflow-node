@@ -1,4 +1,4 @@
-import { DetectRunStatus, FileOutput, Metrics, ReidentifyFileSource } from "../../../types";
+import { DetectRunStatus, ReidentifyFileOutput, Metrics, ReidentifyFileSource } from "../../../types";
 
 /** Response of `detect().reidentifyFile()`. */
 class ReidentifyFileResponse {
@@ -9,7 +9,7 @@ class ReidentifyFileResponse {
     readonly outputType: ReidentifyFileSource | null;
 
     /** Re-identified file outputs, never null. */
-    readonly output: FileOutput[];
+    readonly output: ReidentifyFileOutput[];
 
     /** Size and counts. */
     readonly metrics: Metrics | null;
@@ -17,7 +17,7 @@ class ReidentifyFileResponse {
     constructor(input: {
         status: DetectRunStatus;
         outputType: ReidentifyFileSource | null;
-        output: FileOutput[];
+        output: ReidentifyFileOutput[];
         metrics: Metrics | null;
     }) {
         this.status = input.status;

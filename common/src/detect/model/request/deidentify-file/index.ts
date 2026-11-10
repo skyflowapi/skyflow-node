@@ -1,4 +1,4 @@
-import { DeidentifyFileSource, DetectConfiguration, FileDataFormat, PollOptions } from "../../../types";
+import { DeidentifyFileSource, DetectConfiguration, DeidentifyFileDataFormat, PollOptions } from "../../../types";
 
 /**
  * Fields of a {@link DeidentifyFileRequest}. Supply the file through exactly
@@ -14,7 +14,7 @@ export interface DeidentifyFileRequestFields {
     /** Path to a local file; read and base64-encoded when sent. */
     filePath?: string;
     /** File format. Inferred from the file name's extension when omitted for a local file. */
-    dataFormat?: FileDataFormat;
+    dataFormat?: DeidentifyFileDataFormat;
     /**
      * Id of a Detect configuration created through the management API.
      * Sending it together with `configuration` is rejected by the API.
@@ -44,7 +44,7 @@ class DeidentifyFileRequest {
 
     private _filePath?: string;
 
-    private _dataFormat?: FileDataFormat;
+    private _dataFormat?: DeidentifyFileDataFormat;
 
     private _configurationId?: string;
 
@@ -98,11 +98,11 @@ class DeidentifyFileRequest {
         this._filePath = value;
     }
 
-    get dataFormat(): FileDataFormat | undefined {
+    get dataFormat(): DeidentifyFileDataFormat | undefined {
         return this._dataFormat;
     }
 
-    set dataFormat(value: FileDataFormat | undefined) {
+    set dataFormat(value: DeidentifyFileDataFormat | undefined) {
         this._dataFormat = value;
     }
 

@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { writeOutputs, outputFileName, stripExtension } from '../../src/detect/internal/file-output-writer';
-import { FileDataFormat } from '../../src/detect/types';
+import { DeidentifyFileDataFormat } from '../../src/detect/types';
 import { TestDeidentifySourceType as DeidentifySourceType } from './test-types';
 import SkyflowError from '../../src/error';
 
@@ -27,11 +27,11 @@ describe('stripExtension', () => {
 describe('outputFileName', () => {
     test('names processed files and entity files, and avoids collisions', () => {
         const used = new Set();
-        expect(outputFileName('notes', { processedFile: 'x', processedFileType: 'REDACTED_FILE', processedFileExtension: FileDataFormat.PDF }, used)).toBe('processed-notes.pdf');
-        expect(outputFileName('notes', { processedFile: 'x', processedFileType: 'ENTITIES', processedFileExtension: FileDataFormat.JSON }, used)).toBe('processed-entities-notes.json');
+        expect(outputFileName('notes', { processedFile: 'x', processedFileType: 'REDACTED_FILE', processedFileExtension: DeidentifyFileDataFormat.PDF }, used)).toBe('processed-notes.pdf');
+        expect(outputFileName('notes', { processedFile: 'x', processedFileType: 'ENTITIES', processedFileExtension: DeidentifyFileDataFormat.JSON }, used)).toBe('processed-entities-notes.json');
         expect(outputFileName('notes', { processedFile: 'x', processedFileType: 'OBJECT_ENTITIES', processedFileExtension: null }, used)).toBe('processed-object-entities-notes.json');
         // Same stem + extension again -> type inserted before the extension.
-        expect(outputFileName('notes', { processedFile: 'x', processedFileType: 'REDACTED_TEXT', processedFileExtension: FileDataFormat.PDF }, used)).toBe('processed-notes.redacted_text.pdf');
+        expect(outputFileName('notes', { processedFile: 'x', processedFileType: 'REDACTED_TEXT', processedFileExtension: DeidentifyFileDataFormat.PDF }, used)).toBe('processed-notes.redacted_text.pdf');
         // No type and no extension -> .bin, and a counter on collision.
         expect(outputFileName('notes', { processedFile: 'x', processedFileType: null, processedFileExtension: null }, used)).toBe('processed-notes.bin');
         expect(outputFileName('notes', { processedFile: 'x', processedFileType: null, processedFileExtension: null }, used)).toBe('processed-notes.5.bin');
@@ -49,9 +49,9 @@ describe('writeOutputs', () => {
         const dir = path.join(tmpDir, 'nested', 'out');
         const written = await writeOutputs(
             [
-                { processedFile: b64('redacted'), processedFileType: 'REDACTED_FILE', processedFileExtension: FileDataFormat.TXT },
-                { processedFile: b64('[]'), processedFileType: 'ENTITIES', processedFileExtension: FileDataFormat.JSON },
-                { processedFile: null, processedFileType: 'REDACTED_TEXT', processedFileExtension: FileDataFormat.TXT },
+                { processedFile: b64('redacted'), processedFileType: 'REDACTED_FILE', processedFileExtension: DeidentifyFileDataFormat.TXT },
+                { processedFile: b64('[]'), processedFileType: 'ENTITIES', processedFileExtension: DeidentifyFileDataFormat.JSON },
+                { processedFile: null, processedFileType: 'REDACTED_TEXT', processedFileExtension: DeidentifyFileDataFormat.TXT },
             ],
             DeidentifySourceType.BASE64,
             'notes.txt',
@@ -74,7 +74,7 @@ describe('writeOutputs', () => {
         const blocker = path.join(tmpDir, 'file-not-dir');
         fs.writeFileSync(blocker, 'x');
         await expect(
-            writeOutputs([{ processedFile: b64('a'), processedFileType: 'REDACTED_FILE', processedFileExtension: FileDataFormat.TXT }], DeidentifySourceType.BASE64, 'a.txt', path.join(blocker, 'sub')),
+            writeOutputs([{ processedFile: b64('a'), processedFileType: 'REDACTED_FILE', processedFileExtension: DeidentifyFileDataFormat.TXT }], DeidentifySourceType.BASE64, 'a.txt', path.join(blocker, 'sub')),
         ).rejects.toBeInstanceOf(SkyflowError);
     });
 });

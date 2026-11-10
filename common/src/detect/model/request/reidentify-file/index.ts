@@ -1,4 +1,4 @@
-import { FileDataFormat, RedactionRule, ReidentifyFileSource } from "../../../types";
+import { ReidentifyFileDataFormat, RedactionRule, ReidentifyFileSource } from "../../../types";
 
 /** Optional fields of a {@link ReidentifyFileRequest}. */
 export interface ReidentifyFileRequestFields {
@@ -6,7 +6,7 @@ export interface ReidentifyFileRequestFields {
      * File format. Limited to the formats that support `VAULT_TOKEN`: `TXT`,
      * `CSV`, `JSON`, `JSONL`, `XML`, `DOCX`, `XLSX` or `PPTX`.
      */
-    dataFormat?: FileDataFormat;
+    dataFormat?: ReidentifyFileDataFormat;
     /** Redaction rules, as your SDK's `RedactionLevel`. Without rules every token is replaced by its original value. */
     redactionLevel?: RedactionRule[];
 }
@@ -17,7 +17,7 @@ class ReidentifyFileRequest {
 
     private _value: string;
 
-    private _dataFormat?: FileDataFormat;
+    private _dataFormat?: ReidentifyFileDataFormat;
 
     private _redactionLevel?: RedactionRule[];
 
@@ -46,11 +46,11 @@ class ReidentifyFileRequest {
         this._value = value;
     }
 
-    get dataFormat(): FileDataFormat | undefined {
+    get dataFormat(): ReidentifyFileDataFormat | undefined {
         return this._dataFormat;
     }
 
-    set dataFormat(value: FileDataFormat | undefined) {
+    set dataFormat(value: ReidentifyFileDataFormat | undefined) {
         this._dataFormat = value;
     }
 

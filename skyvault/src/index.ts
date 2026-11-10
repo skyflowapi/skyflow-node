@@ -49,7 +49,8 @@ import {
     EntityType,
     DeidentificationType,
     IncludePrefix,
-    FileDataFormat,
+    DeidentifyFileDataFormat,
+    ReidentifyFileDataFormat,
     DetectRunStatus,
     ReturnEntitiesType,
     MaskingMethod,
@@ -86,6 +87,7 @@ import type {
     EntityLocation,
     Metrics,
     FileOutput,
+    ReidentifyFileOutput,
 } from "skyflow-common";
 import { SkyflowRecordError } from "skyflow-common";
 // Detect V2 types whose values depend on the vault type: the skyvault versions.
@@ -182,12 +184,14 @@ export {
     EntityLocation,
     Metrics,
     FileOutput,
+    ReidentifyFileOutput,
     EntityType,
     DeidentificationType,
     IncludePrefix,
     DeidentifySourceType,
     ReidentifySourceType,
-    FileDataFormat,
+    DeidentifyFileDataFormat,
+    ReidentifyFileDataFormat,
     DetectRunStatus,
     ReturnEntitiesType,
     MaskingMethod,

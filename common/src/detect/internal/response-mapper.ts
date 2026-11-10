@@ -13,12 +13,14 @@ import {
 import {
     DeidentifyFileSource,
     DetectRunStatus,
+    DeidentifyFileDataFormat,
     DetectedEntity,
     EntityLocation,
-    FileDataFormat,
     FileOutput,
     GuardrailsValidation,
     Metrics,
+    ReidentifyFileDataFormat,
+    ReidentifyFileOutput,
     ReidentifyFileSource,
 } from "../types";
 import DeidentifyStringResponse from "../model/response/deidentify-string";
@@ -112,7 +114,7 @@ export function toFileOutput(output: FileOutputV2): FileOutput {
         processedFile: orNull(output.processedFile),
         processedFileType: output.processedFileType === undefined || output.processedFileType === null ? null : String(output.processedFileType),
         processedFileExtension: enumOrDefault(
-            FileDataFormat,
+            DeidentifyFileDataFormat,
             output.processedFileExtension === undefined || output.processedFileExtension === null
                 ? undefined
                 : String(output.processedFileExtension).toUpperCase(),
@@ -123,6 +125,25 @@ export function toFileOutput(output: FileOutputV2): FileOutput {
 
 function toFileOutputs(outputs: FileOutputV2[] | undefined | null): FileOutput[] {
     return (outputs ?? []).filter((o) => o != null).map(toFileOutput);
+}
+
+/** The re-identify counterpart of `toFileOutput`: the extension is a `ReidentifyFileDataFormat`. @internal */
+export function toReidentifyFileOutput(output: FileOutputV2): ReidentifyFileOutput {
+    return {
+        processedFile: orNull(output.processedFile),
+        processedFileType: output.processedFileType === undefined || output.processedFileType === null ? null : String(output.processedFileType),
+        processedFileExtension: enumOrDefault(
+            ReidentifyFileDataFormat,
+            output.processedFileExtension === undefined || output.processedFileExtension === null
+                ? undefined
+                : String(output.processedFileExtension).toUpperCase(),
+            null,
+        ),
+    };
+}
+
+function toReidentifyFileOutputs(outputs: FileOutputV2[] | undefined | null): ReidentifyFileOutput[] {
+    return (outputs ?? []).filter((o) => o != null).map(toReidentifyFileOutput);
 }
 
 /** @internal */
@@ -166,7 +187,7 @@ export function toReidentifyFileResponse(
     return new ReidentifyFileResponse({
         status: enumOrDefault(DetectRunStatus, response.status, DetectRunStatus.UNKNOWN) as DetectRunStatus,
         outputType: resolveSource(response.outputType === undefined || response.outputType === null ? null : String(response.outputType)),
-        output: toFileOutputs(response.output),
+        output: toReidentifyFileOutputs(response.output),
         metrics: toMetrics(response.metrics),
     });
 }

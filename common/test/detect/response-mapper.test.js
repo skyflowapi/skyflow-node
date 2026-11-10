@@ -10,7 +10,7 @@ import {
     toReidentifyFileResponse as mapReidentifyFileResponse,
     toCheckGuardrailsResponse,
 } from '../../src/detect/internal/response-mapper';
-import { DetectRunStatus, FileDataFormat, GuardrailsValidation } from '../../src/detect/types';
+import { DetectRunStatus, GuardrailsValidation, DeidentifyFileDataFormat } from '../../src/detect/types';
 import { TestDeidentifySourceType as DeidentifySourceType, TestReidentifySourceType as ReidentifySourceType, resolveDeidentifySource, resolveReidentifySource } from './test-types';
 
 // The mappers take the SDK's source resolver; these bind the test stand-ins.
@@ -83,11 +83,11 @@ describe('string responses', () => {
 });
 
 describe('file responses', () => {
-    test('toFileOutput upper-cases the extension into FileDataFormat and tolerates unknowns', () => {
+    test('toFileOutput upper-cases the extension into DeidentifyFileDataFormat and tolerates unknowns', () => {
         expect(toFileOutput({ processedFile: 'b64', processedFileType: 'REDACTED_FILE', processedFileExtension: 'pdf' })).toEqual({
             processedFile: 'b64',
             processedFileType: 'REDACTED_FILE',
-            processedFileExtension: FileDataFormat.PDF,
+            processedFileExtension: DeidentifyFileDataFormat.PDF,
         });
         expect(toFileOutput({ processedFileExtension: 'weird' })).toEqual({
             processedFile: null,

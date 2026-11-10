@@ -4,139 +4,232 @@
 
 ```ts
 
-import { ApiKeyCredentials } from 'skyflow-common';
-import { Audio as Audio_2 } from 'skyflow-common';
-import { AuthInfo } from 'skyflow-common';
-import { BaseDeleteRequest } from 'skyflow-common';
-import { BaseDeleteResponse } from 'skyflow-common';
-import { BaseDetectController } from 'skyflow-common';
-import { BaseDetokenizeRequest } from 'skyflow-common';
-import { BaseDetokenizeResponse } from 'skyflow-common';
-import { BaseFileUploadRequest } from 'skyflow-common';
-import { BaseFileUploadResponse } from 'skyflow-common';
-import { BaseGetRequest } from 'skyflow-common';
-import { BaseGetResponse } from 'skyflow-common';
-import { BaseInsertRequest } from 'skyflow-common';
-import { BaseInsertResponse } from 'skyflow-common';
-import { BaseInvokeConnectionRequest } from 'skyflow-common';
-import { BaseInvokeConnectionResponse } from 'skyflow-common';
-import { BaseOptions } from 'skyflow-common';
-import { BaseQueryRequest } from 'skyflow-common';
-import { BaseQueryResponse } from 'skyflow-common';
-import { BaseSkyflow } from 'skyflow-common';
-import { BaseTokenizeRequest } from 'skyflow-common';
-import { BaseTokenizeResponse } from 'skyflow-common';
-import { BaseUpdateRequest } from 'skyflow-common';
-import { BaseUpdateResponse } from 'skyflow-common';
-import { BaseVaultEntry } from 'skyflow-common';
-import { BearerTokenOptions } from 'skyflow-common';
-import { Bleep } from 'skyflow-common';
 import { Blob as Blob_2 } from 'buffer';
-import { CheckGuardrailsRequest } from 'skyflow-common';
-import { CheckGuardrailsRequestFields } from 'skyflow-common';
-import { CheckGuardrailsResponse } from 'skyflow-common';
-import { ConnectionConfig } from 'skyflow-common';
-import { Credentials } from 'skyflow-common';
-import { CustomType } from 'skyflow-common';
-import { DeidentificationType } from 'skyflow-common';
-import { DeidentifyFileRequest } from 'skyflow-common';
-import { DeidentifyFileRequestFields } from 'skyflow-common';
-import { DeidentifyFileResponse } from 'skyflow-common';
-import { DeidentifyStringRequest } from 'skyflow-common';
-import { DeidentifyStringRequestFields } from 'skyflow-common';
-import { DeidentifyStringResponse } from 'skyflow-common';
-import { Detect } from 'skyflow-common';
-import { DetectConfiguration } from 'skyflow-common';
-import { DetectedEntity } from 'skyflow-common';
-import { DetectRunFields } from 'skyflow-common';
-import { DetectRunStatus } from 'skyflow-common';
-import { Document as Document_2 } from 'skyflow-common';
-import { Entity } from 'skyflow-common';
-import { EntityLocation } from 'skyflow-common';
-import { EntityType } from 'skyflow-common';
-import { Env } from 'skyflow-common';
-import { FileDataFormat } from 'skyflow-common';
-import { FileMapping } from 'skyflow-common';
-import { FileOutput } from 'skyflow-common';
 import * as fs from 'fs';
-import { generateBearerToken } from 'skyflow-common';
-import { generateBearerTokenFromCreds } from 'skyflow-common';
-import { generateSignedDataTokens } from 'skyflow-common';
-import { generateSignedDataTokensFromCreds } from 'skyflow-common';
-import { GenerateTokenOptions } from 'skyflow-common';
-import { GetResponseData } from 'skyflow-common';
-import { GetRunRequest } from 'skyflow-common';
-import { GetRunResponse } from 'skyflow-common';
-import { GuardrailsValidation } from 'skyflow-common';
-import { Image as Image_2 } from 'skyflow-common';
-import { IncludePrefix } from 'skyflow-common';
-import { InsertResponseType } from 'skyflow-common';
-import { isExpired } from 'skyflow-common';
-import { LogLevel } from 'skyflow-common';
-import { MaskingMethod } from 'skyflow-common';
-import { Media } from 'skyflow-common';
-import { Metrics } from 'skyflow-common';
-import { ObjectDeidentificationType } from 'skyflow-common';
-import { ObjectEntity } from 'skyflow-common';
-import { ObjectEntityType } from 'skyflow-common';
-import { OrderByEnum } from 'skyflow-common';
-import { OutputTranscriptionType } from 'skyflow-common';
-import { PathCredentials } from 'skyflow-common';
-import { Pdf } from 'skyflow-common';
-import { PdfProcessingMode } from 'skyflow-common';
-import { POLL_OPTIONS } from 'skyflow-common';
-import { PollOptions } from 'skyflow-common';
-import { QueryResponseType } from 'skyflow-common';
-import { RedactionRule } from 'skyflow-common';
-import { RedactionType } from 'skyflow-common';
-import { ReidentifyFileRequest } from 'skyflow-common';
-import { ReidentifyFileRequestFields } from 'skyflow-common';
-import { ReidentifyFileResponse } from 'skyflow-common';
-import { ReidentifyStringRequest } from 'skyflow-common';
-import { ReidentifyStringRequestFields } from 'skyflow-common';
-import { ReidentifyStringResponse } from 'skyflow-common';
-import { RequestMethod } from 'skyflow-common';
-import { ReturnEntitiesType } from 'skyflow-common';
-import { ShiftDates } from 'skyflow-common';
-import { SignedDataTokensOptions } from 'skyflow-common';
-import { SkyflowConfig } from 'skyflow-common';
-import { SkyflowError } from 'skyflow-common';
-import { SkyflowRecordError } from 'skyflow-common';
-import { StringCredentials } from 'skyflow-common';
-import { StringKeyValueMapType } from 'skyflow-common';
-import { TokenCredentials } from 'skyflow-common';
-import { TokenizeRequestType } from 'skyflow-common';
-import { TokenMode } from 'skyflow-common';
-import { Transformation } from 'skyflow-common';
-import { VaultConfig } from 'skyflow-common';
 
-export { ApiKeyCredentials }
+// @public (undocumented)
+export interface ApiKeyCredentials {
+    // (undocumented)
+    apiKey: string;
+}
 
+// @public
+interface Audio_2 {
+    // (undocumented)
+    bleep?: Bleep;
+    // (undocumented)
+    outputProcessedAudio?: boolean;
+    // (undocumented)
+    outputTranscription?: OutputTranscriptionType;
+}
 export { Audio_2 as Audio }
 
-export { BearerTokenOptions }
+// @public (undocumented)
+export type BearerTokenOptions = {
+    ctx?: string | Record<string, any>;
+    roleIDs?: string[];
+    roleIds?: string[];
+    logLevel?: LogLevel;
+    tokenUri?: string;
+};
 
-export { Bleep }
+// @public
+export interface Bleep {
+    // (undocumented)
+    frequency?: number;
+    // (undocumented)
+    gain?: number;
+    // (undocumented)
+    startPadding?: number;
+    // (undocumented)
+    stopPadding?: number;
+}
 
-export { CheckGuardrailsRequest }
+// @public
+export class CheckGuardrailsRequest {
+    constructor(text: string, fields?: CheckGuardrailsRequestFields);
+    // (undocumented)
+    get checkToxicity(): boolean | undefined;
+    set checkToxicity(value: boolean | undefined);
+    // (undocumented)
+    get denyTopics(): string[] | undefined;
+    set denyTopics(value: string[] | undefined);
+    get text(): string;
+    set text(value: string);
+}
 
-export { CheckGuardrailsRequestFields }
+// @public
+export interface CheckGuardrailsRequestFields {
+    checkToxicity?: boolean;
+    denyTopics?: string[];
+}
 
-export { CheckGuardrailsResponse }
+// @public
+export class CheckGuardrailsResponse {
+    constructor(input: {
+        text: string | null;
+        validation: GuardrailsValidation;
+        toxic: boolean | null;
+        deniedTopic: boolean | null;
+    });
+    readonly deniedTopic: boolean | null;
+    readonly text: string | null;
+    readonly toxic: boolean | null;
+    readonly validation: GuardrailsValidation;
+}
 
-export { ConnectionConfig }
+// @public (undocumented)
+export interface ConnectionConfig {
+    // (undocumented)
+    connectionId: string;
+    // (undocumented)
+    connectionUrl: string;
+    // (undocumented)
+    credentials?: Credentials;
+}
 
-export { Credentials }
+// @public (undocumented)
+export type Credentials = TokenCredentials | PathCredentials | StringCredentials | ApiKeyCredentials;
 
-export { CustomType }
+// @public
+export interface CustomType {
+    deidentificationType?: DeidentificationType;
+    destination?: string;
+    includePrefix?: IncludePrefix;
+    // (undocumented)
+    label?: string;
+    // (undocumented)
+    match?: string[];
+    prefixOverride?: string;
+}
 
-export { DeidentificationType }
+// @public
+export enum DeidentificationType {
+    // (undocumented)
+    ENTITY_ONLY = "ENTITY_ONLY",
+    // (undocumented)
+    ENTITY_UNIQUE_COUNTER = "ENTITY_UNIQUE_COUNTER",
+    // (undocumented)
+    MASK = "MASK",
+    // (undocumented)
+    UNKNOWN = "UNKNOWN",
+    // (undocumented)
+    VAULT_TOKEN = "VAULT_TOKEN"
+}
 
-export { DeidentifyFileRequest }
+// @public
+export enum DeidentifyFileDataFormat {
+    // (undocumented)
+    BMP = "BMP",
+    // (undocumented)
+    CSV = "CSV",
+    // (undocumented)
+    DCM = "DCM",
+    // (undocumented)
+    DOC = "DOC",
+    // (undocumented)
+    DOCX = "DOCX",
+    // (undocumented)
+    GIF = "GIF",
+    // (undocumented)
+    JPEG = "JPEG",
+    // (undocumented)
+    JPG = "JPG",
+    // (undocumented)
+    JSON = "JSON",
+    // (undocumented)
+    JSONL = "JSONL",
+    // (undocumented)
+    MP3 = "MP3",
+    // (undocumented)
+    PDF = "PDF",
+    // (undocumented)
+    PNG = "PNG",
+    // (undocumented)
+    PPT = "PPT",
+    // (undocumented)
+    PPTX = "PPTX",
+    // (undocumented)
+    TIF = "TIF",
+    // (undocumented)
+    TIFF = "TIFF",
+    // (undocumented)
+    TXT = "TXT",
+    // (undocumented)
+    WAV = "WAV",
+    // (undocumented)
+    XLS = "XLS",
+    // (undocumented)
+    XLSX = "XLSX",
+    // (undocumented)
+    XML = "XML",
+    // (undocumented)
+    ZIP = "ZIP"
+}
 
-export { DeidentifyFileRequestFields }
+// @public
+export class DeidentifyFileRequest {
+    constructor(fields?: DeidentifyFileRequestFields);
+    // (undocumented)
+    get configuration(): DetectConfiguration | undefined;
+    set configuration(value: DetectConfiguration | undefined);
+    // (undocumented)
+    get configurationId(): string | undefined;
+    set configurationId(value: string | undefined);
+    // (undocumented)
+    get dataFormat(): DeidentifyFileDataFormat | undefined;
+    set dataFormat(value: DeidentifyFileDataFormat | undefined);
+    // Warning: (ae-forgotten-export) The symbol "DeidentifyFileSource" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    get dataSource(): DeidentifyFileSource | undefined;
+    set dataSource(value: DeidentifyFileSource | undefined);
+    // (undocumented)
+    get file(): File | undefined;
+    set file(value: File | undefined);
+    // (undocumented)
+    get filePath(): string | undefined;
+    set filePath(value: string | undefined);
+    // (undocumented)
+    get outputDirectory(): string | undefined;
+    set outputDirectory(value: string | undefined);
+    // (undocumented)
+    get pollOptions(): PollOptions | undefined;
+    set pollOptions(value: PollOptions | undefined);
+    // (undocumented)
+    get value(): string | undefined;
+    set value(value: string | undefined);
+}
 
-export { DeidentifyFileResponse }
+// @public
+export interface DeidentifyFileRequestFields {
+    configuration?: DetectConfiguration;
+    configurationId?: string;
+    dataFormat?: DeidentifyFileDataFormat;
+    dataSource?: DeidentifyFileSource;
+    file?: File;
+    filePath?: string;
+    outputDirectory?: string;
+    pollOptions?: PollOptions;
+    value?: string;
+}
+
+// @public
+export class DeidentifyFileResponse implements DetectRunFields {
+    constructor(input: DetectRunFields);
+    // (undocumented)
+    readonly message: string | null;
+    // (undocumented)
+    readonly metrics: Metrics | null;
+    // (undocumented)
+    readonly output: FileOutput[];
+    // (undocumented)
+    readonly outputType: DeidentifyFileSource | null;
+    // (undocumented)
+    readonly runId: string | null;
+    // (undocumented)
+    readonly status: DetectRunStatus | null;
+}
 
 // @public
 export enum DeidentifySourceType {
@@ -148,12 +241,39 @@ export enum DeidentifySourceType {
     SKYFLOW_ID = "SKYFLOW_ID"
 }
 
-export { DeidentifyStringRequest }
+// @public
+export class DeidentifyStringRequest {
+    constructor(text: string, fields?: DeidentifyStringRequestFields);
+    // (undocumented)
+    get configuration(): DetectConfiguration | undefined;
+    set configuration(value: DetectConfiguration | undefined);
+    // (undocumented)
+    get configurationId(): string | undefined;
+    set configurationId(value: string | undefined);
+    get text(): string;
+    set text(value: string);
+}
 
-export { DeidentifyStringRequestFields }
+// @public
+export interface DeidentifyStringRequestFields {
+    configuration?: DetectConfiguration;
+    configurationId?: string;
+}
 
-export { DeidentifyStringResponse }
+// @public
+export class DeidentifyStringResponse {
+    constructor(input: {
+        processedText: string | null;
+        entities: DetectedEntity[];
+        metrics: Metrics | null;
+    });
+    readonly entities: DetectedEntity[];
+    readonly metrics: Metrics | null;
+    readonly processedText: string | null;
+}
 
+// Warning: (ae-forgotten-export) The symbol "BaseDeleteRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class DeleteRequest extends BaseDeleteRequest {
     constructor(table: string, deleteIds: Array<string>);
@@ -165,6 +285,8 @@ export class DeleteRequest extends BaseDeleteRequest {
     set table(value: string);
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseDeleteResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class DeleteResponse extends BaseDeleteResponse {
     // @deprecated
@@ -178,15 +300,65 @@ export class DeleteResponse extends BaseDeleteResponse {
     errors: Array<SkyflowRecordError> | null;
 }
 
-export { Detect }
+// @public
+export interface Detect {
+    // (undocumented)
+    customTypes?: CustomType[];
+    // (undocumented)
+    entities?: Entity[];
+    objectEntities?: ObjectEntity[];
+    restrict?: string[];
+    returnEntities?: ReturnEntitiesType;
+    skip?: string[];
+}
 
-export { DetectConfiguration }
+// @public
+export interface DetectConfiguration {
+    // (undocumented)
+    description?: string;
+    // (undocumented)
+    detect?: Detect;
+    // (undocumented)
+    fileMapping?: FileMapping[];
+    // (undocumented)
+    media?: Media;
+    // (undocumented)
+    name?: string;
+}
 
-export { DetectedEntity }
+// @public
+export interface DetectedEntity {
+    entityScores: Record<string, number>;
+    entityType: string | null;
+    // (undocumented)
+    location: EntityLocation | null;
+    token: string | null;
+    value: string | null;
+}
 
-export { DetectRunFields }
+// @public
+export interface DetectRunFields {
+    message: string | null;
+    metrics: Metrics | null;
+    output: FileOutput[];
+    outputType: DeidentifyFileSource | null;
+    runId: string | null;
+    status: DetectRunStatus | null;
+}
 
-export { DetectRunStatus }
+// @public
+export enum DetectRunStatus {
+    // (undocumented)
+    FAILED = "FAILED",
+    // (undocumented)
+    IN_PROGRESS = "IN_PROGRESS",
+    // (undocumented)
+    QUEUED = "QUEUED",
+    // (undocumented)
+    SUCCESS = "SUCCESS",
+    // (undocumented)
+    UNKNOWN = "UNKNOWN"
+}
 
 // @public (undocumented)
 export interface DetokenizeData {
@@ -196,6 +368,8 @@ export interface DetokenizeData {
     token: string;
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseOptions" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class DetokenizeOptions extends BaseOptions {
     constructor();
@@ -213,6 +387,8 @@ export class DetokenizeOptions extends BaseOptions {
     setDownloadUrl(downloadUrl: boolean): void;
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseDetokenizeRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class DetokenizeRequest extends BaseDetokenizeRequest {
     constructor(data: DetokenizeData[]);
@@ -221,6 +397,8 @@ export class DetokenizeRequest extends BaseDetokenizeRequest {
     set data(value: DetokenizeData[]);
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseDetokenizeResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class DetokenizeResponse extends BaseDetokenizeResponse {
     constructor(input: {
@@ -235,21 +413,215 @@ export class DetokenizeResponse extends BaseDetokenizeResponse {
     errors: Array<SkyflowRecordError> | null;
 }
 
+// @public
+interface Document_2 {
+    // (undocumented)
+    pdf?: Pdf;
+}
 export { Document_2 as Document }
 
-export { Entity }
+// @public
+export interface Entity {
+    deidentificationType?: DeidentificationType;
+    destination?: string;
+    entityType?: EntityType;
+    includePrefix?: IncludePrefix;
+    prefixOverride?: string;
+    // (undocumented)
+    transformation?: Transformation;
+}
 
-export { EntityLocation }
+// @public
+export interface EntityLocation {
+    // (undocumented)
+    endIndex: number | null;
+    // (undocumented)
+    endIndexProcessed: number | null;
+    // (undocumented)
+    startIndex: number | null;
+    // (undocumented)
+    startIndexProcessed: number | null;
+}
 
-export { EntityType }
+// @public
+export enum EntityType {
+    // (undocumented)
+    ACCOUNT_NUMBER = "ACCOUNT_NUMBER",
+    // (undocumented)
+    AGE = "AGE",
+    // (undocumented)
+    ALL = "ALL",
+    // (undocumented)
+    BANK_ACCOUNT = "BANK_ACCOUNT",
+    // (undocumented)
+    BLOOD_TYPE = "BLOOD_TYPE",
+    // (undocumented)
+    CONDITION = "CONDITION",
+    // (undocumented)
+    CORPORATE_ACTION = "CORPORATE_ACTION",
+    // (undocumented)
+    CREDIT_CARD = "CREDIT_CARD",
+    // (undocumented)
+    CREDIT_CARD_EXPIRATION = "CREDIT_CARD_EXPIRATION",
+    // (undocumented)
+    CVV = "CVV",
+    // (undocumented)
+    DATE = "DATE",
+    // (undocumented)
+    DATE_INTERVAL = "DATE_INTERVAL",
+    // (undocumented)
+    DAY = "DAY",
+    // (undocumented)
+    DOB = "DOB",
+    // (undocumented)
+    DOSE = "DOSE",
+    // (undocumented)
+    DRIVER_LICENSE = "DRIVER_LICENSE",
+    // (undocumented)
+    DRUG = "DRUG",
+    // (undocumented)
+    DURATION = "DURATION",
+    // (undocumented)
+    EFFECT = "EFFECT",
+    // (undocumented)
+    EMAIL_ADDRESS = "EMAIL_ADDRESS",
+    // (undocumented)
+    EVENT = "EVENT",
+    // (undocumented)
+    FILENAME = "FILENAME",
+    // (undocumented)
+    FINANCIAL_METRIC = "FINANCIAL_METRIC",
+    // (undocumented)
+    GENDER = "GENDER",
+    // (undocumented)
+    HEALTHCARE_NUMBER = "HEALTHCARE_NUMBER",
+    // (undocumented)
+    INJURY = "INJURY",
+    // (undocumented)
+    IP_ADDRESS = "IP_ADDRESS",
+    // (undocumented)
+    LANGUAGE = "LANGUAGE",
+    // (undocumented)
+    LOCATION = "LOCATION",
+    // (undocumented)
+    LOCATION_ADDRESS = "LOCATION_ADDRESS",
+    // (undocumented)
+    LOCATION_ADDRESS_STREET = "LOCATION_ADDRESS_STREET",
+    // (undocumented)
+    LOCATION_CITY = "LOCATION_CITY",
+    // (undocumented)
+    LOCATION_COORDINATE = "LOCATION_COORDINATE",
+    // (undocumented)
+    LOCATION_COUNTRY = "LOCATION_COUNTRY",
+    // (undocumented)
+    LOCATION_STATE = "LOCATION_STATE",
+    // (undocumented)
+    LOCATION_ZIP = "LOCATION_ZIP",
+    // (undocumented)
+    MARITAL_STATUS = "MARITAL_STATUS",
+    // (undocumented)
+    MEDICAL_CODE = "MEDICAL_CODE",
+    // (undocumented)
+    MEDICAL_PROCESS = "MEDICAL_PROCESS",
+    // (undocumented)
+    MONEY = "MONEY",
+    // (undocumented)
+    MONTH = "MONTH",
+    // (undocumented)
+    NAME = "NAME",
+    // (undocumented)
+    NAME_FAMILY = "NAME_FAMILY",
+    // (undocumented)
+    NAME_GIVEN = "NAME_GIVEN",
+    // (undocumented)
+    NAME_MEDICAL_PROFESSIONAL = "NAME_MEDICAL_PROFESSIONAL",
+    // (undocumented)
+    NONE = "NONE",
+    // (undocumented)
+    NUMERICAL_PII = "NUMERICAL_PII",
+    // (undocumented)
+    OCCUPATION = "OCCUPATION",
+    // (undocumented)
+    ORGANIZATION = "ORGANIZATION",
+    // (undocumented)
+    ORGANIZATION_ID = "ORGANIZATION_ID",
+    // (undocumented)
+    ORGANIZATION_MEDICAL_FACILITY = "ORGANIZATION_MEDICAL_FACILITY",
+    // (undocumented)
+    ORIGIN = "ORIGIN",
+    // (undocumented)
+    PASSPORT_NUMBER = "PASSPORT_NUMBER",
+    // (undocumented)
+    PASSWORD = "PASSWORD",
+    // (undocumented)
+    PHONE_NUMBER = "PHONE_NUMBER",
+    // (undocumented)
+    PHYSICAL_ATTRIBUTE = "PHYSICAL_ATTRIBUTE",
+    // (undocumented)
+    POLITICAL_AFFILIATION = "POLITICAL_AFFILIATION",
+    // (undocumented)
+    PRODUCT = "PRODUCT",
+    // (undocumented)
+    PROJECT = "PROJECT",
+    // (undocumented)
+    RELIGION = "RELIGION",
+    // (undocumented)
+    ROUTING_NUMBER = "ROUTING_NUMBER",
+    // (undocumented)
+    SEXUALITY = "SEXUALITY",
+    // (undocumented)
+    SSN = "SSN",
+    // (undocumented)
+    STATISTICS = "STATISTICS",
+    // (undocumented)
+    TIME = "TIME",
+    // (undocumented)
+    TREND = "TREND",
+    // (undocumented)
+    URL = "URL",
+    // (undocumented)
+    USERNAME = "USERNAME",
+    // (undocumented)
+    VEHICLE_ID = "VEHICLE_ID",
+    // (undocumented)
+    YEAR = "YEAR",
+    // (undocumented)
+    ZODIAC_SIGN = "ZODIAC_SIGN"
+}
 
-export { Env }
+// @public (undocumented)
+export enum Env {
+    // (undocumented)
+    DEV = "DEV",
+    // (undocumented)
+    PROD = "PROD",
+    // (undocumented)
+    SANDBOX = "SANDBOX",
+    // (undocumented)
+    STAGE = "STAGE"
+}
 
-export { FileDataFormat }
+// @public
+export interface FileMapping {
+    // (undocumented)
+    destination?: string;
+    // (undocumented)
+    entitiesDestination?: string;
+    // (undocumented)
+    objectEntitiesDestination?: string;
+    // (undocumented)
+    outputFileNameSuffix?: string;
+    // (undocumented)
+    source?: string;
+}
 
-export { FileMapping }
-
-export { FileOutput }
+// @public
+export interface FileOutput {
+    processedFile: string | null;
+    // (undocumented)
+    processedFileExtension: DeidentifyFileDataFormat | null;
+    processedFileType: string | null;
+}
 
 // @public (undocumented)
 export class FileUploadOptions extends BaseOptions {
@@ -276,6 +648,8 @@ export class FileUploadOptions extends BaseOptions {
     setSkyflowId(skyflowId: string): void;
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseFileUploadRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class FileUploadRequest extends BaseFileUploadRequest {
     constructor(table: string, columnNameOrSkyflowId: string, columnName?: string);
@@ -290,6 +664,8 @@ export class FileUploadRequest extends BaseFileUploadRequest {
     set table(value: string);
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseFileUploadResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class FileUploadResponse extends BaseFileUploadResponse {
     constructor(input: {
@@ -302,15 +678,26 @@ export class FileUploadResponse extends BaseFileUploadResponse {
     skyflowId: string;
 }
 
-export { generateBearerToken }
+// Warning: (ae-forgotten-export) The symbol "TokenResponse" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export function generateBearerToken(credentialsFilePath: string, options?: BearerTokenOptions): Promise<TokenResponse>;
 
-export { generateBearerTokenFromCreds }
+// @public (undocumented)
+export function generateBearerTokenFromCreds(credentials: any, options?: BearerTokenOptions): Promise<TokenResponse>;
 
-export { generateSignedDataTokens }
+// Warning: (ae-forgotten-export) The symbol "SignedDataTokensResponse" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export function generateSignedDataTokens(credentialsFilePath: string, options: SignedDataTokensOptions): Promise<SignedDataTokensResponse[]>;
 
-export { generateSignedDataTokensFromCreds }
+// @public (undocumented)
+export function generateSignedDataTokensFromCreds(credentials: any, options: SignedDataTokensOptions): Promise<SignedDataTokensResponse[]>;
 
-export { GenerateTokenOptions }
+// @public (undocumented)
+export type GenerateTokenOptions = {
+    logLevel?: LogLevel;
+};
 
 // @public (undocumented)
 export class GetColumnRequest {
@@ -371,6 +758,8 @@ export class GetOptions extends BaseOptions {
     setReturnTokens(returnTokens: boolean): void;
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseGetRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class GetRequest extends BaseGetRequest {
     constructor(table: string, _ids: Array<string>);
@@ -382,6 +771,8 @@ export class GetRequest extends BaseGetRequest {
     set table(value: string);
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseGetResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class GetResponse extends BaseGetResponse {
     constructor(input: {
@@ -394,17 +785,66 @@ export class GetResponse extends BaseGetResponse {
     errors: Array<SkyflowRecordError> | null;
 }
 
-export { GetResponseData }
+// @public (undocumented)
+export interface GetResponseData {
+    // (undocumented)
+    [key: string]: unknown;
+}
 
-export { GetRunRequest }
+// @public
+export class GetRunRequest {
+    constructor(runId: string);
+    get runId(): string;
+    set runId(value: string);
+}
 
-export { GetRunResponse }
+// @public
+export class GetRunResponse implements DetectRunFields {
+    constructor(input: DetectRunFields);
+    // (undocumented)
+    readonly message: string | null;
+    // (undocumented)
+    readonly metrics: Metrics | null;
+    // (undocumented)
+    readonly output: FileOutput[];
+    // (undocumented)
+    readonly outputType: DeidentifyFileSource | null;
+    // (undocumented)
+    readonly runId: string | null;
+    // (undocumented)
+    readonly status: DetectRunStatus | null;
+}
 
-export { GuardrailsValidation }
+// @public
+export enum GuardrailsValidation {
+    // (undocumented)
+    FAILED = "FAILED",
+    // (undocumented)
+    PASSED = "PASSED",
+    // (undocumented)
+    UNKNOWN = "UNKNOWN"
+}
 
+// @public
+interface Image_2 {
+    // (undocumented)
+    maskingMethod?: MaskingMethod;
+    // (undocumented)
+    outputOcrText?: boolean;
+    // (undocumented)
+    outputProcessedImage?: boolean;
+}
 export { Image_2 as Image }
 
-export { IncludePrefix }
+// @public
+export enum IncludePrefix {
+    // (undocumented)
+    INCLUDE_PREFIX_UNSPECIFIED = "INCLUDE_PREFIX_UNSPECIFIED",
+    // (undocumented)
+    NO = "NO",
+    // (undocumented)
+    YES = "YES"
+}
 
 // @public (undocumented)
 export class InsertOptions extends BaseOptions {
@@ -435,6 +875,8 @@ export class InsertOptions extends BaseOptions {
     setUpsertColumn(upsert: string): void;
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseInsertRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class InsertRequest extends BaseInsertRequest {
     constructor(table: string, data: Record<string, unknown>[]);
@@ -446,6 +888,8 @@ export class InsertRequest extends BaseInsertRequest {
     set table(value: string);
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseInsertResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class InsertResponse extends BaseInsertResponse {
     // @deprecated
@@ -459,8 +903,18 @@ export class InsertResponse extends BaseInsertResponse {
     insertedFields: Array<InsertResponseType>;
 }
 
-export { InsertResponseType }
+// @public (undocumented)
+export interface InsertResponseType {
+    // (undocumented)
+    [key: string]: unknown;
+    // @deprecated (undocumented)
+    skyflow_id?: string;
+    // (undocumented)
+    skyflowId: string;
+}
 
+// Warning: (ae-forgotten-export) The symbol "BaseInvokeConnectionRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class InvokeConnectionRequest extends BaseInvokeConnectionRequest {
     constructor(method: RequestMethod, body?: StringKeyValueMapType, headers?: StringKeyValueMapType, pathParams?: StringKeyValueMapType, queryParams?: StringKeyValueMapType);
@@ -476,6 +930,8 @@ export class InvokeConnectionRequest extends BaseInvokeConnectionRequest {
     queryParams?: StringKeyValueMapType;
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseInvokeConnectionResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class InvokeConnectionResponse extends BaseInvokeConnectionResponse {
     constructor(input: {
@@ -491,36 +947,162 @@ export class InvokeConnectionResponse extends BaseInvokeConnectionResponse {
     metadata?: Record<string, unknown>;
 }
 
-export { isExpired }
+// @public (undocumented)
+export function isExpired(token: string): boolean;
 
-export { LogLevel }
+// @public (undocumented)
+export enum LogLevel {
+    // (undocumented)
+    DEBUG = "DEBUG",
+    // (undocumented)
+    ERROR = "ERROR",
+    // (undocumented)
+    INFO = "INFO",
+    // (undocumented)
+    OFF = "OFF",
+    // (undocumented)
+    WARN = "WARN"
+}
 
-export { MaskingMethod }
+// @public
+export enum MaskingMethod {
+    // (undocumented)
+    BLACKBOX = "BLACKBOX",
+    // (undocumented)
+    BLUR = "BLUR",
+    // (undocumented)
+    NONE = "NONE"
+}
 
-export { Media }
+// @public
+export interface Media {
+    // (undocumented)
+    audio?: Audio_2;
+    // (undocumented)
+    document?: Document_2;
+    // (undocumented)
+    image?: Image_2;
+}
 
-export { Metrics }
+// @public
+export interface Metrics {
+    // (undocumented)
+    characterCount: number | null;
+    duration: number | null;
+    pages: number | null;
+    size: number | null;
+    slides: number | null;
+    // (undocumented)
+    wordCount: number | null;
+}
 
-export { ObjectDeidentificationType }
+// @public
+export enum ObjectDeidentificationType {
+    // (undocumented)
+    REDACT = "REDACT",
+    // (undocumented)
+    UNKNOWN = "UNKNOWN",
+    // (undocumented)
+    UNREDACT = "UNREDACT"
+}
 
-export { ObjectEntity }
+// @public
+export interface ObjectEntity {
+    // (undocumented)
+    deidentificationType?: ObjectDeidentificationType;
+    // (undocumented)
+    entityType?: ObjectEntityType;
+}
 
-export { ObjectEntityType }
+// @public
+export enum ObjectEntityType {
+    // (undocumented)
+    ALL = "ALL",
+    // (undocumented)
+    FACE = "FACE",
+    // (undocumented)
+    LICENSE_PLATE = "LICENSE_PLATE",
+    // (undocumented)
+    LOGO = "LOGO",
+    // (undocumented)
+    NONE = "NONE",
+    // (undocumented)
+    SIGNATURE = "SIGNATURE"
+}
 
-export { OrderByEnum }
+// @public (undocumented)
+export enum OrderByEnum {
+    // (undocumented)
+    ASCENDING = "ASCENDING",
+    // (undocumented)
+    DESCENDING = "DESCENDING",
+    // (undocumented)
+    NONE = "NONE"
+}
 
-export { OutputTranscriptionType }
+// @public
+export enum OutputTranscriptionType {
+    // (undocumented)
+    DIARIZED_TRANSCRIPTION = "DIARIZED_TRANSCRIPTION",
+    // (undocumented)
+    MEDICAL_DIARIZED_TRANSCRIPTION = "MEDICAL_DIARIZED_TRANSCRIPTION",
+    // (undocumented)
+    MEDICAL_TRANSCRIPTION = "MEDICAL_TRANSCRIPTION",
+    // (undocumented)
+    NONE = "NONE",
+    // (undocumented)
+    TRANSCRIPTION = "TRANSCRIPTION"
+}
 
-export { PathCredentials }
+// @public (undocumented)
+export interface PathCredentials {
+    // (undocumented)
+    context?: string | Record<string, any>;
+    // (undocumented)
+    path: string;
+    // (undocumented)
+    roles?: Array<string>;
+    // (undocumented)
+    tokenUri?: string;
+}
 
-export { Pdf }
+// @public
+export interface Pdf {
+    // (undocumented)
+    density?: number;
+    // (undocumented)
+    maxResolution?: number;
+    // (undocumented)
+    processingMode?: PdfProcessingMode;
+}
 
-export { PdfProcessingMode }
+// @public
+export enum PdfProcessingMode {
+    // (undocumented)
+    NONE = "NONE",
+    // (undocumented)
+    OCR = "OCR",
+    // (undocumented)
+    TEXT_LAYER = "TEXT_LAYER"
+}
 
-export { POLL_OPTIONS }
+// @public
+export const POLL_OPTIONS: {
+    readonly DEFAULT_WAIT_TIME_SECONDS: 60;
+    readonly MAX_WAIT_TIME_SECONDS: 300;
+    readonly DEFAULT_MAX_ATTEMPTS: 23;
+    readonly MAX_MAX_ATTEMPTS: 23;
+    readonly MAX_DELAY_SECONDS: 32;
+};
 
-export { PollOptions }
+// @public
+export interface PollOptions {
+    maxAttempts?: number;
+    waitTime?: number;
+}
 
+// Warning: (ae-forgotten-export) The symbol "BaseQueryRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class QueryRequest extends BaseQueryRequest {
     constructor(query: string);
@@ -529,6 +1111,8 @@ export class QueryRequest extends BaseQueryRequest {
     set query(value: string);
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseQueryResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class QueryResponse extends BaseQueryResponse {
     constructor(input: {
@@ -541,8 +1125,14 @@ export class QueryResponse extends BaseQueryResponse {
     fields: Array<QueryResponseType>;
 }
 
-export { QueryResponseType }
+// @public (undocumented)
+export interface QueryResponseType {
+    // (undocumented)
+    [key: string]: unknown;
+}
 
+// Warning: (ae-forgotten-export) The symbol "RedactionRule" needs to be exported by the entry point index.d.ts
+//
 // @public
 export interface RedactionLevel extends RedactionRule {
     entityName?: EntityType;
@@ -553,13 +1143,80 @@ export interface RedactionLevel extends RedactionRule {
     tokenGroupName?: never;
 }
 
-export { RedactionType }
+// @public (undocumented)
+export enum RedactionType {
+    // (undocumented)
+    DEFAULT = "DEFAULT",
+    // (undocumented)
+    MASKED = "MASKED",
+    // (undocumented)
+    PLAIN_TEXT = "PLAIN_TEXT",
+    // (undocumented)
+    REDACTED = "REDACTED"
+}
 
-export { ReidentifyFileRequest }
+// @public
+export enum ReidentifyFileDataFormat {
+    // (undocumented)
+    CSV = "CSV",
+    // (undocumented)
+    DOCX = "DOCX",
+    // (undocumented)
+    JSON = "JSON",
+    // (undocumented)
+    JSONL = "JSONL",
+    // (undocumented)
+    PPTX = "PPTX",
+    // (undocumented)
+    TXT = "TXT",
+    // (undocumented)
+    XLSX = "XLSX",
+    // (undocumented)
+    XML = "XML"
+}
 
-export { ReidentifyFileRequestFields }
+// @public
+export interface ReidentifyFileOutput {
+    processedFile: string | null;
+    processedFileExtension: ReidentifyFileDataFormat | null;
+    processedFileType: string | null;
+}
 
-export { ReidentifyFileResponse }
+// @public
+export class ReidentifyFileRequest {
+    // Warning: (ae-forgotten-export) The symbol "ReidentifyFileSource" needs to be exported by the entry point index.d.ts
+    constructor(dataSource: ReidentifyFileSource, value: string, fields?: ReidentifyFileRequestFields);
+    // (undocumented)
+    get dataFormat(): ReidentifyFileDataFormat | undefined;
+    set dataFormat(value: ReidentifyFileDataFormat | undefined);
+    get dataSource(): ReidentifyFileSource;
+    set dataSource(value: ReidentifyFileSource);
+    // (undocumented)
+    get redactionLevel(): RedactionRule[] | undefined;
+    set redactionLevel(value: RedactionRule[] | undefined);
+    get value(): string;
+    set value(value: string);
+}
+
+// @public
+export interface ReidentifyFileRequestFields {
+    dataFormat?: ReidentifyFileDataFormat;
+    redactionLevel?: RedactionRule[];
+}
+
+// @public
+export class ReidentifyFileResponse {
+    constructor(input: {
+        status: DetectRunStatus;
+        outputType: ReidentifyFileSource | null;
+        output: ReidentifyFileOutput[];
+        metrics: Metrics | null;
+    });
+    readonly metrics: Metrics | null;
+    readonly output: ReidentifyFileOutput[];
+    readonly outputType: ReidentifyFileSource | null;
+    readonly status: DetectRunStatus;
+}
 
 // @public
 export enum ReidentifySourceType {
@@ -569,20 +1226,71 @@ export enum ReidentifySourceType {
     PRESIGNED_URL = "PRESIGNED_URL"
 }
 
-export { ReidentifyStringRequest }
+// @public
+export class ReidentifyStringRequest {
+    constructor(text: string, fields?: ReidentifyStringRequestFields);
+    // (undocumented)
+    get redactionLevel(): RedactionRule[] | undefined;
+    set redactionLevel(value: RedactionRule[] | undefined);
+    get text(): string;
+    set text(value: string);
+}
 
-export { ReidentifyStringRequestFields }
+// @public
+export interface ReidentifyStringRequestFields {
+    redactionLevel?: RedactionRule[];
+}
 
-export { ReidentifyStringResponse }
+// @public
+export class ReidentifyStringResponse {
+    constructor(input: {
+        processedText: string | null;
+        metrics: Metrics | null;
+    });
+    readonly metrics: Metrics | null;
+    readonly processedText: string | null;
+}
 
-export { RequestMethod }
+// @public (undocumented)
+export enum RequestMethod {
+    // (undocumented)
+    GET = "GET",
+    // (undocumented)
+    PATCH = "PATCH",
+    // (undocumented)
+    POST = "POST",
+    // (undocumented)
+    PUT = "PUT"
+}
 
-export { ReturnEntitiesType }
+// @public
+export enum ReturnEntitiesType {
+    // (undocumented)
+    ALL = "ALL",
+    // (undocumented)
+    EXCLUDE_SENSITIVE_DATA = "EXCLUDE_SENSITIVE_DATA",
+    // (undocumented)
+    NONE = "NONE"
+}
 
-export { ShiftDates }
+// @public
+export interface ShiftDates {
+    // (undocumented)
+    maxDays?: number;
+    // (undocumented)
+    minDays?: number;
+}
 
-export { SignedDataTokensOptions }
+// @public (undocumented)
+export type SignedDataTokensOptions = {
+    dataTokens: string[];
+    timeToLive?: number;
+    ctx?: string | Record<string, any>;
+    logLevel?: LogLevel;
+    tokenUri?: string;
+};
 
+// Warning: (ae-forgotten-export) The symbol "BaseSkyflow" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "VaultEntry" needs to be exported by the entry point index.d.ts
 //
 // @public
@@ -616,18 +1324,69 @@ export class Skyflow extends BaseSkyflow<VaultEntry> {
     vault(vaultId?: string): VaultController;
 }
 
-export { SkyflowConfig }
+// @public (undocumented)
+export interface SkyflowConfig {
+    // (undocumented)
+    connectionConfigs?: ConnectionConfig[];
+    // (undocumented)
+    logLevel?: LogLevel;
+    // (undocumented)
+    skyflowCredentials?: Credentials;
+    // (undocumented)
+    vaultConfigs?: VaultConfig[];
+}
 
-export { SkyflowError }
+// @public (undocumented)
+export class SkyflowError extends Error {
+    constructor(errorCode: ISkyflowError, args?: Array<string | number>);
+    // Warning: (ae-forgotten-export) The symbol "ISkyflowError" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    error?: ISkyflowError;
+}
 
-export { SkyflowRecordError }
+// @public (undocumented)
+export interface SkyflowRecordError {
+    // (undocumented)
+    error: string;
+    // (undocumented)
+    httpCode?: string | number | null;
+    // @deprecated (undocumented)
+    request_ID?: string | null;
+    // (undocumented)
+    requestId: string | null;
+    // (undocumented)
+    requestIndex?: number | null;
+    // (undocumented)
+    token?: string | null;
+}
 
-export { StringCredentials }
+// @public (undocumented)
+export interface StringCredentials {
+    // (undocumented)
+    context?: string | Record<string, any>;
+    // (undocumented)
+    credentialsString: string;
+    // (undocumented)
+    roles?: Array<string>;
+    // (undocumented)
+    tokenUri?: string;
+}
 
-export { StringKeyValueMapType }
+// @public (undocumented)
+export interface StringKeyValueMapType {
+    // (undocumented)
+    [key: string]: object | string;
+}
 
-export { TokenCredentials }
+// @public (undocumented)
+export interface TokenCredentials {
+    // (undocumented)
+    token: string;
+}
 
+// Warning: (ae-forgotten-export) The symbol "BaseTokenizeRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class TokenizeRequest extends BaseTokenizeRequest {
     constructor(values: Array<TokenizeRequestType>);
@@ -636,8 +1395,16 @@ export class TokenizeRequest extends BaseTokenizeRequest {
     set values(value: Array<TokenizeRequestType>);
 }
 
-export { TokenizeRequestType }
+// @public (undocumented)
+export interface TokenizeRequestType {
+    // (undocumented)
+    columnGroup: string;
+    // (undocumented)
+    value: string;
+}
 
+// Warning: (ae-forgotten-export) The symbol "BaseTokenizeResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class TokenizeResponse extends BaseTokenizeResponse {
     constructor(input: {
@@ -650,9 +1417,21 @@ export class TokenizeResponse extends BaseTokenizeResponse {
     tokens: Array<string>;
 }
 
-export { TokenMode }
+// @public (undocumented)
+export enum TokenMode {
+    // (undocumented)
+    DISABLE = "DISABLE",
+    // (undocumented)
+    ENABLE = "ENABLE",
+    // (undocumented)
+    ENABLE_STRICT = "ENABLE_STRICT"
+}
 
-export { Transformation }
+// @public
+export interface Transformation {
+    // (undocumented)
+    shiftDates?: ShiftDates;
+}
 
 // @public (undocumented)
 export class UpdateOptions extends BaseOptions {
@@ -671,6 +1450,8 @@ export class UpdateOptions extends BaseOptions {
     setTokens(tokens: Record<string, unknown>): void;
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseUpdateRequest" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class UpdateRequest extends BaseUpdateRequest {
     constructor(table: string, data: Record<string, unknown>);
@@ -682,6 +1463,8 @@ export class UpdateRequest extends BaseUpdateRequest {
     set table(value: string);
 }
 
+// Warning: (ae-forgotten-export) The symbol "BaseUpdateResponse" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export class UpdateResponse extends BaseUpdateResponse {
     constructor(input: {
@@ -694,7 +1477,20 @@ export class UpdateResponse extends BaseUpdateResponse {
     updatedField: InsertResponseType;
 }
 
-export { VaultConfig }
+// @public (undocumented)
+export interface VaultConfig {
+    // (undocumented)
+    clusterId: string;
+    // (undocumented)
+    credentials?: Credentials;
+    // (undocumented)
+    env?: Env;
+    maxRetries?: number;
+    timeout?: number;
+    // (undocumented)
+    vaultId: string;
+    vaultUrl?: string;
+}
 
 // (No @packageDocumentation comment for this package)
 

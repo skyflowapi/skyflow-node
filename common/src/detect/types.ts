@@ -122,8 +122,12 @@ export type ReidentifyFileSource = string;
 /** The wire value every SDK uses for a base64 input or output. @internal */
 export const BASE64_SOURCE = "BASE64";
 
-/** File formats Skyflow Detect accepts and produces. */
-export enum FileDataFormat {
+/**
+ * File formats accepted by `deidentifyFile` as the request `dataFormat`, and the format reported on every
+ * `FileOutput` of `deidentifyFile` and `getRun`. Mirrors the API's `DeidentifyFileRequestV2.dataFormat` and
+ * `FileOutput.processedFileExtension` enums. The wire value is the lower-case extension.
+ */
+export enum DeidentifyFileDataFormat {
     BMP = "BMP",
     CSV = "CSV",
     DCM = "DCM",
@@ -147,6 +151,22 @@ export enum FileDataFormat {
     XLSX = "XLSX",
     XML = "XML",
     ZIP = "ZIP",
+}
+
+/**
+ * File formats accepted by `reidentifyFile` as the request `dataFormat`, and the format reported on every
+ * `ReidentifyFileOutput` of its response: the formats that support the `VAULT_TOKEN` de-identification type.
+ * Mirrors the API's `ReidentifyFileRequestV2.dataFormat` enum, which is narrower than `DeidentifyFileDataFormat`.
+ */
+export enum ReidentifyFileDataFormat {
+    CSV = "CSV",
+    DOCX = "DOCX",
+    JSON = "JSON",
+    JSONL = "JSONL",
+    PPTX = "PPTX",
+    TXT = "TXT",
+    XLSX = "XLSX",
+    XML = "XML",
 }
 
 /** Status of a Detect file run. `SUCCESS`, `FAILED` and `UNKNOWN` are terminal. */
@@ -433,11 +453,21 @@ export interface Metrics {
     duration: number | null;
 }
 
-/** One output of a file run. */
+/** One output of a de-identification file run, on `DeidentifyFileResponse` and `GetRunResponse`. */
 export interface FileOutput {
     /** Base64 content or a presigned URL, per the response's `outputType`. */
     processedFile: string | null;
     /** `REDACTED_FILE`, `ENTITIES`, `OBJECT_ENTITIES`, `REDACTED_TEXT`, and so on. */
     processedFileType: string | null;
-    processedFileExtension: FileDataFormat | null;
+    processedFileExtension: DeidentifyFileDataFormat | null;
+}
+
+/** One output of `reidentifyFile`: the same shape as `FileOutput`, with a `ReidentifyFileDataFormat` extension. */
+export interface ReidentifyFileOutput {
+    /** Base64 content or a presigned URL, per the response's `outputType`. */
+    processedFile: string | null;
+    /** `REIDENTIFIED_FILE`, and so on. */
+    processedFileType: string | null;
+    /** Null when not reported or not a re-identification format. */
+    processedFileExtension: ReidentifyFileDataFormat | null;
 }

@@ -29,7 +29,7 @@ import { pollRun } from '../../src/detect/internal/run-poller';
 import { writeOutputs } from '../../src/detect/internal/file-output-writer';
 import { toDetectConfig } from '../../src/detect/internal/request-mapper';
 import { completeDeidentifyFile } from '../../src/detect/internal/deidentify-file-flow';
-import { DetectRunStatus, FileDataFormat, ObjectEntityType } from '../../src/detect/types';
+import { DetectRunStatus, ObjectEntityType, DeidentifyFileDataFormat } from '../../src/detect/types';
 import { TestDeidentifySourceType as DeidentifySourceType, TestReidentifySourceType as ReidentifySourceType, TestDetectController } from './test-types';
 import { LogLevel } from '../../src/utils';
 import SkyflowError from '../../src/error';
@@ -116,7 +116,7 @@ describe('output writer failures', () => {
             let thrown;
             try {
                 await writeOutputs(
-                    [{ processedFile: Buffer.from('a').toString('base64'), processedFileType: 'REDACTED_FILE', processedFileExtension: FileDataFormat.TXT }],
+                    [{ processedFile: Buffer.from('a').toString('base64'), processedFileType: 'REDACTED_FILE', processedFileExtension: DeidentifyFileDataFormat.TXT }],
                     DeidentifySourceType.BASE64,
                     'notes.txt',
                     tmpDir,
@@ -183,7 +183,7 @@ describe('output writer directory defaults', () => {
         process.chdir(tmpDir);
         try {
             const written = await writeOutputs(
-                [{ processedFile: Buffer.from('a').toString('base64'), processedFileType: 'REDACTED_FILE', processedFileExtension: FileDataFormat.TXT }],
+                [{ processedFile: Buffer.from('a').toString('base64'), processedFileType: 'REDACTED_FILE', processedFileExtension: DeidentifyFileDataFormat.TXT }],
                 DeidentifySourceType.BASE64,
                 'notes.txt',
                 '   ',

@@ -415,7 +415,7 @@ Request classes take their required fields as constructor arguments and their op
 | `value` | `string` | Base64 content, a skyflow id, or a presigned URL, per `dataSource`. |
 | `file` | `File` | In-memory `File`; read and base64-encoded when sent, `dataSource` set to `BASE64`. Requires Node.js v20+. |
 | `filePath` | `string` | Path to a local file; same handling as `file`. |
-| `dataFormat` | [`FileDataFormat`](#detect-enums) | File format. Inferred from the file name's extension when omitted for a local file. |
+| `dataFormat` | [`DeidentifyFileDataFormat`](#detect-enums) | File format. Inferred from the file name's extension when omitted for a local file. |
 | `configurationId` | `string` | Id of a stored Detect configuration. Sending it together with `configuration` is rejected by the API. |
 | `configuration` | [`DetectConfiguration`](#detectconfiguration) | Inline configuration. With neither this nor `configurationId` set, the server applies the vault's defaults. |
 | `pollOptions` | [`PollOptions`](#polloptions) | Poll the run after submitting. Omit to submit only and return the run id. |
@@ -438,7 +438,7 @@ Request classes take their required fields as constructor arguments and their op
 |---|---|---|
 | `dataSource` | [`ReidentifySourceType`](#detect-enums) | **Required.** Your SDK's enum: `BASE64` or `PRESIGNED_URL`. Re-identification does not accept a skyflow id as the source. |
 | `value` | `string` | **Required.** Base64 content or a presigned URL, per `dataSource`. |
-| `dataFormat` | [`FileDataFormat`](#detect-enums) | Limited to the formats that support `VAULT_TOKEN`: `TXT`, `CSV`, `JSON`, `JSONL`, `XML`, `DOCX`, `XLSX` or `PPTX`. |
+| `dataFormat` | [`ReidentifyFileDataFormat`](#detect-enums) | Limited to the formats that support `VAULT_TOKEN`: `TXT`, `CSV`, `JSON`, `JSONL`, `XML`, `DOCX`, `XLSX` or `PPTX`. |
 | `redactionLevel` | [`RedactionLevel[]`](#redactionlevel) | Redaction rules. |
 
 ### `GetRunRequest`
@@ -499,7 +499,7 @@ Returned by `detect().reidentifyFile()`.
 |---|---|---|
 | `status` | [`DetectRunStatus`](#detect-enums) | Status of the re-identification. |
 | `outputType` | [`ReidentifySourceType`](#detect-enums)` \| null` | The output type resolved onto your SDK's enum; `null` when the value is not one the SDK offers. |
-| `output` | [`FileOutput[]`](#fileoutput) | Re-identified file outputs, never `null`. |
+| `output` | `ReidentifyFileOutput[]` | Re-identified file outputs, never `null`. Same fields as [`FileOutput`](#fileoutput), with `processedFileExtension` typed `ReidentifyFileDataFormat`. |
 | `metrics` | [`Metrics`](#metrics)` \| null` | Size and counts. |
 
 ### `GetRunResponse`
@@ -660,7 +660,7 @@ Element of `output` on the file responses.
 |---|---|---|
 | `processedFile` | `string \| null` | Base64 content or a presigned URL, per the response's `outputType`. |
 | `processedFileType` | `string \| null` | `REDACTED_FILE`, `ENTITIES`, `OBJECT_ENTITIES`, `REDACTED_TEXT`, and so on. |
-| `processedFileExtension` | `FileDataFormat \| null` | Extension of the output. |
+| `processedFileExtension` | `DeidentifyFileDataFormat \| null` | Extension of the output. On `ReidentifyFileOutput` the same field is a `ReidentifyFileDataFormat`. |
 
 ### Detect enums
 
@@ -673,7 +673,8 @@ All string enums whose values match the wire values.
 | `IncludePrefix` | `YES` _(server default)_, `NO`, `INCLUDE_PREFIX_UNSPECIFIED` _(field omitted)_. `VAULT_TOKEN` only. |
 | `DeidentifySourceType` | Per SDK: skyvault `BASE64`, `SKYFLOW_ID`, `PRESIGNED_URL`; flowvault `BASE64`, `PRESIGNED_URL`. Input source for `deidentifyFile`, and the `outputType` of `DeidentifyFileResponse` and `GetRunResponse`. |
 | `ReidentifySourceType` | Per SDK, `BASE64`, `PRESIGNED_URL` on both. Input source for `reidentifyFile` and the `outputType` of `ReidentifyFileResponse`. |
-| `FileDataFormat` | `BMP`, `CSV`, `DCM`, `DOC`, `DOCX`, `GIF`, `JPEG`, `JPG`, `JSON`, `JSONL`, `MP3`, `PDF`, `PNG`, `PPT`, `PPTX`, `TIF`, `TIFF`, `TXT`, `WAV`, `XLS`, `XLSX`, `XML`, `ZIP` |
+| `DeidentifyFileDataFormat` | `BMP`, `CSV`, `DCM`, `DOC`, `DOCX`, `GIF`, `JPEG`, `JPG`, `JSON`, `JSONL`, `MP3`, `PDF`, `PNG`, `PPT`, `PPTX`, `TIF`, `TIFF`, `TXT`, `WAV`, `XLS`, `XLSX`, `XML`, `ZIP`. The `dataFormat` of `deidentifyFile` (inferred from a local file's extension when omitted) and the `processedFileExtension` of `FileOutput` on de-identify and get-run responses. |
+| `ReidentifyFileDataFormat` | `CSV`, `DOCX`, `JSON`, `JSONL`, `PPTX`, `TXT`, `XLSX`, `XML`. The `dataFormat` of `reidentifyFile` (only the formats that support `VAULT_TOKEN`) and the `processedFileExtension` of `ReidentifyFileOutput` on its response. |
 | `DetectRunStatus` | `QUEUED`, `IN_PROGRESS`, `SUCCESS`, `FAILED`, `UNKNOWN`. `SUCCESS`, `FAILED` and `UNKNOWN` end polling. |
 | `ReturnEntitiesType` | `EXCLUDE_SENSITIVE_DATA` _(server default)_, `ALL`, `NONE` |
 | `MaskingMethod` | `NONE`, `BLUR`, `BLACKBOX` |

@@ -13,7 +13,8 @@ import {
     CheckGuardrailsResponse,
     DetectRunStatus,
     EntityType,
-    FileDataFormat,
+    DeidentifyFileDataFormat,
+    ReidentifyFileDataFormat,
     GuardrailsValidation,
     POLL_OPTIONS,
     BaseDetectController,
@@ -42,14 +43,14 @@ describe('detect request models', () => {
         const r = new DeidentifyFileRequest({
             dataSource: DeidentifySourceType.PRESIGNED_URL,
             value: 'https://u',
-            dataFormat: FileDataFormat.PDF,
+            dataFormat: DeidentifyFileDataFormat.PDF,
             configurationId: 'c',
             pollOptions: { waitTime: 10 },
             outputDirectory: '/out',
         });
         expect(r.dataSource).toBe(DeidentifySourceType.PRESIGNED_URL);
         expect(r.value).toBe('https://u');
-        expect(r.dataFormat).toBe(FileDataFormat.PDF);
+        expect(r.dataFormat).toBe(DeidentifyFileDataFormat.PDF);
         expect(r.configurationId).toBe('c');
         expect(r.pollOptions).toEqual({ waitTime: 10 });
         expect(r.outputDirectory).toBe('/out');
@@ -76,10 +77,10 @@ describe('detect request models', () => {
         expect(s.text).toBe('x');
         expect(s.redactionLevel).toBeUndefined();
 
-        const f = new ReidentifyFileRequest(ReidentifySourceType.BASE64, 'v', { dataFormat: FileDataFormat.TXT });
+        const f = new ReidentifyFileRequest(ReidentifySourceType.BASE64, 'v', { dataFormat: ReidentifyFileDataFormat.TXT });
         expect(f.dataSource).toBe(ReidentifySourceType.BASE64);
         expect(f.value).toBe('v');
-        expect(f.dataFormat).toBe(FileDataFormat.TXT);
+        expect(f.dataFormat).toBe(ReidentifyFileDataFormat.TXT);
         expect(f.redactionLevel).toBeUndefined();
         f.dataSource = ReidentifySourceType.PRESIGNED_URL;
         f.value = 'w';

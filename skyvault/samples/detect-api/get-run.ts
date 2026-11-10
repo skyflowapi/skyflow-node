@@ -55,7 +55,7 @@ async function performGetRun() {
                 for (const output of run.output) {
                     // output.processedFile is base64 or a presigned URL, per run.outputType
                     // output.processedFileType is e.g. REDACTED_FILE or ENTITIES
-                    // output.processedFileExtension is a FileDataFormat such as PDF
+                    // output.processedFileExtension is a DeidentifyFileDataFormat such as PDF
                     console.log(`${output.processedFileType} (${output.processedFileExtension})`);
                 }
                 console.log('Output type:', run.outputType);

@@ -9,7 +9,7 @@ import {
     DeidentifyFileRequest,
     DeidentifyFileResponse,
     DeidentifySourceType,
-    FileDataFormat,
+    DeidentifyFileDataFormat,
 } from 'skyflow-node';
 
 /**
@@ -63,7 +63,7 @@ async function performDeidentifyFile() {
         const remoteFileRequest = new DeidentifyFileRequest({
             dataSource: DeidentifySourceType.SKYFLOW_ID, // or DeidentifySourceType.PRESIGNED_URL
             value: '<SKYFLOW_ID>',                       // or the presigned URL
-            dataFormat: FileDataFormat.PDF,
+            dataFormat: DeidentifyFileDataFormat.PDF,
             configurationId: '<CONFIGURATION_ID>',
         });
         const remoteSubmitted = await skyflowClient

@@ -10,7 +10,7 @@ import {
     ReidentifyFileRequest,
     ReidentifyFileResponse,
     ReidentifySourceType,
-    FileDataFormat,
+    ReidentifyFileDataFormat,
     DetectRunStatus,
 } from 'skyflow-flowvault-node';
 
@@ -50,7 +50,7 @@ async function performReidentifyFile() {
         // formats that support VAULT_TOKEN: TXT, CSV, JSON, JSONL, XML, DOCX, XLSX and PPTX.
         const content = fs.readFileSync('<TOKENIZED_FILE_PATH>').toString('base64');
         const request = new ReidentifyFileRequest(ReidentifySourceType.BASE64, content, {
-            dataFormat: FileDataFormat.TXT,
+            dataFormat: ReidentifyFileDataFormat.TXT,
             redactionLevel: [
                 { tokenGroupName: '<TOKEN_GROUP_NAME>', redactionPattern: '<REDACTION_PATTERN>' },
             ],
