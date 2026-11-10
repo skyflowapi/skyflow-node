@@ -17,7 +17,9 @@ This repository hosts Skyflow's Node.js SDKs for integrating Skyflow into a Node
 
 > **The two packages are versioned independently.** `flowvault` is a new SDK starting at `1.0.0`; its lower version number reflects a first release, not an older or lesser SDK than `skyvault` 2.x. Upgrade each on its own version line.
 
-> Migrating from v1? See skyvault's **[Migration Guide](docs/migrate_to_v2.md)**. V1 is in maintenance mode and will reach End of Life on October 31, 2026.
+> Migrating from v1? See skyvault's **[Migration Guide](docs/migrate_to_v2.md)**. V1 is in maintenance mode and reached End of Life on October 31, 2026.
+>
+> Using skyvault's replaced Detect methods (`deidentifyText`, `reidentifyText`, `getDetectRun`)? See **[Migrate to the new Detect methods](docs/migrate_detect.md)**.
 
 ## Repository layout
 
@@ -26,13 +28,14 @@ The root `package.json` (`private: true`) aggregates these npm workspaces:
 - `common/` — shared client, credentials, config, Detect, and error-handling code used by both `skyvault` and `flowvault`
 - `skyvault/` — the `skyflow-node` SDK ([README](skyvault/README.md))
 - `flowvault/` — the `skyflow-flowvault-node` SDK ([README](flowvault/README.md))
-- `samples/` — runnable examples for `skyvault` ([README](samples/README.md)); `flowvault` samples live in [`flowvault/samples/`](flowvault/samples/README.md)
+- `skyvault/samples/` — runnable examples for `skyvault` ([README](skyvault/samples/README.md)); `flowvault` samples live in [`flowvault/samples/`](flowvault/samples/README.md)
 
 ## Documentation
 
 - [skyvault API Reference](docs/api_reference.md) — full list of request classes, options, response classes, enums, and service-account functions
 - [Detect API Reference](docs/api_reference.md#detect-api) — request, response, configuration and enum types for Detect, shared by both SDKs
 - [Migrate from v1 to v2](docs/migrate_to_v2.md)
+- [Migrate to the new Detect methods](docs/migrate_detect.md) — for skyvault users of `deidentifyText`, `reidentifyText`, `deidentifyFile` and `getDetectRun`
 - [Advanced initialization](docs/advanced_initialization.md)
 - [Authentication credentials](docs/auth_credentials.md)
 

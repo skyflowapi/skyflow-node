@@ -57,7 +57,7 @@ Sample files are organized by API type:
 3. Run the sample:
 
    ```bash
-   cd samples
+   cd skyvault/samples
    npm install
    ts-node vault-api/insert-records.ts
    ```

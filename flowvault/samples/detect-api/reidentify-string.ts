@@ -6,19 +6,26 @@ import {
     SkyflowConfig,
     VaultConfig,
     SkyflowError,
+    DeidentifyStringRequest,
+    DeidentifyStringResponse,
     ReidentifyStringRequest,
     ReidentifyStringResponse,
+    EntityType,
+    DeidentificationType,
 } from 'skyflow-flowvault-node';
 
 /**
- * Skyflow Detect: re-identify a string
+ * Skyflow Detect: the de-identify / re-identify round trip
  *
- * Re-identification looks tokens up in the vault, so it applies to values that were
- * de-identified with VAULT_TOKEN. This example demonstrates how to:
+ * Re-identification looks tokens up in the vault, so it applies only to values that were
+ * de-identified with VAULT_TOKEN. Such a token looks like [NAME_QUo9AjT]; counter placeholders
+ * such as [NAME_1] are never stored and cannot be re-identified.
+ * This example demonstrates how to:
  * 1. Configure credentials and a vault
- * 2. Re-identify tokenized text, restoring the original values
- * 3. Apply redaction rules so some entities come back masked or redacted
- * 4. Handle errors
+ * 2. De-identify text with VAULT_TOKEN so the values are stored in a token group
+ * 3. Re-identify the tokenized text, restoring the original values
+ * 4. Apply a redaction pattern to a token group
+ * 5. Handle errors
  */
 async function performReidentifyString() {
     try {
@@ -42,29 +49,58 @@ async function performReidentifyString() {
         };
         const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
-        const tokenizedText = 'My name is [NAME_1], and my SSN is [SSN_1].';
+        // Step 4: De-identify with VAULT_TOKEN. Each value is stored in the token group named by
+        // destination and replaced by its vault token.
+        const deidentifyRequest = new DeidentifyStringRequest(
+            'My name is John Doe and my email is johndoe@acme.com.',
+            {
+                configuration: {
+                    detect: {
+                        entities: [
+                            {
+                                entityType: EntityType.NAME,
+                                deidentificationType: DeidentificationType.VAULT_TOKEN,
+                                destination: '<TOKEN_GROUP_NAME>', // Replace with a token group of the vault
+                            },
+                            {
+                                entityType: EntityType.EMAIL_ADDRESS,
+                                deidentificationType: DeidentificationType.VAULT_TOKEN,
+                                destination: '<TOKEN_GROUP_NAME>', // Replace with a token group of the vault
+                            },
+                        ],
+                    },
+                },
+            },
+        );
+        const deidentified: DeidentifyStringResponse = await skyflowClient
+            .detect(primaryVaultConfig.vaultId)
+            .deidentifyString(deidentifyRequest);
+        const tokenizedText = deidentified.processedText ?? '';
+        console.log('De-identified text:', tokenizedText);
+        // My name is [NAME_QUo9AjT] and my email is [EMAIL_ADDRESS_x7Fp2Kd].
 
-        // Step 4: Without rules every token is replaced by its original value
+        // Step 5: Without rules every vault token is replaced by its original value
         const plainRequest = new ReidentifyStringRequest(tokenizedText);
         const plainResponse: ReidentifyStringResponse = await skyflowClient
             .detect(primaryVaultConfig.vaultId)
             .reidentifyString(plainRequest);
         console.log('Re-identified text:', plainResponse.processedText);
 
-        // Step 5: Redaction rules. Each rule targets a token group and applies a redaction pattern configured in the vault.
+        // Step 6: Redaction rules. Each rule targets a token group and applies a redaction pattern
+        // configured in the vault.
         const redactedRequest = new ReidentifyStringRequest(tokenizedText, {
             redactionLevel: [
                 { tokenGroupName: '<TOKEN_GROUP_NAME>', redactionPattern: '<REDACTION_PATTERN>' },
-                { tokenGroupName: '<OTHER_TOKEN_GROUP_NAME>', redactionPattern: '<OTHER_REDACTION_PATTERN>' },
             ],
         });
         const redactedResponse = await skyflowClient
             .detect(primaryVaultConfig.vaultId)
             .reidentifyString(redactedRequest);
         console.log('Re-identified text with redaction rules:', redactedResponse.processedText);
+        // My name is J**n D*e and my email is johndoe@acme.com.
         console.log('Character count:', redactedResponse.metrics?.characterCount);
     } catch (error) {
-        // Comprehensive error handling
+        // Comprehensive error handling. Quote the request id when contacting Skyflow support.
         if (error instanceof SkyflowError) {
             console.error('Skyflow Specific Error:', {
                 httpCode: error.error?.httpCode,
@@ -80,5 +116,5 @@ async function performReidentifyString() {
     }
 }
 
-// Invoke the re-identify string function
+// Invoke the round trip
 performReidentifyString();

@@ -4,7 +4,9 @@
 >
 > Meant for **Privacy DB** vaults. Working with a Flow DB vault? Use the [FlowVault SDK](../flowvault/README.md) (`skyflow-flowvault-node`) instead.
 >
-> Migrating from v1? See the **[Migration Guide](../docs/migrate_to_v2.md)** for step-by-step instructions. V1 is in maintenance mode and will reach End of Life on October 31, 2026.
+> Migrating from v1? See the **[Migration Guide](../docs/migrate_to_v2.md)** for step-by-step instructions. V1 is in maintenance mode and reached End of Life on October 31, 2026.
+>
+> Using the Detect methods that this SDK replaced (`deidentifyText`, `reidentifyText`, `getDetectRun`)? See **[Migrate to the new Detect methods](../docs/migrate_detect.md)**.
 
 Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
 
@@ -56,6 +58,7 @@ Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow 
     - [Re-identify a file: `.reidentifyFile(request)`](#re-identify-a-file-reidentifyfilerequest)
     - [Get run: `.getRun(request)`](#get-run-getrunrequest)
     - [Check guardrails: `.checkGuardrails(request)`](#check-guardrails-checkguardrailsrequest)
+    - [Detect errors](#detect-errors)
   - [Connections](#connections)
     - [Configure a connection](#configure-a-connection)
     - [Invoke a connection](#invoke-a-connection)
@@ -92,7 +95,8 @@ The Skyflow SDK enables you to connect to your Skyflow Vault(s) to securely hand
 > [!IMPORTANT]  
 > This readme documents SDK version 2.  
 > For version 1 see the [v1.14.2 README](https://github.com/skyflowapi/skyflow-node/tree/1.14.2).  
-> For more information on how to migrate see [MIGRATE_TO_V2.md](../docs/migrate_to_v2.md).
+> For more information on how to migrate see [MIGRATE_TO_V2.md](../docs/migrate_to_v2.md).  
+> For the Detect methods replaced in 2.2.0 see [migrate_detect.md](../docs/migrate_detect.md).
 
 ## Installation
 
@@ -238,6 +242,8 @@ Insert response: { insertedFields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f
 
 Upgrade from `skyflow-node` v1 using the dedicated guide in [docs/migrate_to_v2.md](../docs/migrate_to_v2.md).
 
+Already on v2 and using `deidentifyText`, `reidentifyText`, `deidentifyFile` or `getDetectRun`? Those are replaced by the [Detect](#detect) methods in 2.2.0; see **[Migrate to the new Detect methods](../docs/migrate_detect.md)**.
+
 ## Vault
 
 The [Vault](https://docs.skyflow.com/docs/vaults) performs operations on the vault such as inserting records, detokenizing tokens, retrieving tokens for list of `skyflowId`s and to invoke the Connection.
@@ -280,7 +286,7 @@ Insert response: { insertedFields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f
 Set the `continueOnError` flag to `true` to allow insert operations to proceed despite encountering partial errors.
 
 > [!TIP]
-> See the full example in the samples directory: [insert-continue-on-error.ts](../samples/vault-api/insert-continue-on-error.ts)
+> See the full example in the samples directory: [insert-continue-on-error.ts](samples/vault-api/insert-continue-on-error.ts)
 
 #### Upsert request
 
@@ -334,7 +340,7 @@ Detokenization response: { detokenizedFields: [{ token: '5391-4629-3722-7102', v
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [detokenzie-records.ts](../samples/vault-api/detokenzie-records.ts)
+> See the full example in the samples directory: [detokenzie-records.ts](samples/vault-api/detokenzie-records.ts)
 
 ### Get Record(s): `.get(request, options)`
 
@@ -416,7 +422,7 @@ getOptions.setReturnTokens(true); // Set to `true` to get tokens
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [get-records.ts](../samples/vault-api/get-records.ts)
+> See the full example in the samples directory: [get-records.ts](samples/vault-api/get-records.ts)
 
 #### Get by column name and column values
 
@@ -431,7 +437,7 @@ const getRequest: GetColumnRequest = new GetColumnRequest(
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [get-column-values.ts](../samples/vault-api/get-column-values.ts)
+> See the full example in the samples directory: [get-column-values.ts](samples/vault-api/get-column-values.ts)
 
 #### Redaction Types
 
@@ -490,7 +496,7 @@ Update response: { updatedField: { skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5
 For all `UpdateOptions` setters and `TokenMode` values, see [UpdateOptions](../docs/api_reference.md#updateoptions) in the API reference.
 
 > [!TIP]
-> See the full example in the samples directory: [update-record.ts](../samples/vault-api/update-record.ts)
+> See the full example in the samples directory: [update-record.ts](samples/vault-api/update-record.ts)
 
 ### Delete Records
 
@@ -519,7 +525,7 @@ Delete response: { deletedIds: ['a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c'], errors:
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [delete-records.ts](../samples/vault-api/delete-records.ts)
+> See the full example in the samples directory: [delete-records.ts](samples/vault-api/delete-records.ts)
 
 ### Query
 
@@ -548,7 +554,7 @@ Query response: { fields: [{ skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', 
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [query-records.ts](../samples/vault-api/query-records.ts)
+> See the full example in the samples directory: [query-records.ts](samples/vault-api/query-records.ts)
 
 Refer to [Query your data](https://docs.skyflow.com/query-data/) and [Execute Query](https://docs.skyflow.com/record/#QueryService_ExecuteQuery) for guidelines and restrictions on supported SQL statements, operators, and keywords.
 
@@ -598,7 +604,7 @@ File upload: { skyflowId: 'a8f0c2e1-7b3d-4f9a-8c21-1d2e3f4a5b6c', errors: null }
 For all `FileUploadOptions` setters, see [FileUploadOptions](../docs/api_reference.md#fileuploadoptions) in the API reference.
 
 > [!TIP]
-> See the full example in the samples directory: [file-upload.ts](../samples/vault-api/file-upload.ts)
+> See the full example in the samples directory: [file-upload.ts](samples/vault-api/file-upload.ts)
 
 ### Retrieve Existing Tokens: `.tokenize(request)`
 
@@ -628,13 +634,13 @@ Tokenization Result: { tokens: ['5391-4629-3722-7102', '0f6b8a2c-90ab-4cde-9def-
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [tokenize-records.ts](../samples/vault-api/tokenize-records.ts)
+> See the full example in the samples directory: [tokenize-records.ts](samples/vault-api/tokenize-records.ts)
 
 ## Detect
 
-Skyflow Detect finds and de-identifies sensitive data in free text and files, then re-identifies it on demand. The SDK exposes the Detect V2 API through `DetectController`, returned by `skyflowClient.detect()` and `skyflowClient.detect(vaultId)`. Every request is scoped to that vault and uses the vault's credentials and log level.
+Skyflow Detect finds and de-identifies sensitive data in strings and files (documents, spreadsheets, images and audio), re-identifies vault tokens on demand, and screens text against guardrails for toxicity and denied topics. The SDK exposes it through `DetectController`, returned by `skyflowClient.detect()` and `skyflowClient.detect(vaultId)`. Every request is scoped to that vault and uses the vault's credentials and log level.
 
-Detect configurations are created in Studio or through the management API. The SDK does not create, update or delete them.
+Detect configurations are created in Studio or through the management API. The SDK does not create, update or delete them. These methods replace `deidentifyText`, `reidentifyText`, `deidentifyFile` (old shape) and `getDetectRun`; see [Migrate to the new Detect methods](../docs/migrate_detect.md) if you call those.
 
 | Method | Request | Response | Description |
 |--------|---------|----------|-------------|
@@ -650,7 +656,12 @@ Detect configurations are created in Studio or through the management API. The S
 - **Role.** The service account needs the Detect Invoker, Detect Manager or Vault Owner role on the vault. Re-identifying values stored as `VAULT_TOKEN` is governed like detokenization: the caller also needs a policy that grants the Detokenization action on the destination table and columns, unless it is a Vault Owner.
 - **Configuration.** `configurationId` is the id of a Detect configuration created through the management API. The alternative is an inline `DetectConfiguration` passed as `configuration` (see [Detect configuration](#detect-configuration)). Both are optional: with neither set the SDK sends only the vault id and the run uses the vault's default Detect settings. Sending both is rejected by the API with HTTP 400.
 - **Destination for vault tokens.** An entity de-identified with `VAULT_TOKEN` stores its value in the `table.column` named by `destination`. That table and column must already exist in the vault.
-- **API reference.** Every Detect request, response and configuration type is listed in the [API reference](../docs/api_reference.md#detect-api).
+- **Where the values come from.**
+  - `<CONFIGURATION_ID>`: open the configuration in Studio under your vault's Detect settings and copy its id, or take the `id` returned when you create one through the management API.
+  - `<TABLE>.<COLUMN>`: a table and column of the vault schema (Studio: vault > **Schema**) with tokenization enabled; `VAULT_TOKEN` values are stored there and re-identified from there.
+  - `RedactionType`: `PLAIN_TEXT`, `MASKED` or `REDACTED`, the same values `get` and `detokenize` use. The Detect API does not accept `DEFAULT` here.
+  - If you do not have a vault yet, start at [Try Skyflow](https://skyflow.com/try-skyflow); the [Skyflow docs](https://docs.skyflow.com) cover Studio, schemas and tokenization.
+- **API reference.** Every Detect request, response and configuration type is listed in the [API reference](../docs/api_reference.md#detect-api). Errors are described under [Detect errors](#detect-errors).
 
 ### De-identify a string: `.deidentifyString(request)`
 
@@ -702,10 +713,35 @@ for (const entity of inlineResponse.entities) {
 console.log(inlineResponse.metrics?.wordCount);
 ```
 
-`DeidentifyStringResponse` carries `processedText`, `entities` (a `DetectedEntity[]` with token, entity type, location and confidence scores; never `null`) and `metrics`.
+`DeidentifyStringResponse` carries `processedText`, `entities` (a `DetectedEntity[]` with token, entity type, location and confidence scores; never `null`) and `metrics`. As JSON:
+
+```json
+{
+  "processedText": "My name is [NAME_1], and my email is [EMAIL_ADDRESS_1].",
+  "entities": [
+    {
+      "token": "[NAME_1]",
+      "value": "",
+      "location": { "startIndex": 11, "endIndex": 19, "startIndexProcessed": 11, "endIndexProcessed": 19 },
+      "entityType": "NAME",
+      "entityScores": { "NAME": 0.99 }
+    },
+    {
+      "token": "[EMAIL_ADDRESS_1]",
+      "value": "",
+      "location": { "startIndex": 37, "endIndex": 53, "startIndexProcessed": 37, "endIndexProcessed": 54 },
+      "entityType": "EMAIL_ADDRESS",
+      "entityScores": { "EMAIL_ADDRESS": 0.99 }
+    }
+  ],
+  "metrics": { "wordCount": 11, "characterCount": 55, "size": null, "pages": null, "slides": null, "duration": null }
+}
+```
+
+`value` is populated only when the configuration sets `returnEntities` to `ALL`.
 
 > [!TIP]
-> See the full example in the samples directory: [deidentify-string.ts](../samples/detect-api/deidentify-string.ts)
+> See the full example in the samples directory: [deidentify-string.ts](samples/detect-api/deidentify-string.ts)
 
 ### Detect configuration
 
@@ -765,6 +801,9 @@ const configuration: DetectConfiguration = {
 
 File de-identification is asynchronous on the API: the submit call returns a run id and the result is retrieved from the run. `deidentifyFile` exposes both modes.
 
+> [!WARNING]
+> **`deidentifyFile` does not wait for the result unless you set `pollOptions`.** Without it the call resolves with only the run id: `status` is `null`, `output` is empty and nothing is written to disk. Code that reads the outputs straight after the call runs without error, and the missing files only show up downstream. Set `pollOptions` to wait for the run, or keep the run id and call [`getRun`](#get-run-getrunrequest). If you are migrating from `deidentifyText`-era code that always waited, see [Migrate to the new Detect methods](../docs/migrate_detect.md#step-4-deidentifyfile-new-request-and-response).
+
 - **Submit only** (default): one call, returns `runId`. `status` is `null` and nothing is written to disk. Retrieve the result later with [`getRun`](#get-run-getrunrequest).
 - **Submit and poll**: set `pollOptions`. The SDK polls the run with exponential backoff (1, 2, 4, 8, 16, then 32 seconds between lookups) until it is `SUCCESS`, `FAILED` or `UNKNOWN`, or until `waitTime` (default 60 s, max 300) or `maxAttempts` (default 23, max 23) is used up. If the budget runs out the response carries the run id with `IN_PROGRESS` or `QUEUED` so you can resume with `getRun`.
 
@@ -813,31 +852,98 @@ switch (response.status) {
 
 Outputs are written only when polling reached `SUCCESS`, the request was built from a local file, and the run delivered them as base64. A request built from a `SKYFLOW_ID` or `PRESIGNED_URL` has no local name to derive from, and presigned-URL outputs are not fetched, so in those cases read `output` and write the files yourself. Files are named `processed-<input name>.<extension>`, with the entities output as `processed-entities-<input name>.json`; `outputDirectory` is created if missing and defaults to the working directory. Writing outputs needs the Node.js file system and is not supported in Cloudflare Workers.
 
+The submit-only response and a polled response that reached `SUCCESS`, as JSON:
+
+```json
+{ "runId": "48f7613c-b4c4-478a-a42f-dde537f54b6c", "status": null, "outputType": null, "output": [], "metrics": null, "message": null }
+```
+
+```json
+{
+  "runId": "48f7613c-b4c4-478a-a42f-dde537f54b6c",
+  "status": "SUCCESS",
+  "outputType": "BASE64",
+  "output": [
+    { "processedFile": "JVBERi0xLjcK...", "processedFileType": "REDACTED_FILE", "processedFileExtension": "PDF" },
+    { "processedFile": "eyJlbnRpdGllcyI6W3...", "processedFileType": "ENTITIES", "processedFileExtension": "JSON" }
+  ],
+  "metrics": { "pages": 3, "wordCount": 842, "characterCount": 5120, "size": 118.4, "slides": null, "duration": null },
+  "message": null
+}
+```
+
+For audio, `outputTranscription` cannot be combined with `outputProcessedAudio`: the API rejects the pair with HTTP 400. Set `outputProcessedAudio: false` in the audio configuration when you want a transcription.
+
 > [!TIP]
-> See the full examples in the samples directory: [deidentify-file.ts](../samples/detect-api/deidentify-file.ts) and [deidentify-file-async.ts](../samples/detect-api/deidentify-file-async.ts)
+> See the full examples in the samples directory: [deidentify-file.ts](samples/detect-api/deidentify-file.ts) and [deidentify-file-async.ts](samples/detect-api/deidentify-file-async.ts)
 
 ### Re-identify a string: `.reidentifyString(request)`
 
 Re-identification looks tokens up in the vault, so it applies to values that were de-identified with `VAULT_TOKEN`. Placeholders produced by `ENTITY_UNIQUE_COUNTER`, `ENTITY_ONLY` or `MASK` are not stored anywhere and cannot be re-identified.
 
-`ReidentifyStringRequest` takes the tokenized text and an optional list of `RedactionLevel` rules. For skyvault vaults each rule names an `entityName` and the `redactionType` to render it with. Without rules every token is replaced by its original value.
+`ReidentifyStringRequest` takes the tokenized text and an optional list of `RedactionLevel` rules. For skyvault vaults each rule names an `entityName` and the `redactionType` to render it with: `PLAIN_TEXT` reveals the original value, `MASKED` masks it and `REDACTED` keeps it hidden. Without rules every token is replaced by its original value.
+
+The text to re-identify is the `processedText` of a de-identification that used `VAULT_TOKEN`. A vault token carries the token of the value stored in the `table.column` destination, for example `[NAME_daa78453-9ca9-4ba5-a3ef-91934c11196c]`, not the `[NAME_1]` counter placeholder, so the round trip looks like this:
 
 ```typescript
-import { ReidentifyStringRequest, ReidentifyStringResponse, EntityType, RedactionType } from 'skyflow-node';
+import {
+  DeidentifyStringRequest,
+  ReidentifyStringRequest,
+  ReidentifyStringResponse,
+  EntityType,
+  DeidentificationType,
+  RedactionType,
+} from 'skyflow-node';
 
-const response: ReidentifyStringResponse = await skyflowClient.detect().reidentifyString(
-  new ReidentifyStringRequest('My name is [NAME_1].', {
-    redactionLevel: [{ entityName: EntityType.NAME, redactionType: RedactionType.MASKED }],
+// 1. De-identify with VAULT_TOKEN: each value is stored in <TABLE>.<COLUMN> and replaced by its vault token.
+const deidentified = await skyflowClient.detect().deidentifyString(
+  new DeidentifyStringRequest('My name is John Doe and my email is johndoe@acme.com.', {
+    configuration: {
+      detect: {
+        entities: [
+          { entityType: EntityType.NAME, deidentificationType: DeidentificationType.VAULT_TOKEN, destination: '<TABLE>.<COLUMN>' },
+          { entityType: EntityType.EMAIL_ADDRESS, deidentificationType: DeidentificationType.VAULT_TOKEN, destination: '<TABLE>.<COLUMN>' },
+        ],
+      },
+    },
   }),
 );
-console.log(response.processedText);
-// My name is J**n D*e.
+const tokenized = deidentified.processedText ?? '';
+// My name is [NAME_daa78453-9ca9-4ba5-a3ef-91934c11196c] and my email is [EMAIL_ADDRESS_3f0c…].
+
+// 2. Re-identify: every vault token is replaced by its original value.
+const original: ReidentifyStringResponse = await skyflowClient.detect().reidentifyString(
+  new ReidentifyStringRequest(tokenized),
+);
+console.log(original.processedText);
+// My name is John Doe and my email is johndoe@acme.com.
+
+// 3. Or choose how each entity type is rendered.
+const rendered = await skyflowClient.detect().reidentifyString(
+  new ReidentifyStringRequest(tokenized, {
+    redactionLevel: [
+      { entityName: EntityType.NAME, redactionType: RedactionType.PLAIN_TEXT },
+      { entityName: EntityType.EMAIL_ADDRESS, redactionType: RedactionType.MASKED },
+    ],
+  }),
+);
+console.log(rendered.processedText);
+// My name is John Doe and my email is j*******@acme.com.
+```
+
+`ReidentifyStringResponse` carries `processedText` and `metrics`. As JSON:
+
+```json
+{
+  "processedText": "My name is John Doe and my email is j*******@acme.com.",
+  "metrics": { "wordCount": 10, "characterCount": 54, "size": null, "pages": null, "slides": null, "duration": null }
+}
 ```
 
 `RedactionLevel` is the skyvault SDK's own type and has only `entityName` and `redactionType`; the `tokenGroupName` and `redactionPattern` rules of the flowvault SDK do not exist here. Both fields are optional on the API, so the SDK passes the list through as given and the server rejects invalid combinations.
 
 > [!TIP]
-> See the full example in the samples directory: [reidentify-string.ts](../samples/detect-api/reidentify-string.ts)
+> See the full example in the samples directory: [reidentify-string.ts](samples/detect-api/reidentify-string.ts)
 
 ### Re-identify a file: `.reidentifyFile(request)`
 
@@ -855,32 +961,53 @@ const response = await skyflowClient.detect().reidentifyFile(
 
 if (response.status === DetectRunStatus.SUCCESS) {
   for (const output of response.output) {
-    // output.processedFile is base64 or a presigned URL, per response.outputType
-    const processed = Buffer.from(output.processedFile ?? '', 'base64');
+    if (response.outputType === ReidentifySourceType.BASE64) {
+      const processed = Buffer.from(output.processedFile ?? '', 'base64');
+      fs.writeFileSync(`reidentified.${output.processedFileExtension?.toLowerCase()}`, processed);
+    } else {
+      // PRESIGNED_URL: output.processedFile is a URL to download; do not log it.
+    }
   }
 }
 ```
 
-`ReidentifyFileResponse` carries `status`, `outputType`, `output` (never `null`) and `metrics`.
+`ReidentifyFileResponse` carries `status`, `outputType`, `output` (never `null`) and `metrics`. As JSON:
+
+```json
+{
+  "status": "SUCCESS",
+  "outputType": "BASE64",
+  "output": [
+    { "processedFile": "TXkgbmFtZSBpcyBKb2huIERvZS4=", "processedFileType": "REIDENTIFIED_FILE", "processedFileExtension": "TXT" }
+  ],
+  "metrics": { "wordCount": 5, "characterCount": 20, "size": 0.02, "pages": null, "slides": null, "duration": null }
+}
+```
 
 > [!TIP]
-> See the full example in the samples directory: [reidentify-file.ts](../samples/detect-api/reidentify-file.ts)
+> See the full example in the samples directory: [reidentify-file.ts](samples/detect-api/reidentify-file.ts)
 
 ### Get run: `.getRun(request)`
 
 File de-identification is asynchronous: the submit call returns a run id, and `getRun` retrieves the run's status and, once it has succeeded, its outputs. `output` is empty and `outputType` and `metrics` are `null` until the run completes.
 
 ```typescript
-import { GetRunRequest, GetRunResponse, DetectRunStatus } from 'skyflow-node';
+import * as fs from 'fs';
+import { GetRunRequest, GetRunResponse, DetectRunStatus, DeidentifySourceType } from 'skyflow-node';
 
 const run: GetRunResponse = await skyflowClient.detect().getRun(new GetRunRequest('<RUN_ID>'));
 
 switch (run.status) {
   case DetectRunStatus.SUCCESS:
     for (const output of run.output) {
-      // output.processedFile is base64 or a presigned URL, per run.outputType
       // output.processedFileType is e.g. REDACTED_FILE or ENTITIES
       // output.processedFileExtension is a FileDataFormat such as PDF
+      if (run.outputType === DeidentifySourceType.BASE64) {
+        const bytes = Buffer.from(output.processedFile ?? '', 'base64');
+        fs.writeFileSync(`processed-${output.processedFileType}.${output.processedFileExtension?.toLowerCase()}`, bytes);
+      } else {
+        // PRESIGNED_URL: output.processedFile is a URL to download; do not log it.
+      }
     }
     break;
   case DetectRunStatus.FAILED:
@@ -891,12 +1018,14 @@ switch (run.status) {
 }
 ```
 
+`GetRunResponse` has the same fields as `DeidentifyFileResponse` (`runId`, `status`, `outputType`, `output`, `metrics`, `message`); see the JSON under [De-identify a file](#de-identify-a-file-deidentifyfilerequest). `getRun` never writes to disk.
+
 > [!TIP]
-> See the full example in the samples directory: [get-run.ts](../samples/detect-api/get-run.ts)
+> See the full example in the samples directory: [get-run.ts](samples/detect-api/get-run.ts)
 
 ### Check guardrails: `.checkGuardrails(request)`
 
-`checkGuardrails` screens text for toxicity and for a list of denied topics, which makes it a natural pre-LLM check. `checkToxicity` and `denyTopics` are optional: the SDK sends each one only when you set it. The response is passed through as returned, so `toxic`, `deniedTopic` and `validation` carry exactly what the API sent back.
+`checkGuardrails` screens text for toxicity and for a list of denied topics, which makes it a natural pre-LLM check. `checkToxicity` and `denyTopics` are optional: the SDK sends each one only when you set it. The server evaluates toxicity only when `checkToxicity: true` is sent; with `denyTopics` alone, `toxic` is `false` even for toxic text, so set `checkToxicity: true` explicitly whenever you want that check. A request with neither field is rejected with HTTP 400. The response is passed through as returned, so `toxic`, `deniedTopic` and `validation` carry exactly what the API sent back.
 
 ```typescript
 import { CheckGuardrailsRequest, GuardrailsValidation } from 'skyflow-node';
@@ -910,10 +1039,48 @@ if (response.validation === GuardrailsValidation.FAILED) {
 }
 ```
 
-All Detect methods throw `SkyflowError` as described in [Error handling](#error-handling). Client-side validation fails before any network call.
+`CheckGuardrailsResponse` as JSON:
+
+```json
+{ "text": "<the text that was checked>", "toxic": true, "deniedTopic": false, "validation": "FAILED" }
+```
 
 > [!TIP]
-> See the full example in the samples directory: [check-guardrails.ts](../samples/detect-api/check-guardrails.ts)
+> See the full example in the samples directory: [check-guardrails.ts](samples/detect-api/check-guardrails.ts)
+
+### Detect errors
+
+All Detect methods throw `SkyflowError` as described in [Error handling](#error-handling); `error.httpCode`, `message` and `error.requestId` identify the failure, and the request id is what Skyflow support asks for. Client-side validation fails before any network call with HTTP code 400 and no request id. Server-side failures carry the API's message, for example a `RedactionLevel` that uses `RedactionType.DEFAULT`:
+
+```typescript
+import { ReidentifyStringRequest, EntityType, RedactionType, SkyflowError } from 'skyflow-node';
+
+try {
+  await skyflowClient.detect().reidentifyString(
+    new ReidentifyStringRequest(tokenized, {
+      redactionLevel: [{ entityName: EntityType.NAME, redactionType: RedactionType.DEFAULT }],
+    }),
+  );
+} catch (err) {
+  if (err instanceof SkyflowError) {
+    console.error(`Error during reidentifyString: [${err.error?.httpCode}] ${err.message} (requestId=${err.error?.requestId})`);
+  }
+}
+```
+
+```json
+{
+  "error": {
+    "grpc_code": 3,
+    "http_code": 400,
+    "message": "ReidentifyStringRequestV2 failed. redaction_type in redaction_level[0] must be REDACTED, MASKED, or PLAIN_TEXT",
+    "http_status": "Bad Request",
+    "details": []
+  }
+}
+```
+
+A `deidentifyFile` run that was accepted but failed while processing does not throw: `status` is `FAILED` and `message` carries the detail.
 
 ## Connections
 
@@ -980,7 +1147,7 @@ Invoke connection response: { data: { status: 'success', transaction_id: 'txn_ab
 **pathParams, queryParams, header, body** are the JSON objects represented as dictionaries that will be sent through the connection integration url.
 
 > [!TIP]
-> See the full example in the samples directory: [scoped-token-generation-example.ts](../samples/vault-api/invoke-connection.ts)  
+> See the full example in the samples directory: [scoped-token-generation-example.ts](samples/vault-api/invoke-connection.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on integrations with Connections, Functions, and Pipelines.
 
 ## Authentication & authorization
@@ -1112,7 +1279,7 @@ const options: BearerTokenOptions = {
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [scoped-token-generation-example.ts](../samples/service-account/scoped-token-generation-example.ts)  
+> See the full example in the samples directory: [scoped-token-generation-example.ts](samples/service-account/scoped-token-generation-example.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
 #### Generate bearer tokens with `ctx` for context-aware authorization
@@ -1167,7 +1334,7 @@ const credentials: PathCredentials = {
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [token-generation-with-context-example.ts](../samples/service-account/token-generation-with-context-example.ts)
+> See the full example in the samples directory: [token-generation-with-context-example.ts](samples/service-account/token-generation-with-context-example.ts)
 > See Skyflow's [context-aware authorization](https://docs.skyflow.com) and [conditional data access](https://docs.skyflow.com) docs for policy variable syntax like `request.context.*`.
 
 #### Generate signed data tokens
@@ -1224,7 +1391,7 @@ type SignedDataTokensOptions = {
 ```
 
 > [!TIP]
-> See the full example in the samples directory: [signed-token-generation-example.ts](../samples/service-account/signed-token-generation-example.ts)
+> See the full example in the samples directory: [signed-token-generation-example.ts](samples/service-account/signed-token-generation-example.ts)
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
 ## Client management
@@ -1349,7 +1516,7 @@ message: Authentication failed. Bearer token is expired. Use a valid bearer toke
 If you encounter this kind of error, retry the request. During the retry the SDK detects that the previous bearer token has expired and generates a new one for the current and subsequent requests.
 
 > [!TIP]
-> See the full example in the samples directory: [bearer-token-expiry-example.ts](../samples/service-account/bearer-token-expiry-example.ts)  
+> See the full example in the samples directory: [bearer-token-expiry-example.ts](samples/service-account/bearer-token-expiry-example.ts)  
 > See [docs.skyflow.com](https://docs.skyflow.com) for more details on authentication, access control, and governance for Skyflow.
 
 ## Troubleshooting

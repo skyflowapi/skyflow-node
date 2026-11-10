@@ -343,7 +343,7 @@ Controls how retrieved data is displayed.
 
 | Value | Description |
 |---|---|
-| `RedactionType.DEFAULT` | Vault-configured default. |
+| `RedactionType.DEFAULT` | Vault-configured default. Valid for `get` and `detokenize`; the Detect API does not accept it in a `RedactionLevel`. |
 | `RedactionType.PLAIN_TEXT` | Full, unmasked value. |
 | `RedactionType.MASKED` | Partially obscured. |
 | `RedactionType.REDACTED` | Fully removed. |
@@ -613,7 +613,7 @@ skyvault SDK (`skyflow-node`):
 | Field | Type | Description |
 |---|---|---|
 | `entityName` | `EntityType` | Entity type the rule applies to. |
-| `redactionType` | [`RedactionType`](#redactiontype) | `PLAIN_TEXT`, `MASKED`, `REDACTED` or `DEFAULT`. |
+| `redactionType` | [`RedactionType`](#redactiontype) | `PLAIN_TEXT`, `MASKED` or `REDACTED`. The Detect API rejects `DEFAULT` here with HTTP 400. |
 
 flowvault SDK (`skyflow-flowvault-node`):
 

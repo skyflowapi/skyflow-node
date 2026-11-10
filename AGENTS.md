@@ -163,7 +163,7 @@ All inputs are validated using functions in `src/utils/validations/index.ts`:
 - **Type definitions**: `src/vault/types/index.ts`
 - **Utilities**: `src/utils/` (validations, logging, JWT helpers)
 - **Service account auth**: `src/service-account/`
-- **Sample code**: `samples/` (use as reference for common patterns)
+- **Sample code**: `skyvault/samples/` and `flowvault/samples/` (use as reference for common patterns)
 
 ## Special Considerations
 
@@ -193,7 +193,7 @@ All inputs are validated using functions in `src/utils/validations/index.ts`:
 3. Update `src/index.ts` with exports
 4. Add validation in `src/utils/validations/`
 5. Write tests in `test/`
-6. Add sample in `samples/` directory
+6. Add sample in `skyvault/samples/` (or `flowvault/samples/`) directory
 7. Update TypeDoc comments for documentation generation
 
 ## Documentation & README Standards
