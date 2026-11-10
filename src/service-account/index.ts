@@ -9,6 +9,28 @@ import SKYFLOW_ERROR_CODE from '../error/codes';
 import { ServiceAccountResponseError } from '../vault/types';
 import { WithRawResponse } from '../ _generated_/rest/core';
 
+const CTX_KEY_REGEX = /^[a-zA-Z0-9_]+$/;
+
+function validateAndResolveCtx(ctx?: string | Record<string, any> | boolean | number): any {
+    if (ctx === undefined || ctx === null) return undefined;
+    if (typeof ctx === 'string') return ctx === '' ? undefined : ctx;
+    if (typeof ctx === 'boolean' || typeof ctx === 'number') return ctx;
+    if (typeof ctx === 'object') {
+        if (Array.isArray(ctx)) {
+            throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CTX_TYPE);
+        }
+        const keys = Object.keys(ctx);
+        if (keys.length === 0) return undefined;
+        for (const key of keys) {
+            if (!CTX_KEY_REGEX.test(key)) {
+                throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CTX_MAP_KEY, [key]);
+            }
+        }
+        return ctx;
+    }
+    throw new SkyflowError(SKYFLOW_ERROR_CODE.INVALID_CTX_TYPE);
+}
+
 function normalizeTokenOptions(options?: BearerTokenOptions): BearerTokenOptions | undefined {
     if (!options) return options;
     if (options.roleIDs !== undefined && options.roleIds === undefined) {
@@ -132,7 +154,7 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
                 aud: credentialsObj.tokenUri,
                 exp: expiryTime,
                 sub: credentialsObj.clientId,
-                ...(options && options.ctx ? { ctx: options.ctx } : {}),
+                ctx: validateAndResolveCtx(options?.ctx),
             };
             if (claims.iss == null) {
                 printLog(logs.errorLogs.CLIENT_ID_NOT_FOUND, MessageType.ERROR, options?.logLevel);
@@ -286,7 +308,7 @@ function getSignedTokens(credentials, options: SignedDataTokensOptions): Promise
                     exp: expiryTime,
                     sub: credentialsObj.clientId,
                     tok: token,
-                    ...(options?.ctx ? { ctx: options.ctx } : {}),
+                    ctx: validateAndResolveCtx(options?.ctx),
                 };
 
                 if (claims.key == null) {
@@ -395,4 +417,4 @@ function normalizeCredentials(obj: any): any {
     };
 }
 
-export { generateBearerToken, generateBearerTokenFromCreds, generateSignedDataTokens, generateSignedDataTokensFromCreds, getToken, successResponse, failureResponse };
+export { generateBearerToken, generateBearerTokenFromCreds, generateSignedDataTokens, generateSignedDataTokensFromCreds, getToken, successResponse, failureResponse, validateAndResolveCtx };

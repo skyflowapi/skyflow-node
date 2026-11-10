@@ -64,6 +64,8 @@ const SKYFLOW_ERROR_CODE = {
 
     INVALID_ROLES_KEY_TYPE: { httpCode: 400, message: errorMessages.INVALID_ROLES_KEY_TYPE },
     INVALID_CONTEXT: { httpCode: 400, message: errorMessages.INVALID_CONTEXT },
+    INVALID_CTX_TYPE: { httpCode: 400, message: errorMessages.INVALID_CTX_TYPE },
+    INVALID_CTX_MAP_KEY: { httpCode: 400, message: errorMessages.INVALID_CTX_MAP_KEY },
     EMPTY_ROLES: { httpCode: 400, message: errorMessages.EMPTY_ROLES },
 
     INVALID_JSON_FORMAT: { httpCode: 400, message: errorMessages.INVALID_JSON_FORMAT },
