@@ -165,7 +165,7 @@ export abstract class BaseDetectController<TClient extends DetectClientLike = De
 
     /**
      * Detects and de-identifies sensitive data in a file. The API is asynchronous: by default this
-     * submits the run and returns its id for use with {@link getRun}. With `pollOptions` the SDK
+     * submits the run and returns its id for use with {@link BaseDetectController.getRun}. With `pollOptions` the SDK
      * polls the run with exponential backoff and returns the completed run, or the run id with a
      * non-terminal status if the budget runs out. On success, a request built from a local file
      * (`file` or `filePath`) has its outputs written to disk.
