@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import jwt from "jsonwebtoken";
-import { V1GetAuthTokenRequest, V1GetAuthTokenResponse } from '../_generated_/rest/api';
+import { GetAuthTokenRequest, GetAuthTokenResponse } from '../_generated_/rest/api';
 import { getBaseUrl, LogLevel, isValidURL, MessageType, parameterizedString, printLog, HTTP_HEADER, CONTENT_TYPE, HTTP_STATUS_CODE, JWT, ENCODING_TYPE } from '../utils';
 import Client from './client';
 import logs from '../utils/logs';
@@ -165,15 +165,15 @@ function getToken(credentials, options?: BearerTokenOptions): Promise<TokenRespo
 
                 const client = new Client(url);
 
-                const req: V1GetAuthTokenRequest = {
+                const req: GetAuthTokenRequest = {
                     grant_type: JWT.GRANT_TYPE_JWT_BEARER,
                     assertion: signedJwt,
                     scope: scopedRoles,
                 };
-                client.authApi.authenticationServiceGetAuthToken(
+                client.authApi.getBearerToken(
                     req,
                     { headers: { "Content-Type": CONTENT_TYPE.APPLICATION_JSON, } }
-                ).withRawResponse().then((res: WithRawResponse<V1GetAuthTokenResponse>) => {
+                ).withRawResponse().then((res: WithRawResponse<GetAuthTokenResponse>) => {
                     successResponse(res.data, options?.logLevel).then((response) => resolve(response)).catch(err => reject(err))
                 })
                     .catch((err) => {
@@ -356,7 +356,7 @@ function failureResponse(err: ServiceAccountResponseError, options?: BearerToken
     })
 }
 
-function successResponse(res: V1GetAuthTokenResponse, logLevel?: LogLevel): Promise<TokenResponse> {
+function successResponse(res: GetAuthTokenResponse, logLevel?: LogLevel): Promise<TokenResponse> {
     printLog(logs.infoLogs.GENERATE_BEARER_TOKEN_SUCCESS, MessageType.LOG, logLevel);
     return Promise.resolve({
         accessToken: res.accessToken ?? '',

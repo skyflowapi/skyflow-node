@@ -13,7 +13,7 @@
     "build:clean": "tsc -b --clean",
     "build:dist": "npm run build:dist --workspace skyvault && npm run build:dist --workspace flowvault",
     "contract-snapshot": "npm run build && npm run build:dist && npm run contract-snapshot --workspace skyvault && npm run contract-snapshot --workspace flowvault",
-    "contract-snapshot-verify": "npm run build && npm run build:dist && npm run contract-snapshot-verify --workspace skyvault && npm run contract-snapshot-verify --workspace flowvault",
+    "contract-snapshot-verify": "npm run build && npm run build:dist && sh -c 'npm run contract-snapshot-verify --workspace skyvault; a=$?; npm run contract-snapshot-verify --workspace flowvault; b=$?; exit $((a | b))'",
     "test": "npm run test --workspaces --if-present",
     "eslint": "eslint '**/*.{js,ts}' --max-warnings 0",
     "prettier": "prettier --list-different '**/*.{js,ts}'",

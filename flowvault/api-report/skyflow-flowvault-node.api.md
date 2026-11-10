@@ -4,33 +4,291 @@
 
 ```ts
 
-import { AuthInfo } from 'skyflow-common';
-import { BaseDeleteFilesRequest } from 'skyflow-common';
-import { BaseDeleteFilesResponse } from 'skyflow-common';
-import { BaseDeleteRequest } from 'skyflow-common';
-import { BaseDeleteResponse } from 'skyflow-common';
-import { BaseDetokenizeRequest } from 'skyflow-common';
-import { BaseDetokenizeResponse } from 'skyflow-common';
-import { BaseGetRequest } from 'skyflow-common';
-import { BaseGetResponse } from 'skyflow-common';
-import { BaseGetTokensRequest } from 'skyflow-common';
-import { BaseGetTokensResponse } from 'skyflow-common';
-import { BaseInsertRequest } from 'skyflow-common';
-import { BaseInsertResponse } from 'skyflow-common';
-import { BaseQueryRequest } from 'skyflow-common';
-import { BaseQueryResponse } from 'skyflow-common';
-import { BaseSkyflow } from 'skyflow-common';
-import { BaseUpdateRequest } from 'skyflow-common';
-import { BaseUpdateResponse } from 'skyflow-common';
-import { BaseUploadFilesRequest } from 'skyflow-common';
-import { BaseUploadFilesResponse } from 'skyflow-common';
-import { BaseVaultEntry } from 'skyflow-common';
-import { Credentials } from 'skyflow-common';
-import { LogLevel } from 'skyflow-common';
-import { SkyflowConfig } from 'skyflow-common';
-import { SkyflowError } from 'skyflow-common';
-import { SkyflowRecordError } from 'skyflow-common';
-import { VaultConfig } from 'skyflow-common';
+// @public (undocumented)
+export const API_KEY: {
+    readonly PREFIX: "sky-";
+};
+
+// @public (undocumented)
+export interface ApiKeyCredentials {
+    // (undocumented)
+    apiKey: string;
+}
+
+// @public
+interface Audio_2 {
+    // (undocumented)
+    bleep?: Bleep;
+    // (undocumented)
+    outputProcessedAudio?: boolean;
+    // (undocumented)
+    outputTranscription?: OutputTranscriptionType;
+}
+export { Audio_2 as Audio }
+
+// @public (undocumented)
+export interface AuthInfo {
+    // (undocumented)
+    key: string;
+    // (undocumented)
+    type: AuthType;
+}
+
+// @public (undocumented)
+export enum AuthType {
+    // (undocumented)
+    API_KEY = "API_KEY",
+    // (undocumented)
+    TOKEN = "TOKEN"
+}
+
+// @public (undocumented)
+export const BAD_REQUEST = "Bad Request";
+
+// @public (undocumented)
+export class BaseDeleteFilesRequest {
+}
+
+// @public (undocumented)
+export class BaseDeleteFilesResponse {
+}
+
+// @public (undocumented)
+export class BaseDeleteRequest {
+}
+
+// @public (undocumented)
+export class BaseDeleteResponse {
+}
+
+// @public (undocumented)
+export abstract class BaseDetectController<TClient extends DetectClientLike = DetectClientLike> {
+    constructor(client: TClient);
+    checkGuardrails(request: CheckGuardrailsRequest): Promise<CheckGuardrailsResponse>;
+    // (undocumented)
+    protected readonly client: TClient;
+    deidentifyFile(request: DeidentifyFileRequest): Promise<DeidentifyFileResponse>;
+    deidentifyString(request: DeidentifyStringRequest): Promise<DeidentifyStringResponse>;
+    protected static enumOrNull<E extends string>(values: Record<string, E>, value: string | null | undefined): E | null;
+    // Warning: (ae-forgotten-export) The symbol "FilesV2" needs to be exported by the entry point index.d.ts
+    protected files(): FilesV2;
+    getRun(request: GetRunRequest): Promise<GetRunResponse>;
+    // Warning: (ae-forgotten-export) The symbol "GuardrailsV2" needs to be exported by the entry point index.d.ts
+    protected guardrails(): GuardrailsV2;
+    // (undocumented)
+    protected get logLevel(): LogLevel;
+    reidentifyFile(request: ReidentifyFileRequest): Promise<ReidentifyFileResponse>;
+    reidentifyString(request: ReidentifyStringRequest): Promise<ReidentifyStringResponse>;
+    protected sleeper(): ((millis: number) => Promise<void>) | undefined;
+    // Warning: (ae-forgotten-export) The symbol "StringsV2" needs to be exported by the entry point index.d.ts
+    protected strings(): StringsV2;
+    protected abstract toDeidentifySource(value: string | null | undefined): DeidentifyFileSource | null;
+    protected abstract toReidentifySource(value: string | null | undefined): ReidentifyFileSource | null;
+}
+
+// @public (undocumented)
+export class BaseDetokenizeRequest {
+}
+
+// @public (undocumented)
+export class BaseDetokenizeResponse {
+}
+
+// @public (undocumented)
+export class BaseFileUploadRequest {
+}
+
+// @public (undocumented)
+export class BaseFileUploadResponse {
+}
+
+// @public (undocumented)
+export class BaseGetRequest {
+}
+
+// @public (undocumented)
+export class BaseGetResponse {
+}
+
+// @public (undocumented)
+export class BaseGetTokensRequest {
+}
+
+// @public (undocumented)
+export class BaseGetTokensResponse {
+}
+
+// @public (undocumented)
+export class BaseInsertRequest {
+}
+
+// @public (undocumented)
+export class BaseInsertResponse {
+}
+
+// @public (undocumented)
+export class BaseInvokeConnectionRequest {
+}
+
+// @public (undocumented)
+export class BaseInvokeConnectionResponse {
+}
+
+// @public (undocumented)
+export class BaseOptions {
+    // (undocumented)
+    getRequestHeaders(): Record<string, string> | undefined;
+    // (undocumented)
+    setRequestHeaders(h: Record<string, string>): void;
+}
+
+// @public (undocumented)
+export class BaseQueryRequest {
+}
+
+// @public (undocumented)
+export class BaseQueryResponse {
+}
+
+// @public (undocumented)
+export abstract class BaseSkyflow<TEntry extends BaseVaultEntry> {
+    // (undocumented)
+    addVaultConfig(config: VaultConfig): void;
+    protected applyCredentials(): void;
+    protected applyLogLevel(): void;
+    protected abstract buildVaultEntry(config: VaultConfig): TEntry;
+    // (undocumented)
+    protected commonCredentials?: Credentials;
+    // (undocumented)
+    getLogLevel(): LogLevel;
+    // (undocumented)
+    getSkyflowCredentials(): Credentials | undefined;
+    // (undocumented)
+    getVaultConfig(vaultId: string): VaultConfig;
+    protected initializeSkyflow(config: SkyflowConfig): void;
+    // (undocumented)
+    protected logLevel: LogLevel;
+    // (undocumented)
+    removeVaultConfig(vaultId: string): void;
+    protected resolveVaultEntry(vaultId?: string): TEntry;
+    // (undocumented)
+    setLogLevel(logLevel: LogLevel): void;
+    // (undocumented)
+    protected throwErrorForUnknownVaultId(id: string): void;
+    // (undocumented)
+    protected throwErrorIfVaultIdExists(id: string): void;
+    // (undocumented)
+    updateLogLevel(logLevel: LogLevel): this;
+    // (undocumented)
+    updateSkyflowCredentials(credentials: Credentials): void;
+    // (undocumented)
+    updateVaultConfig(config: VaultConfig): void;
+    // (undocumented)
+    protected vaultClients: {
+        [vaultId: string]: TEntry;
+    };
+}
+
+// @public (undocumented)
+export class BaseTokenizeRequest {
+}
+
+// @public (undocumented)
+export class BaseTokenizeResponse {
+}
+
+// @public (undocumented)
+export class BaseUpdateRequest {
+}
+
+// @public (undocumented)
+export class BaseUpdateResponse {
+}
+
+// @public (undocumented)
+export class BaseUploadFilesRequest {
+}
+
+// @public (undocumented)
+export class BaseUploadFilesResponse {
+}
+
+// @public
+export interface BaseVaultClientLike {
+    // (undocumented)
+    setLogLevel(logLevel: LogLevel): void;
+    // (undocumented)
+    updateClientConfig(url: string, vaultId: string, individualCredentials?: Credentials, skyflowCredentials?: Credentials, logLevel?: LogLevel): void;
+    // (undocumented)
+    updateSkyflowCredentials(credentials?: Credentials): void;
+}
+
+// @public
+export interface BaseVaultEntry<TClient extends BaseVaultClientLike = BaseVaultClientLike> {
+    // (undocumented)
+    client: TClient;
+    // (undocumented)
+    config: VaultConfig;
+}
+
+// @public (undocumented)
+export type BearerTokenOptions = {
+    ctx?: string | Record<string, any>;
+    roleIDs?: string[];
+    roleIds?: string[];
+    logLevel?: LogLevel;
+    tokenUri?: string;
+};
+
+// @public
+export interface Bleep {
+    // (undocumented)
+    frequency?: number;
+    // (undocumented)
+    gain?: number;
+    // (undocumented)
+    startPadding?: number;
+    // (undocumented)
+    stopPadding?: number;
+}
+
+// @public (undocumented)
+export const BOOLEAN_STRING: {
+    readonly TRUE: "true";
+};
+
+// @public
+export class CheckGuardrailsRequest {
+    constructor(text: string, fields?: CheckGuardrailsRequestFields);
+    // (undocumented)
+    get checkToxicity(): boolean | undefined;
+    set checkToxicity(value: boolean | undefined);
+    // (undocumented)
+    get denyTopics(): string[] | undefined;
+    set denyTopics(value: string[] | undefined);
+    get text(): string;
+    set text(value: string);
+}
+
+// @public
+export interface CheckGuardrailsRequestFields {
+    checkToxicity?: boolean;
+    denyTopics?: string[];
+}
+
+// @public
+export class CheckGuardrailsResponse {
+    constructor(input: {
+        text: string | null;
+        validation: GuardrailsValidation;
+        toxic: boolean | null;
+        deniedTopic: boolean | null;
+    });
+    readonly deniedTopic: boolean | null;
+    readonly text: string | null;
+    readonly toxic: boolean | null;
+    readonly validation: GuardrailsValidation;
+}
 
 // @public
 export interface ColumnRedaction {
@@ -40,6 +298,47 @@ export interface ColumnRedaction {
     redaction: string;
 }
 
+// @public (undocumented)
+export const CONFIG: {
+    readonly LOGLEVEL: "loglevel";
+    readonly CREDENTIALS: "credentials";
+    readonly VAULT_ID: "vaultId";
+    readonly CONNECTION_ID: "connectionId";
+    readonly VAULT: "vault";
+    readonly CONNECTION: "connection";
+};
+
+// @public (undocumented)
+export interface ConnectionConfig {
+    // (undocumented)
+    connectionId: string;
+    // (undocumented)
+    connectionUrl: string;
+    // (undocumented)
+    credentials?: Credentials;
+}
+
+// @public (undocumented)
+export const CONTENT_TYPE: {
+    readonly APPLICATION_JSON: "application/json";
+    readonly APPLICATION_X_WWW_FORM_URLENCODED: "application/x-www-form-urlencoded";
+    readonly TEXT_PLAIN: "text/plain";
+    readonly MULTIPART_FORM_DATA: "multipart/form-data";
+    readonly TEXT_XML: "text/xml";
+    readonly APPLICATION_XML: "application/xml";
+    readonly TEXT_HTML: "text/html";
+};
+
+// @public (undocumented)
+export const CONTROLLER_TYPES: {
+    DETECT: string;
+    VAULT: string;
+    CONNECTION: string;
+};
+
+// @public (undocumented)
+export type Credentials = TokenCredentials | PathCredentials | StringCredentials | ApiKeyCredentials;
+
 // @public
 export enum CustomHeaderKey {
     // (undocumented)
@@ -48,6 +347,186 @@ export enum CustomHeaderKey {
     SKYFLOW_ACCOUNT_ID = "x-skyflow-account-id",
     // (undocumented)
     SKYFLOW_ACCOUNT_NAME = "x-skyflow-account-name"
+}
+
+// @public
+export interface CustomType {
+    deidentificationType?: DeidentificationType;
+    destination?: string;
+    includePrefix?: IncludePrefix;
+    // (undocumented)
+    label?: string;
+    // (undocumented)
+    match?: string[];
+    prefixOverride?: string;
+}
+
+// @public
+export enum DeidentificationType {
+    // (undocumented)
+    ENTITY_ONLY = "ENTITY_ONLY",
+    // (undocumented)
+    ENTITY_UNIQUE_COUNTER = "ENTITY_UNIQUE_COUNTER",
+    // (undocumented)
+    MASK = "MASK",
+    // (undocumented)
+    UNKNOWN = "UNKNOWN",
+    // (undocumented)
+    VAULT_TOKEN = "VAULT_TOKEN"
+}
+
+// @public
+export enum DeidentifyFileDataFormat {
+    // (undocumented)
+    BMP = "BMP",
+    // (undocumented)
+    CSV = "CSV",
+    // (undocumented)
+    DCM = "DCM",
+    // (undocumented)
+    DOC = "DOC",
+    // (undocumented)
+    DOCX = "DOCX",
+    // (undocumented)
+    GIF = "GIF",
+    // (undocumented)
+    JPEG = "JPEG",
+    // (undocumented)
+    JPG = "JPG",
+    // (undocumented)
+    JSON = "JSON",
+    // (undocumented)
+    JSONL = "JSONL",
+    // (undocumented)
+    MP3 = "MP3",
+    // (undocumented)
+    PDF = "PDF",
+    // (undocumented)
+    PNG = "PNG",
+    // (undocumented)
+    PPT = "PPT",
+    // (undocumented)
+    PPTX = "PPTX",
+    // (undocumented)
+    TIF = "TIF",
+    // (undocumented)
+    TIFF = "TIFF",
+    // (undocumented)
+    TXT = "TXT",
+    // (undocumented)
+    WAV = "WAV",
+    // (undocumented)
+    XLS = "XLS",
+    // (undocumented)
+    XLSX = "XLSX",
+    // (undocumented)
+    XML = "XML",
+    // (undocumented)
+    ZIP = "ZIP"
+}
+
+// @public
+export class DeidentifyFileRequest {
+    constructor(fields?: DeidentifyFileRequestFields);
+    // (undocumented)
+    get configuration(): DetectConfiguration | undefined;
+    set configuration(value: DetectConfiguration | undefined);
+    // (undocumented)
+    get configurationId(): string | undefined;
+    set configurationId(value: string | undefined);
+    // (undocumented)
+    get dataFormat(): DeidentifyFileDataFormat | undefined;
+    set dataFormat(value: DeidentifyFileDataFormat | undefined);
+    // (undocumented)
+    get dataSource(): DeidentifyFileSource | undefined;
+    set dataSource(value: DeidentifyFileSource | undefined);
+    // (undocumented)
+    get file(): File | undefined;
+    set file(value: File | undefined);
+    // (undocumented)
+    get filePath(): string | undefined;
+    set filePath(value: string | undefined);
+    // (undocumented)
+    get outputDirectory(): string | undefined;
+    set outputDirectory(value: string | undefined);
+    // (undocumented)
+    get pollOptions(): PollOptions | undefined;
+    set pollOptions(value: PollOptions | undefined);
+    // (undocumented)
+    get value(): string | undefined;
+    set value(value: string | undefined);
+}
+
+// @public
+export interface DeidentifyFileRequestFields {
+    configuration?: DetectConfiguration;
+    configurationId?: string;
+    dataFormat?: DeidentifyFileDataFormat;
+    dataSource?: DeidentifyFileSource;
+    file?: File;
+    filePath?: string;
+    outputDirectory?: string;
+    pollOptions?: PollOptions;
+    value?: string;
+}
+
+// @public
+export class DeidentifyFileResponse implements DetectRunFields {
+    constructor(input: DetectRunFields);
+    // (undocumented)
+    readonly message: string | null;
+    // (undocumented)
+    readonly metrics: Metrics | null;
+    // (undocumented)
+    readonly output: FileOutput[];
+    // (undocumented)
+    readonly outputType: DeidentifyFileSource | null;
+    // (undocumented)
+    readonly runId: string | null;
+    // (undocumented)
+    readonly status: DetectRunStatus | null;
+}
+
+// @public
+export type DeidentifyFileSource = string;
+
+// @public
+export enum DeidentifySourceType {
+    // (undocumented)
+    BASE64 = "BASE64",
+    // (undocumented)
+    PRESIGNED_URL = "PRESIGNED_URL"
+}
+
+// @public
+export class DeidentifyStringRequest {
+    constructor(text: string, fields?: DeidentifyStringRequestFields);
+    // (undocumented)
+    get configuration(): DetectConfiguration | undefined;
+    set configuration(value: DetectConfiguration | undefined);
+    // (undocumented)
+    get configurationId(): string | undefined;
+    set configurationId(value: string | undefined);
+    get text(): string;
+    set text(value: string);
+}
+
+// @public
+export interface DeidentifyStringRequestFields {
+    configuration?: DetectConfiguration;
+    configurationId?: string;
+}
+
+// @public
+export class DeidentifyStringResponse {
+    constructor(input: {
+        processedText: string | null;
+        entities: DetectedEntity[];
+        metrics: Metrics | null;
+    });
+    readonly entities: DetectedEntity[];
+    readonly metrics: Metrics | null;
+    readonly processedText: string | null;
 }
 
 // @public
@@ -149,6 +628,77 @@ export interface DeleteResponseRecord {
 }
 
 // @public
+export interface Detect {
+    // (undocumented)
+    customTypes?: CustomType[];
+    // (undocumented)
+    entities?: Entity[];
+    objectEntities?: ObjectEntity[];
+    restrict?: string[];
+    returnEntities?: ReturnEntitiesType;
+    skip?: string[];
+}
+
+// @public
+export interface DetectClientLike {
+    // (undocumented)
+    getLogLevel(): LogLevel;
+    readonly maxRetries?: number;
+    resolveAuthToken(): Promise<string>;
+    readonly timeout?: number;
+    readonly url: string;
+    readonly vaultId: string;
+}
+
+// @public
+export interface DetectConfiguration {
+    // (undocumented)
+    description?: string;
+    // (undocumented)
+    detect?: Detect;
+    // (undocumented)
+    fileMapping?: FileMapping[];
+    // (undocumented)
+    media?: Media;
+    // (undocumented)
+    name?: string;
+}
+
+// @public
+export interface DetectedEntity {
+    entityScores: Record<string, number>;
+    entityType: string | null;
+    // (undocumented)
+    location: EntityLocation | null;
+    token: string | null;
+    value: string | null;
+}
+
+// @public
+export interface DetectRunFields {
+    message: string | null;
+    metrics: Metrics | null;
+    output: FileOutput[];
+    outputType: DeidentifyFileSource | null;
+    runId: string | null;
+    status: DetectRunStatus | null;
+}
+
+// @public
+export enum DetectRunStatus {
+    // (undocumented)
+    FAILED = "FAILED",
+    // (undocumented)
+    IN_PROGRESS = "IN_PROGRESS",
+    // (undocumented)
+    QUEUED = "QUEUED",
+    // (undocumented)
+    SUCCESS = "SUCCESS",
+    // (undocumented)
+    UNKNOWN = "UNKNOWN"
+}
+
+// @public
 export class DetokenizeOptions extends FlowVaultOptions {
     constructor();
 }
@@ -195,6 +745,428 @@ export interface DetokenizeResponseRecord {
 }
 
 // @public
+interface Document_2 {
+    // (undocumented)
+    pdf?: Pdf;
+}
+export { Document_2 as Document }
+
+// @public (undocumented)
+export const ENCODING_TYPE: {
+    readonly UTF8: "utf8";
+    readonly BASE64: "base64";
+    readonly BINARY: "binary";
+};
+
+// @public
+export interface Entity {
+    deidentificationType?: DeidentificationType;
+    destination?: string;
+    entityType?: EntityType;
+    includePrefix?: IncludePrefix;
+    prefixOverride?: string;
+    // (undocumented)
+    transformation?: Transformation;
+}
+
+// @public
+export interface EntityLocation {
+    // (undocumented)
+    endIndex: number | null;
+    // (undocumented)
+    endIndexProcessed: number | null;
+    // (undocumented)
+    startIndex: number | null;
+    // (undocumented)
+    startIndexProcessed: number | null;
+}
+
+// @public
+export enum EntityType {
+    // (undocumented)
+    ACCOUNT_NUMBER = "ACCOUNT_NUMBER",
+    // (undocumented)
+    AGE = "AGE",
+    // (undocumented)
+    ALL = "ALL",
+    // (undocumented)
+    BANK_ACCOUNT = "BANK_ACCOUNT",
+    // (undocumented)
+    BLOOD_TYPE = "BLOOD_TYPE",
+    // (undocumented)
+    CONDITION = "CONDITION",
+    // (undocumented)
+    CORPORATE_ACTION = "CORPORATE_ACTION",
+    // (undocumented)
+    CREDIT_CARD = "CREDIT_CARD",
+    // (undocumented)
+    CREDIT_CARD_EXPIRATION = "CREDIT_CARD_EXPIRATION",
+    // (undocumented)
+    CVV = "CVV",
+    // (undocumented)
+    DATE = "DATE",
+    // (undocumented)
+    DATE_INTERVAL = "DATE_INTERVAL",
+    // (undocumented)
+    DAY = "DAY",
+    // (undocumented)
+    DOB = "DOB",
+    // (undocumented)
+    DOSE = "DOSE",
+    // (undocumented)
+    DRIVER_LICENSE = "DRIVER_LICENSE",
+    // (undocumented)
+    DRUG = "DRUG",
+    // (undocumented)
+    DURATION = "DURATION",
+    // (undocumented)
+    EFFECT = "EFFECT",
+    // (undocumented)
+    EMAIL_ADDRESS = "EMAIL_ADDRESS",
+    // (undocumented)
+    EVENT = "EVENT",
+    // (undocumented)
+    FILENAME = "FILENAME",
+    // (undocumented)
+    FINANCIAL_METRIC = "FINANCIAL_METRIC",
+    // (undocumented)
+    GENDER = "GENDER",
+    // (undocumented)
+    HEALTHCARE_NUMBER = "HEALTHCARE_NUMBER",
+    // (undocumented)
+    INJURY = "INJURY",
+    // (undocumented)
+    IP_ADDRESS = "IP_ADDRESS",
+    // (undocumented)
+    LANGUAGE = "LANGUAGE",
+    // (undocumented)
+    LOCATION = "LOCATION",
+    // (undocumented)
+    LOCATION_ADDRESS = "LOCATION_ADDRESS",
+    // (undocumented)
+    LOCATION_ADDRESS_STREET = "LOCATION_ADDRESS_STREET",
+    // (undocumented)
+    LOCATION_CITY = "LOCATION_CITY",
+    // (undocumented)
+    LOCATION_COORDINATE = "LOCATION_COORDINATE",
+    // (undocumented)
+    LOCATION_COUNTRY = "LOCATION_COUNTRY",
+    // (undocumented)
+    LOCATION_STATE = "LOCATION_STATE",
+    // (undocumented)
+    LOCATION_ZIP = "LOCATION_ZIP",
+    // (undocumented)
+    MARITAL_STATUS = "MARITAL_STATUS",
+    // (undocumented)
+    MEDICAL_CODE = "MEDICAL_CODE",
+    // (undocumented)
+    MEDICAL_PROCESS = "MEDICAL_PROCESS",
+    // (undocumented)
+    MONEY = "MONEY",
+    // (undocumented)
+    MONTH = "MONTH",
+    // (undocumented)
+    NAME = "NAME",
+    // (undocumented)
+    NAME_FAMILY = "NAME_FAMILY",
+    // (undocumented)
+    NAME_GIVEN = "NAME_GIVEN",
+    // (undocumented)
+    NAME_MEDICAL_PROFESSIONAL = "NAME_MEDICAL_PROFESSIONAL",
+    // (undocumented)
+    NONE = "NONE",
+    // (undocumented)
+    NUMERICAL_PII = "NUMERICAL_PII",
+    // (undocumented)
+    OCCUPATION = "OCCUPATION",
+    // (undocumented)
+    ORGANIZATION = "ORGANIZATION",
+    // (undocumented)
+    ORGANIZATION_ID = "ORGANIZATION_ID",
+    // (undocumented)
+    ORGANIZATION_MEDICAL_FACILITY = "ORGANIZATION_MEDICAL_FACILITY",
+    // (undocumented)
+    ORIGIN = "ORIGIN",
+    // (undocumented)
+    PASSPORT_NUMBER = "PASSPORT_NUMBER",
+    // (undocumented)
+    PASSWORD = "PASSWORD",
+    // (undocumented)
+    PHONE_NUMBER = "PHONE_NUMBER",
+    // (undocumented)
+    PHYSICAL_ATTRIBUTE = "PHYSICAL_ATTRIBUTE",
+    // (undocumented)
+    POLITICAL_AFFILIATION = "POLITICAL_AFFILIATION",
+    // (undocumented)
+    PRODUCT = "PRODUCT",
+    // (undocumented)
+    PROJECT = "PROJECT",
+    // (undocumented)
+    RELIGION = "RELIGION",
+    // (undocumented)
+    ROUTING_NUMBER = "ROUTING_NUMBER",
+    // (undocumented)
+    SEXUALITY = "SEXUALITY",
+    // (undocumented)
+    SSN = "SSN",
+    // (undocumented)
+    STATISTICS = "STATISTICS",
+    // (undocumented)
+    TIME = "TIME",
+    // (undocumented)
+    TREND = "TREND",
+    // (undocumented)
+    URL = "URL",
+    // (undocumented)
+    USERNAME = "USERNAME",
+    // (undocumented)
+    VEHICLE_ID = "VEHICLE_ID",
+    // (undocumented)
+    YEAR = "YEAR",
+    // (undocumented)
+    ZODIAC_SIGN = "ZODIAC_SIGN"
+}
+
+// @public (undocumented)
+export enum Env {
+    // (undocumented)
+    DEV = "DEV",
+    // (undocumented)
+    PROD = "PROD",
+    // (undocumented)
+    SANDBOX = "SANDBOX",
+    // (undocumented)
+    STAGE = "STAGE"
+}
+
+// @public (undocumented)
+export const errorMessages: {
+    readonly CONFIG_MISSING: string;
+    readonly INVALID_SKYFLOW_CONFIG: string;
+    readonly INVALID_TYPE_FOR_CONFIG: string;
+    readonly EMPTY_VAULT_CONFIG: string;
+    readonly EMPTY_CONNECTION_CONFIG: string;
+    readonly EMPTY_VAULT_ID: string;
+    readonly EMPTY_VAULT_ID_VALIDATION: string;
+    readonly INVALID_VAULT_ID: string;
+    readonly EMPTY_CLUSTER_ID: string;
+    readonly INVALID_CLUSTER_ID: string;
+    readonly INVALID_TOKEN: string;
+    readonly TOKEN_EXPIRED: string;
+    readonly INVALID_ENV: string;
+    readonly INVALID_LOG_LEVEL: string;
+    readonly EMPTY_CREDENTIAL_FILE_PATH: string;
+    readonly INVALID_CREDENTIAL_FILE_PATH: string;
+    readonly INVALID_CREDENTIALS_FILE_PATH: string;
+    readonly INVALID_TOKEN_URI: string;
+    readonly INVALID_TOKEN_URI_WITH_ID: string;
+    readonly INVALID_KEY: string;
+    readonly INVALID_PARSED_CREDENTIALS_STRING: string;
+    readonly INVALID_BEARER_TOKEN: string;
+    readonly INVALID_FILE_PATH_WITH_ID: string;
+    readonly INVALID_KEY_WITH_ID: string;
+    readonly INVALID_PARSED_CREDENTIALS_STRING_WITH_ID: string;
+    readonly INVALID_BEARER_TOKEN_WITH_ID: string;
+    readonly EMPTY_CONNECTION_ID_VALIDATION: string;
+    readonly EMPTY_CONNECTION_ID: string;
+    readonly INVALID_CONNECTION_ID: string;
+    readonly EMPTY_CONNECTION_URL: string;
+    readonly INVALID_CONNECTION_URL: string;
+    readonly VAULT_ID_EXITS_IN_CONFIG_LIST: string;
+    readonly CONNECTION_ID_EXITS_IN_CONFIG_LIST: string;
+    readonly VAULT_ID_NOT_IN_CONFIG_LIST: string;
+    readonly CONNECTION_ID_NOT_IN_CONFIG_LIST: string;
+    readonly EMPTY_CREDENTIALS: string;
+    readonly INVALID_CREDENTIALS: string;
+    readonly CREDENTIALS_WITH_NO_VALID_KEY: string;
+    readonly MULTIPLE_CREDENTIALS_PASSED: string;
+    readonly INVALID_CREDENTIALS_WITH_ID: string;
+    readonly MULTIPLE_CREDENTIALS_PASSED_WITH_ID: string;
+    readonly FILE_NOT_FOUND: string;
+    readonly INVALID_JSON_FILE: string;
+    readonly EMPTY_CREDENTIALS_STRING: string;
+    readonly INVALID_CREDENTIALS_STRING: string;
+    readonly MISSING_PRIVATE_KEY: string;
+    readonly MISSING_CLIENT_ID: string;
+    readonly MISSING_KEY_ID: string;
+    readonly MISSING_TOKEN_URI: string;
+    readonly INVALID_ROLES_KEY_TYPE: string;
+    readonly INVALID_CONTEXT: string;
+    readonly EMPTY_ROLES: string;
+    readonly INVALID_JSON_FORMAT: string;
+    readonly EMPTY_DATA_TOKENS: string;
+    readonly DATA_TOKEN_KEY_TYPE: string;
+    readonly TIME_TO_LIVE_KET_TYPE: string;
+    readonly INVALID_DELETE_IDS_INPUT: string;
+    readonly EMPTY_DELETE_IDS: string;
+    readonly INVALID_ID_IN_DELETE: string;
+    readonly INVALID_DELETE_REQUEST: string;
+    readonly EMPTY_ID_IN_DELETE: string;
+    readonly MISSING_REDACTION_TYPE_IN_DETOKENIZE: string;
+    readonly INVALID_REDACTION_TYPE_IN_DETOKENIZE: string;
+    readonly INVALID_TOKENS_TYPE_IN_DETOKENIZE: string;
+    readonly EMPTY_TOKENS_IN_DETOKENIZE: string;
+    readonly EMPTY_TOKEN_IN_DETOKENIZE: string;
+    readonly INVALID_TOKEN_IN_DETOKENIZE: string;
+    readonly INVALID_DETOKENIZE_REQUEST: string;
+    readonly MISSING_VALUES_IN_TOKENIZE: string;
+    readonly INVALID_VALUES_TYPE_IN_TOKENIZE: string;
+    readonly EMPTY_VALUES_IN_TOKENIZE: string;
+    readonly EMPTY_DATA_IN_TOKENIZE: string;
+    readonly INVALID_DATA_IN_TOKENIZE: string;
+    readonly INVALID_COLUMN_GROUP_IN_TOKENIZE: string;
+    readonly INVALID_VALUE_IN_TOKENIZE: string;
+    readonly INVALID_TOKENIZE_REQUEST: string;
+    readonly EMPTY_COLUMN_GROUP_IN_TOKENIZE: string;
+    readonly EMPTY_VALUE_IN_TOKENIZE: string;
+    readonly INVALID_RECORD_IN_INSERT: string;
+    readonly INVALID_RECORD_IN_UPDATE: string;
+    readonly EMPTY_RECORD_IN_INSERT: string;
+    readonly INVALID_INSERT_REQUEST: string;
+    readonly INVALID_TYPE_OF_DATA_IN_INSERT: string;
+    readonly EMPTY_DATA_IN_INSERT: string;
+    readonly INVALID_QUERY_REQUEST: string;
+    readonly EMPTY_QUERY: string;
+    readonly INVALID_QUERY: string;
+    readonly INVALID_FILE_UPLOAD_REQUEST: string;
+    readonly MISSING_TABLE_IN_UPLOAD_FILE: string;
+    readonly INVALID_TABLE_IN_UPLOAD_FILE: string;
+    readonly MISSING_SKYFLOW_ID_IN_UPLOAD_FILE: string;
+    readonly INVALID_SKYFLOW_ID_IN_UPLOAD_FILE: string;
+    readonly MISSING_COLUMN_NAME_IN_UPLOAD_FILE: string;
+    readonly INVALID_COLUMN_NAME_IN_UPLOAD_FILE: string;
+    readonly MISSING_FILE_PATH_IN_UPLOAD_FILE: string;
+    readonly INVALID_FILE_PATH_IN_UPLOAD_FILE: string;
+    readonly MISSING_FILE_SOURCE_IN_UPLOAD_FILE: string;
+    readonly MISSING_FILE_NAME_FOR_BASE64: string;
+    readonly INVALID_FILE_OBJECT_IN_UPLOAD_FILE: string;
+    readonly MISSING_FILE_NAME_IN_FILE_OBJECT: string;
+    readonly INVALID_BASE64_IN_UPLOAD_FILE: string;
+    readonly MISSING_SKYFLOW_ID_IN_UPDATE: string;
+    readonly INVALID_SKYFLOW_ID_IN_UPDATE: string;
+    readonly INVALID_TYPE_OF_UPDATE_DATA: string;
+    readonly EMPTY_UPDATE_DATA: string;
+    readonly INVALID_UPDATE_REQUEST: string;
+    readonly INVALID_DATA_IN_UPDATE: string;
+    readonly EMPTY_DATA_IN_UPDATE: string;
+    readonly INVALID_UPDATE_TOKENS: string;
+    readonly INVALID_TOKEN_IN_UPDATE: string;
+    readonly EMPTY_TABLE_NAME: string;
+    readonly INVALID_TABLE_NAME: string;
+    readonly EMPTY_REDACTION_TYPE: string;
+    readonly INVALID_REDACTION_TYPE: string;
+    readonly INVALID_TYPE_OF_IDS: string;
+    readonly EMPTY_IDS_IN_GET: string;
+    readonly EMPTY_ID_IN_GET: string;
+    readonly INVALID_ID_IN_GET: string;
+    readonly INVALID_GET_REQUEST: string;
+    readonly EMPTY_COLUMN_NAME: string;
+    readonly INVALID_COLUMN_NAME: string;
+    readonly INVALID_COLUMN_VALUES: string;
+    readonly EMPTY_COLUMN_VALUES: string;
+    readonly EMPTY_COLUMN_VALUE: string;
+    readonly INVALID_COLUMN_VALUE: string;
+    readonly INVALID_GET_COLUMN_REQUEST: string;
+    readonly EMPTY_URL: string;
+    readonly INVALID_URL: string;
+    readonly EMPTY_METHOD_NAME: string;
+    readonly INVALID_METHOD_NAME: string;
+    readonly EMPTY_PATH_PARAMS: string;
+    readonly INVALID_PATH_PARAMS: string;
+    readonly EMPTY_QUERY_PARAMS: string;
+    readonly INVALID_QUERY_PARAMS: string;
+    readonly EMPTY_BODY: string;
+    readonly INVALID_BODY: string;
+    readonly EMPTY_HEADERS: string;
+    readonly INVALID_HEADERS: string;
+    readonly INVALID_INVOKE_CONNECTION_REQUEST: string;
+    readonly ERROR_OCCURRED: string;
+    readonly EMPTY_INSERT_TOKEN: string;
+    readonly INVALID_INSERT_TOKEN: string;
+    readonly INVALID_INSERT_TOKENS: string;
+    readonly INVALID_TOKEN_MODE: string;
+    readonly INVALID_HOMOGENEOUS: string;
+    readonly INVALID_TOKEN_STRICT: string;
+    readonly INVALID_CONTINUE_ON_ERROR: string;
+    readonly INVALID_UPSERT: string;
+    readonly INVALID_RETURN_TOKEN: string;
+    readonly NO_TOKENS_WITH_TOKEN_MODE: string;
+    readonly INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT: string;
+    readonly INVALID_DOWNLOAD_URL: string;
+    readonly EMPTY_FIELD: string;
+    readonly INVALID_FIELD: string;
+    readonly INVALID_OFFSET: string;
+    readonly INVALID_LIMIT: string;
+    readonly INVALID_ORDER_BY: string;
+    readonly INVALID_FIELDS: string;
+    readonly INVAILD_JSON_RESPONSE: string;
+    readonly EMPTY_VAULT_CLIENTS: string;
+    readonly EMPTY_CONNECTION_CLIENTS: string;
+    readonly GENERIC_API_ERROR: string;
+    readonly EMPTY_FILE_OBJECT: string;
+    readonly INVALID_FILE_FORMAT: string;
+    readonly MISSING_FILE_SOURCE: string;
+    readonly INVALID_FILE_OBJECT: string;
+    readonly INVALID_BASE64_STRING: string;
+    readonly INVALID_FILE_TYPE: string;
+    readonly INVALID_FILE_NAME: string;
+    readonly FILE_READ_ERROR: string;
+    readonly INVALID_BASE64_HEADER: string;
+    readonly INVALID_DEIDENTIFY_STRING_REQUEST: string;
+    readonly INVALID_TEXT_IN_DEIDENTIFY_STRING: string;
+    readonly INVALID_REIDENTIFY_STRING_REQUEST: string;
+    readonly INVALID_TEXT_IN_REIDENTIFY_STRING: string;
+    readonly INVALID_REDACTION_LEVEL: string;
+    readonly INVALID_DEIDENTIFY_FILE_REQUEST: string;
+    readonly INVALID_DATA_SOURCE_IN_DEIDENTIFY_FILE: string;
+    readonly INVALID_VALUE_IN_DEIDENTIFY_FILE: string;
+    readonly MULTIPLE_FILE_SOURCES_IN_DEIDENTIFY_FILE: string;
+    readonly MISSING_FILE_SOURCE_IN_DEIDENTIFY_FILE: string;
+    readonly INVALID_FILE_IN_DEIDENTIFY_FILE: string;
+    readonly FILE_NOT_FOUND_IN_DEIDENTIFY_FILE: string;
+    readonly FAILED_TO_ENCODE_FILE: string;
+    readonly INVALID_WAIT_TIME_IN_POLL_OPTIONS: string;
+    readonly INVALID_MAX_ATTEMPTS_IN_POLL_OPTIONS: string;
+    readonly OUTPUT_DIRECTORY_WITHOUT_POLL_OPTIONS: string;
+    readonly FAILED_TO_WRITE_OUTPUT_FILE: string;
+    readonly INVALID_REIDENTIFY_FILE_REQUEST: string;
+    readonly INVALID_DATA_SOURCE_IN_REIDENTIFY_FILE: string;
+    readonly INVALID_VALUE_IN_REIDENTIFY_FILE: string;
+    readonly INVALID_GET_RUN_REQUEST: string;
+    readonly INVALID_RUN_ID_IN_GET_RUN: string;
+    readonly INVALID_CHECK_GUARDRAILS_REQUEST: string;
+    readonly INVALID_TEXT_IN_CHECK_GUARDRAILS: string;
+    readonly INVALID_DENY_TOPICS_IN_CHECK_GUARDRAILS: string;
+    readonly INTERNAL_SERVER_ERROR: string;
+    readonly INVALID_XML_FORMAT: string;
+};
+
+// @public
+export interface FileMapping {
+    // (undocumented)
+    destination?: string;
+    // (undocumented)
+    entitiesDestination?: string;
+    // (undocumented)
+    objectEntitiesDestination?: string;
+    // (undocumented)
+    outputFileNameSuffix?: string;
+    // (undocumented)
+    source?: string;
+}
+
+// @public
+export interface FileOutput {
+    processedFile: string | null;
+    // (undocumented)
+    processedFileExtension: DeidentifyFileDataFormat | null;
+    processedFileType: string | null;
+}
+
+// @public (undocumented)
+export function fillUrlWithPathAndQueryParams(url: string, pathParams?: StringKeyValueMapType, queryParams?: StringKeyValueMapType): string;
+
+// @public
 export class FlowVaultOptions {
     getInterceptor(): RequestInterceptor | undefined;
     setInterceptor(interceptor: RequestInterceptor): void;
@@ -202,6 +1174,40 @@ export class FlowVaultOptions {
 
 // @public
 export type FlowVaultRecordError = SkyflowRecordError;
+
+// @public (undocumented)
+export function generateBearerToken(credentialsFilePath: string, options?: BearerTokenOptions): Promise<TokenResponse>;
+
+// @public (undocumented)
+export function generateBearerTokenFromCreds(credentials: any, options?: BearerTokenOptions): Promise<TokenResponse>;
+
+// @public (undocumented)
+export const generateSDKMetrics: (logLevel?: LogLevel) => {
+    sdk_name_version: string;
+    sdk_client_device_model: string;
+    sdk_client_os_details: string;
+    sdk_runtime_details: string;
+};
+
+// @public (undocumented)
+export function generateSignedDataTokens(credentialsFilePath: string, options: SignedDataTokensOptions): Promise<SignedDataTokensResponse[]>;
+
+// @public (undocumented)
+export function generateSignedDataTokensFromCreds(credentials: any, options: SignedDataTokensOptions): Promise<SignedDataTokensResponse[]>;
+
+// @public (undocumented)
+export type GenerateTokenOptions = {
+    logLevel?: LogLevel;
+};
+
+// @public (undocumented)
+export function getBaseUrl(url: string): string;
+
+// @public (undocumented)
+export function getBearerToken(credentials?: Credentials, logLevel?: LogLevel): Promise<AuthInfo>;
+
+// @public (undocumented)
+export function getConnectionBaseURL(clusterId: string, env: Env): string;
 
 // @public
 export class GetOptions extends FlowVaultOptions {
@@ -266,6 +1272,12 @@ export class GetResponse extends BaseGetResponse {
 }
 
 // @public (undocumented)
+export interface GetResponseData {
+    // (undocumented)
+    [key: string]: unknown;
+}
+
+// @public (undocumented)
 export interface GetResponseRecord {
     // (undocumented)
     data?: Record<string, unknown> | null;
@@ -284,6 +1296,38 @@ export interface GetResponseRecord {
     // (undocumented)
     tokens?: Record<string, Token[]> | null;
 }
+
+// @public
+export class GetRunRequest {
+    constructor(runId: string);
+    get runId(): string;
+    set runId(value: string);
+}
+
+// @public
+export class GetRunResponse implements DetectRunFields {
+    constructor(input: DetectRunFields);
+    // (undocumented)
+    readonly message: string | null;
+    // (undocumented)
+    readonly metrics: Metrics | null;
+    // (undocumented)
+    readonly output: FileOutput[];
+    // (undocumented)
+    readonly outputType: DeidentifyFileSource | null;
+    // (undocumented)
+    readonly runId: string | null;
+    // (undocumented)
+    readonly status: DetectRunStatus | null;
+}
+
+// @public (undocumented)
+export function getSdkIdentity(): SdkIdentity;
+
+// @public (undocumented)
+export function getToken(credentials: Credentials, logLevel?: LogLevel): Promise<{
+    accessToken: string;
+}>;
 
 // @public
 export class GetTokensOptions extends FlowVaultOptions {
@@ -329,6 +1373,55 @@ export interface GetTokensResponseRecord {
     tokenGroupName: string | null;
     // (undocumented)
     value: unknown;
+}
+
+// @public (undocumented)
+export function getVaultURL(clusterId: string, env: Env): string;
+
+// @public
+export enum GuardrailsValidation {
+    // (undocumented)
+    FAILED = "FAILED",
+    // (undocumented)
+    PASSED = "PASSED",
+    // (undocumented)
+    UNKNOWN = "UNKNOWN"
+}
+
+// @public (undocumented)
+export const HTTP_HEADER: {
+    readonly CONTENT_TYPE: "Content-Type";
+    readonly CONTENT_TYPE_LOWER: string;
+    readonly X_REQUEST_ID: "x-request-id";
+    readonly ERROR_FROM_CLIENT: "error-from-client";
+};
+
+// @public (undocumented)
+export const HTTP_STATUS_CODE: {
+    readonly OK: 200;
+    readonly BAD_REQUEST: 400;
+    readonly INTERNAL_SERVER_ERROR: 500;
+};
+
+// @public
+interface Image_2 {
+    // (undocumented)
+    maskingMethod?: MaskingMethod;
+    // (undocumented)
+    outputOcrText?: boolean;
+    // (undocumented)
+    outputProcessedImage?: boolean;
+}
+export { Image_2 as Image }
+
+// @public
+export enum IncludePrefix {
+    // (undocumented)
+    INCLUDE_PREFIX_UNSPECIFIED = "INCLUDE_PREFIX_UNSPECIFIED",
+    // (undocumented)
+    NO = "NO",
+    // (undocumented)
+    YES = "YES"
 }
 
 // @public
@@ -391,6 +1484,497 @@ export interface InsertResponseRecord {
     tokens?: Record<string, Token[]> | null;
 }
 
+// @public (undocumented)
+export interface InsertResponseType {
+    // (undocumented)
+    [key: string]: unknown;
+    // @deprecated (undocumented)
+    skyflow_id?: string;
+    // (undocumented)
+    skyflowId: string;
+}
+
+// @public (undocumented)
+export function isEnv(value?: string): boolean;
+
+// @public (undocumented)
+export function isExpired(token: string): boolean;
+
+// @public (undocumented)
+export interface ISkyflowError {
+    // (undocumented)
+    details?: Array<string> | null;
+    // @deprecated (undocumented)
+    grpc_code?: string | number | null;
+    // (undocumented)
+    grpcCode?: string | number | null;
+    // @deprecated (undocumented)
+    http_code?: string | number | null | undefined;
+    // @deprecated (undocumented)
+    http_status?: string | number | null;
+    // (undocumented)
+    httpCode?: string | number | null | undefined;
+    // (undocumented)
+    httpStatus?: string | number | null;
+    // (undocumented)
+    message: string;
+    // @deprecated (undocumented)
+    request_ID?: string | null;
+    // (undocumented)
+    requestId?: string | null;
+}
+
+// @public (undocumented)
+export function isLogLevel(value?: string): boolean;
+
+// @public (undocumented)
+export function isTokenValid(token: string): boolean;
+
+// @public (undocumented)
+export function isValidAPIKey(apiKey: string): boolean;
+
+// @public (undocumented)
+export const isValidURL: (url: string) => boolean | undefined;
+
+// @public (undocumented)
+export const JWT: {
+    readonly ALGORITHM_RS256: "RS256";
+    readonly GRANT_TYPE_JWT_BEARER: "urn:ietf:params:oauth:grant-type:jwt-bearer";
+    readonly ISSUER_SDK: "sdk";
+    readonly SIGNED_TOKEN_PREFIX: "signed_token_";
+    readonly ROLE_PREFIX: "role:";
+};
+
+// @public (undocumented)
+export enum LogLevel {
+    // (undocumented)
+    DEBUG = "DEBUG",
+    // (undocumented)
+    ERROR = "ERROR",
+    // (undocumented)
+    INFO = "INFO",
+    // (undocumented)
+    OFF = "OFF",
+    // (undocumented)
+    WARN = "WARN"
+}
+
+// @public (undocumented)
+export const LogLevelOptions: {
+    DEBUG: {
+        showDebugLogs: boolean;
+        showInfoLogs: boolean;
+        showWarnLogs: boolean;
+        showErrorLogs: boolean;
+    };
+    INFO: {
+        showDebugLogs: boolean;
+        showInfoLogs: boolean;
+        showWarnLogs: boolean;
+        showErrorLogs: boolean;
+    };
+    WARN: {
+        showDebugLogs: boolean;
+        showInfoLogs: boolean;
+        showWarnLogs: boolean;
+        showErrorLogs: boolean;
+    };
+    ERROR: {
+        showDebugLogs: boolean;
+        showInfoLogs: boolean;
+        showWarnLogs: boolean;
+        showErrorLogs: boolean;
+    };
+    OFF: {
+        showDebugLogs: boolean;
+        showInfoLogs: boolean;
+        showWarnLogs: boolean;
+        showErrorLogs: boolean;
+    };
+};
+
+// @public (undocumented)
+export const logs: {
+    infoLogs: {
+        EMPTY_BEARER_TOKEN: string;
+        BEARER_TOKEN_EXPIRED: string;
+        GENERATE_BEARER_TOKEN_TRIGGERED: string;
+        GENERATE_BEARER_TOKEN_SUCCESS: string;
+        GENERATE_SIGNED_DATA_TOKEN_SUCCESS: string;
+        INITIALIZE_CLIENT: string;
+        VALIDATING_VAULT_CONFIG: string;
+        VALIDATING_CONNECTION_CONFIG: string;
+        VAULT_CONTROLLER_INITIALIZED: string;
+        DETECT_CONTROLLER_INITIALIZED: string;
+        CONNECTION_CONTROLLER_INITIALIZED: string;
+        vaultId_CONFIG_EXISTS: string;
+        vaultId_CONFIG_DOES_NOT_EXIST: string;
+        connectionId_CONFIG_EXISTS: string;
+        connectionId_CONFIG_DOES_NOT_EXIST: string;
+        CURRENT_LOG_LEVEL: string;
+        CLIENT_INITIALIZED: string;
+        VALIDATE_INSERT_INPUT: string;
+        VALIDATE_DETOKENIZE_INPUT: string;
+        VALIDATE_TOKENIZE_INPUT: string;
+        VALIDATE_FILE_UPLOAD_INPUT: string;
+        VALIDATE_GET_INPUT: string;
+        VALIDATE_QUERY_INPUT: string;
+        VALIDATE_DELETE_INPUT: string;
+        VALIDATE_UPDATE_INPUT: string;
+        VALIDATE_CONNECTION_CONFIG: string;
+        INSERT_DATA_SUCCESS: string;
+        FILE_UPLOAD_DATA_SUCCESS: string;
+        DETOKENIZE_SUCCESS: string;
+        GET_SUCCESS: string;
+        UPDATE_SUCCESS: string;
+        DELETE_SUCCESS: string;
+        TOKENIZE_SUCCESS: string;
+        QUERY_SUCCESS: string;
+        BEARER_TOKEN_LISTENER: string;
+        BEARER_TOKEN_RESOLVED: string;
+        REUSE_BEARER_TOKEN: string;
+        REUSE_KEY: string;
+        CONTROLLER_INITIALIZED: string;
+        INSERT_TRIGGERED: string;
+        DETOKENIZE_TRIGGERED: string;
+        TOKENIZE_TRIGGERED: string;
+        GET_BY_ID_TRIGGERED: string;
+        GET_TRIGGERED: string;
+        QUERY_TRIGGERED: string;
+        UPLOAD_FILE_TRIGGERED: string;
+        INVOKE_CONNECTION_TRIGGERED: string;
+        DELETE_TRIGGERED: string;
+        DELETE_REQUEST_RESOLVED: string;
+        TOKENIZE_REQUEST_RESOLVED: string;
+        QUERY_REQUEST_RESOLVED: string;
+        FILE_UPLOAD_REQUEST_RESOLVED: string;
+        EMIT_REQUEST: string;
+        DETOKENIZE_REQUEST_RESOLVED: string;
+        INSERT_REQUEST_RESOLVED: string;
+        INSERT_BATCH_REQUEST_RESOLVED: string;
+        GET_REQUEST_RESOLVED: string;
+        INVOKE_CONNECTION_REQUEST_RESOLVED: string;
+        GENERATE_SIGNED_DATA_TOKENS_TRIGGERED: string;
+        UPDATE_TRIGGERED: string;
+        UPDATE_REQUEST_RESOLVED: string;
+        UNABLE_TO_GENERATE_SDK_METRIC: string;
+        USING_BEARER_TOKEN: string;
+        USING_KEY: string;
+        USING_CREDENTIALS_STRING: string;
+        USING_PATH: string;
+        USING_SKYFLOW_CREDENTIALS_ENV: string;
+        DEIDENTIFY_STRING_TRIGGERED: string;
+        VALIDATE_DEIDENTIFY_STRING_REQUEST: string;
+        DEIDENTIFY_STRING_REQUEST_RESOLVED: string;
+        DEIDENTIFY_STRING_SUCCESS: string;
+        REIDENTIFY_STRING_TRIGGERED: string;
+        VALIDATE_REIDENTIFY_STRING_REQUEST: string;
+        REIDENTIFY_STRING_REQUEST_RESOLVED: string;
+        REIDENTIFY_STRING_SUCCESS: string;
+        DEIDENTIFY_FILE_TRIGGERED: string;
+        VALIDATE_DEIDENTIFY_FILE_REQUEST: string;
+        DEIDENTIFY_FILE_REQUEST_RESOLVED: string;
+        DEIDENTIFY_FILE_RUN_SUBMITTED: string;
+        DEIDENTIFY_FILE_SUCCESS: string;
+        REIDENTIFY_FILE_TRIGGERED: string;
+        VALIDATE_REIDENTIFY_FILE_REQUEST: string;
+        REIDENTIFY_FILE_REQUEST_RESOLVED: string;
+        REIDENTIFY_FILE_SUCCESS: string;
+        GET_RUN_TRIGGERED: string;
+        VALIDATE_GET_RUN_REQUEST: string;
+        GET_RUN_REQUEST_RESOLVED: string;
+        GET_RUN_SUCCESS: string;
+        CHECK_GUARDRAILS_TRIGGERED: string;
+        VALIDATE_CHECK_GUARDRAILS_REQUEST: string;
+        CHECK_GUARDRAILS_REQUEST_RESOLVED: string;
+        CHECK_GUARDRAILS_SUCCESS: string;
+        POLL_RUN_STARTED: string;
+        POLL_RUN_TERMINAL: string;
+        POLL_RUN_BUDGET_EXHAUSTED: string;
+        OUTPUT_FILE_WRITTEN: string;
+        OUTPUT_NOT_WRITTEN_FOR_OUTPUT_TYPE: string;
+    };
+    errorLogs: {
+        VAULT_CONFIG_KEY_MISSING: string;
+        EMPTY_VAULT_ID: string;
+        INVALID_VAULT_ID: string;
+        EMPTY_CLUSTER_ID: string;
+        INVALID_CLUSTER_ID: string;
+        INVALID_ENV: string;
+        EMPTY_CONNECTION_ID: string;
+        INVALID_CONNECTION_ID: string;
+        EMPTY_CONNECTION_URL: string;
+        INVALID_CONNECTION_URL: string;
+        INVALID_CONNECTION_URL_TYPE: string;
+        EMPTY_CREDENTIALS_PATH: string;
+        EMPTY_CREDENTIALS_STRING: string;
+        EMPTY_TOKEN_VALUE: string;
+        EMPTY_API_KEY_VALUE: string;
+        INVALID_KEY: string;
+        CLIENT_ID_NOT_FOUND: string;
+        TOKEN_URI_NOT_FOUND: string;
+        KEY_ID_NOT_FOUND: string;
+        PRIVATE_KEY_NOT_FOUND: string;
+        NOT_A_VALID_JSON: string;
+        FILE_NOT_FOUND: string;
+        EMPTY_FILE: string;
+        CREDENTIALS_CONTENT_EMPTY: string;
+        EXPECTED_STRING_PARAMETER: string;
+        SCOPED_ROLES_EMPTY: string;
+        EXPECTED_ROLE_ID_PARAMETER: string;
+        DATA_TOKENS_NOT_FOUND: string;
+        DATA_TOKENS_EMPTY: string;
+        EXPECTED_DATA_TOKENS_PARAMETER: string;
+        EXPECTED_TIME_TO_LIVE_PARAMETER: string;
+        DETOKENIZE_REQUEST_REJECTED: string;
+        TOKENIZE_REQUEST_REJECTED: string;
+        INVOKE_CONNECTION_REQUEST_REJECTED: string;
+        QUERY_REQUEST_REJECTED: string;
+        INSERT_REQUEST_REJECTED: string;
+        INSERT_BATCH_REQUEST_REJECTED: string;
+        FILE_UPLOAD_REQUEST_REJECTED: string;
+        GET_REQUEST_REJECTED: string;
+        SEND_INVOKE_CONNECTION_REJECTED: string;
+        UPDATE_REQUEST_REJECTED: string;
+        DELETE_REQUEST_REJECTED: string;
+        ERROR_OCCURED: string;
+        EMPTY_QUERY: string;
+        QUERY_IS_REQUIRED: string;
+        VALUES_IS_REQUIRED_TOKENIZE: string;
+        EMPTY_VALUES_IN_TOKENIZE: string;
+        EMPTY_COLUMN_GROUP_IN_COLUMN_VALUES: string;
+        EMPTY_TABLE_IN_DELETE: string;
+        INVALID_TABLE_IN_DELETE: string;
+        EMPTY_IDS_IN_DELETE: string;
+        INVALID_ID_IN_DELETE: string;
+        EMPTY_TABLE_IN_INSERT: string;
+        INVALID_TABLE_IN_INSERT: string;
+        EMPTY_TABLE_IN_GET: string;
+        INVALID_TABLE_IN_GET: string;
+        EMPTY_IDS_IN_GET: string;
+        INVALID_ID_IN_GET: string;
+        EMPTY_TOKENS_IN_DETOKENIZE: string;
+        INVALID_TOKENS_IN_DETOKENIZE: string;
+        INVALID_TOKEN_IN_DETOKENIZE: string;
+        EMPTY_TABLE_IN_GET_COLUMN: string;
+        INVALID_TABLE_IN_GET_COLUMN: string;
+        EMPTY_COLUMN_NAME_IN_GET_COLUMN: string;
+        INVALID_COLUMN_NAME_IN_GET_COLUMN: string;
+        EMPTY_COLUMN_VALUES_IN_GET_COLUMN: string;
+        INVALID_COLUMN_VALUES_IN_GET_COLUMN: string;
+        INVALID_COLUMN_VALUE_IN_GET_COLUMN: string;
+        EMPTY_SKYFLOW_ID_IN_UPDATE: string;
+        INVALID_SKYFLOW_ID_IN_UPDATE: string;
+        EMPTY_TABLE_IN_UPDATE: string;
+        INVALID_TABLE_IN_UPDATE: string;
+        EMPTY_TABLE_IN_FILE_UPLOAD: string;
+        INVALID_TABLE_IN_FILE_UPLOAD: string;
+        EMPTY_SKYFLOW_ID_IN_FILE_UPLOAD: string;
+        INVALID_SKYFLOW_ID_IN_FILE_UPLOAD: string;
+        INVALID_TOKEN_URI: string;
+        DEIDENTIFY_STRING_REQUEST_NULL: string;
+        INVALID_TEXT_IN_DEIDENTIFY_STRING: string;
+        DEIDENTIFY_STRING_REQUEST_REJECTED: string;
+        REIDENTIFY_STRING_REQUEST_NULL: string;
+        INVALID_TEXT_IN_REIDENTIFY_STRING: string;
+        INVALID_REDACTION_LEVEL: string;
+        REIDENTIFY_STRING_REQUEST_REJECTED: string;
+        DEIDENTIFY_FILE_REQUEST_NULL: string;
+        INVALID_DATA_SOURCE_IN_DEIDENTIFY_FILE: string;
+        INVALID_VALUE_IN_DEIDENTIFY_FILE: string;
+        MULTIPLE_FILE_SOURCES_IN_DEIDENTIFY_FILE: string;
+        MISSING_FILE_SOURCE_IN_DEIDENTIFY_FILE: string;
+        INVALID_FILE_IN_DEIDENTIFY_FILE: string;
+        FILE_NOT_FOUND_IN_DEIDENTIFY_FILE: string;
+        FAILED_TO_ENCODE_FILE_IN_DEIDENTIFY_FILE: string;
+        INVALID_WAIT_TIME_IN_POLL_OPTIONS: string;
+        INVALID_MAX_ATTEMPTS_IN_POLL_OPTIONS: string;
+        OUTPUT_DIRECTORY_WITHOUT_POLL_OPTIONS: string;
+        DEIDENTIFY_FILE_REQUEST_REJECTED: string;
+        OUTPUT_DIRECTORY_NOT_CREATED: string;
+        OUTPUT_FILE_NOT_WRITTEN: string;
+        REIDENTIFY_FILE_REQUEST_NULL: string;
+        INVALID_DATA_SOURCE_IN_REIDENTIFY_FILE: string;
+        INVALID_VALUE_IN_REIDENTIFY_FILE: string;
+        REIDENTIFY_FILE_REQUEST_REJECTED: string;
+        GET_RUN_REQUEST_NULL: string;
+        INVALID_RUN_ID_IN_GET_RUN: string;
+        GET_RUN_REQUEST_REJECTED: string;
+        CHECK_GUARDRAILS_REQUEST_NULL: string;
+        INVALID_TEXT_IN_CHECK_GUARDRAILS: string;
+        INVALID_DENY_TOPICS_IN_CHECK_GUARDRAILS: string;
+        CHECK_GUARDRAILS_REQUEST_REJECTED: string;
+    };
+    warnLogs: {
+        DEPRECATED_FILE_UPLOAD_CONSTRUCTOR: string;
+        DEPRECATED_FILE_UPLOAD_SKYFLOW_ID: string;
+        DEPRECATED_SET_DOWNLOAD_URL: string;
+        DEPRECATED_GET_DOWNLOAD_URL: string;
+        DEPRECATED_SKYFLOW_ID_PROPERTY: string;
+        DEPRECATED_REQUEST_ID_PROPERTY: string;
+        DEPRECATED_ROLE_IDS_PROPERTY: string;
+        DEPRECATED_HTTP_CODE_PROPERTY: string;
+        DEPRECATED_HTTP_STATUS_PROPERTY: string;
+        DEPRECATED_GRPC_CODE_PROPERTY: string;
+    };
+};
+
+// @public
+export enum MaskingMethod {
+    // (undocumented)
+    BLACKBOX = "BLACKBOX",
+    // (undocumented)
+    BLUR = "BLUR",
+    // (undocumented)
+    NONE = "NONE"
+}
+
+// @public
+export interface Media {
+    // (undocumented)
+    audio?: Audio_2;
+    // (undocumented)
+    document?: Document_2;
+    // (undocumented)
+    image?: Image_2;
+}
+
+// @public (undocumented)
+export enum MessageType {
+    // (undocumented)
+    ERROR = "ERROR",
+    // (undocumented)
+    LOG = "LOG",
+    // (undocumented)
+    WARN = "WARN"
+}
+
+// @public
+export interface Metrics {
+    // (undocumented)
+    characterCount: number | null;
+    duration: number | null;
+    pages: number | null;
+    size: number | null;
+    slides: number | null;
+    // (undocumented)
+    wordCount: number | null;
+}
+
+// @public
+export enum ObjectDeidentificationType {
+    // (undocumented)
+    REDACT = "REDACT",
+    // (undocumented)
+    UNKNOWN = "UNKNOWN",
+    // (undocumented)
+    UNREDACT = "UNREDACT"
+}
+
+// @public
+export interface ObjectEntity {
+    // (undocumented)
+    deidentificationType?: ObjectDeidentificationType;
+    // (undocumented)
+    entityType?: ObjectEntityType;
+}
+
+// @public
+export enum ObjectEntityType {
+    // (undocumented)
+    ALL = "ALL",
+    // (undocumented)
+    FACE = "FACE",
+    // (undocumented)
+    LICENSE_PLATE = "LICENSE_PLATE",
+    // (undocumented)
+    LOGO = "LOGO",
+    // (undocumented)
+    NONE = "NONE",
+    // (undocumented)
+    SIGNATURE = "SIGNATURE"
+}
+
+// @public (undocumented)
+export function objectToXML(obj: any, rootName?: string): string;
+
+// @public (undocumented)
+export enum OrderByEnum {
+    // (undocumented)
+    ASCENDING = "ASCENDING",
+    // (undocumented)
+    DESCENDING = "DESCENDING",
+    // (undocumented)
+    NONE = "NONE"
+}
+
+// @public
+export enum OutputTranscriptionType {
+    // (undocumented)
+    DIARIZED_TRANSCRIPTION = "DIARIZED_TRANSCRIPTION",
+    // (undocumented)
+    MEDICAL_DIARIZED_TRANSCRIPTION = "MEDICAL_DIARIZED_TRANSCRIPTION",
+    // (undocumented)
+    MEDICAL_TRANSCRIPTION = "MEDICAL_TRANSCRIPTION",
+    // (undocumented)
+    NONE = "NONE",
+    // (undocumented)
+    TRANSCRIPTION = "TRANSCRIPTION"
+}
+
+// @public (undocumented)
+export const parameterizedString: (message: string, ...args: Array<string | number | number[] | LogLevel | LogLevel[] | string[]>) => string;
+
+// @public (undocumented)
+export interface PathCredentials {
+    // (undocumented)
+    context?: string | Record<string, any>;
+    // (undocumented)
+    path: string;
+    // (undocumented)
+    roles?: Array<string>;
+    // (undocumented)
+    tokenUri?: string;
+}
+
+// @public
+export interface Pdf {
+    // (undocumented)
+    density?: number;
+    // (undocumented)
+    maxResolution?: number;
+    // (undocumented)
+    processingMode?: PdfProcessingMode;
+}
+
+// @public
+export enum PdfProcessingMode {
+    // (undocumented)
+    NONE = "NONE",
+    // (undocumented)
+    OCR = "OCR",
+    // (undocumented)
+    TEXT_LAYER = "TEXT_LAYER"
+}
+
+// @public
+export const POLL_OPTIONS: {
+    readonly DEFAULT_WAIT_TIME_SECONDS: 60;
+    readonly MAX_WAIT_TIME_SECONDS: 300;
+    readonly DEFAULT_MAX_ATTEMPTS: 23;
+    readonly MAX_MAX_ATTEMPTS: 23;
+    readonly MAX_DELAY_SECONDS: 32;
+};
+
+// @public
+export interface PollOptions {
+    maxAttempts?: number;
+    waitTime?: number;
+}
+
+// @public (undocumented)
+export const printLog: (message: string, messageType: MessageType, logLevel?: LogLevel) => void;
+
 // @public
 export class QueryOptions extends FlowVaultOptions {
     constructor();
@@ -428,6 +2012,148 @@ export interface QueryResponseMetadata {
     columns: string[];
 }
 
+// @public (undocumented)
+export interface QueryResponseType {
+    // (undocumented)
+    [key: string]: unknown;
+}
+
+// @public
+export interface RedactionLevel extends RedactionRule {
+    // (undocumented)
+    entityName?: never;
+    redactionPattern?: string;
+    // (undocumented)
+    redactionType?: never;
+    tokenGroupName?: string;
+}
+
+// @public
+export interface RedactionRule {
+    entityName?: EntityType;
+    redactionPattern?: string;
+    redactionType?: RedactionType;
+    tokenGroupName?: string;
+}
+
+// @public (undocumented)
+export enum RedactionType {
+    // (undocumented)
+    DEFAULT = "DEFAULT",
+    // (undocumented)
+    MASKED = "MASKED",
+    // (undocumented)
+    PLAIN_TEXT = "PLAIN_TEXT",
+    // (undocumented)
+    REDACTED = "REDACTED"
+}
+
+// @public
+export enum ReidentifyFileDataFormat {
+    // (undocumented)
+    CSV = "CSV",
+    // (undocumented)
+    DOCX = "DOCX",
+    // (undocumented)
+    JSON = "JSON",
+    // (undocumented)
+    JSONL = "JSONL",
+    // (undocumented)
+    PPTX = "PPTX",
+    // (undocumented)
+    TXT = "TXT",
+    // (undocumented)
+    XLSX = "XLSX",
+    // (undocumented)
+    XML = "XML"
+}
+
+// @public
+export interface ReidentifyFileOutput {
+    processedFile: string | null;
+    processedFileExtension: ReidentifyFileDataFormat | null;
+    processedFileType: string | null;
+}
+
+// @public
+export class ReidentifyFileRequest {
+    constructor(dataSource: ReidentifyFileSource, value: string, fields?: ReidentifyFileRequestFields);
+    // (undocumented)
+    get dataFormat(): ReidentifyFileDataFormat | undefined;
+    set dataFormat(value: ReidentifyFileDataFormat | undefined);
+    get dataSource(): ReidentifyFileSource;
+    set dataSource(value: ReidentifyFileSource);
+    // (undocumented)
+    get redactionLevel(): RedactionRule[] | undefined;
+    set redactionLevel(value: RedactionRule[] | undefined);
+    get value(): string;
+    set value(value: string);
+}
+
+// @public
+export interface ReidentifyFileRequestFields {
+    dataFormat?: ReidentifyFileDataFormat;
+    redactionLevel?: RedactionRule[];
+}
+
+// @public
+export class ReidentifyFileResponse {
+    constructor(input: {
+        status: DetectRunStatus;
+        outputType: ReidentifyFileSource | null;
+        output: ReidentifyFileOutput[];
+        metrics: Metrics | null;
+    });
+    readonly metrics: Metrics | null;
+    readonly output: ReidentifyFileOutput[];
+    readonly outputType: ReidentifyFileSource | null;
+    readonly status: DetectRunStatus;
+}
+
+// @public
+export type ReidentifyFileSource = string;
+
+// @public
+export enum ReidentifySourceType {
+    // (undocumented)
+    BASE64 = "BASE64",
+    // (undocumented)
+    PRESIGNED_URL = "PRESIGNED_URL"
+}
+
+// @public
+export class ReidentifyStringRequest {
+    constructor(text: string, fields?: ReidentifyStringRequestFields);
+    // (undocumented)
+    get redactionLevel(): RedactionRule[] | undefined;
+    set redactionLevel(value: RedactionRule[] | undefined);
+    get text(): string;
+    set text(value: string);
+}
+
+// @public
+export interface ReidentifyStringRequestFields {
+    redactionLevel?: RedactionRule[];
+}
+
+// @public
+export class ReidentifyStringResponse {
+    constructor(input: {
+        processedText: string | null;
+        metrics: Metrics | null;
+    });
+    readonly metrics: Metrics | null;
+    readonly processedText: string | null;
+}
+
+// @public (undocumented)
+export function removeSDKVersion(message: string): string;
+
+// @public (undocumented)
+export const REQUEST: {
+    readonly ID_KEY: "x-request-id";
+};
+
 // @public
 export class RequestContext {
     constructor(operation: string, batchIndex?: number, totalBatches?: number);
@@ -442,6 +2168,89 @@ export class RequestContext {
 // @public
 export type RequestInterceptor = (context: RequestContext) => void;
 
+// @public (undocumented)
+export enum RequestMethod {
+    // (undocumented)
+    GET = "GET",
+    // (undocumented)
+    PATCH = "PATCH",
+    // (undocumented)
+    POST = "POST",
+    // (undocumented)
+    PUT = "PUT"
+}
+
+// @public
+export enum ReturnEntitiesType {
+    // (undocumented)
+    ALL = "ALL",
+    // (undocumented)
+    EXCLUDE_SENSITIVE_DATA = "EXCLUDE_SENSITIVE_DATA",
+    // (undocumented)
+    NONE = "NONE"
+}
+
+// @public (undocumented)
+export const SDK: {
+    readonly METRICS_HEADER_KEY: "sky-metadata";
+};
+
+// @public (undocumented)
+export interface SdkIdentity {
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    version: string;
+}
+
+// @public (undocumented)
+export type ServiceAccountResponseError = {
+    rawResponse?: {
+        headers?: {
+            get: (header: string) => string | undefined;
+        };
+    };
+    body: any;
+    response?: {
+        status?: number | string;
+    };
+    message: string;
+    [key: string]: any;
+};
+
+// @public (undocumented)
+export function setSdkIdentity(id: SdkIdentity): void;
+
+// @public
+export interface ShiftDates {
+    // (undocumented)
+    maxDays?: number;
+    // (undocumented)
+    minDays?: number;
+}
+
+// @public (undocumented)
+export type SignedDataTokensOptions = {
+    dataTokens: string[];
+    timeToLive?: number;
+    ctx?: string | Record<string, any>;
+    logLevel?: LogLevel;
+    tokenUri?: string;
+};
+
+// @public (undocumented)
+export type SignedDataTokensResponse = {
+    token: string;
+    signedToken: string;
+};
+
+// @public (undocumented)
+export const SKYFLOW: {
+    readonly ID: "skyflowId";
+    readonly LEGACY_ID: "skyflow_id";
+    readonly AUTH_HEADER_KEY: "x-skyflow-authorization";
+};
+
 // Warning: (ae-forgotten-export) The symbol "ClientEntry" needs to be exported by the entry point index.d.ts
 //
 // @public
@@ -449,6 +2258,10 @@ class Skyflow extends BaseSkyflow<ClientEntry> {
     constructor(config: SkyflowConfig);
     // (undocumented)
     protected buildVaultEntry(config: VaultConfig): ClientEntry;
+    // Warning: (ae-forgotten-export) The symbol "DetectController" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    detect(vaultId?: string): DetectController;
     // Warning: (ae-forgotten-export) The symbol "VaultController" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -456,6 +2269,64 @@ class Skyflow extends BaseSkyflow<ClientEntry> {
 }
 export { Skyflow }
 export default Skyflow;
+
+// Warning: (ae-forgotten-export) The symbol "_SKYFLOW_ERROR_CODE" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const SKYFLOW_ERROR_CODE: typeof _SKYFLOW_ERROR_CODE;
+
+// @public (undocumented)
+export interface SkyflowConfig {
+    // (undocumented)
+    connectionConfigs?: ConnectionConfig[];
+    // (undocumented)
+    logLevel?: LogLevel;
+    // (undocumented)
+    skyflowCredentials?: Credentials;
+    // (undocumented)
+    vaultConfigs?: VaultConfig[];
+}
+
+// @public (undocumented)
+export class SkyflowError extends Error {
+    constructor(errorCode: ISkyflowError, args?: Array<string | number>);
+    // (undocumented)
+    error?: ISkyflowError;
+}
+
+// @public (undocumented)
+export interface SkyflowRecordError {
+    // (undocumented)
+    error: string;
+    // (undocumented)
+    httpCode?: string | number | null;
+    // @deprecated (undocumented)
+    request_ID?: string | null;
+    // (undocumented)
+    requestId: string | null;
+    // (undocumented)
+    requestIndex?: number | null;
+    // (undocumented)
+    token?: string | null;
+}
+
+// @public (undocumented)
+export interface StringCredentials {
+    // (undocumented)
+    context?: string | Record<string, any>;
+    // (undocumented)
+    credentialsString: string;
+    // (undocumented)
+    roles?: Array<string>;
+    // (undocumented)
+    tokenUri?: string;
+}
+
+// @public (undocumented)
+export interface StringKeyValueMapType {
+    // (undocumented)
+    [key: string]: object | string;
+}
 
 // @public
 export interface Token {
@@ -467,6 +2338,12 @@ export interface Token {
     tokenGroupName?: string;
 }
 
+// @public (undocumented)
+export interface TokenCredentials {
+    // (undocumented)
+    token: string;
+}
+
 // @public
 export interface TokenGroupRedaction {
     // (undocumented)
@@ -474,6 +2351,51 @@ export interface TokenGroupRedaction {
     // (undocumented)
     tokenGroupName: string;
 }
+
+// @public (undocumented)
+export interface TokenizeRequestType {
+    // (undocumented)
+    columnGroup: string;
+    // (undocumented)
+    value: string;
+}
+
+// @public (undocumented)
+export enum TokenMode {
+    // (undocumented)
+    DISABLE = "DISABLE",
+    // (undocumented)
+    ENABLE = "ENABLE",
+    // (undocumented)
+    ENABLE_STRICT = "ENABLE_STRICT"
+}
+
+// @public (undocumented)
+export type TokenResponse = {
+    accessToken: string;
+    tokenType: string;
+};
+
+// @public
+export interface Transformation {
+    // (undocumented)
+    shiftDates?: ShiftDates;
+}
+
+// @public (undocumented)
+export const TYPES: {
+    INSERT: string;
+    INSERT_BATCH: string;
+    DETOKENIZE: string;
+    TOKENIZE: string;
+    DELETE: string;
+    UPDATE: string;
+    GET: string;
+    FILE_UPLOAD: string;
+    QUERY: string;
+    DETECT: string;
+    INVOKE_CONNECTION: string;
+};
 
 // @public
 export class UpdateOptions extends FlowVaultOptions {
@@ -620,8 +2542,49 @@ export interface UpsertOptions {
     updateType: string;
 }
 
+// @public (undocumented)
+export const URL_PROTOCOL: {
+    readonly HTTPS: "https";
+};
 
-export * from "skyflow-common";
+// @public (undocumented)
+export const validateConnectionConfig: (connectionConfig: ConnectionConfig, logLevel?: LogLevel) => void;
+
+// @public (undocumented)
+export const validateCredentialsWithId: (credentials: Credentials, type: string, typeId: string, id: string, logLevel?: LogLevel) => void;
+
+// @public (undocumented)
+export const validateSkyflowConfig: (config: SkyflowConfig, logLevel?: LogLevel) => void;
+
+// @public (undocumented)
+export const validateSkyflowCredentials: (credentials: Credentials, logLevel?: LogLevel) => void;
+
+// @public (undocumented)
+export function validateToken(token: string): string;
+
+// @public (undocumented)
+export const validateUpdateConnectionConfig: (connectionConfig: ConnectionConfig, logLevel?: LogLevel) => void;
+
+// @public (undocumented)
+export const validateUpdateVaultConfig: (vaultConfig: VaultConfig, logLevel?: LogLevel) => void;
+
+// @public (undocumented)
+export const validateVaultConfig: (vaultConfig: VaultConfig, logLevel?: LogLevel) => void;
+
+// @public (undocumented)
+export interface VaultConfig {
+    // (undocumented)
+    clusterId: string;
+    // (undocumented)
+    credentials?: Credentials;
+    // (undocumented)
+    env?: Env;
+    maxRetries?: number;
+    timeout?: number;
+    // (undocumented)
+    vaultId: string;
+    vaultUrl?: string;
+}
 
 // (No @packageDocumentation comment for this package)
 

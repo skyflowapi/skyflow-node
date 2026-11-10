@@ -50,6 +50,18 @@ npx ts-node flowvault/samples/vault-api/insert-records.ts
 | [upload-files.ts](vault-api/upload-files.ts) | Upload files to file columns (`filePath` / `base64` / `file`) |
 | [delete-files.ts](vault-api/delete-files.ts) | Delete files from file columns (by `skyflowId` or `uniqueValues`) |
 
+## Detect
+
+| Sample | Demonstrates |
+|---|---|
+| [deidentify-string.ts](detect-api/deidentify-string.ts) | De-identify text with a stored or inline Detect configuration |
+| [deidentify-file.ts](detect-api/deidentify-file.ts) | Submit a file (local path, skyflow id or presigned URL) and get a run id |
+| [deidentify-file-async.ts](detect-api/deidentify-file-async.ts) | Submit a file and let the SDK poll the run, writing outputs to disk |
+| [reidentify-string.ts](detect-api/reidentify-string.ts) | Restore original values from de-identified text, with redaction rules |
+| [reidentify-file.ts](detect-api/reidentify-file.ts) | Restore original values in a tokenized file |
+| [get-run.ts](detect-api/get-run.ts) | Check the status and outputs of a file de-identification run |
+| [check-guardrails.ts](detect-api/check-guardrails.ts) | Screen text for toxicity and denied topics |
+
 ## Custom headers & HTTP config
 
 | Sample | Demonstrates |

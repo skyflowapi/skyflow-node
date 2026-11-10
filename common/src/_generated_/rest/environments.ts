@@ -3,8 +3,8 @@
  */
 
 export const SkyflowEnvironment = {
-    Production: "https://manage.skyflowapis.com",
-    Sandbox: "https://manage.skyflowapis-preview.com",
+    Production: "https://%7B%7Bvault_url%7D%7D",
+    Sandbox: "https://%7B%7Bvault_url%7D%7D",
 } as const;
 
 export type SkyflowEnvironment = typeof SkyflowEnvironment.Production | typeof SkyflowEnvironment.Sandbox;

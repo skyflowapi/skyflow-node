@@ -3,10 +3,11 @@
  */
 
 import * as errors from "../../errors/index";
+import * as Skyflow from "../index";
 import * as core from "../../core";
 
 export class NotFoundError extends errors.SkyflowError {
-    constructor(body: Record<string, unknown>, rawResponse?: core.RawResponse) {
+    constructor(body: Skyflow.ErrorResponse, rawResponse?: core.RawResponse) {
         super({
             message: "NotFoundError",
             statusCode: 404,

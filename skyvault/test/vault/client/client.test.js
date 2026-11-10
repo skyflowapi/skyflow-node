@@ -5,15 +5,11 @@ import { Tokens } from '../../../src/ _generated_/rest/api/resources/tokens/clie
 import { AuthType, LogLevel, TYPES } from 'skyflow-common';
 import { isExpired } from 'skyflow-common';
 import { SkyflowError } from 'skyflow-common';
-import { Strings } from '../../../src/ _generated_/rest/api/resources/strings/client/Client';
-import { Files } from '../../../src/ _generated_/rest/api/resources/files/client/Client';
 
 jest.mock('../../../src/ _generated_/rest');
 jest.mock('../../../src/ _generated_/rest/api/resources/records/client/Client');
 jest.mock('../../../src/ _generated_/rest/api/resources/query/client/Client');
 jest.mock('../../../src/ _generated_/rest/api/resources/tokens/client/Client');
-jest.mock('../../../src/ _generated_/rest/api/resources/strings/client/Client');
-jest.mock('../../../src/ _generated_/rest/api/resources/files/client/Client');
 jest.mock('skyflow-common', () => {
     const actual = jest.requireActual('skyflow-common');
     return {
@@ -98,11 +94,6 @@ describe('VaultClient', () => {
         test('should initialize QueryApi for QUERY', () => {
             vaultClient.initAPI(authInfo, TYPES.QUERY);
             expect(Query).toHaveBeenCalled();
-        });
-
-        test('should initialize Strings for DETECT', () => {
-            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_TEXT);
-            expect(Strings).toHaveBeenCalled();
         });
 
         test('should not initialize API for unsupported type', () => {
@@ -1080,18 +1071,6 @@ describe('VaultClient', () => {
             expect(Query).toHaveBeenCalledTimes(1);
         });
 
-        test('Strings client is created only once across DEIDENTIFY_TEXT and REIDENTIFY_TEXT calls', () => {
-            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_TEXT);
-            vaultClient.initAPI(authInfo, TYPES.REIDENTIFY_TEXT);
-            expect(Strings).toHaveBeenCalledTimes(1);
-        });
-
-        test('Files client is created only once across DEIDENTIFY_FILE and DETECT_RUN calls', () => {
-            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_FILE);
-            vaultClient.initAPI(authInfo, TYPES.DETECT_RUN);
-            expect(Files).toHaveBeenCalledTimes(1);
-        });
-
         test('each API type gets its own client (INSERT + DETOKENIZE + QUERY each create once)', () => {
             vaultClient.initAPI(authInfo, TYPES.INSERT);
             vaultClient.initAPI(authInfo, TYPES.DETOKENIZE);
@@ -1193,20 +1172,6 @@ describe('VaultClient', () => {
         test('Query constructor also receives supplier functions', () => {
             vaultClient.initAPI(authInfo, TYPES.QUERY);
             const opts = Query.mock.calls[0][0];
-            expect(typeof opts.token).toBe('function');
-            expect(typeof opts.baseUrl).toBe('function');
-        });
-
-        test('Strings constructor also receives supplier functions', () => {
-            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_TEXT);
-            const opts = Strings.mock.calls[0][0];
-            expect(typeof opts.token).toBe('function');
-            expect(typeof opts.baseUrl).toBe('function');
-        });
-
-        test('Files constructor also receives supplier functions', () => {
-            vaultClient.initAPI(authInfo, TYPES.DEIDENTIFY_FILE);
-            const opts = Files.mock.calls[0][0];
             expect(typeof opts.token).toBe('function');
             expect(typeof opts.baseUrl).toBe('function');
         });

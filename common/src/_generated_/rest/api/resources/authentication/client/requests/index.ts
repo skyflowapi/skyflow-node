@@ -1,1 +1,1 @@
-export { type V1GetAuthTokenRequest } from "./V1GetAuthTokenRequest";
+export { type GetAuthTokenRequest } from "./GetAuthTokenRequest";
