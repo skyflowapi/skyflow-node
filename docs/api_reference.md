@@ -186,7 +186,7 @@ Passed to `detect().getDetectRun()`.
 
 | Constructor argument | Type | Description |
 |---|---|---|
-| `options` | `{ runId: string }` | The `runId` returned by a prior `deidentifyFile` call. |
+| `runId` | `string` | The `runId` returned by a prior `deidentifyFile` call. |
 
 ### `InvokeConnectionRequest`
 
@@ -252,7 +252,7 @@ Provide **exactly one** file source: `setFileObject`, `setFilePath`, or `setBase
 
 | Setter | Type | Description |
 |---|---|---|
-| `setSkyflowId(id)` | `string` | **Required.** Skyflow ID of the record to attach the file to. |
+| `setSkyflowId(id)` | `string` | Skyflow ID of the record to attach the file to. Omit to upload the file to a new record. |
 | `setFileObject(file)` | `File` | In-memory `File` object. |
 | `setFilePath(path)` | `string` | Path to a file on disk. Requires Node.js v20+. |
 | `setBase64(data)` | `string` | Base64-encoded file content. Use with `setFileName`. |
