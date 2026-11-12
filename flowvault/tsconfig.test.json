@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "noEmit": true,
+    "isolatedModules": true,
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "_generated_/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "lib",
+    "_generated_/rest/src/Client.ts",
+    "_generated_/rest/src/index.ts"
+  ]
+}

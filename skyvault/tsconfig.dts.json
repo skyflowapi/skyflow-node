@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["es2015", "es2017", "es2019", "dom"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": false,
+    "noImplicitAny": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "composite": false,
+    "incremental": false,
+    "stripInternal": true,
+    "types": ["node"],
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "lib", "dist", "test"]
+}

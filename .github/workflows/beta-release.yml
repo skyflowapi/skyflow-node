@@ -12,5 +12,7 @@ jobs:
   build-and-deploy:
     uses: ./.github/workflows/common-release.yml
     with:
-      tag: beta
+      product: skyflow-node
+      package-dir: skyvault
+      release-type: beta
     secrets: inherit

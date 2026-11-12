@@ -41,13 +41,17 @@ export default tseslint.config(
   ,
   {
     ignores: [
-      "node_modules/",
-      "dist/",
-      "coverage/",
-      "lib/",
-      "src/ _generated_/",
-      "test/**",
-      "samples/**",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/coverage/**",
+      "**/lib/**",
+      // Generated (maintainer-owned) clients in every workspace — both the
+      // plain and the legacy leading-space directory names.
+      "**/_generated_/**",
+      "**/ _generated_/**",
+      // Tests live under each workspace (common/test, skyvault/test, flowvault/test).
+      "**/test/**",
+      "**/samples/**",
       "scripts/**",
     ]
   }

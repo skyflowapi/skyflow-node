@@ -6,6 +6,10 @@ on:
       - main
       - release/*
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   contract-tests:
     name: Contract Tests
@@ -14,6 +18,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # The base branch's committed api-report is the "before" side of the
+      # public-API diff posted on the PR.
+      - name: Fetch base branch
+        run: git fetch --no-tags --depth=1 origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,22 +33,69 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Verify API surface snapshot
+      # Builds every package, bundles the two published dist/ surfaces, then
+      # verifies BOTH SDKs' public-API snapshots (skyflow-node + skyflow-flowvault-node).
+      # The snapshots include the shared skyflow-common surface, so a change in
+      # common/ fails here too. Fails if the committed api-report is out of date.
+      - name: Verify API surface snapshots (both SDKs)
+        id: verify
         run: npm run contract-snapshot-verify
 
-      - name: Show API surface diff
+      # Runs whether or not the snapshot check passed, so every PR gets a
+      # comment showing exactly what changed in the public API relative to the
+      # base branch (a snapshot that was re-baselined in the PR still passes the
+      # check above, but reviewers still need to see the change).
+      - name: Diff API surface against base branch
+        if: always()
+        run: |
+          bash .github/scripts/api-surface-diff.sh "origin/${{ github.base_ref }}" api-surface-diff.md
+          cat api-surface-diff.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post API surface diff on the PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- api-surface-diff -->';
+            const body = fs.readFileSync('api-surface-diff.md', 'utf8');
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            try {
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner, repo, issue_number, per_page: 100,
+              });
+              const existing = comments.find(c => c.body && c.body.includes(marker));
+              if (existing) {
+                await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+              } else {
+                await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              }
+            } catch (err) {
+              // Forked PRs run with a read-only token; the diff is still in the job summary.
+              core.warning(`Could not post the API surface comment: ${err.message}`);
+            }
+
+      - name: Show snapshot mismatch
         if: failure()
         run: |
-          echo "### API surface changes detected ###"
-          echo "Lines prefixed with '-' were REMOVED from the public API."
-          echo "Lines prefixed with '+' were ADDED to the public API."
+          echo "### Committed API snapshot does not match the built API ###"
+          echo "If this change is intended, run 'npm run contract-snapshot' and commit the updated api-report files."
           echo ""
-          diff -u api-report/skyflow-node.api.md temp/skyflow-node.api.md || true
+          echo "===== skyflow-node (skyvault) ====="
+          diff -u skyvault/api-report/skyflow-node.api.md skyvault/temp/skyflow-node.api.md || true
+          echo ""
+          echo "===== skyflow-flowvault-node (flowvault) ====="
+          diff -u flowvault/api-report/skyflow-flowvault-node.api.md flowvault/temp/skyflow-flowvault-node.api.md || true
 
-      - name: Upload API surface diff on failure
-        if: failure()
+      - name: Upload API surface reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: api-surface-diff
-          path: temp/skyflow-node.api.md
+          name: api-surface-reports
+          path: |
+            api-surface-diff.md
+            skyvault/temp/skyflow-node.api.md
+            flowvault/temp/skyflow-flowvault-node.api.md
           retention-days: 7
+          if-no-files-found: ignore
