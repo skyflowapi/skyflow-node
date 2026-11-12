@@ -1,6 +1,10 @@
 # Skyflow Node.js
 
-This repository hosts Skyflow's Node.js SDKs for integrating Skyflow into a Node.js, Deno, Bun, or Cloudflare Workers backend. It's a single npm workspace with more than one published package — pick the package that matches what you need below.
+> **This is the current, recommended version of the Skyflow SDK.** V2.1.0 brings flexible auth, multi-vault support, builder patterns, native data types, and rich error diagnostics.
+>
+> :warning: **skyflow-node v1 reached End of Life on October 31, 2026 and is no longer supported.** It will not receive any further security patches, bug fixes, or updates. Please upgrade to the latest skyflow-node v2 [![Latest skyvault 2.x release](https://img.shields.io/github/v/release/skyflowapi/skyflow-node?filter=2.*&sort=semver&label=latest)](https://github.com/skyflowapi/skyflow-node/releases?q=tag%3A2&expanded=false) using the **[Migration Guide](docs/migrate_to_v2.md)**.
+
+Securely handle sensitive data at rest, in-transit, and in-use with the Skyflow SDK for Node.js, Deno, Bun, and Cloudflare Workers.
 
 [![CI](https://img.shields.io/static/v1?label=CI&message=passing&color=green?style=plastic&logo=github)](https://github.com/skyflowapi/skyflow-node/actions)
 [![GitHub release](https://badge.fury.io/js/skyflow-node.svg)](https://www.npmjs.com/package/skyflow-node)
