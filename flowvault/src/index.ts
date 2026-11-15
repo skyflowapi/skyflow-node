@@ -24,6 +24,7 @@ export { default as DeleteFilesRequest } from './model/request/delete-files';
 
 // Custom request headers (typed interceptor + supported header keys).
 export { CustomHeaderKey } from './enums/custom-header-key';
+export { UpdateType } from './enums/update-type';
 export { RequestContext } from './model/request-context';
 export type { RequestInterceptor } from './model/request-context';
 export { FlowVaultOptions } from './model/options/base';
@@ -51,18 +52,18 @@ export { default as UploadFilesResponse } from './model/response/upload-files';
 export { default as DeleteFilesResponse } from './model/response/delete-files';
 
 // Record / helper types.
-export type { GetRecord } from './model/request/get';
+export type { GetRequestRecord } from './model/request/get';
 export type {
   Token,
-  InsertRecord,
+  InsertRequestRecord,
   UpsertOptions,
-  ColumnRedaction,
-  UpdateRecord,
-  TokenGroupRedaction,
-  GetTokensRecord,
-  UploadFilesColumn,
-  UploadFilesRecord,
-  DeleteFilesRecord,
+  ColumnRedactions,
+  UpdateRequestRecord,
+  TokenGroupRedactions,
+  GetTokensRequestRecord,
+  UploadFilesRequestColumn,
+  UploadFilesRequestRecord,
+  DeleteFilesRequestRecord,
   UploadStatus,
   InsertResponseRecord,
   GetResponseRecord,
@@ -70,10 +71,9 @@ export type {
   DeleteResponseRecord,
   DetokenizeResponseRecord,
   GetTokensResponseRecord,
-  UploadFilesResponseColumn,
+  UploadFilesColumnResult,
   UploadFilesResponseRecord,
-  DeleteFilesResponseColumn,
+  DeleteFilesColumnResult,
   DeleteFilesResponseRecord,
   QueryResponseMetadata,
-  FlowVaultRecordError,
 } from './types';

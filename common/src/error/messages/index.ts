@@ -177,6 +177,7 @@ const errorMessages = {
     get INVALID_TOKEN_STRICT(): string { return `${errorPrefix()} Validation error. The tokenStrict key has a value of type %s1. Specify tokenStrict as boolean.`; },
     get INVALID_CONTINUE_ON_ERROR(): string { return `${errorPrefix()} Validation error. The continueOnError key has a value of type %s1. Specify continueOnError as boolean.`; },
     get INVALID_UPSERT(): string { return `${errorPrefix()} Validation error. The upsert key has a value of type %s1. Specify upsert as string.`; },
+    get INVALID_UPDATE_TYPE(): string { return `${errorPrefix()} Validation error. Invalid updateType. Specify updateType as UpdateType.UPDATE or UpdateType.REPLACE.`; },
     get INVALID_RETURN_TOKEN(): string { return `${errorPrefix()} Validation error. The returnToken key has a value of type %s1. Specify returnToken as boolean.`; },
 
     get NO_TOKENS_WITH_TOKEN_MODE(): string { return `${errorPrefix()} Validation error. Tokens weren't specified for records while 'tokenMode' was ENABLE or ENABLE_STRICT`; },

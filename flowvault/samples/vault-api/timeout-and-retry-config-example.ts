@@ -45,7 +45,7 @@ async function performWithTimeoutAndRetry(): Promise<void> {
     // Use the client as usual; requests now fail fast at the configured timeout
     // and retry transient 408/429/5xx responses with exponential backoff + jitter.
     // const res = await skyflowClient.vault('<YOUR_VAULT_ID>').query(new QueryRequest('SELECT 1'));
-    // console.log(res.fields);
+    // console.log(res.records);
   } catch (error) {
     if (error instanceof SkyflowError) {
       console.error('Skyflow Error:', {

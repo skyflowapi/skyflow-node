@@ -1,4 +1,5 @@
 import {
+  UpdateType,
   Skyflow,
   InsertRequest,
   InsertOptions,
@@ -47,14 +48,14 @@ describe('FlowVault model classes', () => {
     expect(insertReq.records).toHaveLength(1);
 
     const getReq = new GetRequest('cards', ['id1', 'id2']);
-    expect(getReq.table).toBe('cards');
-    expect(getReq.ids).toEqual(['id1', 'id2']);
+    expect(getReq.tableName).toBe('cards');
+    expect(getReq.skyflowIds).toEqual(['id1', 'id2']);
 
     const updateReq = new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }]);
     expect(updateReq.records[0].skyflowId).toBe('id1');
 
     const deleteReq = new DeleteRequest('cards', ['id1']);
-    expect(deleteReq.ids).toEqual(['id1']);
+    expect(deleteReq.skyflowIds).toEqual(['id1']);
 
     const queryReq = new QueryRequest('SELECT * FROM cards');
     expect(queryReq.query).toContain('SELECT');
@@ -78,14 +79,14 @@ describe('FlowVault model classes', () => {
 
   it('construct options classes via setters/getters', () => {
     const insertOptions = new InsertOptions();
-    insertOptions.setUpsert({ updateType: 'UPDATE', uniqueColumns: ['email'] });
-    expect(insertOptions.getUpsert()).toEqual({ updateType: 'UPDATE', uniqueColumns: ['email'] });
+    insertOptions.setUpsert({ updateType: UpdateType.UPDATE, uniqueColumns: ['email'] });
+    expect(insertOptions.getUpsert()).toEqual({ updateType: UpdateType.UPDATE, uniqueColumns: ['email'] });
 
     const getOptions = new GetOptions();
-    getOptions.setFields(['name']);
+    getOptions.setColumns(['name']);
     getOptions.setLimit(10);
     getOptions.setOffset(2);
-    expect(getOptions.getFields()).toEqual(['name']);
+    expect(getOptions.getColumns()).toEqual(['name']);
     expect(getOptions.getLimit()).toBe(10);
     expect(getOptions.getOffset()).toBe(2);
   });
@@ -179,9 +180,8 @@ describe('VaultController maps generated responses', () => {
 
     const resp = await controller.query(new QueryRequest('SELECT name FROM cards'));
     expect(resp).toBeInstanceOf(QueryResponse);
-    expect(resp.fields).toEqual([{ name: 'alice' }, { name: 'bob' }]);
+    expect(resp.records).toEqual([{ name: 'alice' }, { name: 'bob' }]);
     expect(resp.metadata.columns).toEqual(['name']);
-    expect(resp.errors).toBeNull();
     expect(resp.requestId).toBe('req-abc-123');
   });
 

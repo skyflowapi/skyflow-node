@@ -1,20 +1,20 @@
 import { BaseUploadFilesRequest } from 'skyflow-common';
-import { UploadFilesRecord } from '../../../types';
+import { UploadFilesRequestRecord } from '../../../types';
 
 /** Request to upload files into one or more file columns. */
 class UploadFilesRequest extends BaseUploadFilesRequest {
-  private _records: UploadFilesRecord[];
+  private _records: UploadFilesRequestRecord[];
 
-  constructor(records: UploadFilesRecord[]) {
+  constructor(records: UploadFilesRequestRecord[]) {
     super();
     this._records = records;
   }
 
-  public get records(): UploadFilesRecord[] {
+  public get records(): UploadFilesRequestRecord[] {
     return this._records;
   }
 
-  public set records(value: UploadFilesRecord[]) {
+  public set records(value: UploadFilesRequestRecord[]) {
     this._records = value;
   }
 }

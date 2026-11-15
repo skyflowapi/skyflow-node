@@ -1,4 +1,5 @@
 import {
+  UpdateType,
   InsertRequest,
   GetRequest,
   UpdateRequest,
@@ -24,20 +25,20 @@ describe('FlowVault request models', () => {
 
   it('GetRequest: ctor, getters and setters (table/ids/records)', () => {
     const req = new GetRequest('cards', ['id1', 'id2']);
-    expect(req.table).toBe('cards');
-    expect(req.ids).toEqual(['id1', 'id2']);
+    expect(req.tableName).toBe('cards');
+    expect(req.skyflowIds).toEqual(['id1', 'id2']);
     expect(req.records).toBeUndefined();
 
-    req.table = 'people';
-    req.ids = ['id3'];
-    req.records = [{ tableName: 't2', ids: ['a', 'b'] }];
-    expect(req.table).toBe('people');
-    expect(req.ids).toEqual(['id3']);
-    expect(req.records).toEqual([{ tableName: 't2', ids: ['a', 'b'] }]);
+    req.tableName = 'people';
+    req.skyflowIds = ['id3'];
+    req.records = [{ tableName: 't2', skyflowIds: ['a', 'b'] }];
+    expect(req.tableName).toBe('people');
+    expect(req.skyflowIds).toEqual(['id3']);
+    expect(req.records).toEqual([{ tableName: 't2', skyflowIds: ['a', 'b'] }]);
 
     // Multi-table via ctor third arg.
-    const multi = new GetRequest('', [], [{ tableName: 't', ids: ['x'] }]);
-    expect(multi.records).toEqual([{ tableName: 't', ids: ['x'] }]);
+    const multi = new GetRequest('', [], [{ tableName: 't', skyflowIds: ['x'] }]);
+    expect(multi.records).toEqual([{ tableName: 't', skyflowIds: ['x'] }]);
   });
 
   it('UpdateRequest: ctor, getters and setters', () => {
@@ -51,22 +52,22 @@ describe('FlowVault request models', () => {
     expect(req.records[0].tokens).toEqual({ y: 'tok' });
 
     expect(req.updateType).toBeUndefined();
-    req.updateType = 'REPLACE';
+    req.updateType = UpdateType.REPLACE;
     expect(req.updateType).toBe('REPLACE');
-    expect(new UpdateRequest('cards', [], 'UPDATE').updateType).toBe('UPDATE');
+    expect(new UpdateRequest('cards', [], UpdateType.UPDATE).updateType).toBe('UPDATE');
   });
 
   it('DeleteRequest: ctor, getters and setters (ids + uniqueValues)', () => {
     const req = new DeleteRequest('cards', ['id1']);
-    expect(req.table).toBe('cards');
-    expect(req.ids).toEqual(['id1']);
+    expect(req.tableName).toBe('cards');
+    expect(req.skyflowIds).toEqual(['id1']);
     expect(req.uniqueValues).toBeUndefined();
 
-    req.table = 'people';
-    req.ids = ['id2', 'id3'];
+    req.tableName = 'people';
+    req.skyflowIds = ['id2', 'id3'];
     req.uniqueValues = [{ email: 'a@b.com' }];
-    expect(req.table).toBe('people');
-    expect(req.ids).toEqual(['id2', 'id3']);
+    expect(req.tableName).toBe('people');
+    expect(req.skyflowIds).toEqual(['id2', 'id3']);
     expect(req.uniqueValues).toEqual([{ email: 'a@b.com' }]);
 
     const withUnique = new DeleteRequest('t', [], [{ ssn: '111' }]);

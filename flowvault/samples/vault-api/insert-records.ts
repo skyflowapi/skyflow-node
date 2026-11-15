@@ -1,4 +1,5 @@
 import {
+  UpdateType,
   Skyflow,
   Env,
   LogLevel,
@@ -36,14 +37,14 @@ async function performSecureDataInsertion(): Promise<void> {
       // record sets its own upsert, the request-level upsert below is ignored.
       // {
       //   data: { name: 'Jane Doe', email: 'jane@example.com' },
-      //   table: '<OTHER_TABLE>',
-      //   upsert: { updateType: 'UPDATE', uniqueColumns: ['email'] },
+      //   tableName: '<OTHER_TABLE>',
+      //   upsert: { updateType: UpdateType.UPDATE, uniqueColumns: ['email'] },
       // },
     ]);
 
     // Request-level upsert: update when a matching value exists in a unique column.
     const insertOptions = new InsertOptions();
-    // insertOptions.setUpsert({ updateType: 'UPDATE', uniqueColumns: ['email'] });
+    // insertOptions.setUpsert({ updateType: UpdateType.UPDATE, uniqueColumns: ['email'] });
 
     const response = await skyflowClient
       .vault('<YOUR_VAULT_ID>')

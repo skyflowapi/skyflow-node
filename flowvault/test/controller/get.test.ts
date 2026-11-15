@@ -45,8 +45,8 @@ describe('VaultController.get', () => {
     const controller = new VaultController(makeFakeClient({ records: { getRecords } }));
 
     const req = new GetRequest('', [], [
-      { tableName: 't1', ids: ['a', 'b'] },
-      { tableName: 't2', ids: ['c'] },
+      { tableName: 't1', skyflowIds: ['a', 'b'] },
+      { tableName: 't2', skyflowIds: ['c'] },
     ]);
     await controller.get(req);
 
@@ -66,12 +66,12 @@ describe('VaultController.get', () => {
     const req = new GetRequest('', [], [
       {
         tableName: 't1',
-        ids: ['a'],
+        skyflowIds: ['a'],
         columns: ['name'],
         columnRedactions: [{ columnName: 'ssn', redaction: 'MASKED' }],
         uniqueValues: [{ email: 'x@y.com' }],
       },
-      { tableName: 't2', ids: ['b'] }, // no per-record fields -> only tableName/skyflowIDs
+      { tableName: 't2', skyflowIds: ['b'] }, // no per-record fields -> only tableName/skyflowIDs
     ]);
     await controller.get(req);
 
@@ -91,7 +91,7 @@ describe('VaultController.get', () => {
     const controller = new VaultController(makeFakeClient({ records: { getRecords } }));
 
     const options = new GetOptions();
-    options.setFields(['name', 'email']);
+    options.setColumns(['name', 'email']);
     options.setColumnRedactions([{ columnName: 'ssn', redaction: 'MASKED' }]);
     options.setUniqueValues([{ email: 'a@b.com' }, { email: 'c@d.com' }]);
     options.setLimit(5);

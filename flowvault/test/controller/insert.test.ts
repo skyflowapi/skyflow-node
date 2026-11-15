@@ -1,4 +1,4 @@
-import { InsertRequest, InsertOptions, InsertResponse } from '../../src';
+import { InsertRequest, InsertOptions, InsertResponse, UpdateType } from '../../src';
 import VaultController from '../../src/controller/vault';
 import {
   makeFakeClient,
@@ -28,7 +28,7 @@ describe('VaultController.insert', () => {
 
     const req = new InsertRequest('cards', [{ data: { card_number: '4111' }, tokens: { card_number: 'byot_1' } }]);
     const options = new InsertOptions();
-    options.setUpsert({ updateType: 'UPDATE', uniqueColumns: ['card_number'] });
+    options.setUpsert({ updateType: UpdateType.UPDATE, uniqueColumns: ['card_number'] });
 
     const resp = await controller.insert(req, options);
 
@@ -40,7 +40,7 @@ describe('VaultController.insert', () => {
     expect(genReq.vaultID).toBe('vault123');
     expect(genReq.tableName).toBe('cards');
     expect(genReq.records).toEqual([{ data: { card_number: '4111' }, tokens: { card_number: 'byot_1' } }]);
-    expect(genReq.upsert).toEqual({ updateType: 'UPDATE', uniqueColumns: ['card_number'] });
+    expect(genReq.upsert).toEqual({ updateType: UpdateType.UPDATE, uniqueColumns: ['card_number'] });
     expect(opts.headers).toBeDefined();
 
     // Response mapped field-by-field.
@@ -105,8 +105,8 @@ describe('VaultController.insert', () => {
     const controller = new VaultController(makeFakeClient({ records: { insertRecords } }));
 
     await controller.insert(new InsertRequest('cards', [
-      { data: { a: 1 }, table: 'cards' },
-      { data: { b: 2 }, table: 'contacts' },
+      { data: { a: 1 }, tableName: 'cards' },
+      { data: { b: 2 }, tableName: 'contacts' },
     ]));
 
     const [genReq] = insertRecords.mock.calls[0];
@@ -122,7 +122,7 @@ describe('VaultController.insert', () => {
     const controller = new VaultController(makeFakeClient({ records: { insertRecords } }));
 
     await controller.insert(new InsertRequest('cards', [
-      { data: { a: 1 }, table: 'contacts' },
+      { data: { a: 1 }, tableName: 'contacts' },
       { data: { b: 2 } }, // no per-record table -> request table 'cards'
     ]));
 
@@ -139,11 +139,11 @@ describe('VaultController.insert', () => {
     const controller = new VaultController(makeFakeClient({ records: { insertRecords } }));
 
     const options = new InsertOptions();
-    options.setUpsert({ updateType: 'UPDATE', uniqueColumns: ['req'] }); // request-level — used as fallback
+    options.setUpsert({ updateType: UpdateType.UPDATE, uniqueColumns: ['req'] }); // request-level — used as fallback
 
     await controller.insert(
       new InsertRequest('cards', [
-        { data: { a: 1 }, upsert: { updateType: 'UPDATE', uniqueColumns: ['email'] } },
+        { data: { a: 1 }, upsert: { updateType: UpdateType.UPDATE, uniqueColumns: ['email'] } },
         { data: { b: 2 } }, // no per-record upsert -> falls back to the request-level one
       ]),
       options,
@@ -151,8 +151,8 @@ describe('VaultController.insert', () => {
 
     const [genReq] = insertRecords.mock.calls[0];
     expect(genReq.upsert).toBeUndefined(); // request-level dropped once any record has its own
-    expect(genReq.records[0].upsert).toEqual({ updateType: 'UPDATE', uniqueColumns: ['email'] });
-    expect(genReq.records[1].upsert).toEqual({ updateType: 'UPDATE', uniqueColumns: ['req'] });
+    expect(genReq.records[0].upsert).toEqual({ updateType: UpdateType.UPDATE, uniqueColumns: ['email'] });
+    expect(genReq.records[1].upsert).toEqual({ updateType: UpdateType.UPDATE, uniqueColumns: ['req'] });
   });
 
   it('populates error + requestId (from header) on a per-record error', async () => {

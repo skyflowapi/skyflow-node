@@ -1,10 +1,10 @@
 import { FlowVaultOptions } from '../base';
-import { ColumnRedaction } from '../../../types';
+import { ColumnRedactions } from '../../../types';
 
 /** Options for a get operation. */
 class GetOptions extends FlowVaultOptions {
-  private fields?: string[];
-  private columnRedactions?: ColumnRedaction[];
+  private columns?: string[];
+  private columnRedactions?: ColumnRedactions[];
   private uniqueValues?: Record<string, unknown>[];
   private limit?: number;
   private offset?: number;
@@ -13,19 +13,19 @@ class GetOptions extends FlowVaultOptions {
     super();
   }
 
-  setFields(fields: string[]): void {
-    this.fields = fields;
+  setColumns(columns: string[]): void {
+    this.columns = columns;
   }
 
-  getFields(): string[] | undefined {
-    return this.fields;
+  getColumns(): string[] | undefined {
+    return this.columns;
   }
 
-  setColumnRedactions(columnRedactions: ColumnRedaction[]): void {
+  setColumnRedactions(columnRedactions: ColumnRedactions[]): void {
     this.columnRedactions = columnRedactions;
   }
 
-  getColumnRedactions(): ColumnRedaction[] | undefined {
+  getColumnRedactions(): ColumnRedactions[] | undefined {
     return this.columnRedactions;
   }
 

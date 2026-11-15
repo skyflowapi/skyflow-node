@@ -291,7 +291,7 @@ export class CheckGuardrailsResponse {
 }
 
 // @public
-export interface ColumnRedaction {
+export interface ColumnRedactions {
     // (undocumented)
     columnName: string;
     // (undocumented)
@@ -529,13 +529,29 @@ export class DeidentifyStringResponse {
     readonly processedText: string | null;
 }
 
+// @public (undocumented)
+export interface DeleteFilesColumnResult {
+    // (undocumented)
+    column: string;
+    // (undocumented)
+    status: string | null;
+}
+
 // @public
 export class DeleteFilesOptions extends FlowVaultOptions {
     constructor();
 }
 
 // @public
-export interface DeleteFilesRecord {
+export class DeleteFilesRequest extends BaseDeleteFilesRequest {
+    constructor(records: DeleteFilesRequestRecord[]);
+    // (undocumented)
+    get records(): DeleteFilesRequestRecord[];
+    set records(value: DeleteFilesRequestRecord[]);
+}
+
+// @public
+export interface DeleteFilesRequestRecord {
     // (undocumented)
     columns: string[];
     // (undocumented)
@@ -544,14 +560,6 @@ export interface DeleteFilesRecord {
     tableName: string;
     // (undocumented)
     uniqueValues?: Record<string, unknown>[];
-}
-
-// @public
-export class DeleteFilesRequest extends BaseDeleteFilesRequest {
-    constructor(records: DeleteFilesRecord[]);
-    // (undocumented)
-    get records(): DeleteFilesRecord[];
-    set records(value: DeleteFilesRecord[]);
 }
 
 // @public
@@ -564,17 +572,9 @@ export class DeleteFilesResponse extends BaseDeleteFilesResponse {
 }
 
 // @public (undocumented)
-export interface DeleteFilesResponseColumn {
-    // (undocumented)
-    column: string;
-    // (undocumented)
-    status: string | null;
-}
-
-// @public (undocumented)
 export interface DeleteFilesResponseRecord {
     // (undocumented)
-    columns: DeleteFilesResponseColumn[] | null;
+    columns: DeleteFilesColumnResult[] | null;
     // (undocumented)
     error?: string | null;
     // (undocumented)
@@ -594,13 +594,13 @@ export class DeleteOptions extends FlowVaultOptions {
 
 // @public
 export class DeleteRequest extends BaseDeleteRequest {
-    constructor(table: string, ids: string[], uniqueValues?: Record<string, unknown>[]);
+    constructor(tableName: string, skyflowIds: string[], uniqueValues?: Record<string, unknown>[]);
     // (undocumented)
-    get ids(): string[];
-    set ids(value: string[]);
+    get skyflowIds(): string[];
+    set skyflowIds(value: string[]);
     // (undocumented)
-    get table(): string;
-    set table(value: string);
+    get tableName(): string;
+    set tableName(value: string);
     // (undocumented)
     get uniqueValues(): Record<string, unknown>[] | undefined;
     set uniqueValues(value: Record<string, unknown>[] | undefined);
@@ -705,10 +705,10 @@ export class DetokenizeOptions extends FlowVaultOptions {
 
 // @public
 export class DetokenizeRequest extends BaseDetokenizeRequest {
-    constructor(tokens: string[], tokenGroupRedactions?: TokenGroupRedaction[]);
+    constructor(tokens: string[], tokenGroupRedactions?: TokenGroupRedactions[]);
     // (undocumented)
-    get tokenGroupRedactions(): TokenGroupRedaction[] | undefined;
-    set tokenGroupRedactions(value: TokenGroupRedaction[] | undefined);
+    get tokenGroupRedactions(): TokenGroupRedactions[] | undefined;
+    set tokenGroupRedactions(value: TokenGroupRedactions[] | undefined);
     // (undocumented)
     get tokens(): string[];
     set tokens(value: string[]);
@@ -1089,6 +1089,7 @@ export const errorMessages: {
     readonly INVALID_TOKEN_STRICT: string;
     readonly INVALID_CONTINUE_ON_ERROR: string;
     readonly INVALID_UPSERT: string;
+    readonly INVALID_UPDATE_TYPE: string;
     readonly INVALID_RETURN_TOKEN: string;
     readonly NO_TOKENS_WITH_TOKEN_MODE: string;
     readonly INSUFFICIENT_TOKENS_PASSED_FOR_TOKEN_MODE_ENABLE_STRICT: string;
@@ -1172,9 +1173,6 @@ export class FlowVaultOptions {
     setInterceptor(interceptor: RequestInterceptor): void;
 }
 
-// @public
-export type FlowVaultRecordError = SkyflowRecordError;
-
 // @public (undocumented)
 export function generateBearerToken(credentialsFilePath: string, options?: BearerTokenOptions): Promise<TokenResponse>;
 
@@ -1213,9 +1211,9 @@ export function getConnectionBaseURL(clusterId: string, env: Env): string;
 export class GetOptions extends FlowVaultOptions {
     constructor();
     // (undocumented)
-    getColumnRedactions(): ColumnRedaction[] | undefined;
+    getColumnRedactions(): ColumnRedactions[] | undefined;
     // (undocumented)
-    getFields(): string[] | undefined;
+    getColumns(): string[] | undefined;
     // (undocumented)
     getLimit(): number | undefined;
     // (undocumented)
@@ -1223,9 +1221,9 @@ export class GetOptions extends FlowVaultOptions {
     // (undocumented)
     getUniqueValues(): Record<string, unknown>[] | undefined;
     // (undocumented)
-    setColumnRedactions(columnRedactions: ColumnRedaction[]): void;
+    setColumnRedactions(columnRedactions: ColumnRedactions[]): void;
     // (undocumented)
-    setFields(fields: string[]): void;
+    setColumns(columns: string[]): void;
     // (undocumented)
     setLimit(limit: number): void;
     // (undocumented)
@@ -1235,31 +1233,31 @@ export class GetOptions extends FlowVaultOptions {
 }
 
 // @public
-export interface GetRecord {
+export class GetRequest extends BaseGetRequest {
+    constructor(tableName: string, skyflowIds: string[], records?: GetRequestRecord[]);
     // (undocumented)
-    columnRedactions?: ColumnRedaction[];
+    get records(): GetRequestRecord[] | undefined;
+    set records(value: GetRequestRecord[] | undefined);
+    // (undocumented)
+    get skyflowIds(): string[];
+    set skyflowIds(value: string[]);
+    // (undocumented)
+    get tableName(): string;
+    set tableName(value: string);
+}
+
+// @public
+export interface GetRequestRecord {
+    // (undocumented)
+    columnRedactions?: ColumnRedactions[];
     // (undocumented)
     columns?: string[];
     // (undocumented)
-    ids: string[];
+    skyflowIds: string[];
     // (undocumented)
     tableName: string;
     // (undocumented)
     uniqueValues?: Record<string, unknown>[];
-}
-
-// @public
-export class GetRequest extends BaseGetRequest {
-    constructor(table: string, ids: string[], records?: GetRecord[]);
-    // (undocumented)
-    get ids(): string[];
-    set ids(value: string[]);
-    // (undocumented)
-    get records(): GetRecord[] | undefined;
-    set records(value: GetRecord[] | undefined);
-    // (undocumented)
-    get table(): string;
-    set table(value: string);
 }
 
 // @public
@@ -1335,19 +1333,19 @@ export class GetTokensOptions extends FlowVaultOptions {
 }
 
 // @public
-export interface GetTokensRecord {
+export class GetTokensRequest extends BaseGetTokensRequest {
+    constructor(records: GetTokensRequestRecord[]);
+    // (undocumented)
+    get records(): GetTokensRequestRecord[];
+    set records(value: GetTokensRequestRecord[]);
+}
+
+// @public
+export interface GetTokensRequestRecord {
     // (undocumented)
     tokenGroupName: string;
     // (undocumented)
     value: unknown;
-}
-
-// @public
-export class GetTokensRequest extends BaseGetTokensRequest {
-    constructor(records: GetTokensRecord[]);
-    // (undocumented)
-    get records(): GetTokensRecord[];
-    set records(value: GetTokensRecord[]);
 }
 
 // @public
@@ -1434,25 +1432,25 @@ export class InsertOptions extends FlowVaultOptions {
 }
 
 // @public
-export interface InsertRecord {
-    // (undocumented)
-    data: Record<string, unknown>;
-    // (undocumented)
-    table?: string;
-    // (undocumented)
-    tokens?: Record<string, unknown>;
-    upsert?: UpsertOptions;
-}
-
-// @public
 export class InsertRequest extends BaseInsertRequest {
-    constructor(tableName: string, records: InsertRecord[]);
+    constructor(tableName: string, records: InsertRequestRecord[]);
     // (undocumented)
-    get records(): InsertRecord[];
-    set records(value: InsertRecord[]);
+    get records(): InsertRequestRecord[];
+    set records(value: InsertRequestRecord[]);
     // (undocumented)
     get tableName(): string;
     set tableName(value: string);
+}
+
+// @public
+export interface InsertRequestRecord {
+    // (undocumented)
+    data: Record<string, unknown>;
+    // (undocumented)
+    tableName?: string;
+    // (undocumented)
+    tokens?: Record<string, unknown>;
+    upsert?: UpsertOptions;
 }
 
 // @public
@@ -1991,17 +1989,13 @@ export class QueryRequest extends BaseQueryRequest {
 // @public
 export class QueryResponse extends BaseQueryResponse {
     constructor(input: {
-        fields: Record<string, unknown>[];
-        errors: FlowVaultRecordError[] | null;
+        records: Record<string, unknown>[];
         metadata: QueryResponseMetadata;
         requestId: string;
     });
     // (undocumented)
-    readonly errors: FlowVaultRecordError[] | null;
-    // (undocumented)
-    readonly fields: Record<string, unknown>[];
-    // (undocumented)
     readonly metadata: QueryResponseMetadata;
+    readonly records: Record<string, unknown>[];
     // (undocumented)
     readonly requestId: string;
 }
@@ -2345,7 +2339,7 @@ export interface TokenCredentials {
 }
 
 // @public
-export interface TokenGroupRedaction {
+export interface TokenGroupRedactions {
     // (undocumented)
     redaction: string;
     // (undocumented)
@@ -2403,29 +2397,29 @@ export class UpdateOptions extends FlowVaultOptions {
 }
 
 // @public
-export interface UpdateRecord {
+export class UpdateRequest extends BaseUpdateRequest {
+    constructor(tableName: string, records: UpdateRequestRecord[], updateType?: UpdateType);
+    // (undocumented)
+    get records(): UpdateRequestRecord[];
+    set records(value: UpdateRequestRecord[]);
+    // (undocumented)
+    get tableName(): string;
+    set tableName(value: string);
+    // (undocumented)
+    get updateType(): UpdateType | undefined;
+    set updateType(value: UpdateType | undefined);
+}
+
+// @public
+export interface UpdateRequestRecord {
     // (undocumented)
     data: Record<string, unknown>;
     // (undocumented)
     skyflowId: string;
     // (undocumented)
-    table?: string;
+    tableName?: string;
     // (undocumented)
     tokens?: Record<string, unknown>;
-}
-
-// @public
-export class UpdateRequest extends BaseUpdateRequest {
-    constructor(tableName: string, records: UpdateRecord[], updateType?: string);
-    // (undocumented)
-    get records(): UpdateRecord[];
-    set records(value: UpdateRecord[]);
-    // (undocumented)
-    get tableName(): string;
-    set tableName(value: string);
-    // (undocumented)
-    get updateType(): string | undefined;
-    set updateType(value: string | undefined);
 }
 
 // @public
@@ -2458,17 +2452,21 @@ export interface UpdateResponseRecord {
 }
 
 // @public
-export interface UploadFilesColumn {
-    // (undocumented)
-    base64?: string;
+export enum UpdateType {
+    REPLACE = "REPLACE",
+    UPDATE = "UPDATE"
+}
+
+// @public (undocumented)
+export interface UploadFilesColumnResult {
     // (undocumented)
     column: string;
     // (undocumented)
-    file?: File;
+    error?: string | null;
     // (undocumented)
-    fileName?: string;
+    fileName?: string | null;
     // (undocumented)
-    filePath?: string;
+    uploadStatus: UploadStatus;
 }
 
 // @public
@@ -2477,21 +2475,35 @@ export class UploadFilesOptions extends FlowVaultOptions {
 }
 
 // @public
-export interface UploadFilesRecord {
+export class UploadFilesRequest extends BaseUploadFilesRequest {
+    constructor(records: UploadFilesRequestRecord[]);
     // (undocumented)
-    columns: UploadFilesColumn[];
+    get records(): UploadFilesRequestRecord[];
+    set records(value: UploadFilesRequestRecord[]);
+}
+
+// @public
+export interface UploadFilesRequestColumn {
+    // (undocumented)
+    base64?: string;
+    // (undocumented)
+    column: string;
+    // (undocumented)
+    fileName?: string;
+    // (undocumented)
+    fileObject?: File;
+    // (undocumented)
+    filePath?: string;
+}
+
+// @public
+export interface UploadFilesRequestRecord {
+    // (undocumented)
+    columns: UploadFilesRequestColumn[];
     // (undocumented)
     skyflowId?: string;
     // (undocumented)
     tableName: string;
-}
-
-// @public
-export class UploadFilesRequest extends BaseUploadFilesRequest {
-    constructor(records: UploadFilesRecord[]);
-    // (undocumented)
-    get records(): UploadFilesRecord[];
-    set records(value: UploadFilesRecord[]);
 }
 
 // @public
@@ -2504,21 +2516,9 @@ export class UploadFilesResponse extends BaseUploadFilesResponse {
 }
 
 // @public (undocumented)
-export interface UploadFilesResponseColumn {
-    // (undocumented)
-    column: string;
-    // (undocumented)
-    error?: string | null;
-    // (undocumented)
-    fileName?: string | null;
-    // (undocumented)
-    uploadStatus: UploadStatus;
-}
-
-// @public (undocumented)
 export interface UploadFilesResponseRecord {
     // (undocumented)
-    columns: UploadFilesResponseColumn[];
+    columns: UploadFilesColumnResult[];
     // (undocumented)
     error?: string | null;
     // (undocumented)
@@ -2539,7 +2539,7 @@ export interface UpsertOptions {
     // (undocumented)
     uniqueColumns: string[];
     // (undocumented)
-    updateType: string;
+    updateType: UpdateType;
 }
 
 // @public (undocumented)

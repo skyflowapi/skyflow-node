@@ -2,6 +2,8 @@ import {
   SkyflowError,
   SKYFLOW_ERROR_CODE,
   InsertRequest,
+  InsertOptions,
+  UpdateType,
   GetRequest,
   GetOptions,
   UpdateRequest,
@@ -69,7 +71,7 @@ describe('validateGetRequest', () => {
 
   it('does not throw for valid single-table or multi-table input', () => {
     expect(() => validateGetRequest(new GetRequest('t', ['id']))).not.toThrow();
-    expect(() => validateGetRequest(new GetRequest('', [], [{ tableName: 't', ids: ['i'] }]))).not.toThrow();
+    expect(() => validateGetRequest(new GetRequest('', [], [{ tableName: 't', skyflowIds: ['i'] }]))).not.toThrow();
   });
 
   it('allows empty ids when uniqueValues are provided on GetOptions', () => {
@@ -217,7 +219,7 @@ describe('validateUploadFilesRequest', () => {
     const fakeFile = { name: 'f.pdf', arrayBuffer: async () => new ArrayBuffer(0) } as unknown as File;
     expect(() => validateUploadFilesRequest(new UploadFilesRequest([{ tableName: 't', columns: [{ column: 'c', base64: 'x', fileName: 'f.pdf' }] }]))).not.toThrow();
     expect(() => validateUploadFilesRequest(new UploadFilesRequest([{ tableName: 't', columns: [{ column: 'c', filePath: '/p/x.png' }] }]))).not.toThrow();
-    expect(() => validateUploadFilesRequest(new UploadFilesRequest([{ tableName: 't', columns: [{ column: 'c', file: fakeFile }] }]))).not.toThrow();
+    expect(() => validateUploadFilesRequest(new UploadFilesRequest([{ tableName: 't', columns: [{ column: 'c', fileObject: fakeFile }] }]))).not.toThrow();
   });
 });
 
@@ -256,5 +258,37 @@ describe('validateDeleteFilesRequest', () => {
   it('does not throw with skyflowId only or uniqueValues only', () => {
     expect(() => validateDeleteFilesRequest(new DeleteFilesRequest([{ tableName: 't', columns: ['c'], skyflowId: 'i' }]))).not.toThrow();
     expect(() => validateDeleteFilesRequest(new DeleteFilesRequest([{ tableName: 't', columns: ['c'], uniqueValues: [{ a: 1 }] }]))).not.toThrow();
+  });
+});
+
+describe('updateType validation (UpdateType enum)', () => {
+  it('accepts UpdateType values and rejects anything else on update', () => {
+    expect(() =>
+      validateUpdateRequest(new UpdateRequest('t', [{ skyflowId: 'i', data: { a: 1 } }], UpdateType.REPLACE)),
+    ).not.toThrow();
+    expectCode(
+      () =>
+        validateUpdateRequest(
+          new UpdateRequest('t', [{ skyflowId: 'i', data: { a: 1 } }], 'MERGE' as unknown as UpdateType),
+        ),
+      SKYFLOW_ERROR_CODE.INVALID_UPDATE_TYPE,
+    );
+  });
+
+  it('rejects an invalid upsert updateType at request level and record level on insert', () => {
+    const badUpsert = { updateType: 'MERGE' as unknown as UpdateType, uniqueColumns: ['email'] };
+    const options = new InsertOptions();
+    options.setUpsert(badUpsert);
+    expectCode(
+      () => validateInsertRequest(new InsertRequest('t', [{ data: { a: 1 } }]), options),
+      SKYFLOW_ERROR_CODE.INVALID_UPDATE_TYPE,
+    );
+    expectCode(
+      () => validateInsertRequest(new InsertRequest('t', [{ data: { a: 1 }, upsert: badUpsert }])),
+      SKYFLOW_ERROR_CODE.INVALID_UPDATE_TYPE,
+    );
+    const goodOptions = new InsertOptions();
+    goodOptions.setUpsert({ updateType: UpdateType.UPDATE, uniqueColumns: ['email'] });
+    expect(() => validateInsertRequest(new InsertRequest('t', [{ data: { a: 1 } }]), goodOptions)).not.toThrow();
   });
 });

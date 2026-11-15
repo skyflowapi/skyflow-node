@@ -33,13 +33,13 @@ async function performSecureDataRetrieval(): Promise<void> {
     // Multi-table batch: leave table/ids empty and pass per-table records instead.
     // Each record can carry its own columns / columnRedactions / uniqueValues.
     // const getRequest = new GetRequest('', [], [
-    //   { tableName: '<TABLE_A>', ids: ['<ID_A1>'], columns: ['<COLUMN>'] },
-    //   { tableName: '<TABLE_B>', ids: [], uniqueValues: [{ email: '<EMAIL>' }] },
+    //   { tableName: '<TABLE_A>', skyflowIds: ['<ID_A1>'], columns: ['<COLUMN>'] },
+    //   { tableName: '<TABLE_B>', skyflowIds: [], uniqueValues: [{ email: '<EMAIL>' }] },
     // ]);
 
     // Optional: limit columns, redact per column, or look up by unique values.
     const getOptions = new GetOptions();
-    // getOptions.setFields(['name', 'email']);
+    // getOptions.setColumns(['name', 'email']);
     // getOptions.setColumnRedactions([{ columnName: 'ssn', redaction: 'MASKED' }]);
     // getOptions.setUniqueValues([{ email: 'john@example.com' }]);
 
