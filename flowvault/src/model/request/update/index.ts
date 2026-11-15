@@ -1,14 +1,15 @@
 import { BaseUpdateRequest } from 'skyflow-common';
-import { UpdateRecord } from '../../../types';
+import { UpdateRequestRecord } from '../../../types';
+import { UpdateType } from '../../../enums/update-type';
 
 /** Request to update one or more records in a table. */
 class UpdateRequest extends BaseUpdateRequest {
   private _tableName: string;
-  private _records: UpdateRecord[];
-  // Request-level update type (e.g. "UPDATE" | "REPLACE"); mirrors Java/Python flowvault.
-  private _updateType?: string;
+  private _records: UpdateRequestRecord[];
+  // Request-level update type; mirrors `UpdateType` in the Java FlowVault SDK.
+  private _updateType?: UpdateType;
 
-  constructor(tableName: string, records: UpdateRecord[], updateType?: string) {
+  constructor(tableName: string, records: UpdateRequestRecord[], updateType?: UpdateType) {
     super();
     this._tableName = tableName;
     this._records = records;
@@ -23,19 +24,19 @@ class UpdateRequest extends BaseUpdateRequest {
     this._tableName = value;
   }
 
-  public get records(): UpdateRecord[] {
+  public get records(): UpdateRequestRecord[] {
     return this._records;
   }
 
-  public set records(value: UpdateRecord[]) {
+  public set records(value: UpdateRequestRecord[]) {
     this._records = value;
   }
 
-  public get updateType(): string | undefined {
+  public get updateType(): UpdateType | undefined {
     return this._updateType;
   }
 
-  public set updateType(value: string | undefined) {
+  public set updateType(value: UpdateType | undefined) {
     this._updateType = value;
   }
 }

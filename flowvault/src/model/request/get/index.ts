@@ -1,50 +1,51 @@
 import { BaseGetRequest } from 'skyflow-common';
-import { ColumnRedaction } from '../../../types';
+import { ColumnRedactions } from '../../../types';
 
-/** A single table/ids entry for a multi-table get request, with optional
- * per-record column selection / redaction / unique-value lookup. */
-export interface GetRecord {
+/** A single table / skyflow-ids entry for a multi-table get request, with optional
+ * per-record column selection / redaction / unique-value lookup. Mirrors
+ * `GetRequestRecord` in the Java and Python FlowVault SDKs. */
+export interface GetRequestRecord {
   tableName: string;
-  ids: string[];
+  skyflowIds: string[];
   columns?: string[];
-  columnRedactions?: ColumnRedaction[];
+  columnRedactions?: ColumnRedactions[];
   uniqueValues?: Record<string, unknown>[];
 }
 
 /** Request to fetch records by Skyflow ID, optionally across tables. */
 class GetRequest extends BaseGetRequest {
-  private _table: string;
-  private _ids: string[];
-  private _records?: GetRecord[];
+  private _tableName: string;
+  private _skyflowIds: string[];
+  private _records?: GetRequestRecord[];
 
-  constructor(table: string, ids: string[], records?: GetRecord[]) {
+  constructor(tableName: string, skyflowIds: string[], records?: GetRequestRecord[]) {
     super();
-    this._table = table;
-    this._ids = ids;
+    this._tableName = tableName;
+    this._skyflowIds = skyflowIds;
     this._records = records;
   }
 
-  public get table(): string {
-    return this._table;
+  public get tableName(): string {
+    return this._tableName;
   }
 
-  public set table(value: string) {
-    this._table = value;
+  public set tableName(value: string) {
+    this._tableName = value;
   }
 
-  public get ids(): string[] {
-    return this._ids;
+  public get skyflowIds(): string[] {
+    return this._skyflowIds;
   }
 
-  public set ids(value: string[]) {
-    this._ids = value;
+  public set skyflowIds(value: string[]) {
+    this._skyflowIds = value;
   }
 
-  public get records(): GetRecord[] | undefined {
+  public get records(): GetRequestRecord[] | undefined {
     return this._records;
   }
 
-  public set records(value: GetRecord[] | undefined) {
+  public set records(value: GetRequestRecord[] | undefined) {
     this._records = value;
   }
 }

@@ -1,27 +1,24 @@
 import { BaseQueryResponse } from 'skyflow-common';
-import { FlowVaultRecordError, QueryResponseMetadata } from '../../../types';
+import { QueryResponseMetadata } from '../../../types';
 
-/** Response from a query operation. */
+/** Response from a query operation. Mirrors `QueryResponse` in the Java and Python FlowVault SDKs. */
 class QueryResponse extends BaseQueryResponse {
-  readonly fields: Record<string, unknown>[];
-  readonly errors: FlowVaultRecordError[] | null;
+  /** The result rows, one plain object per row keyed by column name. */
+  readonly records: Record<string, unknown>[];
   readonly metadata: QueryResponseMetadata;
   readonly requestId: string;
 
   constructor({
-    fields,
-    errors,
+    records,
     metadata,
     requestId,
   }: {
-    fields: Record<string, unknown>[];
-    errors: FlowVaultRecordError[] | null;
+    records: Record<string, unknown>[];
     metadata: QueryResponseMetadata;
     requestId: string;
   }) {
     super();
-    this.fields = fields;
-    this.errors = errors;
+    this.records = records;
     this.metadata = metadata;
     this.requestId = requestId;
   }

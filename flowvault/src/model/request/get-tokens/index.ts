@@ -1,20 +1,20 @@
 import { BaseGetTokensRequest } from 'skyflow-common';
-import { GetTokensRecord } from '../../../types';
+import { GetTokensRequestRecord } from '../../../types';
 
 /** Request to fetch deterministic tokens for a list of values. */
 class GetTokensRequest extends BaseGetTokensRequest {
-  private _records: GetTokensRecord[];
+  private _records: GetTokensRequestRecord[];
 
-  constructor(records: GetTokensRecord[]) {
+  constructor(records: GetTokensRequestRecord[]) {
     super();
     this._records = records;
   }
 
-  public get records(): GetTokensRecord[] {
+  public get records(): GetTokensRequestRecord[] {
     return this._records;
   }
 
-  public set records(value: GetTokensRecord[]) {
+  public set records(value: GetTokensRequestRecord[]) {
     this._records = value;
   }
 }

@@ -1,4 +1,5 @@
 import {
+  UpdateType,
   Skyflow,
   Env,
   LogLevel,
@@ -26,12 +27,12 @@ async function performSecureDataUpdate(): Promise<void> {
       logLevel: LogLevel.ERROR,
     });
 
-    // Each record needs a skyflowId. Set `table` on a record to target a
+    // Each record needs a skyflowId. Set `tableName` on a record to target a
     // different table in the same call; `tokens` enables BYOT. The optional 3rd
-    // arg is a request-level updateType: 'UPDATE' (merge) or 'REPLACE' (overwrite).
+    // arg is a request-level updateType: UpdateType.UPDATE (merge) or UpdateType.REPLACE (overwrite).
     const updateRequest = new UpdateRequest('<SENSITIVE_DATA_TABLE>', [
       { skyflowId: '<SKYFLOW_ID>', data: { name: 'Jane Doe' } },
-    ], 'UPDATE');
+    ], UpdateType.UPDATE);
 
     const response = await skyflowClient
       .vault('<YOUR_VAULT_ID>')

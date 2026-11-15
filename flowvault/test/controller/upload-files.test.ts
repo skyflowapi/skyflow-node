@@ -107,7 +107,7 @@ describe('VaultController.uploadFiles', () => {
     const controller = new VaultController(makeFakeClient({ files: { uploadFiles } }));
 
     const req = new UploadFilesRequest([
-      { tableName: 't', columns: [{ column: 'pic', file: fakeFile([1, 2, 3], 'photo.jpg') }] },
+      { tableName: 't', columns: [{ column: 'pic', fileObject: fakeFile([1, 2, 3], 'photo.jpg') }] },
     ]);
     const resp = await controller.uploadFiles(req);
 
@@ -252,7 +252,7 @@ describe('VaultController.uploadFiles', () => {
           tableName: 't',
           columns: [
             // File-like with an undefined name and no explicit fileName -> fileName stays undefined.
-            { column: 'a', file: fakeFile([1], undefined as unknown as string) },
+            { column: 'a', fileObject: fakeFile([1], undefined as unknown as string) },
             // A trailing-dot name -> extension resolves to '' -> octet-stream.
             { column: 'b', base64: 'aGk=', fileName: 'weird.' },
           ],

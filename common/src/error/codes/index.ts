@@ -174,6 +174,7 @@ const _SKYFLOW_ERROR_CODE = {
     INVALID_TOKEN_STRICT: { httpCode: 400, message: errorMessages.INVALID_TOKEN_STRICT },
     INVALID_CONTINUE_ON_ERROR: { httpCode: 400, message: errorMessages.INVALID_CONTINUE_ON_ERROR },
     INVALID_UPSERT: { httpCode: 400, message: errorMessages.INVALID_UPSERT },
+    INVALID_UPDATE_TYPE: { httpCode: 400, message: errorMessages.INVALID_UPDATE_TYPE },
     INVALID_RETURN_TOKEN: { httpCode: 400, message: errorMessages.INVALID_RETURN_TOKEN },
 
     NO_TOKENS_WITH_TOKEN_MODE: { httpCode: 400, message: errorMessages.NO_TOKENS_WITH_TOKEN_MODE },

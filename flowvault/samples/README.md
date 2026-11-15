@@ -6,9 +6,20 @@ Runnable examples for the `skyflow-flowvault-node` SDK — one file per operatio
 ## Prerequisites
 
 - Node.js 20+ (the `File` API used by `uploadFiles` requires v20+).
-- `npm install skyflow-flowvault-node`
 - A FlowVault vault and Skyflow credentials (a service-account `credentials.json`, an API key, or a
   bearer token).
+
+## Install
+
+This folder has its own `package.json` that pins the SDK and the TypeScript runner:
+
+```bash
+cd flowvault/samples
+npm install
+```
+
+Working inside the SDK repo instead? Skip the install: `skyflow-flowvault-node` already resolves to
+the local build through the npm workspace, so run the samples from the repo root as shown below.
 
 ## Configure
 
@@ -33,6 +44,11 @@ const skyflowClient = new Skyflow({
 The samples are TypeScript. Run one with `ts-node` (or compile with `tsc` first):
 
 ```bash
+# After `npm install` in this folder
+cd flowvault/samples
+npx ts-node vault-api/insert-records.ts
+
+# Or from the SDK repo root, against the local build
 npx ts-node flowvault/samples/vault-api/insert-records.ts
 ```
 
@@ -40,14 +56,14 @@ npx ts-node flowvault/samples/vault-api/insert-records.ts
 
 | Sample | Demonstrates |
 |---|---|
-| [insert-records.ts](vault-api/insert-records.ts) | Insert records (request-level or per-record `table`; `upsert`) |
+| [insert-records.ts](vault-api/insert-records.ts) | Insert records (request-level or per-record `tableName`; `upsert`) |
 | [get-records.ts](vault-api/get-records.ts) | Retrieve records by Skyflow ID (single- and multi-table) |
 | [update-record.ts](vault-api/update-record.ts) | Update a record by Skyflow ID |
 | [delete-records.ts](vault-api/delete-records.ts) | Delete records by Skyflow ID or unique values |
 | [detokenize-records.ts](vault-api/detokenize-records.ts) | Detokenize tokens |
 | [query-records.ts](vault-api/query-records.ts) | Run a read-only SQL `SELECT` query |
 | [get-tokens.ts](vault-api/get-tokens.ts) | Look up existing tokens for values (deterministic token groups) |
-| [upload-files.ts](vault-api/upload-files.ts) | Upload files to file columns (`filePath` / `base64` / `file`) |
+| [upload-files.ts](vault-api/upload-files.ts) | Upload files to file columns (`filePath` / `base64` / `fileObject`) |
 | [delete-files.ts](vault-api/delete-files.ts) | Delete files from file columns (by `skyflowId` or `uniqueValues`) |
 
 ## Detect

@@ -74,15 +74,13 @@ describe('FlowVault response models', () => {
     expect(resp.records[0].columns?.[0].status).toBe('DELETED');
   });
 
-  it('QueryResponse holds fields/errors/metadata/requestId', () => {
+  it('QueryResponse holds records/metadata/requestId', () => {
     const resp = new QueryResponse({
-      fields: [{ name: 'alice' }, { name: 'bob' }],
-      errors: null,
+      records: [{ name: 'alice' }, { name: 'bob' }],
       metadata: { columns: ['name'] },
       requestId: 'req-1',
     });
-    expect(resp.fields).toEqual([{ name: 'alice' }, { name: 'bob' }]);
-    expect(resp.errors).toBeNull();
+    expect(resp.records).toEqual([{ name: 'alice' }, { name: 'bob' }]);
     expect(resp.metadata.columns).toEqual(['name']);
     expect(resp.requestId).toBe('req-1');
   });

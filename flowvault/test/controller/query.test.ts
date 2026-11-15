@@ -27,9 +27,8 @@ describe('VaultController.query', () => {
     expect(genReq.vaultID).toBe('vault123');
     expect(genReq.query).toBe('SELECT name FROM cards');
 
-    expect(resp.fields).toEqual([{ name: 'alice' }, { name: 'bob' }]);
+    expect(resp.records).toEqual([{ name: 'alice' }, { name: 'bob' }]);
     expect(resp.metadata.columns).toEqual(['name']);
-    expect(resp.errors).toBeNull();
     expect(resp.requestId).toBe(REQUEST_ID);
   });
 
@@ -42,7 +41,7 @@ describe('VaultController.query', () => {
 
     const resp = await controller.query(new QueryRequest('SELECT * FROM cards'));
 
-    expect(resp.fields).toEqual([{ skyflowId: 'id-1', name: 'alice' }]);
+    expect(resp.records).toEqual([{ skyflowId: 'id-1', name: 'alice' }]);
     expect(resp.metadata.columns).toEqual(['skyflowId', 'name']);
   });
 
@@ -52,7 +51,7 @@ describe('VaultController.query', () => {
 
     const resp = await controller.query(new QueryRequest('SELECT 1'));
 
-    expect(resp.fields).toEqual([{}, {}]);
+    expect(resp.records).toEqual([{}, {}]);
     expect(resp.metadata.columns).toEqual([]);
     expect(resp.requestId).toBe('');
   });
@@ -61,7 +60,7 @@ describe('VaultController.query', () => {
     const executeQuery = resourceMethod({ metadata: { columns: [] } });
     const controller = new VaultController(makeFakeClient({ query: { executeQuery } }));
     const resp = await controller.query(new QueryRequest('SELECT 1'));
-    expect(resp.fields).toEqual([]);
+    expect(resp.records).toEqual([]);
   });
 
   it('rejects when the generated method throws', async () => {

@@ -1,4 +1,4 @@
-import { UpdateRequest, UpdateResponse } from '../../src';
+import { UpdateRequest, UpdateResponse, UpdateType } from '../../src';
 import VaultController from '../../src/controller/vault';
 import {
   makeFakeClient,
@@ -56,7 +56,7 @@ describe('VaultController.update', () => {
     const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
 
     await controller.update(new UpdateRequest('cards', [
-      { skyflowId: 'id1', data: { x: 1 }, table: 'cards' },
+      { skyflowId: 'id1', data: { x: 1 }, tableName: 'cards' },
       { skyflowId: 'id2', data: { y: 2 } }, // no per-record table -> request table 'cards'
     ]));
 
@@ -72,7 +72,7 @@ describe('VaultController.update', () => {
     const updateRecords = resourceMethod({ records: [] });
     const controller = new VaultController(makeFakeClient({ records: { updateRecords } }));
 
-    await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }], 'REPLACE'));
+    await controller.update(new UpdateRequest('cards', [{ skyflowId: 'id1', data: { x: 1 } }], UpdateType.REPLACE));
 
     const [genReq] = updateRecords.mock.calls[0];
     expect(genReq.updateType).toBe('REPLACE');

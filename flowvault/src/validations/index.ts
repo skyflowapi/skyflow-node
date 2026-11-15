@@ -15,12 +15,24 @@ import DetokenizeRequest from '../model/request/detokenize';
 import GetTokensRequest from '../model/request/get-tokens';
 import UploadFilesRequest from '../model/request/upload-files';
 import DeleteFilesRequest from '../model/request/delete-files';
+import InsertOptions from '../model/options/insert';
+import { UpdateType } from '../enums/update-type';
+import { UpsertOptions } from '../types';
 
 const isNonEmptyString = (value: unknown): boolean =>
   typeof value === 'string' && value.trim().length > 0;
 
 const isNonEmptyArray = (value: unknown): boolean =>
   Array.isArray(value) && value.length > 0;
+
+const UPDATE_TYPES: readonly string[] = Object.values(UpdateType);
+
+/** An `updateType` is optional, but when present it must be one of the `UpdateType` values. */
+const isValidUpdateType = (value: unknown): boolean =>
+  value === undefined || value === null || (typeof value === 'string' && UPDATE_TYPES.includes(value));
+
+const isValidUpsert = (upsert: UpsertOptions | undefined): boolean =>
+  upsert === undefined || upsert === null || isValidUpdateType(upsert.updateType);
 
 const fail = (code: { httpCode: number; message: string }, logLevel?: LogLevel): never => {
   printLog(code.message, MessageType.ERROR, logLevel);
@@ -29,7 +41,7 @@ const fail = (code: { httpCode: number; message: string }, logLevel?: LogLevel):
 
 export const validateInsertRequest = (
   request: InsertRequest,
-  _options?: unknown,
+  options?: InsertOptions,
   logLevel?: LogLevel,
 ): void => {
   if (!request || !(request instanceof InsertRequest)) {
@@ -41,9 +53,15 @@ export const validateInsertRequest = (
   if (!isNonEmptyArray(request.records)) {
     fail(SKYFLOW_ERROR_CODE.EMPTY_RECORD_IN_INSERT, logLevel);
   }
+  if (!isValidUpsert(options?.getUpsert())) {
+    fail(SKYFLOW_ERROR_CODE.INVALID_UPDATE_TYPE, logLevel);
+  }
   request.records.forEach((record) => {
     if (!record || typeof record.data !== 'object' || record.data === null) {
       fail(SKYFLOW_ERROR_CODE.EMPTY_DATA_IN_INSERT, logLevel);
+    }
+    if (!isValidUpsert(record.upsert)) {
+      fail(SKYFLOW_ERROR_CODE.INVALID_UPDATE_TYPE, logLevel);
     }
   });
 };
@@ -58,13 +76,13 @@ export const validateGetRequest = (
   }
   const hasMultiTable = isNonEmptyArray(request.records);
   if (!hasMultiTable) {
-    if (!isNonEmptyString(request.table)) {
+    if (!isNonEmptyString(request.tableName)) {
       fail(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME, logLevel);
     }
     // Single-table lookup is by ids OR by unique values (unique values live on
     // GetOptions); require at least one of them.
     const hasUniqueValues = isNonEmptyArray(options?.getUniqueValues());
-    if (!isNonEmptyArray(request.ids) && !hasUniqueValues) {
+    if (!isNonEmptyArray(request.skyflowIds) && !hasUniqueValues) {
       fail(SKYFLOW_ERROR_CODE.EMPTY_IDS_IN_GET, logLevel);
     }
   }
@@ -84,6 +102,9 @@ export const validateUpdateRequest = (
   if (!isNonEmptyArray(request.records)) {
     fail(SKYFLOW_ERROR_CODE.INVALID_RECORD_IN_UPDATE, logLevel);
   }
+  if (!isValidUpdateType(request.updateType)) {
+    fail(SKYFLOW_ERROR_CODE.INVALID_UPDATE_TYPE, logLevel);
+  }
   request.records.forEach((record) => {
     if (!isNonEmptyString(record?.skyflowId)) {
       fail(SKYFLOW_ERROR_CODE.MISSING_SKYFLOW_ID_IN_UPDATE, logLevel);
@@ -98,11 +119,11 @@ export const validateDeleteRequest = (request: DeleteRequest, logLevel?: LogLeve
   if (!request || !(request instanceof DeleteRequest)) {
     fail(SKYFLOW_ERROR_CODE.INVALID_DELETE_REQUEST, logLevel);
   }
-  if (!isNonEmptyString(request.table)) {
+  if (!isNonEmptyString(request.tableName)) {
     fail(SKYFLOW_ERROR_CODE.EMPTY_TABLE_NAME, logLevel);
   }
   const hasUniqueValues = isNonEmptyArray(request.uniqueValues);
-  if (!hasUniqueValues && !isNonEmptyArray(request.ids)) {
+  if (!hasUniqueValues && !isNonEmptyArray(request.skyflowIds)) {
     fail(SKYFLOW_ERROR_CODE.EMPTY_DELETE_IDS, logLevel);
   }
 };
@@ -173,7 +194,7 @@ export const validateUploadFilesRequest = (
       if (!isNonEmptyString(column?.column)) {
         fail(SKYFLOW_ERROR_CODE.MISSING_COLUMN_NAME_IN_UPLOAD_FILE, logLevel);
       }
-      const sources = [column.filePath, column.base64, column.file].filter(
+      const sources = [column.filePath, column.base64, column.fileObject].filter(
         (source) => source !== undefined && source !== null,
       );
       if (sources.length !== 1) {

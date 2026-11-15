@@ -35,11 +35,11 @@ async function performQuery(): Promise<void> {
       .vault('<YOUR_VAULT_ID>')
       .query(queryRequest);
 
-    // response.fields: the result rows (one object per row). response.metadata.columns
+    // response.records: the result rows (one object per row). response.metadata.columns
     // lists the returned columns; response.requestId is always set.
     console.log('Request ID:', response.requestId);
     console.log('Columns:', response.metadata?.columns);
-    console.log('Rows:', response.fields);
+    console.log('Rows:', response.records);
   } catch (error) {
     if (error instanceof SkyflowError) {
       console.error('Skyflow Error:', {

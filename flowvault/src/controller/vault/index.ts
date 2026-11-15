@@ -48,8 +48,8 @@ import {
   DeleteResponseRecord,
   DetokenizeResponseRecord,
   GetTokensResponseRecord,
-  UploadFilesColumn,
-  UploadFilesResponseColumn,
+  UploadFilesRequestColumn,
+  UploadFilesColumnResult,
   UploadFilesResponseRecord,
   DeleteFilesResponseRecord,
   UpsertOptions,
@@ -254,7 +254,7 @@ class VaultController {
       // When any record carries its own table, send a per-record tableName so a
       // single insert can target multiple tables (matches Java/Python flowvault).
       const insertPerRecordTable = request.records.some(
-        (record) => record.table !== undefined && record.table !== null,
+        (record) => record.tableName !== undefined && record.tableName !== null,
       );
       const requestUpsert = options?.getUpsert();
       // When any record carries its own upsert, send per-record upsert and drop
@@ -267,7 +267,7 @@ class VaultController {
         records: request.records.map((record) => {
           const genRecord: Gen.InsertRecordData = { data: record.data };
           if (record.tokens) genRecord.tokens = record.tokens; // BYOT
-          if (insertPerRecordTable) genRecord.tableName = record.table ?? request.tableName;
+          if (insertPerRecordTable) genRecord.tableName = record.tableName ?? request.tableName;
           if (insertPerRecordUpsert) {
             const recordUpsert = record.upsert ?? requestUpsert;
             if (recordUpsert) genRecord.upsert = VaultController.toGenUpsert(recordUpsert);
@@ -338,7 +338,7 @@ class VaultController {
         genReq.records = request.records.map((record) => {
           const genRecord: Gen.GetRequestData = {
             tableName: record.tableName,
-            skyflowIDs: record.ids,
+            skyflowIDs: record.skyflowIds,
           };
           if (record.columns) genRecord.columns = record.columns;
           if (record.columnRedactions) {
@@ -353,11 +353,11 @@ class VaultController {
           return genRecord;
         });
       } else {
-        genReq.tableName = request.table;
-        genReq.skyflowIDs = request.ids;
+        genReq.tableName = request.tableName;
+        genReq.skyflowIDs = request.skyflowIds;
       }
 
-      const fields = options?.getFields();
+      const fields = options?.getColumns();
       if (fields) genReq.columns = fields;
       const redactions = options?.getColumnRedactions();
       if (redactions) {
@@ -418,14 +418,14 @@ class VaultController {
       await this.client.getToken();
 
       const updatePerRecordTable = request.records.some(
-        (record) => record.table !== undefined && record.table !== null,
+        (record) => record.tableName !== undefined && record.tableName !== null,
       );
       const genReq: Gen.UpdateRequest = {
         vaultID: this.client.vaultId,
         records: request.records.map((record) => {
           const genRecord: Gen.UpdateRecordData = { skyflowID: record.skyflowId, data: record.data };
           if (record.tokens) genRecord.tokens = record.tokens; // BYOT
-          if (updatePerRecordTable) genRecord.tableName = record.table ?? request.tableName;
+          if (updatePerRecordTable) genRecord.tableName = record.tableName ?? request.tableName;
           return genRecord;
         }),
       } as Gen.UpdateRequest;
@@ -486,10 +486,10 @@ class VaultController {
 
       const genReq: Gen.DeleteRequest = {
         vaultID: this.client.vaultId,
-        tableName: request.table,
+        tableName: request.tableName,
       };
-      if (request.ids && request.ids.length > 0) {
-        genReq.skyflowIDs = request.ids;
+      if (request.skyflowIds && request.skyflowIds.length > 0) {
+        genReq.skyflowIDs = request.skyflowIds;
       }
       if (request.uniqueValues && request.uniqueValues.length > 0) {
         // Each { col: value, ... } map becomes one wire { data: {...} } entry.
@@ -560,10 +560,8 @@ class VaultController {
         for (const [key, value] of Object.entries(row)) normalized[normalizeKey(key)] = value;
         return normalized;
       });
-      // NOTE: generated ExecuteQueryResponse has no per-record errors block.
       return new QueryResponse({
-        fields,
-        errors: null,
+        records: fields,
         metadata: { columns: (data.metadata?.columns ?? []).map(normalizeKey) },
         requestId,
       });
@@ -761,14 +759,14 @@ class VaultController {
   private async uploadColumns(
     responseRecord: Gen.FileUploadResponseObject,
     preparedColumns: PreparedColumn[],
-  ): Promise<UploadFilesResponseColumn[]> {
+  ): Promise<UploadFilesColumnResult[]> {
     const signedUrls = (responseRecord.data ?? {}) as Record<string, unknown>;
     const recordErrored =
       responseRecord.error !== undefined && responseRecord.error !== null;
 
     const results = await Promise.all(
       preparedColumns.map(async (column) => {
-        const result: UploadFilesResponseColumn = {
+        const result: UploadFilesColumnResult = {
           column: column.column,
           fileName: column.fileName ?? null,
           uploadStatus: 'SKIPPED',
@@ -805,7 +803,7 @@ class VaultController {
     return results;
   }
 
-  private async prepareColumn(column: UploadFilesColumn): Promise<PreparedColumn> {
+  private async prepareColumn(column: UploadFilesRequestColumn): Promise<PreparedColumn> {
     let bytes: Uint8Array = new Uint8Array();
     let fileName = column.fileName;
     if (column.filePath) {
@@ -814,10 +812,10 @@ class VaultController {
       if (!fileName) fileName = path.basename(column.filePath);
     } else if (column.base64 !== undefined) {
       bytes = new Uint8Array(Buffer.from(column.base64, 'base64'));
-    } else if (column.file) {
-      const arrayBuffer = await column.file.arrayBuffer();
+    } else if (column.fileObject) {
+      const arrayBuffer = await column.fileObject.arrayBuffer();
       bytes = new Uint8Array(arrayBuffer);
-      if (!fileName) fileName = column.file.name;
+      if (!fileName) fileName = column.fileObject.name;
     }
     return {
       column: column.column,

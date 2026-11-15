@@ -2,71 +2,71 @@
 // response records. Response envelopes themselves are the Response classes
 // under `model/response`.
 
-import { SkyflowRecordError } from 'skyflow-common';
+import { UpdateType } from '../enums/update-type';
 
 /** A single record to insert. `tokens` enables BYOT (bring your own token).
- * `table` is an optional per-record table name — when any record sets it, the
+ * `tableName` is an optional per-record table name — when any record sets it, the
  * records can target multiple tables in a single insert call (matches the
  * Java/Python flowvault SDKs). */
-export interface InsertRecord {
+export interface InsertRequestRecord {
   data: Record<string, unknown>;
   tokens?: Record<string, unknown>;
-  table?: string;
+  tableName?: string;
   /** Per-record upsert; when any record sets it, request-level upsert is ignored. */
   upsert?: UpsertOptions;
 }
 
 /** Upsert configuration for insert operations. */
 export interface UpsertOptions {
-  updateType: string;
+  updateType: UpdateType;
   uniqueColumns: string[];
 }
 
 /** Column level redaction used by get. */
-export interface ColumnRedaction {
+export interface ColumnRedactions {
   columnName: string;
   redaction: string;
 }
 
-/** A single record to update. `table` is an optional per-record table name
+/** A single record to update. `tableName` is an optional per-record table name
  * (lets a single update call target multiple tables, like insert). */
-export interface UpdateRecord {
+export interface UpdateRequestRecord {
   skyflowId: string;
   data: Record<string, unknown>;
   tokens?: Record<string, unknown>;
-  table?: string;
+  tableName?: string;
 }
 
 /** Token group redaction used by detokenize. */
-export interface TokenGroupRedaction {
+export interface TokenGroupRedactions {
   tokenGroupName: string;
   redaction: string;
 }
 
 /** A value / token-group pair to tokenize via getTokens. */
-export interface GetTokensRecord {
+export interface GetTokensRequestRecord {
   value: unknown;
   tokenGroupName: string;
 }
 
-/** A single file column to upload. Provide exactly one of filePath/base64/file. */
-export interface UploadFilesColumn {
+/** A single file column to upload. Provide exactly one of filePath/base64/fileObject. */
+export interface UploadFilesRequestColumn {
   column: string;
   filePath?: string;
   base64?: string;
-  file?: File;
+  fileObject?: File;
   fileName?: string;
 }
 
 /** A record (row) with one or more file columns to upload. */
-export interface UploadFilesRecord {
+export interface UploadFilesRequestRecord {
   tableName: string;
   skyflowId?: string;
-  columns: UploadFilesColumn[];
+  columns: UploadFilesRequestColumn[];
 }
 
 /** A record (row) with one or more file columns to delete. */
-export interface DeleteFilesRecord {
+export interface DeleteFilesRequestRecord {
   tableName: string;
   columns: string[];
   skyflowId?: string;
@@ -157,7 +157,7 @@ export interface GetTokensResponseRecord {
   requestId?: string | null;
 }
 
-export interface UploadFilesResponseColumn {
+export interface UploadFilesColumnResult {
   column: string;
   fileName?: string | null;
   uploadStatus: UploadStatus;
@@ -167,13 +167,13 @@ export interface UploadFilesResponseColumn {
 export interface UploadFilesResponseRecord {
   skyflowId?: string | null;
   tableName?: string | null;
-  columns: UploadFilesResponseColumn[];
+  columns: UploadFilesColumnResult[];
   httpCode: number;
   error?: string | null;
   requestId?: string | null;
 }
 
-export interface DeleteFilesResponseColumn {
+export interface DeleteFilesColumnResult {
   column: string;
   // Status is parsed from the API response value (e.g. "DELETED"), not assumed.
   status: string | null;
@@ -182,7 +182,7 @@ export interface DeleteFilesResponseColumn {
 export interface DeleteFilesResponseRecord {
   skyflowId?: string | null;
   tableName?: string | null;
-  columns: DeleteFilesResponseColumn[] | null;
+  columns: DeleteFilesColumnResult[] | null;
   httpCode: number;
   error?: string | null;
   requestId?: string | null;
@@ -192,9 +192,6 @@ export interface DeleteFilesResponseRecord {
 export interface QueryResponseMetadata {
   columns: string[];
 }
-
-/** Record-level error shape re-used by query. */
-export type FlowVaultRecordError = SkyflowRecordError;
 
 /** Internal: registry entry for a configured vault. */
 export type { SkyflowConfig } from 'skyflow-common';

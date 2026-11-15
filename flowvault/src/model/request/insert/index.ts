@@ -1,12 +1,12 @@
 import { BaseInsertRequest } from 'skyflow-common';
-import { InsertRecord } from '../../../types';
+import { InsertRequestRecord } from '../../../types';
 
 /** Request to insert one or more records into a table. */
 class InsertRequest extends BaseInsertRequest {
   private _tableName: string;
-  private _records: InsertRecord[];
+  private _records: InsertRequestRecord[];
 
-  constructor(tableName: string, records: InsertRecord[]) {
+  constructor(tableName: string, records: InsertRequestRecord[]) {
     super();
     this._tableName = tableName;
     this._records = records;
@@ -20,11 +20,11 @@ class InsertRequest extends BaseInsertRequest {
     this._tableName = value;
   }
 
-  public get records(): InsertRecord[] {
+  public get records(): InsertRequestRecord[] {
     return this._records;
   }
 
-  public set records(value: InsertRecord[]) {
+  public set records(value: InsertRequestRecord[]) {
     this._records = value;
   }
 }

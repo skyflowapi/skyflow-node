@@ -2,33 +2,33 @@ import { BaseDeleteRequest } from 'skyflow-common';
 
 /** Request to delete records by Skyflow ID or by unique column values. */
 class DeleteRequest extends BaseDeleteRequest {
-  private _table: string;
-  private _ids: string[];
+  private _tableName: string;
+  private _skyflowIds: string[];
   // A list of { columnName: value, ... } maps (mirrors Java/Python flowvault);
   // each is sent on the wire as { data: {...} }.
   private _uniqueValues?: Record<string, unknown>[];
 
-  constructor(table: string, ids: string[], uniqueValues?: Record<string, unknown>[]) {
+  constructor(tableName: string, skyflowIds: string[], uniqueValues?: Record<string, unknown>[]) {
     super();
-    this._table = table;
-    this._ids = ids;
+    this._tableName = tableName;
+    this._skyflowIds = skyflowIds;
     this._uniqueValues = uniqueValues;
   }
 
-  public get table(): string {
-    return this._table;
+  public get tableName(): string {
+    return this._tableName;
   }
 
-  public set table(value: string) {
-    this._table = value;
+  public set tableName(value: string) {
+    this._tableName = value;
   }
 
-  public get ids(): string[] {
-    return this._ids;
+  public get skyflowIds(): string[] {
+    return this._skyflowIds;
   }
 
-  public set ids(value: string[]) {
-    this._ids = value;
+  public set skyflowIds(value: string[]) {
+    this._skyflowIds = value;
   }
 
   public get uniqueValues(): Record<string, unknown>[] | undefined {
