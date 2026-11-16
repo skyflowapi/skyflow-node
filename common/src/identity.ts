@@ -4,7 +4,7 @@ export interface SdkIdentity {
 }
 
 // Default identity = legacy product. Layers (skyvault/flowvault) override via setSdkIdentity().
-let current: SdkIdentity = { name: 'skyflow-node', version: '2.1.2' };
+let current: SdkIdentity = { name: 'skyflow-node', version: '2.2.0' };
 
 export function setSdkIdentity(id: SdkIdentity): void {
     current = { ...id };
