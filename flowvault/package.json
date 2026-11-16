@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "build:dist": "tsup",
+    "build:dist": "tsup && api-extractor run --local --config api-extractor-dts.json && node ../scripts/finalize-dts.js",
     "test": "jest --coverage",
     "contract-snapshot": "api-extractor run --local",
     "contract-snapshot-verify": "api-extractor run"
