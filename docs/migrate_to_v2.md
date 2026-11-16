@@ -2,6 +2,9 @@
 
 This guide outlines the steps required to migrate the Skyflow Node SDK from version 1 (V1) to version 2 (V2).
 
+> [!IMPORTANT]
+> V1 is in maintenance mode and will reach End of Life on October 31, 2026. Migrate to V2 before that date.
+
 ## Authentication
 
 In V2, multiple authentication options have been introduced. You can now provide credentials in the following ways:
@@ -28,6 +31,8 @@ const auth = function () {
 
 #### v2 Authentication: Credentials object
 
+**Option 1: API key**
+
 ```typescript
 import { Credentials } from 'skyflow-node';
 
@@ -36,16 +41,17 @@ const credentials: Credentials = {
 };
 ```
 
-// Option 2: Environment Variables (Recommended)
-// Set SKYFLOW_CREDENTIALS in your environment
+**Option 2: Environment variable (recommended)**
 
-// Option 3: Credentials File
+Set `SKYFLOW_CREDENTIALS` in your environment. The SDK reads it automatically when no credentials are passed.
+
+**Option 3: Credentials file**
 
 ```typescript
 const credentials: Credentials = { path: "<YOUR_CREDENTIALS_FILE_PATH>" };
 ```
 
-// Option 4: Stringified JSON
+**Option 4: Stringified JSON**
 
 ```typescript
 const credentials: Credentials = {
@@ -53,7 +59,7 @@ const credentials: Credentials = {
 };
 ```
 
-// Option 5: Bearer Token
+**Option 5: Bearer token**
 
 ```typescript
 const credentials: Credentials = { token: "<YOUR_BEARER_TOKEN>" };
@@ -124,10 +130,10 @@ const skyflowClient: Skyflow = new Skyflow(skyflowConfig);
 
 ### Request and Response Structure
 
-In v2, with the introduction of TypeScript support, you can now pass an **InsertRequest** of type **InsertRequest**. This request requires:
+In v2, with the introduction of TypeScript support, you can now pass an **InsertRequest** of type **InsertRequest**. Its constructor takes two positional arguments:
 
-- **`tableName`**: The name of the table.
-- **`insertData`**: An array of objects containing the data to be inserted
+- **`table`**: The name of the table.
+- **`data`**: An array of objects containing the data to insert.
 
 The response will be of type InsertResponse, which contains insertedFields and errors.
 

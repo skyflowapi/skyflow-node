@@ -92,7 +92,7 @@ const tertiaryVaultConfig: VaultConfig = {
 
 const skyflowConfig: SkyflowConfig = {
   vaultConfigs: [primaryVaultConfig, secondaryVaultConfig, tertiaryVaultConfig], // Add the primary, secondary and tertiary vault configurations.
-  skyflowCredentials: skyflowCredentials, // Add JSON-formatted credentials if applicable.
+  skyflowCredentials: { credentialsString: credentialsString }, // Use the stringified JSON credentials as the shared fallback credentials.
   logLevel: LogLevel.INFO, // Recommended to use LogLevel.ERROR in production environment.
 };
 
