@@ -81,14 +81,26 @@ jobs:
       # NOT push back: the branch needs no mutation, pushing would need write
       # access to the release branch, and src/version.ts is not path-ignored so
       # a push-back would re-trigger this workflow in a loop.
+      # Skipped entirely when the branch already carries the released version
+      # (the PR bumped it by hand): nothing to commit, and no push to a
+      # protected branch is attempted.
       - name: Commit Changes
         if: ${{ inputs.release-type == 'beta' || inputs.release-type == 'public' }}
         run: |
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
+          # The bump above ran on the detached tag checkout. Drop it, move to the
+          # source branch, and re-apply it there so the checkout cannot fail on
+          # local changes when the branch head has moved past the tag.
+          git checkout -- ${{ inputs.package-dir }}/package.json ${{ inputs.package-dir }}/src/version.ts
           git checkout ${{ env.branch_name }}
+          ./scripts/bump_version.sh "${{ inputs.product }}" "${{ steps.version.outputs.value }}"
+          if git diff --quiet -- ${{ inputs.package-dir }}/package.json ${{ inputs.package-dir }}/src/version.ts; then
+            echo "${{ inputs.product }} is already at ${{ steps.version.outputs.value }} on ${{ env.branch_name }}; skipping the version-bump commit."
+            exit 0
+          fi
           git add ${{ inputs.package-dir }}/package.json ${{ inputs.package-dir }}/src/version.ts
-          git commit -m "[AUTOMATED] Release ${{ inputs.product }} - ${{ steps.version.outputs.value }}" || echo "nothing to commit"
+          git commit -m "[AUTOMATED] Release ${{ inputs.product }} - ${{ steps.version.outputs.value }}"
           git push origin ${{ env.branch_name }}
 
       - name: Publish
