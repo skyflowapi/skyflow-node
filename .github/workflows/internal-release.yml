@@ -3,10 +3,14 @@ name: Internal Release
 # Branch-namespaced internal (JFrog) builds, routed per product:
 #   flowvault-release/*            -> skyflow-flowvault-node
 #   skyvault-release/* | release/* -> skyflow-node (legacy release/* kept for skyvault)
+#
+# Branch pushes only. A `tags-ignore` filter used to live here, but with one
+# present GitHub runs the workflow for every tag it does NOT match, and its
+# single-star pattern never matched prefixed tags such as flowvault/1.0.0, so a
+# public release tag also fired an internal build. With only `branches` set,
+# tag pushes never trigger this workflow.
 on:
   push:
-    tags-ignore:
-      - '*.*'
     paths-ignore:
       - 'package.json'
       - 'package-lock.json'
@@ -18,6 +22,8 @@ on:
 
 jobs:
   call-common-workflow:
+    # Belt and braces: never run for a tag ref, whatever the trigger says.
+    if: startsWith(github.ref, 'refs/heads/')
     uses: ./.github/workflows/common-release.yml
     with:
       product: ${{ startsWith(github.ref_name, 'flowvault-release/') && 'skyflow-flowvault-node' || 'skyflow-node' }}
