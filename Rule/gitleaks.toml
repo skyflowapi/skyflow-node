@@ -55,6 +55,13 @@ paths = [
     '''\.gem$''',
     '''verification-metadata\.xml''',
     '''Database.refactorlog''',
+    # Maintainer-owned generated (Fern) clients contain example JWTs/tokens in
+    # their doc comments. Allowlist every generated dir across the workspaces
+    # (both the plain and the legacy leading-space directory names).
+    '''(?:^|/)_generated_(?:/|$)''',
+    '''(?:^|/) _generated_(?:/|$)''',
+    # Bundled publish output inlines the generated clients (example JWTs).
+    '''(?:^|/)dist/''',
 ]
 stopwords = [
     "abcdefghijklmnopqrstuvwxyz",

@@ -1,0 +1,18 @@
+name: FlowVault Public Beta Release
+
+on:
+  push:
+    tags: 'flowvault/*.*.*-beta.*'
+    paths-ignore:
+      - "package.json"
+      - "package-lock.json"
+      - "*.md"
+
+jobs:
+  build-and-deploy:
+    uses: ./.github/workflows/common-release.yml
+    with:
+      product: skyflow-flowvault-node
+      package-dir: flowvault
+      release-type: beta
+    secrets: inherit

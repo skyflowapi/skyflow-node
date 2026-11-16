@@ -131,7 +131,7 @@ In v2, with the introduction of TypeScript support, you can now pass an **Insert
 
 The response will be of type InsertResponse, which contains insertedFields and errors.
 
-**Note:** Similar patterns apply to other operations like Get, Update, Delete. See the [README](../README.md) for complete examples.
+**Note:** Similar patterns apply to other operations like Get, Update, Delete. See the [skyvault README](../skyvault/README.md) for complete examples.
 
 #### V1 (Old) - Request Building
 

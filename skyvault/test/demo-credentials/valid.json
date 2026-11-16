@@ -1,0 +1,7 @@
+{
+    "clientID": "test-client-id",
+    "keyID": "test-key-id",
+    "tokenURI": "https://manage.skyflow.dev",
+    "privateKey": "KEY",
+    "data": "DATA"
+}

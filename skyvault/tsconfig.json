@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "stripInternal": true,
+    "noImplicitAny": false,
+    "target": "es6",
+    "lib": ["es2015", "es2017", "es2019", "dom"],
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "removeComments": false,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": false,
+    "isolatedModules": false,
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "lib",
+    "types": ["node"]
+  },
+  "references": [{ "path": "../common" }],
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "lib", "test"]
+}
