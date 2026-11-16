@@ -1,0 +1,19 @@
+name: FlowVault Public Release
+
+# Prefixed tags select the FlowVault product: flowvault/x.y.z -> skyflow-flowvault-node.
+on:
+  push:
+    tags: 'flowvault/[0-9]+.[0-9]+.[0-9]+'
+    paths-ignore:
+      - "package.json"
+      - "package-lock.json"
+      - "*.md"
+
+jobs:
+  call-common-workflow:
+    uses: ./.github/workflows/common-release.yml
+    with:
+      product: skyflow-flowvault-node
+      package-dir: flowvault
+      release-type: public
+    secrets: inherit
